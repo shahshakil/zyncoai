@@ -1,0 +1,9 @@
+USER-SUPPLIED VALUES:
+grafana:
+  grafana.ini:
+    auth.github:
+      allow_sign_up: true
+      enabled: true
+      scopes: user:email,read:org
+    server:
+      root_url: https://grafana.zyncoai.com
