@@ -1,0 +1,29 @@
+steps:
+  # Build and push image to Artifact Registry
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - australia-southeast1-docker.pkg.dev/$PROJECT_ID/zyncoai-repo/api:latest
+      - -f
+      - backend/microservices/api/Dockerfile
+      - backend
+
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - australia-southeast1-docker.pkg.dev/$PROJECT_ID/zyncoai-repo/api:latest
+
+  # Deploy to Cloud Run
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - services
+      - update
+      - zyncoai-api
+      - --region=australia-southeast1
+      - --image=australia-southeast1-docker.pkg.dev/$PROJECT_ID/zyncoai-repo/api:latest
+
+images:
+  - australia-southeast1-docker.pkg.dev/$PROJECT_ID/zyncoai-repo/api:latest
