@@ -1,0 +1,60 @@
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { ShieldCheck } from "lucide-react";
+import { Button } from "@/components/dashboard/ui/button";
+import { Input, Label } from "@/components/dashboard/ui/input";
+
+export default function PlatformAdminLoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const r = await fetch("/api/admin-auth/login", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await r.json();
+      if (!r.ok || !data.ok) {
+        toast.error(data.error === "account_locked" ? "Account locked — try again later" : "Invalid credentials");
+        setLoading(false);
+        return;
+      }
+      router.push("/platform-admin");
+      router.refresh();
+    } catch {
+      toast.error("Something went wrong");
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-neutral-950 px-4">
+      <div className="w-full max-w-sm">
+        <div className="mb-8 text-center">
+          <ShieldCheck className="mx-auto mb-4 h-10 w-10 text-indigo-400" />
+          <h1 className="text-xl font-semibold text-white">ZyncoAI Platform Admin</h1>
+          <p className="mt-1 text-sm text-white/40">Internal staff access only</p>
+        </div>
+        <form onSubmit={onSubmit} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 space-y-4">
+          <div>
+            <Label htmlFor="email">Email</Label>
+            <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+          </div>
+          <div>
+            <Label htmlFor="password">Password</Label>
+            <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+          </div>
+          <Button type="submit" className="w-full" disabled={loading}>{loading ? "Signing in…" : "Sign in"}</Button>
+        </form>
+      </div>
+    </div>
+  );
+}
