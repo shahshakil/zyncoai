@@ -1,0 +1,367 @@
+import Link from "next/link";
+
+export const metadata = {
+  title: "Terms of Service • ZyncoAI",
+  description:
+    "ZyncoAI Terms of Service covering use of the platform, accounts, security, acceptable use, and legal terms.",
+};
+
+const Section = ({
+  id,
+  title,
+  children,
+}: {
+  id: string;
+  title: string;
+  children: React.ReactNode;
+}) => (
+  <section id={id} className="scroll-mt-24">
+    <h2 className="text-xl font-extrabold tracking-tight text-white">{title}</h2>
+    <div className="mt-3 space-y-3 text-sm leading-6 text-white/70">{children}</div>
+  </section>
+);
+
+const Bullet = ({ children }: { children: React.ReactNode }) => (
+  <li className="flex gap-3">
+    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-zynco-400 shadow-[0_0_18px_rgba(99,102,241,.9)]" />
+    <span>{children}</span>
+  </li>
+);
+
+export default function TermsPage() {
+  const updated = "February 20, 2026";
+
+  return (
+    <main className="min-h-screen bg-zinc-950">
+      {/* Top hero */}
+      <div className="relative overflow-hidden border-b border-white/10">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full blur-3xl bg-[radial-gradient(circle_at_30%_30%,rgba(99,102,241,.35),transparent_60%)]" />
+          <div className="absolute -right-44 -bottom-44 h-[560px] w-[560px] rounded-full blur-3xl bg-[radial-gradient(circle_at_70%_70%,rgba(217,70,239,.22),transparent_60%)]" />
+          <div className="absolute inset-0 opacity-[0.08]"
+            style={{
+              backgroundImage:
+                "linear-gradient(to right, rgba(255,255,255,.35) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.35) 1px, transparent 1px)",
+              backgroundSize: "64px 64px",
+              maskImage: "radial-gradient(circle at 30% 10%, black, transparent 70%)",
+              WebkitMaskImage: "radial-gradient(circle at 30% 10%, black, transparent 70%)",
+            }}
+          />
+        </div>
+
+        <div className="relative mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 py-14 lg:py-16">
+          <div className="flex flex-wrap items-center gap-3 text-xs text-white/60">
+            <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2.5 py-1">
+              Legal
+            </span>
+            <span>•</span>
+            <span>Last updated: {updated}</span>
+          </div>
+
+          <h1 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">
+            Terms of Service
+          </h1>
+
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-white/70">
+            These Terms govern your use of ZyncoAI (“ZyncoAI”, “we”, “us”), including the
+            website, apps, APIs, and workflow automation features. By accessing or using
+            ZyncoAI, you agree to these Terms.
+          </p>
+
+          <div className="mt-6 flex flex-wrap gap-2">
+            <Link
+              href="/security"
+              className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/80 hover:bg-white/10 hover:text-white transition"
+            >
+              Security
+            </Link>
+            <Link
+              href="/brain"
+              className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/80 hover:bg-white/10 hover:text-white transition"
+            >
+              Status
+            </Link>
+            <Link
+              href="/docs"
+              className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/80 hover:bg-white/10 hover:text-white transition"
+            >
+              Docs
+            </Link>
+            <Link
+              href="/about"
+              className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/80 hover:bg-white/10 hover:text-white transition"
+            >
+              About
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 py-10 lg:py-12">
+        <div className="grid gap-8 lg:grid-cols-12">
+          {/* Sidebar */}
+          <aside className="lg:col-span-4">
+            <div className="sticky top-24 rounded-2xl border border-white/10 bg-white/5 p-5">
+              <div className="text-sm font-extrabold text-white">On this page</div>
+              <nav className="mt-3 space-y-2 text-sm">
+                {[
+                  ["acceptance", "Acceptance & eligibility"],
+                  ["accounts", "Accounts & access"],
+                  ["usage", "Acceptable use"],
+                  ["workflows", "Workflows, connectors & data"],
+                  ["ai", "AI features & outputs"],
+                  ["billing", "Billing & plans"],
+                  ["security", "Security & incidents"],
+                  ["ip", "Intellectual property"],
+                  ["warranty", "Disclaimers"],
+                  ["liability", "Limitation of liability"],
+                  ["termination", "Termination"],
+                  ["changes", "Changes to Terms"],
+                  ["contact", "Contact"],
+                ].map(([id, label]) => (
+                  <a
+                    key={id}
+                    href={`#${id}`}
+                    className="block rounded-lg px-2 py-1.5 text-white/70 hover:bg-white/5 hover:text-white transition"
+                  >
+                    {label}
+                  </a>
+                ))}
+              </nav>
+
+              <div className="mt-5 rounded-xl border border-white/10 bg-zinc-950/40 p-4">
+                <div className="text-sm font-bold text-white">Quick links</div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <Link
+                    href="/login"
+                    className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/80 hover:bg-white/10 transition"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/80 hover:bg-white/10 transition"
+                  >
+                    Sign up
+                  </Link>
+                  <Link
+                    href="/pricing"
+                    className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/80 hover:bg-white/10 transition"
+                  >
+                    Pricing
+                  </Link>
+                  <Link
+                    href="/product"
+                    className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/80 hover:bg-white/10 transition"
+                  >
+                    Product
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          {/* Main */}
+          <section className="lg:col-span-8 space-y-10">
+            <Section id="acceptance" title="Acceptance & eligibility">
+              <p>
+                You must be at least 18 years old (or the age of majority in your jurisdiction)
+                to use ZyncoAI. If you use ZyncoAI on behalf of a company, you represent that
+                you are authorized to bind that company to these Terms.
+              </p>
+            </Section>
+
+            <Section id="accounts" title="Accounts & access">
+              <ul className="mt-2 space-y-2">
+                <Bullet>
+                  Keep your login credentials confidential and use strong passwords.
+                </Bullet>
+                <Bullet>
+                  You are responsible for activity on your account, including workflows you
+                  create and integrations you connect.
+                </Bullet>
+                <Bullet>
+                  If you suspect unauthorized access, rotate credentials and contact support.
+                </Bullet>
+              </ul>
+            </Section>
+
+            <Section id="usage" title="Acceptable use">
+              <p>You agree not to misuse the platform. Prohibited conduct includes:</p>
+              <ul className="mt-2 space-y-2">
+                <Bullet>Breaking laws or violating third-party rights.</Bullet>
+                <Bullet>Attempting to bypass security controls or rate limits.</Bullet>
+                <Bullet>Uploading malware or using ZyncoAI to distribute malicious content.</Bullet>
+                <Bullet>
+                  Running workflows that intentionally degrade services (e.g., abusive scraping,
+                  denial of service).
+                </Bullet>
+                <Bullet>
+                  Using ZyncoAI to handle sensitive data without appropriate protections and
+                  permissions.
+                </Bullet>
+              </ul>
+            </Section>
+
+            <Section id="workflows" title="Workflows, connectors & data">
+              <p>
+                ZyncoAI helps you connect services and automate workflows. You control what
+                you connect and what data you send through workflows.
+              </p>
+              <ul className="mt-2 space-y-2">
+                <Bullet>
+                  You must have permission to access and process any data you use with ZyncoAI.
+                </Bullet>
+                <Bullet>
+                  Some connectors are provided by third parties; their terms may apply.
+                </Bullet>
+                <Bullet>
+                  Workflow execution may involve retries, queues, and background processing to
+                  improve reliability.
+                </Bullet>
+              </ul>
+              <p className="pt-2">
+                For our security posture, see{" "}
+                <Link href="/security" className="text-white underline underline-offset-4 hover:text-white/90">
+                  /security
+                </Link>
+                .
+              </p>
+            </Section>
+
+            <Section id="ai" title="AI features & outputs">
+              <p>
+                ZyncoAI may provide AI-assisted workflow generation, suggestions, and summaries.
+                AI outputs can be incorrect or incomplete. You are responsible for reviewing
+                workflows and results before relying on them.
+              </p>
+              <ul className="mt-2 space-y-2">
+                <Bullet>Do not input confidential data unless you intend to process it.</Bullet>
+                <Bullet>Validate actions (e.g., CRM updates, payments, emails) before enabling production runs.</Bullet>
+                <Bullet>Use governance controls for approvals and change management where needed.</Bullet>
+              </ul>
+            </Section>
+
+            <Section id="billing" title="Billing & plans">
+              <p>
+                If you subscribe to a paid plan, you agree to pay the fees described on{" "}
+                <Link href="/pricing" className="text-white underline underline-offset-4 hover:text-white/90">
+                  /pricing
+                </Link>
+                . Taxes may apply depending on your location. Plan limits may include runs,
+                seats, connectors, and retention.
+              </p>
+              <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-5">
+                <div className="text-sm font-extrabold text-white">Fair usage</div>
+                <p className="mt-2 text-sm text-white/70">
+                  To protect platform reliability, we may rate-limit abusive traffic or
+                  temporarily pause workflows that cause repeated failures or excessive load.
+                </p>
+              </div>
+            </Section>
+
+            <Section id="security" title="Security & incidents">
+              <p>
+                We implement reasonable measures to protect the service, but no system is
+                100% secure. You are responsible for securing your own environment, connected
+                systems, and API keys.
+              </p>
+              <p className="pt-2">
+                If you experience an incident, check{" "}
+                <Link href="/brain" className="text-white underline underline-offset-4 hover:text-white/90">
+                  /brain
+                </Link>{" "}
+                and follow recommended actions in the{" "}
+                <Link href="/docs" className="text-white underline underline-offset-4 hover:text-white/90">
+                  docs
+                </Link>
+                .
+              </p>
+            </Section>
+
+            <Section id="ip" title="Intellectual property">
+              <p>
+                ZyncoAI and its underlying software, UI, brand, and documentation are owned
+                by ZyncoAI and protected by applicable laws. You retain ownership of your
+                content and workflow logic you create, but you grant ZyncoAI the limited rights
+                needed to host, process, and display it to operate the service.
+              </p>
+            </Section>
+
+            <Section id="warranty" title="Disclaimers">
+              <p>
+                ZyncoAI is provided on an “as is” and “as available” basis. We disclaim all
+                warranties to the maximum extent permitted by law, including implied warranties
+                of merchantability, fitness for a particular purpose, and non-infringement.
+              </p>
+            </Section>
+
+            <Section id="liability" title="Limitation of liability">
+              <p>
+                To the maximum extent permitted by law, ZyncoAI will not be liable for indirect,
+                incidental, special, consequential, or punitive damages, or any loss of profits,
+                revenue, data, or goodwill arising from your use of the service.
+              </p>
+              <p>
+                ZyncoAI’s total liability for any claim will not exceed the amount you paid to
+                ZyncoAI in the 3 months before the event giving rise to the claim.
+              </p>
+            </Section>
+
+            <Section id="termination" title="Termination">
+              <p>
+                You may stop using ZyncoAI at any time. We may suspend or terminate access if
+                you violate these Terms, if required by law, or if necessary to protect platform
+                integrity.
+              </p>
+            </Section>
+
+            <Section id="changes" title="Changes to Terms">
+              <p>
+                We may update these Terms from time to time. The “Last updated” date above shows
+                the latest revision. Continued use after updates means you accept the revised terms.
+              </p>
+            </Section>
+
+            <Section id="contact" title="Contact">
+              <p>
+                For questions about these Terms, contact ZyncoAI support through your workspace,
+                or via your usual support channel. For product information, see{" "}
+                <Link href="/product" className="text-white underline underline-offset-4 hover:text-white/90">
+                  /product
+                </Link>
+                .
+              </p>
+
+              <div className="mt-5 flex flex-wrap gap-3">
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center justify-center rounded-2xl bg-white px-4 py-2 text-sm font-extrabold text-zinc-950 hover:bg-white/90 transition"
+                >
+                  Create account
+                </Link>
+                <Link
+                  href="/login"
+                  className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-extrabold text-white hover:bg-white/10 transition"
+                >
+                  Login
+                </Link>
+              </div>
+            </Section>
+
+            {/* Bottom note */}
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+              <div className="text-sm font-extrabold text-white">Note</div>
+              <p className="mt-2 text-sm text-white/70">
+                This page is written in plain language for clarity. Some sections may vary by
+                jurisdiction. If your organization needs customized terms, add governance
+                controls and contact us through your enterprise onboarding flow.
+              </p>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  );
+}

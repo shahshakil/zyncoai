@@ -1,0 +1,430 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===============================
+   HUBSPOT CLEAN CRM THEME (DEFAULT)
+   Default theme = HubSpot (off-white page + white cards)
+   Enterprise theme = only when you add class "theme-enterprise"
+   =============================== */
+
+:root {
+  /* Tailwind-friendly RGB tokens (use in tailwind config if needed) */
+  --page: 245 248 250; /* #F5F8FA */
+  --surface: 255 255 255; /* #FFFFFF */
+  --surface-2: 248 250 252; /* #F8FAFC */
+  --border: 234 240 246; /* #EAF0F6 */
+  --border-strong: 215 227 238; /* #D7E3EE */
+
+  --text: 46 46 46; /* #2E2E2E */
+  --text-2: 81 111 144; /* #516F90 */
+  --text-3: 124 152 182; /* #7C98B6 */
+
+  /* Brand (HubSpot Orange) */
+  --brand: 255 92 53; /* #FF5C35 */
+  --brand-hover: 224 72 38; /* #E04826 */
+  --brand-soft: 255 241 237; /* #FFF1ED */
+
+  /* Focus ring */
+  --ring: 255 92 53;
+
+  /* =========================
+     Enterprise variables (ONLY used when .theme-enterprise is enabled)
+     ========================= */
+  --z-bg-0: #07040f;
+  --z-bg-1: #06030f;
+  --z-purple: 168 85 247;
+}
+
+/* ===============================
+   DEFAULT GLOBAL BACKGROUND (HubSpot)
+   =============================== */
+html,
+body {
+  height: 100%;
+  background: rgb(var(--page));
+  color: rgb(var(--text));
+}
+
+body {
+  margin: 0;
+  font-family: Inter, Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Text helpers */
+p { color: rgb(var(--text)); }
+small, .muted { color: rgb(var(--text-3)); }
+
+/* ===============================
+   OPTIONAL: ENTERPRISE PURPLE BACKGROUND
+   Enable ONLY when you add class="theme-enterprise" on <html> or <body>
+   =============================== */
+
+/* If you set class on <html> */
+html.theme-enterprise body,
+body.theme-enterprise {
+  color: rgb(255 255 255);
+  background:
+    radial-gradient(circle at 22% 18%, rgba(124, 58, 237, 0.22), transparent 40%),
+    radial-gradient(circle at 85% 72%, rgba(168, 85, 247, 0.09), transparent 52%),
+    radial-gradient(circle at 50% 110%, rgba(168, 85, 247, 0.10), transparent 55%),
+    linear-gradient(180deg, var(--z-bg-1) 0%, var(--z-bg-0) 100%);
+  background-attachment: fixed;
+}
+
+/* ===============================
+   CLEAN WHITE BOX (HubSpot style card)
+   Use in JSX: className="hub-card p-6"
+   =============================== */
+
+.hub-card {
+  background: rgb(var(--surface));
+  border: 1px solid rgb(var(--border));
+  border-radius: 18px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 10px 24px rgba(0, 0, 0, 0.06);
+}
+
+.hub-card-soft {
+  background: rgb(var(--surface-2));
+  border: 1px solid rgb(var(--border));
+  border-radius: 18px;
+}
+
+/* HubSpot section wrapper */
+.hub-section {
+  background: transparent;
+}
+
+/* ===============================
+   OPTIONAL BUTTONS (HubSpot)
+   =============================== */
+
+.btn-primary {
+  background: rgb(var(--brand));
+  color: white;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-weight: 700;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.btn-primary:hover {
+  background: rgb(var(--brand-hover));
+  transform: translateY(-1px);
+}
+.btn-outline {
+  background: rgb(var(--surface));
+  border: 1px solid rgb(var(--brand));
+  color: rgb(var(--brand));
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-weight: 700;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.btn-outline:hover {
+  background: rgb(var(--brand-soft));
+  transform: translateY(-1px);
+}
+
+/* =========================
+   ULTRA THIN CONTINUOUS MOVING CORNER LIGHT
+   IMPORTANT:
+   - Default theme (HubSpot) => keep it CLEAN white card look
+   - Enterprise theme => allow darker glass look
+   ========================= */
+
+.neo-frame {
+  position: relative;
+  border-radius: 22px;
+}
+
+/* ✅ DEFAULT (HubSpot): make this a normal white card */
+.neo-inner {
+  position: relative;
+  border-radius: 22px;
+  background: rgb(var(--surface));
+  border: 1px solid rgb(var(--border));
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 10px 24px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+/* thin animated border */
+.neo-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  padding: 1.2px; /* VERY THIN */
+
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 260deg,
+    rgba(34, 211, 238, 0.9) 300deg,
+    rgba(232, 121, 249, 0.9) 330deg,
+    transparent 360deg
+  );
+
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+
+  animation: spinBorder 3.5s linear infinite;
+}
+
+/* subtle glow outside */
+.neo-frame::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 22px;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgba(34, 211, 238, 0.2) 300deg,
+    rgba(232, 121, 249, 0.2) 330deg,
+    transparent 360deg
+  );
+  filter: blur(14px);
+  animation: spinBorder 3.5s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes spinBorder {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ✅ ENTERPRISE ONLY: neo-inner becomes glass */
+html.theme-enterprise .neo-inner,
+body.theme-enterprise .neo-inner {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(18px);
+  box-shadow: none;
+}
+
+/* =========================
+   ZyncoAI helpers
+   DEFAULT = HubSpot clean card look
+   ENTERPRISE = dark glass look
+   ========================= */
+
+/* ✅ DEFAULT: make these HubSpot cards */
+.z-matte,
+.z-glass {
+  background: rgb(var(--surface));
+  border: 1px solid rgb(var(--border));
+  border-radius: 18px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 10px 24px rgba(0, 0, 0, 0.06);
+  color: rgb(var(--text));
+}
+
+/* ✅ ENTERPRISE: restore dark look */
+html.theme-enterprise .z-matte,
+body.theme-enterprise .z-matte {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(10px);
+  box-shadow: none;
+  color: rgb(255 255 255);
+}
+
+html.theme-enterprise .z-glass,
+body.theme-enterprise .z-glass {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(12px);
+  box-shadow: none;
+  color: rgb(255 255 255);
+}
+
+/* Controlled glow (enterprise only) */
+html.theme-enterprise .z-glow-soft,
+body.theme-enterprise .z-glow-soft {
+  text-shadow: 0 0 14px rgba(var(--z-purple), 0.22);
+}
+
+/* Accent text */
+.z-accent {
+  color: rgb(192 132 252);
+}
+
+/* Glow on hover only */
+.z-glow-hover {
+  transition: box-shadow 180ms ease, transform 180ms ease;
+}
+.z-glow-hover:hover {
+  box-shadow: 0 0 22px rgba(var(--z-purple), 0.18);
+  transform: translateY(-1px);
+}
+.z-focus:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(var(--z-purple), 0.16);
+}
+
+/* ===== Z Logo Surface (enterprise style) ===== */
+/* Keep it as-is, but only show strong dark look in enterprise */
+.z-logo-surface {
+  background: rgb(var(--surface));
+  border: 1px solid rgb(var(--border));
+  position: relative;
+  overflow: hidden;
+}
+
+html.theme-enterprise .z-logo-surface,
+body.theme-enterprise .z-logo-surface {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%),
+    linear-gradient(135deg, #1a102e 0%, #0b0716 55%, #06030f 100%);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+/* small highlight like top-left shine */
+.z-logo-surface::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: radial-gradient(circle at 30% 30%, rgba(168, 85, 247, 0.10), transparent 55%);
+  transform: rotate(12deg);
+  pointer-events: none;
+}
+
+html.theme-enterprise .z-logo-surface::before,
+body.theme-enterprise .z-logo-surface::before {
+  background: radial-gradient(circle at 30% 30%, rgba(168, 85, 247, 0.22), transparent 55%);
+}
+
+/* ===== Z Logo Premium Glow (enterprise only) ===== */
+.z-logo-glow {
+  box-shadow: none;
+  transition: box-shadow 0.25s ease;
+}
+
+html.theme-enterprise .z-logo-glow,
+body.theme-enterprise .z-logo-glow {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 0 14px rgba(168, 85, 247, 0.18),
+    inset 0 0 16px rgba(168, 85, 247, 0.12);
+}
+
+html.theme-enterprise .z-logo-glow:hover,
+body.theme-enterprise .z-logo-glow:hover {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 0 22px rgba(168, 85, 247, 0.26),
+    inset 0 0 18px rgba(168, 85, 247, 0.16);
+}
+
+/* ===============================
+   HARD OVERRIDES (fix mixed black/white pages)
+   If components still use bg-black/text-white, this prevents dark blocks.
+   =============================== */
+
+.bg-black,
+.from-black,
+.to-black,
+.via-black {
+  background: transparent !important;
+}
+
+.text-white {
+  color: rgb(var(--text)) !important;
+}
+
+.border-white\/10,
+.border-white\/20 {
+  border-color: rgb(var(--border)) !important;
+}
+
+.bg-white\/5,
+.bg-white\/10 {
+  background: rgb(var(--surface)) !important;
+}
+
+/* Make "dark sections" stop forcing black background */
+section.bg-black,
+main.bg-black,
+div.bg-black {
+  background: transparent !important;
+}
+
+/* =========================
+   HubSpot-style Light Theme
+   ========================= */
+:root {
+  /* page + text */
+  --page: 248 250 252;      /* off-white */
+  --text: 17 24 39;         /* zinc-900-ish */
+  --muted: 71 85 105;       /* zinc-600 */
+  --muted2: 100 116 139;    /* zinc-500 */
+
+  /* surfaces */
+  --card: 255 255 255;      /* white */
+  --soft: 245 247 250;      /* soft gray */
+  --border: 226 232 240;    /* zinc-200 */
+  --shadow: 15 23 42;       /* shadow base */
+
+  /* accent (HubSpot-like orange) */
+  --brand: 255 92 57;       /* HubSpot orange */
+  --brand2: 255 122 92;     /* lighter orange */
+}
+
+/* helpful utilities (you can reuse in pages/components) */
+.hub-page {
+  background: rgb(var(--page));
+  color: rgb(var(--text));
+}
+.hub-card {
+  background: rgb(var(--card));
+  border: 1px solid rgb(var(--border));
+  box-shadow: 0 10px 30px rgba(var(--shadow), 0.06);
+}
+.hub-soft {
+  background: rgb(var(--soft));
+  border: 1px solid rgb(var(--border));
+}
+.hub-muted { color: rgb(var(--muted)); }
+.hub-muted2 { color: rgb(var(--muted2)); }
+.hub-border { border-color: rgb(var(--border)); }
+
+/* buttons */
+.hub-btn {
+  background: rgb(var(--brand));
+  color: #fff;
+}
+.hub-btn:hover { filter: brightness(0.96); }
+
+.hub-btn-outline {
+  background: #fff;
+  border: 1px solid rgb(var(--border));
+  color: rgb(var(--text));
+}
+.hub-btn-outline:hover { background: rgb(var(--soft)); }
+
+/* Pricing page theme (HubSpot-like light) */
+.pricing-light {
+  --pricing-bg: #ffffff;
+  --pricing-text: #0f172a;   /* slate-900 */
+  --pricing-muted: #475569;  /* slate-600 */
+  --pricing-surface: #ffffff;
+  --pricing-border: rgba(15, 23, 42, 0.12);
+}
+
+/* Safety: stop horizontal scroll */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+background:#faf7f2;
+}

@@ -1,0 +1,102 @@
+import type { Metadata } from "next";
+import { ResourcePageShell, ResourceSection } from "@/components/marketing/receptionist/ResourcePageShell";
+
+export const metadata: Metadata = {
+  title: "Documentation | ZyncoAI",
+  description: "How ZyncoAI works, call forwarding setup, connecting your practice software, and using your dashboard.",
+};
+
+export default function DocsPage() {
+  return (
+    <ResourcePageShell eyebrow="Resources" title="Documentation" description="Plain-English guides to setting up and running ZyncoAI.">
+      <ResourceSection title="How ZyncoAI works">
+        <p>
+          ZyncoAI answers your business phone line with an AI receptionist called Charlotte. When someone calls your existing number, the call is routed to
+          ZyncoAI, Charlotte answers instantly, understands what the caller needs in natural conversation, and — depending on your setup — books an
+          appointment directly into your calendar, answers a common question, or takes a message and flags it for your team.
+        </p>
+        <p>
+          Every call is logged with a transcript in your dashboard, so nothing is a black box: you can always see exactly what was said and what Charlotte
+          did as a result.
+        </p>
+      </ResourceSection>
+
+      <ResourceSection title="Setting up call forwarding">
+        <p>ZyncoAI issues you a dedicated number. To have your existing business number ring through to it, set up call forwarding with your carrier:</p>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="rounded-xl border border-white/10 bg-[#030712] p-4">
+            <p className="font-medium text-[#f8fafc]">Telstra</p>
+            <p className="mt-1 text-xs text-[#94a3b8]">Dial <span className="text-[#cbd5e1]">**21*[ZyncoAI number]#</span> then call to activate unconditional forwarding.</p>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-[#030712] p-4">
+            <p className="font-medium text-[#f8fafc]">Optus</p>
+            <p className="mt-1 text-xs text-[#94a3b8]">Enable &quot;Divert all calls&quot; in the Optus My Account app, or dial the same **21* code on most plans.</p>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-[#030712] p-4">
+            <p className="font-medium text-[#f8fafc]">TPG</p>
+            <p className="mt-1 text-xs text-[#94a3b8]">Log in to My TPG → Phone → Call Forwarding, and set the ZyncoAI number as the forward-to destination.</p>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-[#030712] p-4">
+            <p className="font-medium text-[#f8fafc]">Mobile (any carrier)</p>
+            <p className="mt-1 text-xs text-[#94a3b8]">Use your phone&apos;s Settings → Calls → Call Forwarding to forward always, or only when busy/unanswered.</p>
+          </div>
+        </div>
+        <p>
+          Once forwarding is active, use the &quot;Test my setup&quot; button in Settings → Integrations → Call Routing to place a real test call and confirm it
+          reaches ZyncoAI correctly.
+        </p>
+      </ResourceSection>
+
+      <ResourceSection title="Connecting your practice software">
+        <p>
+          Under Settings → Integrations, you can connect Cliniko, Best Practice, Medical Director, Nookal, Zanda/Power Diary, Mindbody, Jane App, Core
+          Plus, a generic FHIR endpoint, or a generic outbound webhook. Credentials are encrypted at rest and only used to keep staff and booking data in
+          sync — never shared with a third party.
+        </p>
+      </ResourceSection>
+
+      <ResourceSection title="Understanding your dashboard">
+        <p>Every plan includes the same three-tab dashboard:</p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li><span className="font-medium text-[#f8fafc]">Overview</span> — today&apos;s appointments, AI call activity, and patient status at a glance.</li>
+          <li><span className="font-medium text-[#f8fafc]">AI Voice Operations</span> — live calls, AI performance metrics, and transfer/escalation analytics.</li>
+          <li><span className="font-medium text-[#f8fafc]">Clinical & Billing</span> — triage flags, patient pipeline, documents, claims, and revenue reporting.</li>
+        </ul>
+      </ResourceSection>
+
+      <ResourceSection title="Managing staff and roles">
+        <p>Invite staff from Settings → Staff. Each person gets one of four roles:</p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li><span className="font-medium text-[#f8fafc]">Owner / Admin</span> — full access, including financials and integrations.</li>
+          <li><span className="font-medium text-[#f8fafc]">Staff</span> — appointments and patient records, no financial data.</li>
+          <li><span className="font-medium text-[#f8fafc]">Doctor</span> — their own schedule and patients only.</li>
+        </ul>
+      </ResourceSection>
+
+      <ResourceSection title="Booking and appointment guide">
+        <p>
+          Charlotte checks real-time availability against each provider&apos;s working hours before offering a slot, so double-bookings aren&apos;t possible. Every
+          booking Charlotte makes appears instantly in your dashboard and, if connected, in your practice software.
+        </p>
+      </ResourceSection>
+
+      <ResourceSection title="Understanding your invoices and billing">
+        <p>
+          Your monthly invoice is your plan&apos;s base price plus any minutes used beyond your included allowance, billed at your plan&apos;s overage rate,
+          plus any add-ons as separate line items. Full itemised invoices are available under Settings → Billing, alongside your payment method and
+          billing history.
+        </p>
+      </ResourceSection>
+
+      <ResourceSection title="Australian compliance guide">
+        <p>
+          ZyncoAI is built with the Australian Privacy Act 1988 in mind — patient data handled by the platform stays within the scope you configure, and
+          sensitive fields are encrypted at rest. For Medicare, DVA, and private health billing, ZyncoAI tracks the information you enter but never submits
+          claims directly to Medicare or a health fund on your behalf. AHPRA&apos;s guidance on advertising and patient communication applies to how your
+          practice uses ZyncoAI, the same as it would to any receptionist — we recommend reviewing your own obligations with your practice&apos;s compliance
+          officer.
+        </p>
+      </ResourceSection>
+    </ResourcePageShell>
+  );
+}
