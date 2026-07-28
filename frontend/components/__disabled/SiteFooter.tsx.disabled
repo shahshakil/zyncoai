@@ -1,0 +1,357 @@
+import Link from "next/link";
+import {
+  Github,
+  Linkedin,
+  Twitter,
+  Youtube,
+  Shield,
+  Workflow,
+  Cpu,
+  BookOpen,
+} from "lucide-react";
+
+type Col = {
+  title: string;
+  links: { label: string; href: string; badge?: string }[];
+};
+
+const colsTop: Col[] = [
+  {
+    title: "Product",
+    links: [
+      { label: "Platform", href: "/platform" },
+      { label: "AI Operator", href: "/platform#ai-operator" },
+      { label: "Describe & Deploy", href: "/platform#describe" },
+      { label: "Connectors", href: "/platform#connectors", badge: "Library" },
+      { label: "Pricing", href: "/pricing" },
+    ],
+  },
+  {
+    title: "AgentOps",
+    links: [
+      { label: "Multi-Agent System", href: "/agentops" },
+      { label: "Agent Memory", href: "/agentops#memory" },
+      { label: "Evaluation & Safety", href: "/agentops#safety" },
+      { label: "Guardrails & Policies", href: "/enterprise#governance" },
+      { label: "Runbooks", href: "/enterprise#runbooks" },
+    ],
+  },
+  {
+    title: "WorkflowOps",
+    links: [
+      { label: "Builder", href: "/workflowops" },
+      { label: "Versioning", href: "/workflowops#versioning" },
+      { label: "Staging & Rollback", href: "/workflowops#staging" },
+      { label: "Monitoring", href: "/workflowops#monitoring" },
+      { label: "Audit & SIEM", href: "/enterprise#audit" },
+    ],
+  },
+  {
+    title: "Company",
+    links: [
+      { label: "Docs", href: "/resources", badge: "Soon" },
+      { label: "Security", href: "/enterprise#security" },
+      { label: "Status", href: "/status", badge: "Soon" },
+      { label: "Contact", href: "/resources#contact" },
+      { label: "Careers", href: "/resources#careers", badge: "Soon" },
+    ],
+  },
+];
+
+const colsBottom: Col[] = [
+  {
+    title: "Popular integrations",
+    links: [
+      { label: "Google Sheets", href: "/platform#connectors" },
+      { label: "Slack", href: "/platform#connectors" },
+      { label: "Gmail", href: "/platform#connectors" },
+      { label: "Postgres", href: "/platform#connectors" },
+      { label: "Webhook", href: "/platform#connectors" },
+    ],
+  },
+  {
+    title: "Trending combinations",
+    links: [
+      { label: "Slack + Incident triage", href: "/use-cases" },
+      { label: "Sheets + Reporting", href: "/use-cases" },
+      { label: "Email + Lead routing", href: "/use-cases" },
+      { label: "Webhook + ETL", href: "/use-cases" },
+      { label: "Jira + Approvals", href: "/use-cases" },
+    ],
+  },
+  {
+    title: "Top categories",
+    links: [
+      { label: "Security & Compliance", href: "/enterprise" },
+      { label: "DevOps & Reliability", href: "/use-cases" },
+      { label: "AI Agents", href: "/agentops" },
+      { label: "Data & Storage", href: "/platform" },
+      { label: "Marketing Ops", href: "/use-cases" },
+    ],
+  },
+  {
+    title: "Trending templates",
+    links: [
+      { label: "Policy gate for AI workflows", href: "/enterprise#governance" },
+      { label: "SIEM export patterns", href: "/enterprise#audit" },
+      { label: "Approval-driven automations", href: "/enterprise#approvals" },
+      { label: "Rollback + staging pipelines", href: "/workflowops#staging" },
+      { label: "Evidence stream snapshots", href: "/enterprise#audit" },
+    ],
+  },
+  {
+    title: "Top guides",
+    links: [
+      { label: "Designing safe agent behavior", href: "/agentops#safety" },
+      { label: "Building reliable workflows", href: "/workflowops" },
+      { label: "Audit readiness checklist", href: "/enterprise#audit" },
+      { label: "Data residency strategy", href: "/enterprise#residency" },
+      { label: "Connector risk tiers", href: "/enterprise#risk" },
+    ],
+  },
+];
+
+function ColBlock({ col }: { col: Col }) {
+  return (
+    <div>
+      <div className="text-sm font-semibold text-white">{col.title}</div>
+      <ul className="mt-3 space-y-2">
+        {col.links.map((l) => (
+          <li key={l.label}>
+            <Link
+              href={l.href}
+              className="group inline-flex items-center gap-2 text-sm text-white/70 hover:text-white"
+            >
+              <span className="underline-offset-4 group-hover:underline">
+                {l.label}
+              </span>
+              {l.badge ? (
+                <span className="rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-[11px] text-white/70">
+                  {l.badge}
+                </span>
+              ) : null}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default function SiteFooter() {
+  return (
+    <footer className="mt-24 border-t border-white/10 bg-black">
+      {/* Top: Brand + columns */}
+      <div className="mx-auto w-full max-w-6xl px-4 py-14">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-12">
+          {/* Brand block */}
+          <div className="md:col-span-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5">
+                <span className="text-sm font-bold text-white">Z</span>
+              </div>
+              <div>
+                <div className="text-base font-semibold text-white">ZyncoAI</div>
+                <div className="text-xs text-white/60">
+                  Governed automation • AgentOps • WorkflowOps
+                </div>
+              </div>
+            </div>
+
+            <p className="mt-4 max-w-sm text-sm leading-6 text-white/70">
+              Build and run AI-driven workflows with policy gates, auditable
+              execution, and enterprise visibility — without slowing down teams.
+            </p>
+
+            {/* Feature pills */}
+            <div className="mt-5 flex flex-wrap gap-2">
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
+                <Shield className="h-3.5 w-3.5" /> SOC2-ready controls
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
+                <Workflow className="h-3.5 w-3.5" /> SSO / SCIM
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
+                <Cpu className="h-3.5 w-3.5" /> Policy-enforced agents
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
+                <BookOpen className="h-3.5 w-3.5" /> Audit evidence stream
+              </span>
+            </div>
+
+            {/* Social */}
+            <div className="mt-6 flex items-center gap-3">
+              <a
+                className="rounded-lg border border-white/10 bg-white/5 p-2 text-white/70 hover:text-white"
+                href="#"
+                aria-label="GitHub"
+              >
+                <Github className="h-4 w-4" />
+              </a>
+              <a
+                className="rounded-lg border border-white/10 bg-white/5 p-2 text-white/70 hover:text-white"
+                href="#"
+                aria-label="LinkedIn"
+              >
+                <Linkedin className="h-4 w-4" />
+              </a>
+              <a
+                className="rounded-lg border border-white/10 bg-white/5 p-2 text-white/70 hover:text-white"
+                href="#"
+                aria-label="X"
+              >
+                <Twitter className="h-4 w-4" />
+              </a>
+              <a
+                className="rounded-lg border border-white/10 bg-white/5 p-2 text-white/70 hover:text-white"
+                href="#"
+                aria-label="YouTube"
+              >
+                <Youtube className="h-4 w-4" />
+              </a>
+            </div>
+          </div>
+
+          {/* Link columns */}
+          <div className="md:col-span-8">
+            <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+              {colsTop.map((c) => (
+                <ColBlock key={c.title} col={c} />
+              ))}
+            </div>
+
+            {/* Subscribe box */}
+            <div className="mt-10 rounded-2xl border border-white/10 bg-gradient-to-r from-white/5 via-white/3 to-transparent p-5">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <div className="text-sm font-semibold text-white">
+                    Subscribe to product updates
+                  </div>
+                  <div className="mt-1 text-sm text-white/70">
+                    Security releases, new connectors, governance features — no
+                    spam.
+                  </div>
+                </div>
+                <form
+                  className="flex w-full flex-col gap-2 sm:flex-row md:w-auto"
+                 <form
+                 action="/api/marketing/subscribe"
+                 method="post"
+                 className="flex w-full max-w-md gap-2"
+                  <input
+                    type="email"
+                    required
+                    placeholder="you@company.com"
+                    className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/25 sm:w-72"
+                  />
+                  <button
+                    type="submit"
+                    className="rounded-xl bg-gradient-to-r from-fuchsia-500 to-indigo-500 px-4 py-2 text-sm font-semibold text-white hover:opacity-95"
+                  >
+                    Subscribe
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            {/* Small CTA bar (Zapier-like but ZyncoAI style, not huge) */}
+            <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="text-sm text-white/80">
+                  Ready to deploy governed AI workflows across your org?
+                </div>
+                <div className="flex gap-2">
+                  <Link
+                    href="/enterprise"
+                    className="rounded-xl border border-white/15 bg-black/30 px-4 py-2 text-sm text-white/80 hover:text-white"
+                  >
+                    Enterprise overview →
+                  </Link>
+                  <Link
+                    href="/resources#contact"
+                    className="rounded-xl bg-gradient-to-r from-fuchsia-500 to-indigo-500 px-4 py-2 text-sm font-semibold text-white hover:opacity-95"
+                  >
+                    Talk to sales →
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom mega links row */}
+        <div className="mt-12 rounded-3xl border border-white/10 bg-white/5 p-6">
+          <div className="mb-3 text-sm font-semibold text-white">
+            Discover integrations & templates
+          </div>
+          <div className="text-sm text-white/60">
+            Quick-start building blocks mapped to ZyncoAI modules (connectors,
+            policy gates, audit exports).
+          </div>
+
+          <div className="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-5">
+            {colsBottom.map((c) => (
+              <div key={c.title}>
+                <div className="text-sm font-semibold text-white/90">
+                  {c.title}
+                </div>
+                <ul className="mt-3 space-y-2">
+                  {c.links.map((l) => (
+                    <li key={l.label}>
+                      <Link
+                        href={l.href}
+                        className="text-sm text-white/65 hover:text-white underline-offset-4 hover:underline"
+                      >
+                        {l.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-xs text-white/50">
+              Tip: keep this section evergreen by linking to your real
+              connectors registry + templates catalog later.
+            </div>
+            <div className="flex gap-2">
+              <Link
+                href="/platform#connectors"
+                className="rounded-xl border border-white/15 bg-black/30 px-4 py-2 text-sm text-white/80 hover:text-white"
+              >
+                Explore connectors
+              </Link>
+              <Link
+                href="/use-cases"
+                className="rounded-xl border border-white/15 bg-black/30 px-4 py-2 text-sm text-white/80 hover:text-white"
+              >
+                Browse use cases
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Legal row */}
+        <div className="mt-10 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-white/55 sm:flex-row sm:items-center sm:justify-between">
+          <div>© {new Date().getFullYear()} ZyncoAI. All rights reserved.</div>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            <Link className="hover:text-white" href="/resources#security">
+              Security
+            </Link>
+            <Link className="hover:text-white" href="/resources#privacy">
+              Privacy
+            </Link>
+            <Link className="hover:text-white" href="/resources#terms">
+              Terms
+            </Link>
+            <Link className="hover:text-white" href="/resources#vuln">
+              Report a vulnerability
+            </Link>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}

@@ -18,6 +18,11 @@ const PAGE_TITLES: Record<string, string> = {
   "/platform-admin/audit": "Audit Log",
   "/platform-admin/notifications": "Notifications Centre",
   "/platform-admin/settings": "Platform Settings",
+  "/platform-admin/infrastructure": "Infrastructure",
+  "/platform-admin/ai-engine": "AI Engine",
+  "/platform-admin/fraud": "Fraud Monitor",
+  "/platform-admin/security": "Security",
+  "/platform-admin/alerts": "Alert Inbox",
 };
 
 function SitewideHealthBanner() {

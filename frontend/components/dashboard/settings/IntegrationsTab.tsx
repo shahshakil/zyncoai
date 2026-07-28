@@ -1,0 +1,154 @@
+"use client";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Plug, Trash2 } from "lucide-react";
+import { useApi, apiPost } from "@/lib/useApi";
+import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
+import { Button } from "../ui/button";
+import { Input, Label } from "../ui/input";
+import { Skeleton } from "../ui/skeleton";
+import { Badge } from "../ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+
+const PROVIDERS = [
+  { key: "cliniko", label: "Cliniko", needsSubdomain: true },
+  { key: "best_practice", label: "Best Practice", needsSubdomain: false },
+  { key: "medical_director", label: "Medical Director", needsSubdomain: false },
+  { key: "nookal", label: "Nookal", needsSubdomain: true },
+  { key: "zanda", label: "Zanda (Power Diary)", needsSubdomain: false },
+  { key: "generic_webhook", label: "Generic Webhook", needsSubdomain: false, isWebhook: true },
+];
+
+interface IntegrationState {
+  connected: boolean;
+  enabled?: boolean;
+  apiKeyPreview?: string | null;
+  subdomain?: string | null;
+  webhookUrl?: string | null;
+}
+
+export function IntegrationsTab() {
+  const { data, isLoading, mutate } = useApi<{ integrations: Record<string, IntegrationState> }>("/api/business/integrations");
+  const [active, setActive] = useState<(typeof PROVIDERS)[number] | null>(null);
+  const [apiKey, setApiKey] = useState("");
+  const [subdomain, setSubdomain] = useState("");
+  const [webhookUrl, setWebhookUrl] = useState("");
+  const [consentAccepted, setConsentAccepted] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  async function connect(e: React.FormEvent) {
+    e.preventDefault();
+    if (!active) return;
+    if (!consentAccepted) {
+      toast.error("Please accept the data import notice to continue");
+      return;
+    }
+    setSaving(true);
+    try {
+      await apiPost(
+        `/api/business/integrations/${active.key}`,
+        active.isWebhook
+          ? { webhookUrl, enabled: true, consentAccepted: true }
+          : { apiKey, subdomain: subdomain || undefined, enabled: true, consentAccepted: true }
+      );
+      toast.success(`${active.label} connected`);
+      setActive(null);
+      setApiKey("");
+      setSubdomain("");
+      setWebhookUrl("");
+      setConsentAccepted(false);
+      mutate();
+    } catch {
+      toast.error("Could not save integration — check the credentials");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function disconnect(key: string) {
+    try {
+      await apiPost(`/api/business/integrations/${key}`, undefined, "DELETE");
+      toast.success("Disconnected");
+      mutate();
+    } catch {
+      toast.error("Could not disconnect");
+    }
+  }
+
+  if (isLoading) return <Skeleton className="h-96 w-full" />;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Practice management integrations</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <p className="mb-2 text-sm text-slate-400">Sync bookings with your existing practice management software.</p>
+        {PROVIDERS.map((p) => {
+          const state = data?.integrations[p.key];
+          return (
+            <div key={p.key} className="flex items-center justify-between rounded-lg border border-slate-200 p-3">
+              <div className="flex items-center gap-3">
+                <Plug className="h-4 w-4 text-slate-400" />
+                <div>
+                  <p className="text-sm font-medium text-slate-900">{p.label}</p>
+                  {state?.connected && <p className="text-xs text-slate-400">{state.apiKeyPreview || state.webhookUrl}</p>}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {state?.connected ? (
+                  <>
+                    <Badge tone="success">connected</Badge>
+                    <Button variant="ghost" size="sm" onClick={() => disconnect(p.key)}><Trash2 className="h-4 w-4" /></Button>
+                  </>
+                ) : (
+                  <Button variant="outline" size="sm" onClick={() => { setConsentAccepted(false); setActive(p); }}>Connect</Button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </CardContent>
+
+      <Dialog open={!!active} onOpenChange={(v) => !v && setActive(null)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Connect {active?.label}</DialogTitle></DialogHeader>
+          <form onSubmit={connect} className="space-y-3">
+            {active?.isWebhook ? (
+              <div>
+                <Label>Webhook URL</Label>
+                <Input value={webhookUrl} onChange={(e) => setWebhookUrl(e.target.value)} placeholder="https://your-system.com/hook" required />
+              </div>
+            ) : (
+              <>
+                <div>
+                  <Label>API key</Label>
+                  <Input value={apiKey} onChange={(e) => setApiKey(e.target.value)} required />
+                </div>
+                {active?.needsSubdomain && (
+                  <div>
+                    <Label>Subdomain</Label>
+                    <Input value={subdomain} onChange={(e) => setSubdomain(e.target.value)} placeholder="yourclinic" />
+                  </div>
+                )}
+              </>
+            )}
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-500">
+              <p><span className="text-emerald-400">We will import:</span> staff names, titles, email addresses.</p>
+              <p className="mt-1"><span className="text-rose-400">We will NOT import:</span> patient records, clinical data, Medicare numbers, health identifiers.</p>
+              <label className="mt-2 flex items-start gap-2">
+                <input type="checkbox" className="mt-0.5" checked={consentAccepted} onChange={(e) => setConsentAccepted(e.target.checked)} />
+                <span>
+                  By connecting your account you agree to our{" "}
+                  <a href="/privacy" target="_blank" rel="noreferrer" className="text-[var(--accent,#4f46e5)] underline">Privacy Policy</a> and consent to this
+                  import.
+                </span>
+              </label>
+            </div>
+            <Button type="submit" className="w-full" disabled={saving || !consentAccepted}>{saving ? "Connecting…" : "Connect"}</Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </Card>
+  );
+}

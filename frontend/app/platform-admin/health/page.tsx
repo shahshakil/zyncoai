@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, AlertTriangle, XCircle, Radio, Cpu, MemoryStick, HardDrive, Server } from "lucide-react";
+import { CheckCircle2, AlertTriangle, XCircle, Radio, Cpu, MemoryStick, HardDrive, Server, HeartPulse, Zap } from "lucide-react";
 import { useApi } from "@/lib/useApi";
 import { Card, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { Table, Thead, Th, Tbody, Tr, Td, EmptyState } from "@/components/dashboard/ui/table";
@@ -46,6 +46,11 @@ function formatDuration(sec: number): string {
 export default function SystemHealthPage() {
   const { data } = useApi<HealthData>("/api/admin/platform/health", { refreshInterval: 10000 });
   const { data: incidentData } = useApi<{ incidents: Incident[] }>("/api/admin/platform/health/incidents", { refreshInterval: 60000 });
+  const { data: resilience } = useApi<{
+    autoHealEventsToday: number;
+    circuitBreakers: Record<string, "closed" | "open" | "half-open">;
+    processes: { name: string; status: string; memoryMb: number; restarts: number; lastRestartAt: string; uptimePct: Record<string, number> }[];
+  }>("/api/admin/platform/resilience/overview", { refreshInterval: 15000 });
   const [history, setHistory] = useState<{ t: string; rpm: number; errPct: number }[]>([]);
   const lastTs = useRef<number>(0);
 
@@ -131,6 +136,40 @@ export default function SystemHealthPage() {
             </Tbody>
           </Table>
           {data && !data.pm2Processes.length && <EmptyState title="pm2 process list unavailable" description="Either pm2 isn't managing this process, or the pm2 CLI isn't reachable from this container." />}
+        </Card>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Card className="p-4">
+            <div className="flex items-center justify-between"><span className="text-xs font-medium text-[#6B7280]">Auto-Heal Events Today</span><HeartPulse className="h-4 w-4 text-[#10B981]" /></div>
+            <div className="mt-2 text-2xl font-semibold text-[#1F2937]">{resilience?.autoHealEventsToday ?? "…"}</div>
+            <p className="mt-0.5 text-[11px] text-[#9CA3AF]">DB/Redis reconnects, GC triggers, breaker trips</p>
+          </Card>
+          {resilience && Object.entries(resilience.circuitBreakers).map(([service, state]) => (
+            <Card key={service} className="p-4">
+              <div className="flex items-center justify-between"><span className="text-xs font-medium capitalize text-[#6B7280]">{service} Circuit</span><Zap className="h-4 w-4" style={{ color: state === "open" ? "#EF4444" : state === "half-open" ? "#F59E0B" : "#10B981" }} /></div>
+              <div className="mt-2"><Badge tone={state === "open" ? "danger" : state === "half-open" ? "warning" : "success"}>{state}</Badge></div>
+              <p className="mt-1 text-[11px] text-[#9CA3AF]">api process only — voice-gateway has its own instance</p>
+            </Card>
+          ))}
+        </div>
+
+        <Card>
+          <CardHeader><CardTitle>Uptime & Last Restart per Process</CardTitle></CardHeader>
+          <Table>
+            <Thead><tr><Th>Process</Th><Th>Last Restart</Th><Th>Uptime % (24h)</Th><Th>Uptime % (7d)</Th><Th>Uptime % (30d)</Th></tr></Thead>
+            <Tbody>
+              {resilience?.processes.map((p, i) => (
+                <Tr key={i}>
+                  <Td className="font-medium text-[#1F2937]">{p.name}</Td>
+                  <Td className="text-xs text-[#6B7280]">{new Date(p.lastRestartAt).toLocaleString()}</Td>
+                  <Td>{p.uptimePct["24h"]}%</Td>
+                  <Td>{p.uptimePct["7d"]}%</Td>
+                  <Td>{p.uptimePct["30d"]}%</Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+          <p className="p-3 text-[11px] text-[#9CA3AF]">Uptime % is time-since-last-restart as a share of each window — there&apos;s no retained restart-history table, so this is a live derivation, not a tracked SLA metric.</p>
         </Card>
 
         <Card>
