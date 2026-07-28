@@ -13,7 +13,8 @@ import { EmptyState } from "@/components/dashboard/ui/table";
 
 interface AiMetricsPayload {
   ok: boolean;
-  roiCounter: { revenueGeneratedCents: number; bookingsThisMonth: number; planCostCents: number | null; roiMultiple: number | null };
+  // null for STAFF/DOCTOR — redacted server-side, not just hidden here (see aiMetrics.ts).
+  roiCounter: { revenueGeneratedCents: number; bookingsThisMonth: number; planCostCents: number | null; roiMultiple: number | null } | null;
   leadFunnel: { totalCalls: number; answered: number; engaged: number; booked: number };
   ghostCalls: { count: number; calls: { callId: string; contactName: string | null; phone: string; startedAt: string; reason: string }[] };
 }
@@ -64,28 +65,30 @@ export default function AiMetricsSection() {
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-1.5">
-            <TrendingUp className="h-4 w-4 text-emerald-500" />
-            <CardTitle>ROI Counter</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <p className="text-2xl font-semibold text-[#0f172a]">AUD ${(roiCounter.revenueGeneratedCents / 100).toLocaleString()}</p>
-            <p className="text-xs text-[#94a3b8]">Value generated this month · {roiCounter.bookingsThisMonth} AI bookings</p>
-          </div>
-          {roiCounter.roiMultiple != null ? (
-            <div className="rounded-xl bg-[#f0fdf4] p-3">
-              <p className="text-lg font-semibold text-[#16a34a]">{roiCounter.roiMultiple}× return</p>
-              <p className="text-xs text-[#166534]">vs. AUD ${((roiCounter.planCostCents || 0) / 100).toLocaleString()} plan cost this month</p>
+      {roiCounter && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-1.5">
+              <TrendingUp className="h-4 w-4 text-emerald-500" />
+              <CardTitle>ROI Counter</CardTitle>
             </div>
-          ) : (
-            <p className="text-xs text-[#94a3b8]">Set a pricing plan to see your ROI multiple.</p>
-          )}
-        </CardContent>
-      </Card>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div>
+              <p className="text-2xl font-semibold text-[#0f172a]">AUD ${(roiCounter.revenueGeneratedCents / 100).toLocaleString()}</p>
+              <p className="text-xs text-[#94a3b8]">Value generated this month · {roiCounter.bookingsThisMonth} AI bookings</p>
+            </div>
+            {roiCounter.roiMultiple != null ? (
+              <div className="rounded-xl bg-[#f0fdf4] p-3">
+                <p className="text-lg font-semibold text-[#16a34a]">{roiCounter.roiMultiple}× return</p>
+                <p className="text-xs text-[#166534]">vs. AUD ${((roiCounter.planCostCents || 0) / 100).toLocaleString()} plan cost this month</p>
+              </div>
+            ) : (
+              <p className="text-xs text-[#94a3b8]">Set a pricing plan to see your ROI multiple.</p>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

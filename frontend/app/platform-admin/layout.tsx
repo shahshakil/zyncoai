@@ -9,6 +9,7 @@ import { useApi } from "@/lib/useApi";
 const PAGE_TITLES: Record<string, string> = {
   "/platform-admin": "Command Centre",
   "/platform-admin/businesses": "Businesses",
+  "/platform-admin/tenants": "Tenant & Staff Registry",
   "/platform-admin/calls": "Calls Analytics",
   "/platform-admin/revenue": "Revenue & Profit",
   "/platform-admin/costs": "Cost Tracking",
