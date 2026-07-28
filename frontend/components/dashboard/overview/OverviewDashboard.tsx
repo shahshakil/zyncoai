@@ -12,6 +12,9 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/dashboard
 import { Button } from "@/components/dashboard/ui/button";
 import { Skeleton, SkeletonStatTile } from "@/components/dashboard/ui/skeleton";
 import { EmptyState } from "@/components/dashboard/ui/table";
+import { LiveAgentHud } from "@/components/dashboard/LiveAgentHud";
+import { DynamicAnalyticsPanel } from "@/components/dashboard/DynamicAnalyticsPanel";
+import { CountUp } from "@/components/dashboard/ui/CountUp";
 import VerticalPanelsSection from "@/components/dashboard/vertical/VerticalPanelsSection";
 import AiMetricsSection from "@/components/dashboard/ai-metrics/AiMetricsSection";
 import SentimentHeatmapSection from "@/components/dashboard/sentiment/SentimentHeatmapSection";
@@ -70,12 +73,6 @@ const STATUS_BADGE: Record<string, string> = {
   Waiting: "bg-[#fffbeb] text-[#d97706]",
   Cancelled: "bg-[#fef2f2] text-[#dc2626]",
   "No-show": "bg-[#fef2f2] text-[#dc2626]",
-};
-
-const DOCTOR_STATUS_STYLE: Record<string, { border: string; bg: string; text: string }> = {
-  AVAILABLE: { border: "border-[#bbf7d0]", bg: "bg-[#f0fdf4]", text: "text-[#16a34a]" },
-  BUSY: { border: "border-[#fed7aa]", bg: "bg-[#fffbeb]", text: "text-[#d97706]" },
-  AWAY: { border: "border-[#fecaca]", bg: "bg-[#fef2f2]", text: "text-[#dc2626]" },
 };
 
 const CALL_BORDER: Record<string, string> = {
@@ -178,7 +175,7 @@ export default function OverviewDashboard() {
                 <span className="text-xs font-medium text-[#94a3b8]">Today&apos;s Appointments</span>
                 <CalendarClock className="h-4 w-4 text-[#2563eb]" />
               </div>
-              <div className="mt-2 text-2xl font-semibold text-[#0f172a]">{resp.topStats.appointments.count}</div>
+              <div className="mt-2 text-2xl font-semibold text-[#0f172a]"><CountUp value={resp.topStats.appointments.count} /></div>
               <p className="mt-0.5 text-[11px] text-[#94a3b8]">{resp.topStats.appointments.done} done · {resp.topStats.appointments.active} active · {resp.topStats.appointments.wait} wait</p>
             </Card>
             <Card className="border-l-4 border-l-[#dc2626] bg-gradient-to-br from-[#fef2f2]/60 to-white p-4">
@@ -202,7 +199,7 @@ export default function OverviewDashboard() {
                 <span className="text-xs font-medium text-[#94a3b8]">AI Calls Today</span>
                 <PhoneCall className="h-4 w-4 text-[#16a34a]" />
               </div>
-              <div className="mt-2 text-2xl font-semibold text-[#0f172a]">{resp.topStats.aiCalls.today}</div>
+              <div className="mt-2 text-2xl font-semibold text-[#0f172a]"><CountUp value={resp.topStats.aiCalls.today} /></div>
               <p className="mt-0.5 text-[11px] text-[#94a3b8]">{resp.topStats.aiCalls.changePctVsYesterday >= 0 ? "+" : ""}{resp.topStats.aiCalls.changePctVsYesterday}% vs yesterday</p>
             </Card>
             {canSeeFinancials && (
@@ -211,13 +208,18 @@ export default function OverviewDashboard() {
                   <span className="text-xs font-medium text-[#94a3b8]">Revenue Saved Today</span>
                   <Sparkles className="h-4 w-4 text-[#7c3aed]" />
                 </div>
-                <div className="mt-2 text-2xl font-semibold text-[#0f172a]">AUD ${(resp.topStats.revenueSaved.cents / 100).toLocaleString()}</div>
+                <div className="mt-2 text-2xl font-semibold text-[#0f172a]">
+                  AUD $<CountUp value={Math.round(resp.topStats.revenueSaved.cents / 100)} />
+                </div>
                 <p className="mt-0.5 text-[11px] text-[#94a3b8]">{resp.topStats.revenueSaved.bookings} AI bookings × $150</p>
               </Card>
             )}
           </>
         )}
       </div>
+
+      {/* ---------------- LIVE ANALYTICS PANEL (Phase 2) ---------------- */}
+      <DynamicAnalyticsPanel />
 
       {/* ---------------- MID ROW: 1fr 1fr 1.4fr ---------------- */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1fr_1.4fr]">
@@ -425,31 +427,8 @@ export default function OverviewDashboard() {
 
       {/* ---------------- BOTTOM ROW: 3 columns ---------------- */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        {/* Col 1: Doctor status */}
-        <Card>
-          <CardHeader><CardTitle>Doctor Status</CardTitle></CardHeader>
-          <CardContent>
-            {isLoading || !resp ? (
-              <div className="grid grid-cols-2 gap-3">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24 w-full" />)}</div>
-            ) : resp.doctorStatus.length === 0 ? (
-              <EmptyState title="No staff yet" />
-            ) : (
-              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-                {resp.doctorStatus.map((d) => {
-                  const style = DOCTOR_STATUS_STYLE[d.status];
-                  return (
-                    <div key={d.id} className={`rounded-xl border p-3 ${style.border} ${style.bg} ${d.isSelf ? "ring-2 ring-[#2563eb] ring-offset-1" : ""}`}>
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${style.text}`}>{d.status}</span>
-                      <p className="mt-1.5 text-sm font-medium text-[#0f172a]">{d.name}</p>
-                      <p className="text-xs text-[#94a3b8]">{d.title || "Staff"}</p>
-                      <p className="mt-1 text-[11px] text-[#64748b]">{d.seenToday}/{d.totalToday} seen today</p>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        {/* Col 1: Doctor status + live AI agent HUD (Phase 3) */}
+        <LiveAgentHud doctorStatus={resp?.doctorStatus || []} isLoading={isLoading || !resp} />
 
         {/* Col 2: Weekly trend */}
         <Card>

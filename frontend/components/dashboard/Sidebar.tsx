@@ -21,6 +21,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useDashboard } from "./BusinessContext";
 import { getVerticalOps } from "@/lib/verticalOps";
+import { BrandLogo } from "@/components/layout/BrandLogo";
 
 interface NavItem {
   href: string;
@@ -91,15 +92,17 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="flex h-14 items-center justify-between px-4">
-          <Link href="/dashboard" className="flex items-center gap-2 overflow-hidden">
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white text-xs font-bold text-[var(--accent,#4f46e5)]">Z</div>
-            {!collapsed && <span className="truncate text-sm font-semibold text-white">{business.name}</span>}
+        <div className="flex h-16 items-center justify-between px-4">
+          <Link href="/dashboard" className="flex items-center overflow-hidden">
+            <BrandLogo collapsed={collapsed} />
           </Link>
           <button onClick={onClose} className="text-white/50 hover:text-white lg:hidden">
             <X className="h-5 w-5" />
           </button>
         </div>
+        {!collapsed && (
+          <div className="truncate px-4 pb-2 text-xs font-medium text-white/40">{business.name}</div>
+        )}
 
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-2">
           {nav.map((item) => {

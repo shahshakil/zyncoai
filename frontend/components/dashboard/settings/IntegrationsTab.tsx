@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plug, Trash2 } from "lucide-react";
+import { Plug, Trash2, RefreshCw } from "lucide-react";
 import { useApi, apiPost } from "@/lib/useApi";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
@@ -10,13 +10,23 @@ import { Skeleton } from "../ui/skeleton";
 import { Badge } from "../ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 
+// hasDirectSync = this provider has a working practitioner-fetch adapter
+// (backend/src/lib/staffSync/providers/*) wired into the connect-time
+// auto-sync, the 24h sweep, and the manual "Sync now" button below.
+// Best Practice and Medical Director have no public practitioner API — this
+// codebase has always been upfront about that (see StaffSyncPanel.tsx's
+// "export a staff CSV from your software and upload it above") rather than
+// faking a sync that can't work; they stay credential-storage/webhook-only.
 const PROVIDERS = [
-  { key: "cliniko", label: "Cliniko", needsSubdomain: true },
-  { key: "best_practice", label: "Best Practice", needsSubdomain: false },
-  { key: "medical_director", label: "Medical Director", needsSubdomain: false },
-  { key: "nookal", label: "Nookal", needsSubdomain: true },
-  { key: "zanda", label: "Zanda (Power Diary)", needsSubdomain: false },
-  { key: "generic_webhook", label: "Generic Webhook", needsSubdomain: false, isWebhook: true },
+  { key: "cliniko", label: "Cliniko", needsSubdomain: true, hasDirectSync: true },
+  { key: "nookal", label: "Nookal", needsSubdomain: true, hasDirectSync: true },
+  { key: "zanda", label: "Zanda (Power Diary)", needsSubdomain: false, hasDirectSync: true },
+  { key: "power_diary", label: "Power Diary", needsSubdomain: false, hasDirectSync: true },
+  { key: "janeapp", label: "Jane App", needsSubdomain: false, hasDirectSync: true },
+  { key: "coreplus", label: "Core Plus", needsSubdomain: false, hasDirectSync: true },
+  { key: "best_practice", label: "Best Practice", needsSubdomain: false, hasDirectSync: false },
+  { key: "medical_director", label: "Medical Director", needsSubdomain: false, hasDirectSync: false },
+  { key: "generic_webhook", label: "Generic Webhook", needsSubdomain: false, isWebhook: true, hasDirectSync: false },
 ];
 
 interface IntegrationState {
@@ -35,6 +45,7 @@ export function IntegrationsTab() {
   const [webhookUrl, setWebhookUrl] = useState("");
   const [consentAccepted, setConsentAccepted] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [syncingKey, setSyncingKey] = useState<string | null>(null);
 
   async function connect(e: React.FormEvent) {
     e.preventDefault();
@@ -45,13 +56,20 @@ export function IntegrationsTab() {
     }
     setSaving(true);
     try {
-      await apiPost(
+      const res = await apiPost<{ staffSync?: { imported: number; updated: number } | { error: string } | null }>(
         `/api/business/integrations/${active.key}`,
         active.isWebhook
           ? { webhookUrl, enabled: true, consentAccepted: true }
           : { apiKey, subdomain: subdomain || undefined, enabled: true, consentAccepted: true }
       );
-      toast.success(`${active.label} connected`);
+      const sync = res.staffSync;
+      if (sync && "imported" in sync) {
+        toast.success(`${active.label} connected — imported ${sync.imported} staff, updated ${sync.updated}`);
+      } else if (sync && "error" in sync) {
+        toast.warning(`${active.label} connected, but the first staff sync failed: ${sync.error}`);
+      } else {
+        toast.success(`${active.label} connected`);
+      }
       setActive(null);
       setApiKey("");
       setSubdomain("");
@@ -72,6 +90,19 @@ export function IntegrationsTab() {
       mutate();
     } catch {
       toast.error("Could not disconnect");
+    }
+  }
+
+  async function syncNow(key: string, label: string) {
+    setSyncingKey(key);
+    try {
+      const res = await apiPost<{ imported: number; updated: number; flagged: number }>(`/api/business/integrations/${key}/sync-now`);
+      toast.success(`${label} synced — ${res.imported} imported, ${res.updated} updated${res.flagged ? `, ${res.flagged} flagged for review` : ""}`);
+      mutate();
+    } catch (e: any) {
+      toast.error(e?.message === "provider_has_no_direct_sync" ? `${label} doesn't support direct sync` : `Could not sync ${label}`);
+    } finally {
+      setSyncingKey(null);
     }
   }
 
@@ -99,6 +130,11 @@ export function IntegrationsTab() {
                 {state?.connected ? (
                   <>
                     <Badge tone="success">connected</Badge>
+                    {p.hasDirectSync && (
+                      <Button variant="ghost" size="sm" disabled={syncingKey === p.key} onClick={() => syncNow(p.key, p.label)} title="Sync now">
+                        <RefreshCw className={`h-4 w-4 ${syncingKey === p.key ? "animate-spin" : ""}`} />
+                      </Button>
+                    )}
                     <Button variant="ghost" size="sm" onClick={() => disconnect(p.key)}><Trash2 className="h-4 w-4" /></Button>
                   </>
                 ) : (
