@@ -12,9 +12,9 @@ export function scorePassword(pw: string): PasswordStrength {
 }
 
 const STRENGTH_CONFIG: Record<PasswordStrength, { label: string; bar: string; text: string; width: string }> = {
-  weak: { label: "Too weak", bar: "bg-red-500", text: "text-red-400", width: "w-1/3" },
-  moderate: { label: "Moderate", bar: "bg-yellow-500", text: "text-yellow-400", width: "w-2/3" },
-  strong: { label: "Strong", bar: "bg-emerald-500", text: "text-emerald-400", width: "w-full" },
+  weak: { label: "Too weak", bar: "bg-red-500", text: "text-red-600", width: "w-1/3" },
+  moderate: { label: "Moderate", bar: "bg-amber-500", text: "text-amber-600", width: "w-2/3" },
+  strong: { label: "Strong", bar: "bg-emerald-500", text: "text-emerald-600", width: "w-full" },
 };
 
 export function PasswordStrengthMeter({ password }: { password: string }) {
@@ -24,13 +24,13 @@ export function PasswordStrengthMeter({ password }: { password: string }) {
 
   return (
     <div className="mt-1.5">
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
         <div className={`h-full rounded-full transition-all duration-200 ${cfg.bar} ${cfg.width}`} />
       </div>
       <p className={`mt-1 text-xs ${cfg.text}`}>
         {cfg.label}
         {strength !== "strong" && (
-          <span className="text-white/30"> — use 12+ characters with uppercase, a number, and a symbol</span>
+          <span className="text-[#94a3b8]"> — use 12+ characters with uppercase, a number, and a symbol</span>
         )}
       </p>
     </div>

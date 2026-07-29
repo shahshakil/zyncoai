@@ -76,14 +76,14 @@ function SignupForm() {
 
   if (sent) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-950 px-4">
-        <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
-          <Mail className="mx-auto mb-4 h-10 w-10 text-indigo-400" />
-          <h1 className="text-lg font-semibold text-white">Check your inbox</h1>
-          <p className="mt-2 text-sm text-white/50">
-            We sent a verification link to <span className="text-white/80">{sent}</span>. Verify your email, then sign in to set up your business.
+      <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] px-4">
+        <div className="w-full max-w-sm rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-8 text-center">
+          <Mail className="mx-auto mb-4 h-10 w-10 text-[#6366f1]" />
+          <h1 className="text-lg font-semibold text-[#0f172a]">Check your inbox</h1>
+          <p className="mt-2 text-sm text-[#475569]">
+            We sent a verification link to <span className="text-[#0f172a]">{sent}</span>. Verify your email, then sign in to set up your business.
           </p>
-          <Link href="/login" className="mt-6 inline-block text-sm text-indigo-400 hover:text-indigo-300">
+          <Link href="/login" className="mt-6 inline-block text-sm text-[#6366f1] hover:text-[#4f46e5]">
             Back to sign in
           </Link>
         </div>
@@ -92,20 +92,20 @@ function SignupForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-950 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 h-10 w-10 rounded-xl bg-indigo-500" />
-          <h1 className="text-xl font-semibold text-white">Create your ZyncoAI account</h1>
-          <p className="mt-1 text-sm text-white/40">Set up your AI voice receptionist in minutes</p>
+          <div className="mx-auto mb-4 h-10 w-10 rounded-xl bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)]" />
+          <h1 className="text-xl font-semibold text-[#0f172a]">Create your ZyncoAI account</h1>
+          <p className="mt-1 text-sm text-[#94a3b8]">Set up your AI voice receptionist in minutes</p>
           {plan && (
-            <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-[#4f87f0]/30 bg-[#4f87f0]/10 px-3 py-1 text-xs font-medium text-[#8ab4ff]">
+            <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-[#c7d2fe] bg-[#eef2ff] px-3 py-1 text-xs font-medium text-[#4f46e5]">
               {plan.name} plan selected — AUD ${plan.priceMonthly}/month
             </div>
           )}
         </div>
 
-        <form onSubmit={onSubmit} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 space-y-4">
+        <form onSubmit={onSubmit} className="rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-6 space-y-4">
           <div>
             <Label htmlFor="name">Full name</Label>
             <Input id="name" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Doe" />
@@ -129,7 +129,7 @@ function SignupForm() {
             />
             <PasswordStrengthMeter password={password} />
             {pwnedWarning && (
-              <p className="mt-1.5 flex items-start gap-1.5 text-xs text-amber-400">
+              <p className="mt-1.5 flex items-start gap-1.5 text-xs text-amber-700">
                 <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 {pwnedWarning}
               </p>
@@ -140,9 +140,9 @@ function SignupForm() {
           </Button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-white/40">
+        <p className="mt-6 text-center text-sm text-[#94a3b8]">
           Already have an account?{" "}
-          <Link href="/login" className="text-indigo-400 hover:text-indigo-300">
+          <Link href="/login" className="text-[#6366f1] hover:text-[#4f46e5]">
             Sign in
           </Link>
         </p>

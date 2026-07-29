@@ -5,7 +5,7 @@ type Variant = "primary" | "secondary" | "ghost" | "danger" | "outline";
 type Size = "sm" | "md" | "lg";
 
 const variantClasses: Record<Variant, string> = {
-  primary: "bg-[image:var(--gradient)] text-white font-semibold shadow-[0_1px_2px_rgba(0,0,0,0.1)] hover:opacity-90 hover:-translate-y-px",
+  primary: "bg-[image:var(--gradient,linear-gradient(135deg,#6366f1,#06b6d4))] text-white font-semibold shadow-[0_1px_2px_rgba(0,0,0,0.1)] hover:opacity-90 hover:-translate-y-px",
   secondary: "bg-slate-100 text-slate-900 font-medium hover:bg-slate-200 border border-slate-200",
   outline: "border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 hover:text-slate-900",
   ghost: "text-slate-600 font-medium hover:text-slate-900 hover:bg-slate-100",

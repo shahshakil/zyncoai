@@ -73,33 +73,33 @@ function AcceptInviteForm() {
 
   if (invalid) {
     return (
-      <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
-        <h1 className="text-lg font-semibold text-white">Invitation not found</h1>
-        <p className="mt-2 text-sm text-white/50">This invite link is invalid, already used, or has expired. Ask the business owner to send a new one.</p>
-        <Link href="/login" className="mt-6 inline-block text-sm text-indigo-400 hover:text-indigo-300">Back to sign in</Link>
+      <div className="w-full max-w-sm rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-8 text-center">
+        <h1 className="text-lg font-semibold text-[#0f172a]">Invitation not found</h1>
+        <p className="mt-2 text-sm text-[#475569]">This invite link is invalid, already used, or has expired. Ask the business owner to send a new one.</p>
+        <Link href="/login" className="mt-6 inline-block text-sm text-[#6366f1] hover:text-[#4f46e5]">Back to sign in</Link>
       </div>
     );
   }
 
   if (!invite) {
-    return <div className="h-40 w-full max-w-sm animate-pulse rounded-2xl border border-white/10 bg-white/[0.03]" />;
+    return <div className="h-40 w-full max-w-sm animate-pulse rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)]" />;
   }
 
   return (
     <div className="w-full max-w-sm">
       <div className="mb-8 text-center">
-        <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500">
+        <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)]">
           <ShieldCheck className="h-5 w-5 text-white" />
         </div>
-        <h1 className="text-xl font-semibold text-white">Join {invite.businessName}</h1>
-        <p className="mt-1 text-sm text-white/40">
-          You&apos;ve been invited as <span className="text-white/70">{ROLE_LABEL[invite.role] || invite.role}</span>
+        <h1 className="text-xl font-semibold text-[#0f172a]">Join {invite.businessName}</h1>
+        <p className="mt-1 text-sm text-[#94a3b8]">
+          You&apos;ve been invited as <span className="text-[#0f172a]">{ROLE_LABEL[invite.role] || invite.role}</span>
         </p>
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-        <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/60">
-          <Mail className="h-4 w-4 text-white/30" />
+      <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-6">
+        <div className="flex items-center gap-2 rounded-lg border border-[#e2e8f0] bg-slate-50 px-3 py-2 text-sm text-[#475569]">
+          <Mail className="h-4 w-4 text-[#94a3b8]" />
           {invite.email}
         </div>
         <div>
@@ -120,8 +120,8 @@ function AcceptInviteForm() {
 
 export default function AcceptInvitePage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-950 px-4">
-      <Suspense fallback={<div className="h-40 w-full max-w-sm animate-pulse rounded-2xl border border-white/10 bg-white/[0.03]" />}>
+    <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] px-4">
+      <Suspense fallback={<div className="h-40 w-full max-w-sm animate-pulse rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)]" />}>
         <AcceptInviteForm />
       </Suspense>
     </div>

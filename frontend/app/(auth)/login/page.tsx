@@ -80,15 +80,15 @@ function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-950 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 h-10 w-10 rounded-xl bg-indigo-500" />
-          <h1 className="text-xl font-semibold text-white">Sign in to ZyncoAI</h1>
-          <p className="mt-1 text-sm text-white/40">Your AI voice receptionist dashboard</p>
+          <div className="mx-auto mb-4 h-10 w-10 rounded-xl bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)]" />
+          <h1 className="text-xl font-semibold text-[#0f172a]">Sign in to ZyncoAI</h1>
+          <p className="mt-1 text-sm text-[#94a3b8]">Your AI voice receptionist dashboard</p>
         </div>
 
-        <form onSubmit={onSubmit} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 space-y-4">
+        <form onSubmit={onSubmit} className="rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-6 space-y-4">
           <div>
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@business.com" />
@@ -108,9 +108,9 @@ function LoginForm() {
           )}
         </form>
 
-        <p className="mt-6 text-center text-sm text-white/40">
+        <p className="mt-6 text-center text-sm text-[#94a3b8]">
           Don&apos;t have an account?{" "}
-          <Link href="/signup" className="text-indigo-400 hover:text-indigo-300">
+          <Link href="/signup" className="text-[#6366f1] hover:text-[#4f46e5]">
             Create one
           </Link>
         </p>
