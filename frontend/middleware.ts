@@ -12,6 +12,7 @@ const PUBLIC_PATHS = [
   "/login",
   "/signup",
   "/forgot",
+  "/reset-password",
   "/verify-email",
   // Reached mid-login, before a real zyn_access cookie exists — must be
   // public or the getToken() check below redirect-loops these straight
