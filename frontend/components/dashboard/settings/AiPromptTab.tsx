@@ -11,6 +11,7 @@ import { Textarea, Label } from "@/components/dashboard/ui/input";
 import { Button } from "@/components/dashboard/ui/button";
 import { Skeleton } from "@/components/dashboard/ui/skeleton";
 import { EmptyState } from "@/components/dashboard/ui/table";
+import { CallRecordingSection } from "./CallRecordingSection";
 
 interface PromptVersionsPayload {
   ok: boolean;
@@ -146,6 +147,8 @@ export function AiPromptTab() {
           )}
         </CardContent>
       </Card>
+
+      <CallRecordingSection />
     </div>
   );
 }
