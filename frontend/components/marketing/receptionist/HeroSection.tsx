@@ -20,7 +20,7 @@ export function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           className="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[#4f46e5] shadow-sm"
         >
-          One platform, every industry
+          AI Receptionist &times; Workflow Automation
         </motion.div>
 
         <motion.h1
@@ -29,8 +29,8 @@ export function HeroSection() {
           transition={{ delay: 0.1, duration: 0.5 }}
           className="mt-6 text-[42px] font-bold leading-[1.1] tracking-tight text-[#0f172a] [text-wrap:balance] sm:text-5xl lg:text-[64px]"
         >
-          One AI Receptionist.{" "}
-          <span className="bg-[image:linear-gradient(135deg,#4f46e5,#06b6d4)] bg-clip-text text-transparent">Every vertical.</span>
+          <span className="block">Never miss another call.</span>
+          <span className="block bg-[image:linear-gradient(135deg,#4f46e5,#06b6d4)] bg-clip-text text-transparent">Never lose another customer.</span>
         </motion.h1>
 
         <motion.p

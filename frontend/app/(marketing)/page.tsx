@@ -7,6 +7,7 @@ import { FeaturesSection } from "@/components/marketing/receptionist/FeaturesSec
 import { PlatformControlsSection } from "@/components/marketing/receptionist/PlatformControlsSection";
 import { TrustControlSection } from "@/components/marketing/receptionist/TrustControlSection";
 import { WhyZyncoSection } from "@/components/marketing/receptionist/WhyZyncoSection";
+import { EverythingYouNeedSection } from "@/components/marketing/receptionist/EverythingYouNeedSection";
 import { SecuritySection } from "@/components/marketing/receptionist/SecuritySection";
 import { IndustriesSection } from "@/components/marketing/receptionist/IndustriesSection";
 import { ProductDemoSection } from "@/components/marketing/receptionist/ProductDemoSection";
@@ -26,6 +27,7 @@ export default function Page() {
       <PlatformControlsSection />
       <TrustControlSection />
       <WhyZyncoSection />
+      <EverythingYouNeedSection />
       <SecuritySection />
       <IndustriesSection />
       <ProductDemoSection />
