@@ -39,16 +39,16 @@ export default function ApiPage() {
 
       <ResourceSection title="Events">
         <ul className="list-disc space-y-1 pl-5">
-          <li><code className="text-[#8ab4ff]">booking.created</code> — a new appointment was booked, by Charlotte or a staff member.</li>
-          <li><code className="text-[#8ab4ff]">booking.completed</code> — an appointment was marked complete.</li>
-          <li><code className="text-[#8ab4ff]">booking.cancelled</code> — an appointment was cancelled.</li>
+          <li><code className="text-[#6366f1]">booking.created</code> — a new appointment was booked, by Charlotte or a staff member.</li>
+          <li><code className="text-[#6366f1]">booking.completed</code> — an appointment was marked complete.</li>
+          <li><code className="text-[#6366f1]">booking.cancelled</code> — an appointment was cancelled.</li>
         </ul>
       </ResourceSection>
 
       <ResourceSection title="Sample payloads">
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-          <pre className="overflow-x-auto rounded-xl border border-white/10 bg-[#030712] p-4 text-xs text-[#e2e8f0]">{BOOKING_CREATED}</pre>
-          <pre className="overflow-x-auto rounded-xl border border-white/10 bg-[#030712] p-4 text-xs text-[#e2e8f0]">{BOOKING_CANCELLED}</pre>
+          <pre className="overflow-x-auto rounded-xl border border-[#e2e8f0] bg-slate-50 p-4 text-xs text-[#0f172a]">{BOOKING_CREATED}</pre>
+          <pre className="overflow-x-auto rounded-xl border border-[#e2e8f0] bg-slate-50 p-4 text-xs text-[#0f172a]">{BOOKING_CANCELLED}</pre>
         </div>
       </ResourceSection>
 
@@ -63,10 +63,10 @@ export default function ApiPage() {
       <ResourceSection title="Authentication — HMAC-SHA256 signature verification">
         <p>Every delivery includes two headers so you can verify it genuinely came from ZyncoAI:</p>
         <ul className="list-disc space-y-1 pl-5">
-          <li><code className="text-[#8ab4ff]">x-zynco-event</code> — the event name.</li>
-          <li><code className="text-[#8ab4ff]">x-zynco-signature</code> — an HMAC-SHA256 hex digest of the raw request body, signed with your webhook secret.</li>
+          <li><code className="text-[#6366f1]">x-zynco-event</code> — the event name.</li>
+          <li><code className="text-[#6366f1]">x-zynco-signature</code> — an HMAC-SHA256 hex digest of the raw request body, signed with your webhook secret.</li>
         </ul>
-        <p>To verify: compute <code className="text-[#8ab4ff]">HMAC-SHA256(secret, rawBody)</code> yourself and compare it to the header value using a constant-time comparison before trusting the payload.</p>
+        <p>To verify: compute <code className="text-[#6366f1]">HMAC-SHA256(secret, rawBody)</code> yourself and compare it to the header value using a constant-time comparison before trusting the payload.</p>
       </ResourceSection>
 
       <ResourceSection title="Retry policy">

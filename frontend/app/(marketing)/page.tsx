@@ -12,7 +12,7 @@ import { FinalCtaSection } from "@/components/marketing/receptionist/FinalCtaSec
 
 export default function Page() {
   return (
-    <div className="bg-[#030712]">
+    <div className="bg-[#f8fafc]">
       <HeroSection />
       <LiveDemoSection />
       <WorkflowSection />

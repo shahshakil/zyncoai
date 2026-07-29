@@ -40,12 +40,12 @@ export default function MobileNav({
       />
 
       {/* right drawer */}
-      <div className="absolute right-0 top-0 h-full w-[92%] max-w-sm overflow-hidden border-l border-white/10 bg-[#030712] shadow-2xl">
-        <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-          <div className="text-sm font-semibold text-white/80">ZyncoAI</div>
+      <div className="absolute right-0 top-0 h-full w-[92%] max-w-sm overflow-hidden border-l border-[#e2e8f0] bg-white shadow-2xl">
+        <div className="flex items-center justify-between border-b border-[#e2e8f0] px-5 py-4">
+          <div className="text-sm font-semibold text-[#0f172a]">ZyncoAI</div>
           <button
             onClick={onClose}
-            className="rounded-lg px-3 py-2 text-sm text-white/70 hover:bg-white/5 hover:text-white"
+            className="rounded-lg px-3 py-2 text-sm text-[#475569] hover:bg-slate-100 hover:text-[#0f172a]"
             aria-label="Close menu"
           >
             ✕
@@ -58,12 +58,12 @@ export default function MobileNav({
             const isOpen = expanded === item.key;
 
             return (
-              <div key={item.key} className="border-b border-white/10">
+              <div key={item.key} className="border-b border-[#e2e8f0]">
                 {!hasMega ? (
                   <Link
                     href={item.href || "#"}
                     onClick={onClose}
-                    className="flex items-center justify-between px-3 py-4 text-[17px] font-semibold text-white/90"
+                    className="flex items-center justify-between px-3 py-4 text-[17px] font-semibold text-[#0f172a]"
                   >
                     <span>{item.label}</span>
                   </Link>
@@ -71,7 +71,7 @@ export default function MobileNav({
                   <>
                     <button
                       onClick={() => setExpanded(isOpen ? null : item.key)}
-                      className="flex w-full items-center justify-between px-3 py-4 text-left text-[17px] font-semibold text-white/90"
+                      className="flex w-full items-center justify-between px-3 py-4 text-left text-[17px] font-semibold text-[#0f172a]"
                     >
                       <span>{item.label}</span>
                       <Chevron open={isOpen} />
@@ -88,13 +88,13 @@ export default function MobileNav({
                             key={it.href}
                             href={it.href}
                             onClick={onClose}
-                            className="rounded-xl border border-white/10 bg-white/5 px-3 py-3"
+                            className="rounded-xl border border-[#e2e8f0] bg-slate-50 px-3 py-3"
                           >
-                            <div className="text-sm font-semibold text-white">
+                            <div className="text-sm font-semibold text-[#0f172a]">
                               {it.label}
                             </div>
                             {it.description ? (
-                              <div className="mt-1 text-xs text-white/60">
+                              <div className="mt-1 text-xs text-[#94a3b8]">
                                 {it.description}
                               </div>
                             ) : null}
@@ -112,7 +112,7 @@ export default function MobileNav({
             <Link
               href="/login"
               onClick={onClose}
-              className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-center text-sm font-semibold text-white"
+              className="rounded-xl border border-[#e2e8f0] bg-slate-50 px-4 py-3 text-center text-sm font-semibold text-[#0f172a]"
             >
               Sign in
             </Link>
@@ -120,11 +120,11 @@ export default function MobileNav({
         </div>
 
         {/* sticky bottom CTA */}
-        <div className="border-t border-white/10 p-4">
+        <div className="border-t border-[#e2e8f0] p-4">
           <Link
             href="/signup"
             onClick={onClose}
-            className="block w-full rounded-xl bg-gradient-to-r from-[#4f87f0] to-[#7c3aed] px-4 py-3 text-center text-sm font-extrabold text-white"
+            className="block w-full rounded-xl bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)] px-4 py-3 text-center text-sm font-extrabold text-white"
           >
             Start free trial
           </Link>

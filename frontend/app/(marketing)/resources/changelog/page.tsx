@@ -39,20 +39,20 @@ const ENTRIES = [
   },
 ];
 
-const TAG_COLOR: Record<string, string> = { New: "#4f87f0", Improved: "#10b981", Fixed: "#f59e0b" };
+const TAG_COLOR: Record<string, string> = { New: "#6366f1", Improved: "#10b981", Fixed: "#f59e0b" };
 
 export default function ChangelogPage() {
   return (
     <ResourcePageShell eyebrow="Resources" title="Changelog" description="What's new, fixed, and improved — in the order it shipped.">
       <div className="space-y-6">
         {ENTRIES.map((e) => (
-          <div key={e.title} className="rounded-2xl border border-white/10 bg-[#0b0f19] p-6">
+          <div key={e.title} className="rounded-2xl border border-[#e2e8f0] bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold text-white" style={{ background: TAG_COLOR[e.tag] }}>{e.tag}</span>
               <span className="text-xs text-[#94a3b8]">{e.date}</span>
             </div>
-            <h3 className="mt-2 text-base font-semibold text-[#f8fafc]">{e.title}</h3>
-            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[#cbd5e1]">
+            <h3 className="mt-2 text-base font-semibold text-[#0f172a]">{e.title}</h3>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[#475569]">
               {e.items.map((i) => <li key={i}>{i}</li>)}
             </ul>
           </div>

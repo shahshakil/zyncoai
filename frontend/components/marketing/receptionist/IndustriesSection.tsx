@@ -26,7 +26,7 @@ export function IndustriesSection() {
   return (
     <section className="py-20">
       <div className="mx-auto max-w-2xl text-center">
-        <h2 className="text-3xl font-bold text-[#f8fafc] sm:text-4xl">Built for every Australian business</h2>
+        <h2 className="text-3xl font-bold text-[#0f172a] sm:text-4xl">Built for every Australian business</h2>
       </div>
 
       <div className="mt-14 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
@@ -43,20 +43,20 @@ export function IndustriesSection() {
                 whileHover={{ scale: 1.04 }}
                 onHoverStart={() => setHovered(ind.slug)}
                 onHoverEnd={() => setHovered(null)}
-                className="relative flex h-40 flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#0b0f19] p-4 transition-shadow hover:border-[#4f87f0]/40 hover:shadow-[0_0_30px_rgba(79,135,240,0.2)]"
+                className="relative flex h-40 flex-col justify-between overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)] transition-shadow hover:border-[#6366f1]/40 hover:shadow-[0_4px_16px_rgba(99,102,241,0.15)]"
               >
                 {!isHovered ? (
                   <>
-                    <Icon className="h-6 w-6 text-[#8ab4ff]" />
+                    <Icon className="h-6 w-6 text-[#6366f1]" />
                     <div>
-                      <p className="text-sm font-semibold text-[#f8fafc]">{ind.name}</p>
+                      <p className="text-sm font-semibold text-[#0f172a]">{ind.name}</p>
                       <p className="mt-0.5 text-[11px] text-[#94a3b8]">{ind.callsHandledToday.toLocaleString()} calls handled</p>
                     </div>
                   </>
                 ) : (
                   <div className="flex h-full flex-col justify-center">
                     <p className="text-[10px] uppercase tracking-wide text-[#94a3b8]">Charlotte says</p>
-                    <p className="mt-1 text-xs leading-5 text-[#cbd5e1]">&ldquo;{ind.greeting}&rdquo;</p>
+                    <p className="mt-1 text-xs leading-5 text-[#475569]">&ldquo;{ind.greeting}&rdquo;</p>
                   </div>
                 )}
               </motion.div>

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function AddOnsPage() {
   return (
-    <div className="bg-[#030712] pt-8">
+    <div className="bg-[#f8fafc] pt-8">
       <AddOnsSection />
     </div>
   );

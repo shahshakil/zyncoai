@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function PricingPage() {
   return (
-    <div className="bg-[#030712] pt-8">
+    <div className="bg-[#f8fafc] pt-8">
       <PricingSection />
       <FinalCtaSection />
     </div>

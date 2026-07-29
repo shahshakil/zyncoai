@@ -11,17 +11,17 @@ export default function MegaMenu({ item, onClose }: { item: NavItem; onClose: ()
   return (
     <div className="absolute left-0 right-0 top-full z-50" onMouseLeave={onClose}>
       <div className={`mx-auto w-full ${SITE_MAX_W} ${SITE_PX}`}>
-        <div className="mt-3 overflow-hidden rounded-2xl border border-white/10 bg-[#0b0f19] shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+        <div className="mt-3 overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_20px_60px_rgba(15,23,42,0.12)]">
           <div className="grid gap-6 p-8 md:grid-cols-12">
             <div className="md:col-span-3">
               <div className="text-xs uppercase tracking-wide text-[#94a3b8]">Explore</div>
-              <div className="mt-2 text-2xl font-semibold text-[#f8fafc]">{item.mega.title}</div>
-              {item.mega.subtitle ? <p className="mt-2 text-sm leading-6 text-[#94a3b8]">{item.mega.subtitle}</p> : null}
+              <div className="mt-2 text-2xl font-semibold text-[#0f172a]">{item.mega.title}</div>
+              {item.mega.subtitle ? <p className="mt-2 text-sm leading-6 text-[#475569]">{item.mega.subtitle}</p> : null}
               {item.mega.cta ? (
                 <Link
                   href={item.mega.cta.href}
                   onClick={onClose}
-                  className="mt-6 inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#10b981] px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500"
+                  className="mt-6 inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#10b981] px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600"
                 >
                   {item.mega.cta.label}
                 </Link>
@@ -39,10 +39,10 @@ export default function MegaMenu({ item, onClose }: { item: NavItem; onClose: ()
                           key={it.href}
                           href={it.href}
                           onClick={onClose}
-                          className="group rounded-lg border border-transparent p-2.5 transition hover:border-white/10 hover:bg-white/5"
+                          className="group rounded-lg border border-transparent p-2.5 transition hover:border-[#e2e8f0] hover:bg-slate-50"
                         >
-                          <div className="text-sm font-medium text-[#f8fafc]">{it.label}</div>
-                          {it.description ? <div className="mt-0.5 text-xs leading-5 text-[#94a3b8]">{it.description}</div> : null}
+                          <div className="text-sm font-medium text-[#0f172a]">{it.label}</div>
+                          {it.description ? <div className="mt-0.5 text-xs leading-5 text-[#475569]">{it.description}</div> : null}
                         </Link>
                       ))}
                     </div>

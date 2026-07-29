@@ -20,6 +20,10 @@ const PUBLIC_PATHS = [
   "/verify-mfa",
   "/accept-invite",
   "/about",
+  "/contact",
+  "/terms",
+  "/privacy",
+  "/product",
 
   "/agentops",
   "/workflowops",
@@ -47,6 +51,7 @@ const PUBLIC_PREFIXES = [
   // Patient QR/link self check-in (frontend/app/checkin/[token]/page.tsx) —
   // unauthenticated, the token is the credential, same as /accept-invite.
   "/checkin/",
+  "/legal/",
   "/products/",
   "/solutions/",
   "/resources/",

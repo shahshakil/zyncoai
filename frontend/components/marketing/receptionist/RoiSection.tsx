@@ -14,7 +14,7 @@ function SlotPrice({ value }: { value: number }) {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -40, opacity: 0 }}
           transition={{ duration: 0.45, ease: "easeOut" }}
-          className="absolute inset-0 flex items-center justify-center text-5xl font-bold tabular-nums text-[#f8fafc]"
+          className="absolute inset-0 flex items-center justify-center text-5xl font-bold tabular-nums text-[#0f172a]"
         >
           ${value.toLocaleString()}
         </motion.div>
@@ -28,9 +28,9 @@ function FeatureRow({ label, value, pct, color }: { label: string; value: string
     <div>
       <div className="flex items-center justify-between text-sm">
         <span className="text-[#94a3b8]">{label}</span>
-        <span className="font-medium text-[#f8fafc]">{value}</span>
+        <span className="font-medium text-[#0f172a]">{value}</span>
       </div>
-      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
         <motion.div
           className="h-full rounded-full"
           style={{ background: color }}
@@ -68,26 +68,26 @@ export function RoiSection() {
   return (
     <section className="py-20">
       <div className="mx-auto max-w-2xl text-center">
-        <h2 className="text-3xl font-bold text-[#f8fafc] sm:text-4xl">The math is simple</h2>
-        <p className="mt-3 text-[#94a3b8]">Compare what you pay now vs ZyncoAI</p>
+        <h2 className="text-3xl font-bold text-[#0f172a] sm:text-4xl">The math is simple</h2>
+        <p className="mt-3 text-[#475569]">Compare what you pay now vs ZyncoAI</p>
       </div>
 
-      <div className="mx-auto mt-8 flex w-fit items-center gap-1 rounded-full border border-white/10 bg-white/5 p-1">
+      <div className="mx-auto mt-8 flex w-fit items-center gap-1 rounded-full border border-[#e2e8f0] bg-white p-1 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
         <button
           onClick={() => setMode("traditional")}
-          className={`rounded-full px-5 py-2 text-sm font-semibold transition ${isTrad ? "bg-[#dc2626] text-white" : "text-[#94a3b8] hover:text-white"}`}
+          className={`rounded-full px-5 py-2 text-sm font-semibold transition ${isTrad ? "bg-[#dc2626] text-white" : "text-[#94a3b8] hover:text-[#0f172a]"}`}
         >
           Traditional Receptionist
         </button>
         <button
           onClick={() => setMode("zynco")}
-          className={`rounded-full px-5 py-2 text-sm font-semibold transition ${!isTrad ? "bg-[#10b981] text-white" : "text-[#94a3b8] hover:text-white"}`}
+          className={`rounded-full px-5 py-2 text-sm font-semibold transition ${!isTrad ? "bg-[#10b981] text-white" : "text-[#94a3b8] hover:text-[#0f172a]"}`}
         >
           ZyncoAI Powered
         </button>
       </div>
 
-      <div className="relative mx-auto mt-10 max-w-4xl overflow-hidden rounded-3xl border border-white/10 bg-[#0b0f19] p-8">
+      <div className="relative mx-auto mt-10 max-w-4xl overflow-hidden rounded-3xl border border-[#e2e8f0] bg-white p-8 shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)]">
         <motion.div
           className="pointer-events-none absolute -top-32 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full blur-[100px]"
           animate={{ background: isTrad ? "rgba(220,38,38,0.25)" : "rgba(16,185,129,0.25)" }}
@@ -96,7 +96,7 @@ export function RoiSection() {
 
         <div className="relative grid gap-10 md:grid-cols-2">
           <div>
-            <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${isTrad ? "bg-red-500/15 text-[#fecaca]" : "bg-emerald-500/15 text-[#bbf7d0]"}`}>
+            <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${isTrad ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700"}`}>
               {!isTrad && (
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />

@@ -3,12 +3,12 @@ import { INDUSTRIES, USE_CASES, COMPANY_SIZES } from "@/components/marketing/rec
 
 export default function MarketingMegaFooter() {
   return (
-    <footer className="border-t border-white/10 bg-[#030712]">
+    <footer className="border-t border-white/10 bg-[#0f172a]">
       <div className="mx-auto max-w-[1440px] px-6 py-16 lg:px-8">
         <div className="grid gap-10 md:grid-cols-5">
           <div className="md:col-span-1">
             <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#4f87f0] to-[#7c3aed] text-sm font-bold text-white">Z</span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)] text-sm font-bold text-white">Z</span>
               <span className="text-lg font-bold text-[#f8fafc]">ZyncoAI</span>
             </div>
             <p className="mt-3 text-sm leading-6 text-[#94a3b8]">Australia&apos;s AI receptionist — answers every call, books every appointment, 24/7.</p>

@@ -29,16 +29,16 @@ function ScreenOverview() {
   return (
     <div className="grid h-full grid-cols-3 gap-3 p-5">
       {["Appointments", "No-shows", "AI Calls"].map((label, i) => (
-        <div key={label} className="rounded-xl border border-white/10 bg-white/5 p-3">
+        <div key={label} className="rounded-xl border border-[#e2e8f0] bg-slate-50 p-3">
           <p className="text-[10px] text-[#94a3b8]">{label}</p>
-          <p className="mt-1 text-lg font-bold text-[#f8fafc]">{[42, 3, 118][i]}</p>
+          <p className="mt-1 text-lg font-bold text-[#0f172a]">{[42, 3, 118][i]}</p>
         </div>
       ))}
-      <div className="col-span-3 mt-1 rounded-xl border border-white/10 bg-[#030712] p-3">
+      <div className="col-span-3 mt-1 rounded-xl border border-[#e2e8f0] bg-slate-100 p-3">
         <p className="text-[10px] text-[#94a3b8]">Live AI call feed</p>
         <div className="mt-2 space-y-1.5">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-3 w-full animate-pulse rounded bg-white/5" style={{ animationDelay: `${i * 0.15}s` }} />
+            <div key={i} className="h-3 w-full animate-pulse rounded bg-slate-200" style={{ animationDelay: `${i * 0.15}s` }} />
           ))}
         </div>
       </div>
@@ -51,7 +51,7 @@ function ScreenCalls() {
     <div className="h-full space-y-2 p-5">
       <p className="text-[10px] uppercase tracking-wide text-[#94a3b8]">Transcript</p>
       {["Caller: Hi, I'd like to book an appointment", "Charlotte: Sure! What day suits you best?"].map((t, i) => (
-        <div key={i} className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-[#cbd5e1]">{t}</div>
+        <div key={i} className="rounded-lg border border-[#e2e8f0] bg-slate-50 px-3 py-2 text-xs text-[#475569]">{t}</div>
       ))}
     </div>
   );
@@ -60,9 +60,9 @@ function ScreenCalls() {
 function ScreenBooking() {
   return (
     <div className="h-full space-y-2.5 p-5">
-      <div className="h-8 rounded-lg border border-white/10 bg-white/5" />
-      <div className="h-8 rounded-lg border border-white/10 bg-white/5" />
-      <div className="h-8 w-1/2 rounded-lg bg-gradient-to-r from-[#4f87f0] to-[#7c3aed]" />
+      <div className="h-8 rounded-lg border border-[#e2e8f0] bg-slate-50" />
+      <div className="h-8 rounded-lg border border-[#e2e8f0] bg-slate-50" />
+      <div className="h-8 w-1/2 rounded-lg bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)]" />
     </div>
   );
 }
@@ -82,11 +82,11 @@ export function ProductDemoSection() {
   return (
     <section className="py-20">
       <div className="mx-auto max-w-2xl text-center">
-        <h2 className="text-3xl font-bold text-[#f8fafc] sm:text-4xl">See the dashboard in action</h2>
+        <h2 className="text-3xl font-bold text-[#0f172a] sm:text-4xl">See the dashboard in action</h2>
       </div>
 
-      <div className="relative mx-auto mt-12 max-w-3xl overflow-hidden rounded-3xl border border-white/10 bg-[#0b0f19] shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)]">
-        <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
+      <div className="relative mx-auto mt-12 max-w-3xl overflow-hidden rounded-3xl border border-[#e2e8f0] bg-white shadow-[0_20px_60px_-20px_rgba(15,23,42,0.15)]">
+        <div className="flex items-center justify-between border-b border-[#e2e8f0] px-5 py-3">
           <div className="flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-full bg-red-500/60" />
             <span className="h-2.5 w-2.5 rounded-full bg-amber-500/60" />
@@ -108,7 +108,7 @@ export function ProductDemoSection() {
             animate={{ top: screen.cursor.top, left: screen.cursor.left }}
             transition={{ duration: 0.8, ease: "easeInOut" }}
           >
-            <MousePointer2 className="h-5 w-5 fill-white text-white drop-shadow" />
+            <MousePointer2 className="h-5 w-5 fill-[#0f172a] text-[#0f172a] drop-shadow" />
           </motion.div>
         </div>
       </div>
@@ -116,7 +116,7 @@ export function ProductDemoSection() {
       <div className="mt-8 text-center">
         <Link
           href="/signup"
-          className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#4f87f0] to-[#7c3aed] px-6 py-3 text-sm font-semibold text-white hover:opacity-90"
+          className="inline-flex items-center gap-2 rounded-xl bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)] px-6 py-3 text-sm font-semibold text-white hover:opacity-90"
         >
           Try it yourself — free for 7 days <ArrowRight className="h-4 w-4" />
         </Link>

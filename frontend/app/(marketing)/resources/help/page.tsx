@@ -23,8 +23,8 @@ export default function HelpPage() {
         <div className="space-y-4">
           {FAQS.map((f) => (
             <div key={f.q}>
-              <p className="font-medium text-[#f8fafc]">{f.q}</p>
-              <p className="mt-1 text-[#cbd5e1]">{f.a}</p>
+              <p className="font-medium text-[#0f172a]">{f.q}</p>
+              <p className="mt-1 text-[#475569]">{f.a}</p>
             </div>
           ))}
         </div>

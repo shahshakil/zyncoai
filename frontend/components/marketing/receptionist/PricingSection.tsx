@@ -29,25 +29,25 @@ export function PricingSection({ showTitle = true }: { showTitle?: boolean }) {
     <section className="py-20">
       {showTitle && (
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold text-[#f8fafc] sm:text-4xl">Simple, transparent pricing</h2>
-          <p className="mt-3 text-[#94a3b8]">All plans billed in AUD. 7-day free trial included. AUD $499 setup fee all plans.</p>
+          <h2 className="text-3xl font-bold text-[#0f172a] sm:text-4xl">Simple, transparent pricing</h2>
+          <p className="mt-3 text-[#475569]">All plans billed in AUD. 7-day free trial included. AUD $499 setup fee all plans.</p>
         </div>
       )}
 
-      <div className="mx-auto mt-6 flex max-w-2xl items-start gap-3 rounded-2xl border border-[#4f87f0]/30 bg-[#4f87f0]/10 p-4">
-        <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-[#8ab4ff]" />
-        <p className="text-sm text-[#e2e8f0]">
+      <div className="mx-auto mt-6 flex max-w-2xl items-start gap-3 rounded-2xl border border-[#c7d2fe] bg-[#eef2ff] p-4">
+        <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-[#6366f1]" />
+        <p className="text-sm text-[#0f172a]">
           Every plan includes the complete ZyncoAI platform — all features, all dashboards, all integrations. Plans differ only by minutes included and
           number of locations.
         </p>
       </div>
 
-      <div className="mx-auto mt-8 flex w-fit items-center gap-1 rounded-full border border-white/10 bg-white/5 p-1">
-        <button onClick={() => setAnnual(false)} className={`rounded-full px-5 py-2 text-sm font-semibold transition ${!annual ? "bg-white/10 text-white" : "text-[#94a3b8]"}`}>
+      <div className="mx-auto mt-8 flex w-fit items-center gap-1 rounded-full border border-[#e2e8f0] bg-white p-1 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+        <button onClick={() => setAnnual(false)} className={`rounded-full px-5 py-2 text-sm font-semibold transition ${!annual ? "bg-slate-100 text-[#0f172a]" : "text-[#94a3b8]"}`}>
           Monthly
         </button>
-        <button onClick={() => setAnnual(true)} className={`rounded-full px-5 py-2 text-sm font-semibold transition ${annual ? "bg-white/10 text-white" : "text-[#94a3b8]"}`}>
-          Annual <span className="text-[#6ee7b7]">(save 20%)</span>
+        <button onClick={() => setAnnual(true)} className={`rounded-full px-5 py-2 text-sm font-semibold transition ${annual ? "bg-slate-100 text-[#0f172a]" : "text-[#94a3b8]"}`}>
+          Annual <span className="text-emerald-600">(save 20%)</span>
         </button>
       </div>
 
@@ -63,11 +63,11 @@ export function PricingSection({ showTitle = true }: { showTitle?: boolean }) {
               viewport={{ once: true, margin: "-40px" }}
               transition={{ delay: i * 0.06 }}
               whileHover={{ y: -6 }}
-              className={`relative flex flex-col rounded-2xl border-t-4 border border-white/10 bg-[#0b0f19] p-6 ${plan.popular ? "lg:-mt-3 lg:pb-9" : ""}`}
+              className={`relative flex flex-col rounded-2xl border-t-4 border border-[#e2e8f0] bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)] ${plan.popular ? "lg:-mt-3 lg:pb-9" : ""}`}
               style={{ borderTopColor: plan.borderColor }}
             >
               {plan.popular && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#4f87f0] to-[#7c3aed] px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)] px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
                   Most popular
                 </span>
               )}
@@ -75,18 +75,18 @@ export function PricingSection({ showTitle = true }: { showTitle?: boolean }) {
               <div className="mt-2">
                 {plan.priceMonthly > 0 ? (
                   <>
-                    <span className="text-3xl font-bold text-[#f8fafc]">AUD ${price}</span>
+                    <span className="text-3xl font-bold text-[#0f172a]">AUD ${price}</span>
                     <span className="text-sm text-[#94a3b8]">/month</span>
                   </>
                 ) : (
-                  <span className="text-3xl font-bold text-[#f8fafc]">Contact us</span>
+                  <span className="text-3xl font-bold text-[#0f172a]">Contact us</span>
                 )}
               </div>
               <p className="mt-2 text-xs text-[#94a3b8]">{plan.perMinute}</p>
 
               <ul className="mt-4 space-y-2">
                 {[plan.minutesIncluded, plan.locations, plan.support].map((t) => (
-                  <li key={t} className="flex items-start gap-2 text-[13px] leading-[1.6] text-[#e2e8f0]">
+                  <li key={t} className="flex items-start gap-2 text-[13px] leading-[1.6] text-[#475569]">
                     <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#10b981]" /> {t}
                   </li>
                 ))}
@@ -94,15 +94,15 @@ export function PricingSection({ showTitle = true }: { showTitle?: boolean }) {
 
               <button
                 onClick={() => toggleExpanded(plan.key)}
-                className="mt-4 flex w-full items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-[#e2e8f0] transition hover:bg-white/10"
+                className="mt-4 flex w-full items-center justify-between rounded-lg border border-[#e2e8f0] bg-slate-50 px-3 py-2 text-xs font-semibold text-[#0f172a] transition hover:bg-slate-100"
               >
                 All features included
                 <ChevronDown className={`h-3.5 w-3.5 transition-transform ${isOpen ? "rotate-180" : ""}`} />
               </button>
               {isOpen && (
-                <ul className="mt-2 space-y-2 rounded-lg bg-[#030712] p-3">
+                <ul className="mt-2 space-y-2 rounded-lg bg-slate-50 p-3">
                   {COMMON_FEATURES.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-[13px] leading-[1.6] text-[#e2e8f0]">
+                    <li key={f} className="flex items-start gap-2 text-[13px] leading-[1.6] text-[#475569]">
                       <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#10b981]" /> {f}
                     </li>
                   ))}
@@ -117,8 +117,8 @@ export function PricingSection({ showTitle = true }: { showTitle?: boolean }) {
                 }}
                 className={`mt-6 block rounded-xl px-4 py-2.5 text-center text-sm font-semibold transition ${
                   plan.popular
-                    ? "bg-gradient-to-r from-[#4f87f0] to-[#7c3aed] text-white hover:opacity-90"
-                    : "border border-white/15 text-[#f8fafc] hover:bg-white/5"
+                    ? "bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)] text-white hover:opacity-90"
+                    : "border border-[#e2e8f0] bg-white text-[#0f172a] hover:bg-slate-50"
                 }`}
               >
                 {plan.cta}

@@ -22,9 +22,9 @@ function RevealWords({ text, className }: { text: string; className?: string }) 
 }
 
 const FEATURES = [
-  { icon: Clock, color: "#4f87f0", title: "Answers in under 1 second", desc: "No hold music, no voicemail — Charlotte picks up before the second ring." },
+  { icon: Clock, color: "#6366f1", title: "Answers in under 1 second", desc: "No hold music, no voicemail — Charlotte picks up before the second ring." },
   { icon: CalendarCheck, color: "#10b981", title: "Books appointments automatically", desc: "Checks real availability and confirms the booking on the call." },
-  { icon: Globe2, color: "#7c3aed", title: "Speaks 15+ languages", desc: "Detects the caller's language automatically and responds fluently." },
+  { icon: Globe2, color: "#06b6d4", title: "Speaks 15+ languages", desc: "Detects the caller's language automatically and responds fluently." },
   { icon: ShieldCheck, color: "#f59e0b", title: "Australian healthcare compliant", desc: "Built around AU privacy and record-keeping expectations from day one." },
   { icon: Siren, color: "#dc2626", title: "Emergency detection", desc: "Flags urgent symptoms instantly and escalates to a human straight away." },
   { icon: Plug, color: "#0d9488", title: "Connects to your existing software", desc: "Cliniko, Best Practice, Medical Director, and more — synced automatically." },
@@ -34,7 +34,7 @@ export function FeaturesSection() {
   return (
     <section id="features" className="py-20">
       <div className="mx-auto max-w-2xl text-center">
-        <h2 className="text-3xl font-bold text-[#f8fafc] sm:text-4xl">
+        <h2 className="text-3xl font-bold text-[#0f172a] sm:text-4xl">
           <RevealWords text="Everything built for Australian healthcare" />
         </h2>
       </div>
@@ -48,7 +48,7 @@ export function FeaturesSection() {
             viewport={{ once: true, margin: "-40px" }}
             transition={{ delay: i * 0.06 }}
             whileHover={{ y: -6 }}
-            className="group rounded-2xl border border-white/10 bg-[#0b0f19] p-6 transition-shadow hover:shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)]"
+            className="group rounded-2xl border border-[#e2e8f0] bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)] transition-shadow hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)]"
           >
             <div
               className="flex h-12 w-12 items-center justify-center rounded-xl transition-shadow group-hover:shadow-[0_0_24px_var(--glow)]"
@@ -56,8 +56,8 @@ export function FeaturesSection() {
             >
               <f.icon className="h-6 w-6" style={{ color: f.color }} />
             </div>
-            <h3 className="mt-4 text-base font-semibold text-[#f8fafc]">{f.title}</h3>
-            <p className="mt-1.5 text-sm leading-relaxed text-[#94a3b8]">{f.desc}</p>
+            <h3 className="mt-4 text-base font-semibold text-[#0f172a]">{f.title}</h3>
+            <p className="mt-1.5 text-sm leading-relaxed text-[#475569]">{f.desc}</p>
           </motion.div>
         ))}
       </div>

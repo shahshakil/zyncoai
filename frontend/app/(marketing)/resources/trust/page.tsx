@@ -58,7 +58,7 @@ export default function TrustPage() {
       <ResourceSection title="Incident response">
         <p>
           If we identify a security issue affecting your data, we notify affected practices directly and provide a clear timeline and remediation. We
-          don&apos;t currently publish a public bug-bounty program, but we take reports seriously — email <a href="mailto:security@zyncoai.com" className="text-[#8ab4ff] hover:underline">security@zyncoai.com</a> if you find something.
+          don&apos;t currently publish a public bug-bounty program, but we take reports seriously — email <a href="mailto:security@zyncoai.com" className="text-[#6366f1] hover:underline">security@zyncoai.com</a> if you find something.
         </p>
       </ResourceSection>
 

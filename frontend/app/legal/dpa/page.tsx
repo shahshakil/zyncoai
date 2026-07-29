@@ -16,14 +16,14 @@ const Section = ({
   children: React.ReactNode;
 }) => (
   <section id={id} className="scroll-mt-24">
-    <h2 className="text-xl font-extrabold tracking-tight text-white">{title}</h2>
-    <div className="mt-3 space-y-3 text-sm leading-6 text-white/70">{children}</div>
+    <h2 className="text-xl font-extrabold tracking-tight text-[#0f172a]">{title}</h2>
+    <div className="mt-3 space-y-3 text-sm leading-6 text-[#475569]">{children}</div>
   </section>
 );
 
 const Bullet = ({ children }: { children: React.ReactNode }) => (
   <li className="flex gap-3">
-    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-zynco-400 shadow-[0_0_18px_rgba(99,102,241,.9)]" />
+    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#6366f1] shadow-[0_0_8px_rgba(99,102,241,.10)]" />
     <span>{children}</span>
   </li>
 );
@@ -32,33 +32,33 @@ export default function DpaPage() {
   const updated = "July 18, 2026";
 
   return (
-    <main className="min-h-screen bg-zinc-950">
-      <div className="relative overflow-hidden border-b border-white/10">
+    <main className="min-h-screen bg-[#f8fafc]">
+      <div className="relative overflow-hidden border-b border-[#e2e8f0]">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full blur-3xl bg-[radial-gradient(circle_at_30%_30%,rgba(99,102,241,.35),transparent_60%)]" />
-          <div className="absolute -right-44 -bottom-44 h-[560px] w-[560px] rounded-full blur-3xl bg-[radial-gradient(circle_at_70%_70%,rgba(217,70,239,.22),transparent_60%)]" />
+          <div className="absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full blur-3xl bg-[radial-gradient(circle_at_30%_30%,rgba(99,102,241,.10),transparent_60%)]" />
+          <div className="absolute -right-44 -bottom-44 h-[560px] w-[560px] rounded-full blur-3xl bg-[radial-gradient(circle_at_70%_70%,rgba(6,182,212,.10),transparent_60%)]" />
         </div>
 
         <div className="relative mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 py-14 lg:py-16">
-          <div className="flex flex-wrap items-center gap-3 text-xs text-white/60">
-            <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2.5 py-1">Legal</span>
+          <div className="flex flex-wrap items-center gap-3 text-xs text-[#94a3b8]">
+            <span className="inline-flex items-center rounded-full border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-2.5 py-1">Legal</span>
             <span>•</span>
             <span>Last updated: {updated}</span>
           </div>
 
-          <h1 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">Data Processing Agreement</h1>
+          <h1 className="mt-4 text-3xl font-black tracking-tight text-[#0f172a] sm:text-4xl">Data Processing Agreement</h1>
 
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-white/70">
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-[#475569]">
             This Data Processing Agreement (&quot;DPA&quot;) forms part of the agreement between ZyncoAI (&quot;Processor&quot;) and
             the clinic or business (&quot;Controller&quot;) using the ZyncoAI platform, and describes how personal
             information is processed on the Controller&apos;s behalf.
           </p>
 
           <div className="mt-6 flex flex-wrap gap-2">
-            <Link href="/privacy" className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/80 hover:bg-white/10 hover:text-white transition">
+            <Link href="/privacy" className="rounded-full border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-3 py-1.5 text-sm text-[#475569] hover:bg-slate-100 hover:text-[#0f172a] transition">
               Privacy Policy
             </Link>
-            <Link href="/terms" className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/80 hover:bg-white/10 hover:text-white transition">
+            <Link href="/terms" className="rounded-full border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-3 py-1.5 text-sm text-[#475569] hover:bg-slate-100 hover:text-[#0f172a] transition">
               Terms of Service
             </Link>
           </div>
@@ -68,8 +68,8 @@ export default function DpaPage() {
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 py-10 lg:py-12">
         <div className="grid gap-8 lg:grid-cols-12">
           <aside className="lg:col-span-4">
-            <div className="sticky top-24 rounded-2xl border border-white/10 bg-white/5 p-5">
-              <div className="text-sm font-extrabold text-white">On this page</div>
+            <div className="sticky top-24 rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-5">
+              <div className="text-sm font-extrabold text-[#0f172a]">On this page</div>
               <nav className="mt-3 space-y-2 text-sm">
                 {[
                   ["scope", "Scope & roles"],
@@ -83,7 +83,7 @@ export default function DpaPage() {
                   ["deletion", "Data return & deletion"],
                   ["contact", "Contact"],
                 ].map(([id, label]) => (
-                  <a key={id} href={`#${id}`} className="block rounded-lg px-2 py-1.5 text-white/70 hover:bg-white/5 hover:text-white transition">
+                  <a key={id} href={`#${id}`} className="block rounded-lg px-2 py-1.5 text-[#475569] hover:bg-slate-100 hover:text-[#0f172a] transition">
                     {label}
                   </a>
                 ))}
