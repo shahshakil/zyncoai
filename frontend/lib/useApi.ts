@@ -20,10 +20,15 @@ export function useApi<T = any>(path: string | null, config?: SWRConfiguration) 
   return useSWR<T>(path, fetcher, { revalidateOnFocus: false, ...config });
 }
 
-export async function apiPost<T = any>(path: string, body?: unknown, method: "POST" | "PATCH" | "PUT" | "DELETE" = "POST"): Promise<T> {
+export async function apiPost<T = any>(
+  path: string,
+  body?: unknown,
+  method: "POST" | "PATCH" | "PUT" | "DELETE" = "POST",
+  extraHeaders?: Record<string, string>
+): Promise<T> {
   const r = await fetch(path, {
     method,
-    headers: body ? { "content-type": "application/json" } : undefined,
+    headers: { ...(body ? { "content-type": "application/json" } : {}), ...(extraHeaders || {}) },
     body: body ? JSON.stringify(body) : undefined,
     credentials: "include",
   });

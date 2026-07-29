@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { DashboardGate } from "@/components/dashboard/DashboardGate";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { SessionTimeoutGuard } from "@/components/dashboard/SessionTimeoutGuard";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Topbar } from "@/components/dashboard/Topbar";
 import { useDashboard } from "@/components/dashboard/BusinessContext";
@@ -60,6 +61,7 @@ function ThemedShell({ children, sidebarOpen, onCloseSidebar, onOpenSidebar }: {
 
   return (
     <div className="flex h-screen overflow-hidden bg-[var(--bg-canvas)]" style={themeVars}>
+      <SessionTimeoutGuard />
       <Sidebar open={sidebarOpen} onClose={onCloseSidebar} />
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <Topbar onMenuClick={onOpenSidebar} />

@@ -38,10 +38,20 @@ async function proxy(req: NextRequest, params: { path: string[] }) {
   const hasBody = method !== "GET" && method !== "HEAD" && method !== "DELETE";
   const body = hasBody ? await req.text() : undefined;
 
+  // Forwarded as-is when present — the sensitive-action reauth flow
+  // (components/auth/ConfirmPasswordModal.tsx) attaches this so
+  // requireReauth() on the backend can see it. Everything else about this
+  // proxy stays untouched; this is purely additive passthrough.
+  const reauthToken = req.headers.get("x-reauth-token");
+
   const doFetch = (token: string) =>
     backendFetch(targetPath, {
       method,
-      headers: { authorization: `Bearer ${token}`, ...(hasBody ? { "content-type": "application/json" } : {}) },
+      headers: {
+        authorization: `Bearer ${token}`,
+        ...(hasBody ? { "content-type": "application/json" } : {}),
+        ...(reauthToken ? { "x-reauth-token": reauthToken } : {}),
+      },
       body: body || undefined,
     });
 

@@ -18,6 +18,7 @@ function LoginForm() {
 
   useEffect(() => {
     if (params.get("verified") === "1") toast.success("Email verified — you can now sign in.");
+    if (params.get("reason") === "inactivity") toast.error("You were logged out for security. Please log in again.");
   }, [params]);
 
   async function onSubmit(e: React.FormEvent) {
@@ -34,6 +35,9 @@ function LoginForm() {
         if (data.error === "email_not_verified") {
           setNeedsVerification(true);
           toast.error("Please verify your email before logging in — check your inbox for the link, or resend it below.");
+        } else if (data.error === "account_locked") {
+          setNeedsVerification(false);
+          toast.error("Account temporarily locked. Try again in 15 minutes.");
         } else {
           setNeedsVerification(false);
           toast.error(data.message || "Invalid email or password");

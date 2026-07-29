@@ -19,6 +19,7 @@ import { TagBadge } from "@/components/dashboard/ui/badge";
 import { Pagination } from "@/components/dashboard/ui/pagination";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog";
 import { Label } from "@/components/dashboard/ui/input";
+import { useReauth } from "@/components/auth/ConfirmPasswordModal";
 
 const TAGS = ["vip", "new", "regular", "no-show", "flagged"];
 
@@ -87,8 +88,15 @@ export default function ContactsPage() {
     });
   }
 
+  const { requestReauth, modal: reauthModal } = useReauth();
+
   async function loadPatientSheets(): Promise<ExportSheet[]> {
-    const r = await fetch("/api/business/export/patients", { credentials: "include" });
+    // This is a bulk patient PII export — gated behind a fresh password
+    // confirmation (backend: requireReauth on GET /export/patients).
+    const reauthToken = await requestReauth();
+    if (!reauthToken) throw new Error("export_cancelled");
+
+    const r = await fetch("/api/business/export/patients", { credentials: "include", headers: { "X-Reauth-Token": reauthToken } });
     const json = await r.json();
     if (!json.ok) throw new Error("export_failed");
     let rows: PatientExportRow[] = json.rows;
@@ -115,6 +123,7 @@ export default function ContactsPage() {
 
   return (
     <div className="space-y-6">
+      {reauthModal}
       <div className="no-print flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-[#0f172a]">{theme.stats.patients}</h1>
         <div className="flex items-center gap-2">

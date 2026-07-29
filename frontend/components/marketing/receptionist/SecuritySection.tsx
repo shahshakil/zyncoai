@@ -14,6 +14,10 @@ import {
   Building2,
   Database,
   Smartphone,
+  TimerOff,
+  MailWarning,
+  UserX,
+  KeySquare,
 } from "lucide-react";
 
 // Every tile here has been checked against the actual running code, not
@@ -29,6 +33,17 @@ import {
 //  - "Australian data residency" was proposed for this list and removed:
 //    the database is currently hosted in Singapore (ap-southeast-1), not
 //    Sydney. Do not add this claim back until that's actually true.
+//
+// Four more added after the "top-tier security" pass: session timeout
+// (components/dashboard/SessionTimeoutGuard.tsx), new-login email alerts
+// (lib/security/loginNotify.ts), account lockout (already existed, tightened
+// to 5 attempts + an email on lockout), and password confirmation on
+// high-risk actions (lib/middleware/auth/requireReauth.ts) -- worded
+// generically because today it only actually gates two real actions
+// (removing a staff member, bulk patient data export), not every action a
+// "sensitive action confirmation" feature could theoretically cover. Delete
+// account and change email don't exist as features yet, so nothing was
+// added to gate there.
 const MEASURES = [
   { icon: KeyRound, color: "#4f46e5", label: "Password breach detection" },
   { icon: Lock, color: "#06b6d4", label: "Strong password enforcement" },
@@ -43,6 +58,10 @@ const MEASURES = [
   { icon: Building2, color: "#10b981", label: "Tenant-scoped data access" },
   { icon: Database, color: "#f59e0b", label: "SQL injection protection" },
   { icon: Smartphone, color: "#4f46e5", label: "Mandatory 2FA for new accounts" },
+  { icon: TimerOff, color: "#06b6d4", label: "Automatic session timeout" },
+  { icon: MailWarning, color: "#10b981", label: "New-login email alerts" },
+  { icon: UserX, color: "#f59e0b", label: "Account lockout after failed attempts" },
+  { icon: KeySquare, color: "#4f46e5", label: "Password confirmation on high-risk actions" },
 ];
 
 export function SecuritySection() {

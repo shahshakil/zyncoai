@@ -14,6 +14,7 @@ import { Input, Label, Select } from "../ui/input";
 import { Skeleton } from "../ui/skeleton";
 import { Badge } from "../ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { useReauth } from "@/components/auth/ConfirmPasswordModal";
 
 const STAFF_COLUMNS: ExportColumn[] = [
   { key: "name", label: "Name" },
@@ -57,6 +58,7 @@ function TeamAccessCard({ providers }: { providers: Provider[] }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ email: "", role: "STAFF", providerId: "", payType: "", rate: "" });
   const [sending, setSending] = useState(false);
+  const { requestReauth, modal: reauthModal } = useReauth();
 
   async function sendInvite(e: React.FormEvent) {
     e.preventDefault();
@@ -90,8 +92,10 @@ function TeamAccessCard({ providers }: { providers: Provider[] }) {
   }
 
   async function removeMember(memberId: string) {
+    const reauthToken = await requestReauth();
+    if (!reauthToken) return;
     try {
-      await apiPost(`/api/business/staff/invitations/members/${memberId}`, undefined, "DELETE");
+      await apiPost(`/api/business/staff/invitations/members/${memberId}`, undefined, "DELETE", { "X-Reauth-Token": reauthToken });
       mutate();
     } catch {
       toast.error("Could not remove team member");
@@ -100,6 +104,7 @@ function TeamAccessCard({ providers }: { providers: Provider[] }) {
 
   return (
     <Card>
+      {reauthModal}
       <CardHeader>
         <CardTitle>Team access</CardTitle>
         <Button size="sm" onClick={() => setOpen(true)}><Mail className="h-4 w-4" /> Invite team member</Button>
