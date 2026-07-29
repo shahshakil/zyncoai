@@ -23,7 +23,7 @@ export default function UseCasePage({ params }: { params: { slug: string } }) {
         eyebrow: "Use case · " + useCase.name,
         name: useCase.name,
         tagline: useCase.tagline,
-        greeting: "Hi, this is Charlotte — how can I help you today?",
+        greeting: "Hi, this is Ella — how can I help you today?",
         callerLine: useCase.description,
         features: [
           `Purpose-built for ${useCase.name.toLowerCase()}`,

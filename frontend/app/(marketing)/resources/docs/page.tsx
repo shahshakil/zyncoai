@@ -11,12 +11,12 @@ export default function DocsPage() {
     <ResourcePageShell eyebrow="Resources" title="Documentation" description="Plain-English guides to setting up and running ZyncoAI.">
       <ResourceSection title="How ZyncoAI works">
         <p>
-          ZyncoAI answers your business phone line with an AI receptionist called Charlotte. When someone calls your existing number, the call is routed to
-          ZyncoAI, Charlotte answers instantly, understands what the caller needs in natural conversation, and — depending on your setup — books an
+          ZyncoAI answers your business phone line with an AI receptionist called Ella. When someone calls your existing number, the call is routed to
+          ZyncoAI, Ella answers instantly, understands what the caller needs in natural conversation, and — depending on your setup — books an
           appointment directly into your calendar, answers a common question, or takes a message and flags it for your team.
         </p>
         <p>
-          Every call is logged with a transcript in your dashboard, so nothing is a black box: you can always see exactly what was said and what Charlotte
+          Every call is logged with a transcript in your dashboard, so nothing is a black box: you can always see exactly what was said and what Ella
           did as a result.
         </p>
       </ResourceSection>
@@ -75,8 +75,8 @@ export default function DocsPage() {
 
       <ResourceSection title="Booking and appointment guide">
         <p>
-          Charlotte checks real-time availability against each provider&apos;s working hours before offering a slot, so double-bookings aren&apos;t possible. Every
-          booking Charlotte makes appears instantly in your dashboard and, if connected, in your practice software.
+          Ella checks real-time availability against each provider&apos;s working hours before offering a slot, so double-bookings aren&apos;t possible. Every
+          booking Ella makes appears instantly in your dashboard and, if connected, in your practice software.
         </p>
       </ResourceSection>
 

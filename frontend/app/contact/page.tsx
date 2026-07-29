@@ -4,7 +4,7 @@ import { Mail, MapPin, Phone } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Contact | ZyncoAI",
-  description: "Get in touch with the ZyncoAI team — support, sales, or a live demo of Charlotte, your AI receptionist.",
+  description: "Get in touch with the ZyncoAI team — support, sales, or a live demo of Ella, your AI receptionist.",
 };
 
 const DEMO_NUMBER = "+61 2 5747 4612";
@@ -18,7 +18,7 @@ const CHANNELS = [
   },
   {
     icon: Phone,
-    label: "Call Charlotte (live demo)",
+    label: "Call Ella (live demo)",
     value: DEMO_NUMBER,
     href: `tel:${DEMO_NUMBER.replace(/\s/g, "")}`,
   },
@@ -36,7 +36,7 @@ export default function ContactPage() {
       <section className="mx-auto max-w-2xl px-6 py-16 text-center lg:px-8">
         <h1 className="text-3xl font-bold text-[#0f172a] sm:text-4xl">Get in touch</h1>
         <p className="mt-4 text-lg leading-relaxed text-[#475569]">
-          Questions about pricing, a specific industry fit, or want a hand setting up your account? The team behind Charlotte is a call or email away —
+          Questions about pricing, a specific industry fit, or want a hand setting up your account? The team behind Ella is a call or email away —
           not an offshore support queue.
         </p>
       </section>

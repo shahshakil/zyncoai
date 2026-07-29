@@ -24,7 +24,7 @@ function SignupForm() {
   const plan = PRICING_PLANS.find((p) => p.key === planKey);
 
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(() => searchParams.get("email") || "");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState<string | null>(null);

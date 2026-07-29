@@ -8,10 +8,10 @@ export const metadata: Metadata = {
 
 const FAQS = [
   { q: "How do I set up call forwarding?", a: "Forward your business number to the ZyncoAI number shown in Settings. Telstra and most carriers use **21*[number]#, Optus has a \"Divert all calls\" toggle in My Account, and TPG has a Call Forwarding setting in My TPG — see the Documentation page for exact steps per carrier." },
-  { q: "Can my patients tell it's AI?", a: "Charlotte sounds natural, and most patients don't realise until they're told. We don't recommend hiding it if a patient asks directly — she'll say so." },
+  { q: "Can my patients tell it's AI?", a: "Ella sounds natural, and most patients don't realise until they're told. We don't recommend hiding it if a patient asks directly — she'll say so." },
   { q: "What happens if the AI can't answer a question?", a: "She transfers to a human — either by queuing a callback or, on supported plans, transferring the live call straight away." },
   { q: "How do I add staff members?", a: "Settings → Staff → Invite. Enter their email, choose a role, and they'll get a secure link to join." },
-  { q: "What languages does Charlotte speak?", a: "15+ languages, detected automatically, including Mandarin, Hindi, Arabic, and Vietnamese." },
+  { q: "What languages does Ella speak?", a: "15+ languages, detected automatically, including Mandarin, Hindi, Arabic, and Vietnamese." },
   { q: "Can I cancel anytime?", a: "Yes — 30 days' notice, no lock-in contract beyond that." },
   { q: "What is the setup fee?", a: "AUD $499 one-time, across every plan." },
 ];
@@ -39,7 +39,7 @@ export default function HelpPage() {
 
       <ResourceSection title="Troubleshooting call forwarding">
         <p>
-          If calls aren&apos;t reaching Charlotte, check: forwarding is still active with your carrier (some carriers reset it after an outage), you forwarded
+          If calls aren&apos;t reaching Ella, check: forwarding is still active with your carrier (some carriers reset it after an outage), you forwarded
           to the exact ZyncoAI number shown in Settings, and you&apos;ve used the &quot;Test my setup&quot; button to confirm end-to-end. If it still doesn&apos;t work,
           contact support with your carrier name and we&apos;ll help directly.
         </p>

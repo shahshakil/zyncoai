@@ -1,28 +1,36 @@
 import { HeroSection } from "@/components/marketing/receptionist/HeroSection";
+import { VerticalsDiagramSection } from "@/components/marketing/receptionist/VerticalsDiagramSection";
 import { LiveDemoSection } from "@/components/marketing/receptionist/LiveDemoSection";
-import { WorkflowSection } from "@/components/marketing/receptionist/WorkflowSection";
+import { HowItWorksSection } from "@/components/marketing/receptionist/HowItWorksSection";
 import { RoiSection } from "@/components/marketing/receptionist/RoiSection";
 import { FeaturesSection } from "@/components/marketing/receptionist/FeaturesSection";
+import { PlatformControlsSection } from "@/components/marketing/receptionist/PlatformControlsSection";
+import { TrustControlSection } from "@/components/marketing/receptionist/TrustControlSection";
+import { WhyZyncoSection } from "@/components/marketing/receptionist/WhyZyncoSection";
+import { SecuritySection } from "@/components/marketing/receptionist/SecuritySection";
 import { IndustriesSection } from "@/components/marketing/receptionist/IndustriesSection";
 import { ProductDemoSection } from "@/components/marketing/receptionist/ProductDemoSection";
 import { PricingSection } from "@/components/marketing/receptionist/PricingSection";
 import { AddOnsSection } from "@/components/marketing/receptionist/AddOnsSection";
-import { TestimonialsSection } from "@/components/marketing/receptionist/TestimonialsSection";
 import { FinalCtaSection } from "@/components/marketing/receptionist/FinalCtaSection";
 
 export default function Page() {
   return (
     <div className="bg-[#f8fafc]">
       <HeroSection />
+      <VerticalsDiagramSection />
       <LiveDemoSection />
-      <WorkflowSection />
+      <HowItWorksSection />
       <RoiSection />
       <FeaturesSection />
+      <PlatformControlsSection />
+      <TrustControlSection />
+      <WhyZyncoSection />
+      <SecuritySection />
       <IndustriesSection />
       <ProductDemoSection />
       <PricingSection />
       <AddOnsSection />
-      <TestimonialsSection />
       <FinalCtaSection />
     </div>
   );

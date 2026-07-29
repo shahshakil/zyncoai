@@ -1,32 +1,52 @@
 "use client";
-import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
 export function FinalCtaSection() {
+  const [email, setEmail] = useState("");
+  const router = useRouter();
+
+  function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    router.push(`/signup${email ? `?email=${encodeURIComponent(email)}` : ""}`);
+  }
+
   return (
-    <section className="relative mx-[calc(50%-50vw)] w-screen overflow-hidden bg-gradient-to-br from-[#eef2ff] via-white to-[#ecfeff] py-24">
-      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[500px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#6366f1]/10 blur-[120px]" />
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        className="relative mx-auto max-w-2xl px-6 text-center"
-      >
-        <h2 className="text-3xl font-bold text-[#0f172a] sm:text-4xl">Ready to never miss a call again?</h2>
-        <p className="mt-3 text-[#475569]">Join 500+ Australian practices already using ZyncoAI</p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link
-            href="/signup"
-            className="group inline-flex items-center gap-2 rounded-xl bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_0_30px_rgba(99,102,241,0.3)] transition hover:opacity-90"
-          >
-            Start free trial <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-          </Link>
-          <Link href="/contact" className="inline-flex items-center gap-2 rounded-xl border border-[#e2e8f0] bg-white px-6 py-3.5 text-sm font-semibold text-[#0f172a] transition hover:bg-slate-50">
-            Talk to sales
-          </Link>
-        </div>
-      </motion.div>
+    <section className="relative mx-[calc(50%-50vw)] w-screen py-16">
+      <div className="mx-auto max-w-[1100px] px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="relative overflow-hidden rounded-[32px] bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)] px-6 py-16 text-center shadow-[0_20px_60px_rgba(99,102,241,0.3)] sm:px-12"
+        >
+          <div className="pointer-events-none absolute inset-0 opacity-40" style={{ backgroundImage: "radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
+
+          <div className="relative">
+            <h2 className="text-3xl font-bold text-white sm:text-4xl">Start your 7-day free trial</h2>
+            <p className="mt-3 text-white/85">Plans from AUD $299/month · AUD $499 one-time setup · no credit card required to start</p>
+
+            <form onSubmit={onSubmit} className="mx-auto mt-8 flex max-w-md flex-col gap-2.5 sm:flex-row">
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@business.com"
+                className="w-full rounded-xl border border-white/20 bg-white/95 px-4 py-3 text-sm text-[#0f172a] placeholder:text-[#94a3b8] outline-none focus:ring-4 focus:ring-white/30"
+              />
+              <button
+                type="submit"
+                className="group inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-[#0f172a] px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+              >
+                Start Free Trial <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+              </button>
+            </form>
+          </div>
+        </motion.div>
+      </div>
     </section>
   );
 }

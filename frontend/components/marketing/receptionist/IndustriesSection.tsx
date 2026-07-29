@@ -55,7 +55,7 @@ export function IndustriesSection() {
                   </>
                 ) : (
                   <div className="flex h-full flex-col justify-center">
-                    <p className="text-[10px] uppercase tracking-wide text-[#94a3b8]">Charlotte says</p>
+                    <p className="text-[10px] uppercase tracking-wide text-[#94a3b8]">Ella says</p>
                     <p className="mt-1 text-xs leading-5 text-[#475569]">&ldquo;{ind.greeting}&rdquo;</p>
                   </div>
                 )}

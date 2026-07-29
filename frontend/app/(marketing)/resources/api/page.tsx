@@ -39,7 +39,7 @@ export default function ApiPage() {
 
       <ResourceSection title="Events">
         <ul className="list-disc space-y-1 pl-5">
-          <li><code className="text-[#6366f1]">booking.created</code> — a new appointment was booked, by Charlotte or a staff member.</li>
+          <li><code className="text-[#6366f1]">booking.created</code> — a new appointment was booked, by Ella or a staff member.</li>
           <li><code className="text-[#6366f1]">booking.completed</code> — an appointment was marked complete.</li>
           <li><code className="text-[#6366f1]">booking.cancelled</code> — an appointment was cancelled.</li>
         </ul>

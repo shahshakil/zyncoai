@@ -50,7 +50,7 @@ function ScreenCalls() {
   return (
     <div className="h-full space-y-2 p-5">
       <p className="text-[10px] uppercase tracking-wide text-[#94a3b8]">Transcript</p>
-      {["Caller: Hi, I'd like to book an appointment", "Charlotte: Sure! What day suits you best?"].map((t, i) => (
+      {["Caller: Hi, I'd like to book an appointment", "Ella: Sure! What day suits you best?"].map((t, i) => (
         <div key={i} className="rounded-lg border border-[#e2e8f0] bg-slate-50 px-3 py-2 text-xs text-[#475569]">{t}</div>
       ))}
     </div>

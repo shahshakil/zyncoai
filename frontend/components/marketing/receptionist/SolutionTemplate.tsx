@@ -45,7 +45,7 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
             {content.tagline}
           </motion.h1>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-5 text-lg text-[#475569]">
-            Charlotte answers every call for {content.name.toLowerCase()} in under 1 second, 24 hours a day.
+            Ella answers every call for {content.name.toLowerCase()} in under 1 second, 24 hours a day.
           </motion.p>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-8 flex justify-center gap-3">
             <Link href="/signup" className="inline-flex items-center gap-2 rounded-xl bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)] px-6 py-3.5 text-sm font-semibold text-white hover:opacity-90">
@@ -70,7 +70,7 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
             </div>
             <div className="flex justify-start">
               <div className="max-w-[80%] rounded-2xl border border-[#c7d2fe] bg-[#eef2ff] px-4 py-2.5 text-sm text-[#0f172a]">
-                <p className="mb-0.5 text-[10px] uppercase tracking-wide text-[#6366f1]">Charlotte</p>
+                <p className="mb-0.5 text-[10px] uppercase tracking-wide text-[#6366f1]">Ella</p>
                 {content.greeting}
               </div>
             </div>

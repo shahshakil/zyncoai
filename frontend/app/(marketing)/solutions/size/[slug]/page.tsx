@@ -23,7 +23,7 @@ export default function CompanySizePage({ params }: { params: { slug: string } }
         eyebrow: "For · " + size.name,
         name: size.name,
         tagline: size.tagline,
-        greeting: "Hi, this is Charlotte — how can I help you today?",
+        greeting: "Hi, this is Ella — how can I help you today?",
         callerLine: size.description,
         features: [
           `Scaled to fit a ${size.name.toLowerCase()}`,
