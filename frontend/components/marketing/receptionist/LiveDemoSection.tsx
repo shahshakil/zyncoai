@@ -74,7 +74,7 @@ export function LiveDemoSection() {
           <button
             onClick={playSequence}
             disabled={playing}
-            className="inline-flex items-center gap-2 rounded-xl bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)] px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-xl bg-[image:linear-gradient(135deg,#4f46e5,#06b6d4)] px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60"
           >
             {finished ? <RotateCcw className="h-4 w-4" /> : <Play className="h-4 w-4" />}
             {playing ? "Playing…" : finished ? "Play again" : "Play"}
@@ -91,7 +91,7 @@ export function LiveDemoSection() {
                     isCaller ? "bg-slate-100 text-[#0f172a]" : "border border-[#c7d2fe] bg-[#eef2ff] text-[#0f172a]"
                   }`}
                 >
-                  <p className={`mb-0.5 text-[10px] uppercase tracking-wide ${isCaller ? "text-[#64748b]" : "text-[#6366f1]"}`}>
+                  <p className={`mb-0.5 text-[10px] uppercase tracking-wide ${isCaller ? "text-[#64748b]" : "text-[#4f46e5]"}`}>
                     {isCaller ? "Caller" : "Ella"}
                   </p>
                   {turn.text}
@@ -103,7 +103,7 @@ export function LiveDemoSection() {
         </div>
 
         <div className="mt-6 flex justify-center">
-          <Link href="/demo" className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#6366f1] hover:text-[#4338ca]">
+          <Link href="/demo" className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#4f46e5] hover:text-[#4338ca]">
             Try with your own clinic <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>

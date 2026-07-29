@@ -4,11 +4,11 @@ import { Clock, CalendarCheck, Activity, PhoneForwarded, SlidersHorizontal, Plug
 import { useSpotlight } from "./useSpotlight";
 
 const FEATURES = [
-  { icon: Clock, color: "#6366f1", title: "24/7 Availability", desc: "Never miss a call, day or night, weekends included." },
+  { icon: Clock, color: "#4f46e5", title: "24/7 Availability", desc: "Never miss a call, day or night, weekends included." },
   { icon: CalendarCheck, color: "#06b6d4", title: "Instant Booking", desc: "Appointments go straight on the calendar — no back-and-forth, no hold music." },
   { icon: Activity, color: "#10b981", title: "Real-time Analytics", desc: "Every call, outcome, and trend live in your dashboard." },
   { icon: PhoneForwarded, color: "#f59e0b", title: "Human Handoff", desc: "Escalates to your team the moment a call needs a person." },
-  { icon: SlidersHorizontal, color: "#6366f1", title: "Tuned Per Vertical", desc: "Scripts and workflows built for how your industry actually books work." },
+  { icon: SlidersHorizontal, color: "#4f46e5", title: "Tuned Per Vertical", desc: "Scripts and workflows built for how your industry actually books work." },
   { icon: Plug, color: "#06b6d4", title: "Works With Your Tools", desc: "Calendar, CRM, and payments — connected, not bolted on." },
 ];
 

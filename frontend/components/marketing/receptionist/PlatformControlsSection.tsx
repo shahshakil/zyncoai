@@ -2,11 +2,11 @@
 import { useSpotlight } from "./useSpotlight";
 
 const CONTROLS = [
-  { label: "Call Recording", color: "#6366f1" },
+  { label: "Call Recording", color: "#4f46e5" },
   { label: "Missed-Call Text-Back", color: "#06b6d4" },
   { label: "SMS Follow-up", color: "#10b981" },
   { label: "Voicemail Transcription", color: "#f59e0b" },
-  { label: "Appointment Reminders", color: "#6366f1" },
+  { label: "Appointment Reminders", color: "#4f46e5" },
   { label: "Custom Scripts", color: "#06b6d4" },
 ];
 

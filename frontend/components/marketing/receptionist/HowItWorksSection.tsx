@@ -7,22 +7,22 @@ const STEPS = [
   {
     label: "Phone rings",
     icon: PhoneIncoming,
-    color: "#6366f1",
+    color: "#4f46e5",
     render: () => (
       <div className="flex flex-col items-center gap-3">
         <motion.div
           animate={{ scale: [1, 1.08, 1] }}
           transition={{ repeat: Infinity, duration: 1.1 }}
-          className="flex h-16 w-16 items-center justify-center rounded-full bg-[#6366f1]/10"
+          className="flex h-16 w-16 items-center justify-center rounded-full bg-[#4f46e5]/10"
         >
-          <PhoneIncoming className="h-7 w-7 text-[#6366f1]" />
+          <PhoneIncoming className="h-7 w-7 text-[#4f46e5]" />
         </motion.div>
         <p className="text-sm font-medium text-[#0f172a]">Incoming call…</p>
         <div className="flex items-end gap-1">
           {[6, 12, 18, 12, 7, 14].map((h, i) => (
             <motion.span
               key={i}
-              className="w-1 rounded-full bg-[#6366f1]/50"
+              className="w-1 rounded-full bg-[#4f46e5]/50"
               animate={{ height: [h, h * 1.6, h] }}
               transition={{ repeat: Infinity, duration: 0.8, delay: i * 0.08 }}
               style={{ height: h }}
@@ -54,7 +54,7 @@ const STEPS = [
     render: () => (
       <div className="flex flex-col items-center gap-3">
         <div className="max-w-[280px] rounded-2xl rounded-br-sm border border-[#c7d2fe] bg-[#eef2ff] px-4 py-3 text-left text-sm text-[#0f172a]">
-          <p className="mb-1 flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-[#6366f1]">
+          <p className="mb-1 flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-[#4f46e5]">
             <Volume2 className="h-3 w-3" /> Ella
           </p>
           &ldquo;Of course! I have 9am or 11:30am open tomorrow — which works better?&rdquo;

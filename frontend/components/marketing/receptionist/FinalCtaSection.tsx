@@ -20,7 +20,7 @@ export function FinalCtaSection() {
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="relative overflow-hidden rounded-[32px] bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)] px-6 py-16 text-center shadow-[0_20px_60px_rgba(99,102,241,0.3)] sm:px-12"
+          className="relative overflow-hidden rounded-[32px] bg-[image:linear-gradient(135deg,#4f46e5,#06b6d4)] px-6 py-16 text-center shadow-[0_20px_60px_rgba(79,70,229,0.3)] sm:px-12"
         >
           <div className="pointer-events-none absolute inset-0 opacity-40" style={{ backgroundImage: "radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
 

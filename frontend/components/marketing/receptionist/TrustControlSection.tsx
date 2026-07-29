@@ -73,7 +73,7 @@ export function TrustControlSection() {
         {/* right: compact signup card */}
         <div className="lg:sticky lg:top-24">
           <div className="rounded-3xl border border-[#e2e8f0] bg-[#f8fafc] p-8 shadow-[0_4px_12px_rgba(0,0,0,0.06)]">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[image:linear-gradient(135deg,#4f46e5,#06b6d4)]">
               <ShieldCheck className="h-5 w-5 text-white" />
             </div>
             <h3 className="mt-4 text-xl font-bold text-[#0f172a]">Start your 7-day free trial</h3>
@@ -86,11 +86,11 @@ export function TrustControlSection() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@business.com"
-                className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm text-[#0f172a] placeholder:text-[#94a3b8] outline-none focus:border-[#6366f1]/50 focus:ring-4 focus:ring-[#6366f1]/10"
+                className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm text-[#0f172a] placeholder:text-[#94a3b8] outline-none focus:border-[#4f46e5]/50 focus:ring-4 focus:ring-[#4f46e5]/10"
               />
               <button
                 type="submit"
-                className="group inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)] px-5 py-3 text-sm font-semibold text-white shadow-[0_0_20px_rgba(99,102,241,0.25)] transition hover:opacity-90"
+                className="group inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-[image:linear-gradient(135deg,#4f46e5,#06b6d4)] px-5 py-3 text-sm font-semibold text-white shadow-[0_0_20px_rgba(79,70,229,0.25)] transition hover:opacity-90"
               >
                 Start Free Trial <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
               </button>

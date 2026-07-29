@@ -5,7 +5,7 @@ import { Layers, RefreshCw, PhoneCall, Eye } from "lucide-react";
 const REASONS = [
   {
     icon: Layers,
-    color: "#6366f1",
+    color: "#4f46e5",
     title: "Built for your industry, not a generic bot",
     desc: "Medical, dental, legal, mechanics, restaurants and more each get their own tuned scripts and vocabulary — not one script stretched across every business.",
   },
