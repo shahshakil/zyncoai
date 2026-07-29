@@ -11,6 +11,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/dashboard
 import { Button } from "@/components/dashboard/ui/button";
 import { Skeleton } from "@/components/dashboard/ui/skeleton";
 import { EmptyState } from "@/components/dashboard/ui/table";
+import { GlassTooltip } from "@/components/dashboard/ui/ChartTooltip";
+import { CHART_COLORS } from "@/components/dashboard/ui/chartTheme";
 
 // ---------------- Section 1: Triage Queue ----------------
 function TriageQueue() {
@@ -42,27 +44,27 @@ function TriageQueue() {
 
   const flags = data?.flags || [];
   return (
-    <Card className="border-t-4 border-t-[#dc2626]">
+    <Card className="border-t-4 border-t-rose-500">
       <CardHeader>
-        <CardTitle className="flex items-center gap-1.5"><AlertTriangle className="h-4 w-4 text-[#dc2626]" /> Triage Queue</CardTitle>
-        {!!data?.unreviewedCount && <span className="rounded-full bg-[#dc2626] px-2 py-0.5 text-xs font-semibold text-white">{data.unreviewedCount} unreviewed</span>}
+        <CardTitle className="flex items-center gap-1.5"><AlertTriangle className="h-4 w-4 text-rose-600" /> Triage Queue</CardTitle>
+        {!!data?.unreviewedCount && <span className="rounded-full bg-rose-600 px-2 py-0.5 text-xs font-semibold text-white">{data.unreviewedCount} unreviewed</span>}
       </CardHeader>
       <CardContent className="space-y-2">
         {!data ? <div className="space-y-2">{Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}</div>
-          : flags.length === 0 ? <EmptyState title="No emergency flags — all clear" />
+          : flags.length === 0 ? <EmptyState icon={CheckCircle2} title="No emergency flags — all clear" />
           : flags.map((f: any) => (
-            <div key={f.callId} className={`rounded-xl border p-3 ${f.reviewed ? "border-slate-100 bg-slate-50" : "border-[#fecaca] bg-[#fef2f2]"}`}>
+            <div key={f.callId} className={`rounded-xl border p-3 ${f.reviewed ? "border-slate-100 bg-slate-50" : "border-rose-200 bg-rose-50"}`}>
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <p className="text-sm font-semibold text-slate-900">{f.contactName || f.phone}</p>
-                  <p className="text-xs text-[#dc2626]">{(f.concernKeyword || f.category || "Emergency detected")}</p>
+                  <p className="text-xs text-rose-600">{(f.concernKeyword || f.category || "Emergency detected")}</p>
                   <p className="mt-0.5 text-[11px] text-slate-400">{new Date(f.timeFlagged).toLocaleString("en-AU")}</p>
                 </div>
                 {f.reviewed && <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />}
               </div>
               {!f.reviewed && (
                 <div className="mt-2 flex gap-2">
-                  <Button size="sm" disabled={busyIds.has(f.callId)} onClick={() => callBack(f.callId)} className="bg-[#dc2626] text-white hover:bg-red-700">
+                  <Button size="sm" disabled={busyIds.has(f.callId)} onClick={() => callBack(f.callId)} className="bg-rose-600 text-white hover:bg-rose-500">
                     <PhoneCall className="h-3.5 w-3.5" /> Call back now
                   </Button>
                   <Button size="sm" variant="outline" disabled={busyIds.has(f.callId)} onClick={() => markReviewed(f.callId)}>Mark reviewed</Button>
@@ -79,7 +81,7 @@ function TriageQueue() {
 const APPT_TYPE_COLOR: Record<string, string> = {};
 function typeColor(recordType: string): string {
   if (!APPT_TYPE_COLOR[recordType]) {
-    const palette = ["#2563eb", "#7c3aed", "#0d9488", "#d97706", "#dc2626", "#16a34a"];
+    const palette = [CHART_COLORS.primary, CHART_COLORS.secondary, CHART_COLORS.info, CHART_COLORS.warning, CHART_COLORS.danger, CHART_COLORS.success];
     APPT_TYPE_COLOR[recordType] = palette[Object.keys(APPT_TYPE_COLOR).length % palette.length];
   }
   return APPT_TYPE_COLOR[recordType];
@@ -105,8 +107,8 @@ function PatientPipeline() {
   }
 
   return (
-    <Card className="border-t-4 border-t-[#2563eb]">
-      <CardHeader><CardTitle className="flex items-center gap-1.5"><Kanban className="h-4 w-4 text-[#2563eb]" /> Patient Status Pipeline</CardTitle></CardHeader>
+    <Card className="border-t-4 border-t-indigo-500">
+      <CardHeader><CardTitle className="flex items-center gap-1.5"><Kanban className="h-4 w-4 text-indigo-600" /> Patient Status Pipeline</CardTitle></CardHeader>
       <CardContent>
         {!data ? <Skeleton className="h-64 w-full" /> : (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -122,7 +124,7 @@ function PatientPipeline() {
                         <button
                           disabled={movingIds.has(c.id)}
                           onClick={() => moveNext(c.id, col.name)}
-                          className="mt-1 text-[10px] font-medium text-[#2563eb] hover:underline disabled:opacity-50"
+                          className="mt-1 text-[10px] font-medium text-indigo-600 hover:underline disabled:opacity-50"
                         >
                           Move to {col.name === "Booked" ? "Arrived" : col.name === "Arrived" ? "In Consultation" : col.name === "In Consultation" ? "Checked Out" : "Follow-up Needed"} →
                         </button>
@@ -168,8 +170,8 @@ function EHRSyncStatus() {
     .slice(0, 5);
 
   return (
-    <Card className="border-t-4 border-t-[#16a34a]">
-      <CardHeader><CardTitle className="flex items-center gap-1.5"><Link2 className="h-4 w-4 text-[#16a34a]" /> EHR Sync Status</CardTitle></CardHeader>
+    <Card className="border-t-4 border-t-emerald-500">
+      <CardHeader><CardTitle className="flex items-center gap-1.5"><Link2 className="h-4 w-4 text-emerald-600" /> EHR Sync Status</CardTitle></CardHeader>
       <CardContent className="space-y-4">
         {!integrations ? <Skeleton className="h-40 w-full" /> : (
           <>
@@ -185,7 +187,7 @@ function EHRSyncStatus() {
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${info?.connected ? "bg-[#f0fdf4] text-[#16a34a]" : "bg-slate-100 text-slate-500"}`}>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${info?.connected ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-500"}`}>
                         {info?.connected ? (info.enabled ? "Active" : "Paused") : "Disconnected"}
                       </span>
                       {info?.connected && (
@@ -205,7 +207,7 @@ function EHRSyncStatus() {
                   {recentLogs.map((l: any) => (
                     <div key={l.id} className="flex items-center justify-between text-xs">
                       <span className="text-slate-600">{l.provider} — {new Date(l.startedAt).toLocaleString("en-AU")}</span>
-                      <span className={l.status === "success" ? "text-[#16a34a]" : "text-[#dc2626]"}>{l.status}</span>
+                      <span className={l.status === "success" ? "text-emerald-600" : "text-rose-600"}>{l.status}</span>
                     </div>
                   ))}
                 </div>
@@ -249,20 +251,20 @@ function PrescriptionRequests() {
 
   const requests = data?.requests || [];
   return (
-    <Card className="border-t-4 border-t-[#7c3aed]">
-      <CardHeader><CardTitle className="flex items-center gap-1.5"><Pill className="h-4 w-4 text-[#7c3aed]" /> Prescription & Referral Requests</CardTitle></CardHeader>
+    <Card className="border-t-4 border-t-violet-500">
+      <CardHeader><CardTitle className="flex items-center gap-1.5"><Pill className="h-4 w-4 text-violet-600" /> Prescription & Referral Requests</CardTitle></CardHeader>
       <CardContent className="space-y-2">
         {!data ? <div className="space-y-2">{Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}</div>
-          : requests.length === 0 ? <EmptyState title="No requests in the last 7 days" />
+          : requests.length === 0 ? <EmptyState icon={Pill} title="No requests in the last 7 days" />
           : requests.map((r: any) => (
             <div key={r.callId} className="rounded-xl border border-slate-100 p-3">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-slate-900">{r.contactName} <span className="ml-1 rounded-full bg-[#f5f3ff] px-2 py-0.5 text-[10px] font-medium capitalize text-[#7c3aed]">{r.type}</span></p>
+                  <p className="text-sm font-medium text-slate-900">{r.contactName} <span className="ml-1 rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-medium capitalize text-violet-600">{r.type}</span></p>
                   <p className="mt-0.5 truncate text-xs text-slate-400">&ldquo;{r.excerpt}&rdquo;</p>
                   <p className="mt-0.5 text-[11px] text-slate-400">{new Date(r.date).toLocaleDateString("en-AU")}</p>
                 </div>
-                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${r.status === "Completed" ? "bg-[#f0fdf4] text-[#16a34a]" : r.status === "Notified" ? "bg-[#eff6ff] text-[#2563eb]" : "bg-[#fffbeb] text-[#d97706]"}`}>{r.status}</span>
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${r.status === "Completed" ? "bg-emerald-50 text-emerald-600" : r.status === "Notified" ? "bg-indigo-50 text-indigo-600" : "bg-amber-50 text-amber-600"}`}>{r.status}</span>
               </div>
               {r.status !== "Completed" && (
                 <div className="mt-2 flex gap-2">
@@ -285,14 +287,14 @@ function PrescriptionRequests() {
 function Demographics() {
   const { data } = useApi<any>("/api/business/clinical/demographics", { refreshInterval: 60000 });
   return (
-    <Card className="border-t-4 border-t-[#0d9488]">
-      <CardHeader><CardTitle className="flex items-center gap-1.5"><Users className="h-4 w-4 text-[#0d9488]" /> Demographics</CardTitle></CardHeader>
+    <Card className="border-t-4 border-t-cyan-500">
+      <CardHeader><CardTitle className="flex items-center gap-1.5"><Users className="h-4 w-4 text-cyan-600" /> Demographics</CardTitle></CardHeader>
       <CardContent className="space-y-4">
         {!data ? <Skeleton className="h-56 w-full" /> : (
           <>
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl bg-[#f0fdfa] p-3 text-center">
-                <p className="text-2xl font-semibold text-[#0d9488]">{data.newVsReturning.new}</p>
+              <div className="rounded-xl bg-cyan-50 p-3 text-center">
+                <p className="text-2xl font-semibold text-cyan-700">{data.newVsReturning.new}</p>
                 <p className="text-[11px] text-slate-500">New patients today</p>
               </div>
               <div className="rounded-xl bg-slate-50 p-3 text-center">
@@ -305,8 +307,8 @@ function Demographics() {
               <ResponsiveContainer width="100%" height={120}>
                 <BarChart data={data.ageGroups}>
                   <XAxis dataKey="label" fontSize={10} stroke="#94a3b8" tickLine={false} axisLine={false} />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#0d9488" radius={[3, 3, 0, 0]} />
+                  <Tooltip content={<GlassTooltip />} />
+                  <Bar dataKey="count" name="Patients" fill={CHART_COLORS.info} radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -337,14 +339,14 @@ function Demographics() {
 function RevenueAnalytics() {
   const { data } = useApi<any>("/api/business/clinical/revenue", { refreshInterval: 60000 });
   return (
-    <Card className="border-t-4 border-t-[#d97706]">
-      <CardHeader><CardTitle className="flex items-center gap-1.5"><DollarSign className="h-4 w-4 text-[#d97706]" /> Revenue Analytics</CardTitle></CardHeader>
+    <Card className="border-t-4 border-t-amber-500">
+      <CardHeader><CardTitle className="flex items-center gap-1.5"><DollarSign className="h-4 w-4 text-amber-600" /> Revenue Analytics</CardTitle></CardHeader>
       <CardContent className="space-y-4">
         {!data ? <Skeleton className="h-56 w-full" /> : (
           <>
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl bg-[#fffbeb] p-3 text-center">
-                <p className="text-2xl font-semibold text-[#d97706]">AUD ${(data.revenueSavedTodayCents / 100).toLocaleString()}</p>
+              <div className="rounded-xl bg-amber-50 p-3 text-center">
+                <p className="text-2xl font-semibold text-amber-600">AUD ${(data.revenueSavedTodayCents / 100).toLocaleString()}</p>
                 <p className="text-[11px] text-slate-500">Revenue saved today</p>
               </div>
               <div className="rounded-xl bg-slate-50 p-3 text-center">
@@ -357,8 +359,8 @@ function RevenueAnalytics() {
               <ResponsiveContainer width="100%" height={120}>
                 <BarChart data={data.monthlyTrend}>
                   <XAxis dataKey="month" fontSize={10} stroke="#94a3b8" tickLine={false} axisLine={false} />
-                  <Tooltip formatter={(v: number) => `$${(v / 100).toLocaleString()}`} />
-                  <Bar dataKey="amountCents" fill="#d97706" radius={[3, 3, 0, 0]} />
+                  <Tooltip content={<GlassTooltip formatter={(v) => `$${(v / 100).toLocaleString()}`} />} />
+                  <Bar dataKey="amountCents" name="Revenue" fill={CHART_COLORS.warning} radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -368,7 +370,7 @@ function RevenueAnalytics() {
                 ZyncoAI costs <span className="font-semibold">${(data.roi.zyncoAiMonthlyCostCents / 100).toLocaleString()}/month</span> vs{" "}
                 <span className="font-semibold">${(data.roi.humanReceptionistSalaryCentsMonthly / 100).toLocaleString()}/month</span> for a human receptionist.
               </p>
-              <p className="mt-1 text-2xl font-bold text-[#16a34a]">${(data.roi.monthlySavingsCents / 100).toLocaleString()} saved/month</p>
+              <p className="mt-1 text-2xl font-bold text-emerald-600">${(data.roi.monthlySavingsCents / 100).toLocaleString()} saved/month</p>
               {(!data.roi.zyncoAiCostIsConfigured || data.roi.salaryFigureIsEstimate) && (
                 <p className="mt-2 text-[10px] text-amber-600">
                   {!data.roi.zyncoAiCostIsConfigured && "No plan price is set on this account yet — showing $0 for ZyncoAI's cost. "}

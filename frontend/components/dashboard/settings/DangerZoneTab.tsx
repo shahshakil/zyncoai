@@ -30,12 +30,12 @@ export function DangerZoneTab() {
   }
 
   return (
-    <Card className="border-red-500/20">
-      <CardHeader><CardTitle className="text-red-400">Danger zone</CardTitle></CardHeader>
+    <Card className="border-rose-500/20">
+      <CardHeader><CardTitle className="text-rose-400">Danger zone</CardTitle></CardHeader>
       <CardContent>
-        <div className="flex items-center justify-between rounded-lg border border-red-500/20 bg-red-500/5 p-4">
+        <div className="flex items-center justify-between rounded-lg border border-rose-500/20 bg-rose-500/5 p-4">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-400" />
             <div>
               <p className="text-sm font-medium text-slate-900">{suspended ? "Reactivate business" : "Suspend business"}</p>
               <p className="mt-1 text-sm text-slate-400">

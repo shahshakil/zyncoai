@@ -249,7 +249,7 @@ export default function ContactDetailPage() {
             {timeline.map((item, i) => (
               <div key={i} className="flex gap-3 border-b border-white/5 pb-4 last:border-0 last:pb-0">
                 <div className="mt-0.5">
-                  {item.type === "call" && <Phone className="h-4 w-4 text-sky-400" />}
+                  {item.type === "call" && <Phone className="h-4 w-4 text-cyan-400" />}
                   {item.type === "appointment" && <CalendarClock className="h-4 w-4 text-emerald-400" />}
                   {item.type === "note" && <StickyNote className="h-4 w-4 text-amber-400" />}
                 </div>

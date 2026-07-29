@@ -6,7 +6,7 @@
 // list instead.
 import { useState } from "react";
 import Link from "next/link";
-import { Printer, Download, ChevronLeft, ChevronRight } from "lucide-react";
+import { Printer, Download, ChevronLeft, ChevronRight, CalendarX2 } from "lucide-react";
 import { useApi } from "@/lib/useApi";
 import { useDashboard } from "@/components/dashboard/BusinessContext";
 import { getVerticalOps } from "@/lib/verticalOps";
@@ -14,12 +14,13 @@ import { Card } from "@/components/dashboard/ui/card";
 import { Button } from "@/components/dashboard/ui/button";
 import { EmptyState } from "@/components/dashboard/ui/table";
 import { triggerPrint } from "@/lib/exportUtils";
+import { CHART_COLORS } from "@/components/dashboard/ui/chartTheme";
 
 const SLOT_START_HOUR = 7;
 const SLOT_END_HOUR = 19;
 const SLOT_MIN = 30;
 const RECORD_TYPE_COLORS: Record<string, string> = {
-  Consultation: "#2563eb", Checkup: "#16a34a", Procedure: "#f97316", Appointment: "#64748b",
+  Consultation: CHART_COLORS.primary, Checkup: CHART_COLORS.success, Procedure: CHART_COLORS.warning, Appointment: "#64748b",
 };
 
 interface ScheduleAppt { id: string; startAt: string; endAt: string; recordType: string | null; status: string; contactId?: string; contactName?: string }
@@ -122,7 +123,7 @@ export default function CalendarPage() {
             </tbody>
           </table>
         </div>
-        {data && !appointments.length && <div className="p-4"><EmptyState title="No appointments this week" description="Free slots are shown as empty cells above." /></div>}
+        {data && !appointments.length && <div className="p-4"><EmptyState icon={CalendarX2} title="No appointments this week" description="Free slots are shown as empty cells above." /></div>}
       </Card>
     </div>
   );

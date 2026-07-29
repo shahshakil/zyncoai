@@ -6,7 +6,7 @@
 // scopes DOCTOR to their own patients' documents).
 import { useState } from "react";
 import { toast } from "sonner";
-import { AlertTriangle, Download, Send, Printer } from "lucide-react";
+import { AlertTriangle, Download, Send, Printer, FolderOpen } from "lucide-react";
 import { useApi, apiPost } from "@/lib/useApi";
 import { useDashboard } from "@/components/dashboard/BusinessContext";
 import { getVerticalOps } from "@/lib/verticalOps";
@@ -139,7 +139,7 @@ export default function DocumentsPage() {
             ))}
           </Tbody>
         </Table>
-        {rows && !rows.length && <EmptyState title="No documents match these filters" />}
+        {rows && !rows.length && <EmptyState icon={FolderOpen} title="No documents match these filters" />}
       </Card>
 
       <BulkSendDialog open={bulkSendOpen} documentIds={Array.from(selected)} onClose={() => setBulkSendOpen(false)} onSent={() => { setSelected(new Set()); mutate(); }} />

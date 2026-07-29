@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, Users } from "lucide-react";
 import { toast } from "sonner";
 import { useApi, apiPost } from "@/lib/useApi";
 import { useDashboard } from "@/components/dashboard/BusinessContext";
@@ -195,7 +195,7 @@ export default function ContactsPage() {
           </Tbody>
         </Table>
         {!isLoading && !data?.data.length && (
-          <EmptyState title="No contacts yet" description="Contacts are created automatically from calls and bookings, or you can add one manually." action={<Button size="sm" onClick={() => setNewOpen(true)}>Add contact</Button>} />
+          <EmptyState icon={Users} title="No contacts yet" description="Contacts are created automatically from calls and bookings, or you can add one manually." action={<Button size="sm" onClick={() => setNewOpen(true)}>Add contact</Button>} />
         )}
         {data && <Pagination page={page} totalPages={data.pagination.totalPages} onPageChange={setPage} />}
       </Card>

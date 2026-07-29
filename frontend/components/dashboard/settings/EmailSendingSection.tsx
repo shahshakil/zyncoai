@@ -48,7 +48,7 @@ function StatusBadgeRow({ state, sendingFrom }: { state: "not_connected" | "pend
   }
   if (state === "failed") {
     return (
-      <div className="flex items-center gap-1.5 text-xs font-medium text-red-600">
+      <div className="flex items-center gap-1.5 text-xs font-medium text-rose-600">
         <XCircle className="h-3.5 w-3.5" /> Connection failed
       </div>
     );

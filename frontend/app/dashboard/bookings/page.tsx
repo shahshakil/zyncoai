@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Plus, CalendarRange, FileSpreadsheet, Printer, Loader2 } from "lucide-react";
+import { Plus, CalendarRange, FileSpreadsheet, Printer, Loader2, CalendarX2 } from "lucide-react";
 import { toast } from "sonner";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useApi, apiPost } from "@/lib/useApi";
@@ -294,18 +294,18 @@ export default function BookingsPage() {
                   <Td className="text-slate-500">{new Date(a.startAt).toLocaleString()}</Td>
                   <Td><StatusBadge status={a.status} /></Td>
                   <Td className="max-w-[200px] truncate text-slate-500">{a.notes || "—"}</Td>
-                  <Td>
-                    <div className="flex gap-1">
+                  <Td className="text-right">
+                    <div className="flex justify-end gap-1.5">
                       {a.status === "CONFIRMED" && !a.metadata?.checkedInAt && (
-                        <Button variant="ghost" size="sm" onClick={() => checkIn(a.id)}>Check in</Button>
+                        <Button variant="outline" size="sm" onClick={() => checkIn(a.id)}>Check in</Button>
                       )}
                       {a.metadata?.checkedInAt && a.status === "CONFIRMED" && (
                         <span className="px-2 py-1 text-[10px] font-medium text-emerald-600">Checked in</span>
                       )}
                       {a.status !== "COMPLETED" && a.status !== "CANCELLED" && (
                         <>
-                          <Button variant="ghost" size="sm" onClick={() => updateStatus(a.id, "COMPLETED")}>Complete</Button>
-                          <Button variant="ghost" size="sm" onClick={() => updateStatus(a.id, "CANCELLED")}>Cancel</Button>
+                          <Button variant="outline" size="sm" onClick={() => updateStatus(a.id, "COMPLETED")}>Complete</Button>
+                          <Button variant="outline" size="sm" onClick={() => updateStatus(a.id, "CANCELLED")}>Cancel</Button>
                         </>
                       )}
                     </div>
@@ -315,7 +315,7 @@ export default function BookingsPage() {
             ) : null}
           </Tbody>
         </Table>
-        {!isLoading && !data?.data.length && <EmptyState title={`No ${copy.noun.toLowerCase()}s yet`} description="Bookings made over the phone or created here will show up in this list." />}
+        {!isLoading && !data?.data.length && <EmptyState icon={CalendarX2} title={`No ${copy.noun.toLowerCase()}s yet`} description="Bookings made over the phone or created here will show up in this list." />}
       </Card>
 
       <CreateBookingDialog open={createOpen} onClose={() => setCreateOpen(false)} providers={providersData?.providers || []} copy={copy} onCreated={() => mutate()} />

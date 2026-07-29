@@ -7,7 +7,7 @@
 // VerticalOpsConfig, not hardcoded here.
 import { useState } from "react";
 import Link from "next/link";
-import { Download, Printer, ExternalLink } from "lucide-react";
+import { Download, Printer, ExternalLink, FileHeart } from "lucide-react";
 import { useApi } from "@/lib/useApi";
 import { useDashboard } from "@/components/dashboard/BusinessContext";
 import { getVerticalOps, claimStatusLabel } from "@/lib/verticalOps";
@@ -120,7 +120,7 @@ export default function ClaimsPage() {
             ))}
           </Tbody>
         </Table>
-        {data && !data.claims.length && <EmptyState title={`No ${ops.claimsLabel.toLowerCase()} match these filters`} description={`Add a record from a ${ops.contactLabel.toLowerCase()}'s file to track it here.`} />}
+        {data && !data.claims.length && <EmptyState icon={FileHeart} title={`No ${ops.claimsLabel.toLowerCase()} match these filters`} description={`Add a record from a ${ops.contactLabel.toLowerCase()}'s file to track it here.`} />}
       </Card>
     </div>
   );

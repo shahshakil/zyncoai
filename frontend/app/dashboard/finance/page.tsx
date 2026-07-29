@@ -42,14 +42,14 @@ interface Overview {
 }
 
 function StatTile({ label, value, icon: Icon, tone = "default" }: { label: string; value: string; icon: any; tone?: "default" | "success" | "danger" }) {
-  const toneClass = tone === "success" ? "text-emerald-600" : tone === "danger" ? "text-red-600" : "text-slate-900";
+  const toneClass = tone === "success" ? "text-emerald-600" : tone === "danger" ? "text-rose-600" : "text-slate-900";
   return (
     <Card>
       <CardContent className="flex items-center gap-4">
         <div className="rounded-xl bg-[var(--accent-soft,#eff6ff)] p-3"><Icon className="h-5 w-5 text-[var(--accent,#2563eb)]" /></div>
-        <div>
-          <p className="text-xs text-slate-400">{label}</p>
-          <p className={`text-xl font-semibold ${toneClass}`}>{value}</p>
+        <div className="min-w-0">
+          <p className="text-xs uppercase tracking-wide text-slate-400">{label}</p>
+          <p className={`text-2xl font-bold tabular-nums ${toneClass}`}>{value}</p>
         </div>
       </CardContent>
     </Card>
@@ -141,7 +141,7 @@ export default function FinancePage() {
                     <Thead><tr><Th>Type</Th><Th>Amount</Th></tr></Thead>
                     <Tbody>{data.revenue.byPayerType.map((p) => <Tr key={p.key}><Td>{p.label}</Td><Td>{money(p.amountCents)}</Td></Tr>)}</Tbody>
                   </Table>
-                  {!data.revenue.byPayerType.length && <EmptyState title="No revenue recorded yet this month" />}
+                  {!data.revenue.byPayerType.length && <EmptyState icon={DollarSign} title="No revenue recorded yet this month" />}
                 </Card>
               )}
               {fl.byFundEnabled && (
@@ -151,7 +151,7 @@ export default function FinancePage() {
                     <Thead><tr><Th>Fund</Th><Th>Amount</Th></tr></Thead>
                     <Tbody>{data.revenue.byFund.map((f) => <Tr key={f.fund}><Td>{f.fund}</Td><Td>{money(f.amountCents)}</Td></Tr>)}</Tbody>
                   </Table>
-                  {!data.revenue.byFund.length && <EmptyState title="No private health fund revenue this month" />}
+                  {!data.revenue.byFund.length && <EmptyState icon={DollarSign} title="No private health fund revenue this month" />}
                 </Card>
               )}
               <Card>
@@ -221,7 +221,7 @@ function TaxTab({ providerLabel }: { providerLabel: string }) {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-xs text-sky-800">
+      <div className="rounded-xl border border-cyan-200 bg-cyan-50 px-4 py-3 text-xs text-cyan-800">
         Helper only — figures here are computed from your recorded revenue, costs, and pay entries. Consult your accountant or BAS agent before lodging. PAYG withholding is not calculated (no tax-file-number/withholding-rate data is stored) — get that figure from your payroll software.
       </div>
 
@@ -276,7 +276,7 @@ function TaxTab({ providerLabel }: { providerLabel: string }) {
                 ))}
               </Tbody>
             </Table>
-            {!annual.payrollSummary.length && <EmptyState title="No pay period entries recorded" description="Payroll entries are added manually (no time-clock exists) — see below." />}
+            {!annual.payrollSummary.length && <EmptyState icon={PiggyBank} title="No pay period entries recorded" description="Payroll entries are added manually (no time-clock exists) — see below." />}
           </Card>
 
           <Card>
@@ -366,7 +366,7 @@ function CostsTab({ costs, providerLabel }: { costs: Overview["costs"]; provider
             ))}
           </Tbody>
         </Table>
-        {!costs.operatingCosts.length && <EmptyState title="No operating costs recorded" description="Add software/tools costs or other misc expenses." />}
+        {!costs.operatingCosts.length && <EmptyState icon={Receipt} title="No operating costs recorded" description="Add software/tools costs or other misc expenses." />}
       </Card>
 
       <StaffPayDialog member={editingMember} onClose={() => setEditingMember(null)} onSaved={() => { mutateStaff(); mutate(); }} />

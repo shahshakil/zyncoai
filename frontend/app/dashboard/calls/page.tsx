@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, PhoneCall } from "lucide-react";
 import posthog from "posthog-js";
 import { useApi } from "@/lib/useApi";
 import { useDashboard } from "@/components/dashboard/BusinessContext";
@@ -207,15 +207,15 @@ export default function CallsPage() {
                   <Td><OutcomeBadge outcome={c.outcome} /></Td>
                   <Td>{c.provider?.name || "—"}</Td>
                   <Td className="text-slate-500">{new Date(c.startedAt).toLocaleString()}</Td>
-                  <Td>
-                    <Button variant="ghost" size="sm" onClick={() => setTranscriptFor(c)}>Transcript</Button>
+                  <Td className="text-right">
+                    <Button variant="outline" size="sm" onClick={() => setTranscriptFor(c)}>Transcript</Button>
                   </Td>
                 </Tr>
               ))
             ) : null}
           </Tbody>
         </Table>
-        {!isLoading && !data?.data.length && <EmptyState title="No calls yet" description="Calls will show up here as your AI receptionist takes them." />}
+        {!isLoading && !data?.data.length && <EmptyState icon={PhoneCall} title="No calls yet" description="Calls will show up here as your AI receptionist takes them." />}
         {data && <Pagination page={page} totalPages={data.pagination.totalPages} onPageChange={setPage} />}
       </Card>
 

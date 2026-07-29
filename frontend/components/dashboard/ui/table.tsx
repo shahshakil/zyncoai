@@ -26,7 +26,7 @@ export function Tr({ className, ...props }: HTMLAttributes<HTMLTableRowElement>)
 }
 
 export function Td({ className, ...props }: TdHTMLAttributes<HTMLTableCellElement>) {
-  return <td className={cn("px-4 py-3 text-slate-700", className)} {...props} />;
+  return <td className={cn("px-4 py-4 text-slate-700", className)} {...props} />;
 }
 
 export function EmptyState({

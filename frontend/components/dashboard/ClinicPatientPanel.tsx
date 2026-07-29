@@ -9,7 +9,7 @@
 // form driven by VerticalOpsConfig.extraFields, writing to Contact.metadata.
 import { useState, Fragment } from "react";
 import { toast } from "sonner";
-import { Upload, Download, Send, Trash2, Plus, ShieldAlert, Star } from "lucide-react";
+import { Upload, Download, Send, Trash2, Plus, ShieldAlert, Star, FolderOpen, FileHeart } from "lucide-react";
 import { useApi, apiPost } from "@/lib/useApi";
 import { useDashboard } from "@/components/dashboard/BusinessContext";
 import { getVerticalOps, claimStatusLabel, VerticalOpsConfig } from "@/lib/verticalOps";
@@ -294,7 +294,7 @@ function DocumentsTab({ contactId, ops }: { contactId: string; ops: VerticalOpsC
           ))}
         </Tbody>
       </Table>
-      {data && !data.documents.length && <EmptyState title="No documents on file" description={`Upload ${ops.docLabelSuggestions.length ? ops.docLabelSuggestions.slice(0, 3).join(", ").toLowerCase() : "documents"} for this ${ops.contactLabel.toLowerCase()}.`} />}
+      {data && !data.documents.length && <EmptyState icon={FolderOpen} title="No documents on file" description={`Upload ${ops.docLabelSuggestions.length ? ops.docLabelSuggestions.slice(0, 3).join(", ").toLowerCase() : "documents"} for this ${ops.contactLabel.toLowerCase()}.`} />}
 
       <UploadDialog open={uploadOpen} onClose={() => setUploadOpen(false)} contactId={contactId} ops={ops} onUploaded={() => mutate()} />
       <SendDialog document={sendDoc} onClose={() => setSendDoc(null)} onSent={() => mutate()} />
@@ -459,7 +459,7 @@ function ClaimsTab({ contactId, ops, onSaved }: { contactId: string; ops: Vertic
           ))}
         </Tbody>
       </Table>
-      {data && !data.claims.length && <EmptyState title={`No ${ops.claimsLabel.toLowerCase()} on file`} description={`Add a ${ops.claimTypes.map((t) => t.label).join(", ").toLowerCase()} record for this ${ops.contactLabel.toLowerCase()}.`} />}
+      {data && !data.claims.length && <EmptyState icon={FileHeart} title={`No ${ops.claimsLabel.toLowerCase()} on file`} description={`Add a ${ops.claimTypes.map((t) => t.label).join(", ").toLowerCase()} record for this ${ops.contactLabel.toLowerCase()}.`} />}
 
       <CreateClaimDialog open={createOpen} onClose={() => setCreateOpen(false)} contactId={contactId} ops={ops} onCreated={() => { mutate(); onSaved(); }} />
     </div>

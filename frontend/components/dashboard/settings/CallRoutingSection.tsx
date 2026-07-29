@@ -168,7 +168,7 @@ export function CallRoutingSection() {
             {testing ? "Testing…" : "Test my setup"}
           </Button>
           {testResult === "pass" && <p className="mt-2 text-sm font-medium text-emerald-600">Forwarding active ✓</p>}
-          {testResult === "fail" && <p className="mt-2 text-sm font-medium text-red-600">Not forwarding yet — check your settings</p>}
+          {testResult === "fail" && <p className="mt-2 text-sm font-medium text-rose-600">Not forwarding yet — check your settings</p>}
           {!testResult && data?.forwardingVerified && <p className="mt-2 text-xs text-slate-400">Last check: forwarding active ✓</p>}
         </div>
       </CardContent>

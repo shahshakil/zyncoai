@@ -69,7 +69,7 @@ export function MenuTab() {
                 <Td className="font-medium text-slate-700">{i.name}</Td>
                 <Td>{i.category || "—"}</Td>
                 <Td>${(i.priceCents / 100).toFixed(2)}</Td>
-                <Td><button title="Remove" onClick={() => removeItem(i.id)} className="text-slate-400 hover:text-red-600"><Trash2 className="h-4 w-4" /></button></Td>
+                <Td><button title="Remove" onClick={() => removeItem(i.id)} className="text-slate-400 hover:text-rose-600"><Trash2 className="h-4 w-4" /></button></Td>
               </Tr>
             ))}
           </Tbody>
