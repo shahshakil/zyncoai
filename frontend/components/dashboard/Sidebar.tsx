@@ -92,7 +92,7 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
       {open && <div className="fixed inset-0 z-40 bg-black/40 lg:hidden" onClick={onClose} />}
       <aside
         className={cn(
-          "no-print fixed inset-y-0 left-0 z-50 flex shrink-0 flex-col bg-[var(--sidebar-bg,#1e293b)] transition-all duration-200 lg:static lg:translate-x-0",
+          "no-print fixed inset-y-0 left-0 z-50 flex shrink-0 flex-col border-r border-[var(--border,#e2e8f0)] bg-white transition-all duration-200 lg:static lg:translate-x-0",
           collapsed ? "w-[76px]" : "w-64",
           open ? "translate-x-0" : "-translate-x-full"
         )}
@@ -101,12 +101,12 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
           <Link href="/dashboard" className="flex items-center overflow-hidden">
             <BrandLogo collapsed={collapsed} />
           </Link>
-          <button onClick={onClose} className="text-white/50 hover:text-white lg:hidden">
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-900 lg:hidden">
             <X className="h-5 w-5" />
           </button>
         </div>
         {!collapsed && (
-          <div className="truncate px-4 pb-2 text-xs font-medium text-white/40">{business.name}</div>
+          <div className="truncate px-4 pb-2 text-xs font-medium text-slate-400">{business.name}</div>
         )}
 
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-2">
@@ -124,8 +124,10 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
                     onClick={onClose}
                     title={collapsed ? item.label : undefined}
                     className={cn(
-                      "flex flex-1 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                      active ? "bg-white/15 text-white" : "text-white/60 hover:bg-white/10 hover:text-white"
+                      "flex flex-1 items-center gap-3 rounded-lg border-l-2 px-3 py-2 text-sm font-medium transition-colors",
+                      active
+                        ? "border-l-[var(--accent-primary)] bg-[var(--accent-light)] text-[var(--accent-text)]"
+                        : "border-l-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                     )}
                   >
                     <Icon className="h-4 w-4 shrink-0" />
@@ -134,20 +136,20 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
                   {hasChildren && !collapsed && (
                     <button
                       onClick={() => setExpanded(isExpanded ? null : item.href)}
-                      className="rounded-lg p-1.5 text-white/40 hover:bg-white/10 hover:text-white"
+                      className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-50 hover:text-slate-900"
                     >
                       <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", isExpanded && "rotate-180")} />
                     </button>
                   )}
                 </div>
                 {hasChildren && !collapsed && isExpanded && (
-                  <div className="ml-4 mt-1 flex flex-col gap-0.5 border-l border-white/10 pl-4">
+                  <div className="ml-4 mt-1 flex flex-col gap-0.5 border-l border-slate-100 pl-4">
                     {item.children!.map((child) => (
                       <Link
                         key={child.href}
                         href={child.href}
                         onClick={onClose}
-                        className="rounded-md px-2 py-1.5 text-xs font-medium text-white/50 hover:bg-white/10 hover:text-white"
+                        className="rounded-md px-2 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                       >
                         {child.label}
                       </Link>
@@ -163,7 +165,7 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
           <a
             href="tel:000"
             className={cn(
-              "flex items-center gap-2 rounded-lg bg-red-500/90 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-red-500",
+              "flex items-center gap-2 rounded-lg bg-rose-600 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-500",
               collapsed && "justify-center"
             )}
             title="Emergency (AU 000)"
@@ -175,7 +177,7 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
 
         <button
           onClick={() => setCollapsed((v) => !v)}
-          className="hidden items-center justify-center gap-2 border-t border-white/10 py-2.5 text-xs font-medium text-white/40 hover:bg-white/5 hover:text-white lg:flex"
+          className="hidden items-center justify-center gap-2 border-t border-slate-100 py-2.5 text-xs font-medium text-slate-400 hover:bg-slate-50 hover:text-slate-900 lg:flex"
         >
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <><ChevronLeft className="h-4 w-4" /> Collapse</>}
         </button>

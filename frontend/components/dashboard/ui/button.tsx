@@ -5,11 +5,11 @@ type Variant = "primary" | "secondary" | "ghost" | "danger" | "outline";
 type Size = "sm" | "md" | "lg";
 
 const variantClasses: Record<Variant, string> = {
-  primary: "bg-[var(--accent,#4f46e5)] text-white hover:opacity-90 shadow-sm",
-  secondary: "bg-slate-100 text-slate-900 hover:bg-slate-200 border border-slate-200",
-  outline: "border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900",
-  ghost: "text-slate-600 hover:text-slate-900 hover:bg-slate-100",
-  danger: "bg-rose-600 text-white hover:bg-rose-500",
+  primary: "bg-[image:var(--gradient)] text-white font-semibold shadow-[0_1px_2px_rgba(0,0,0,0.1)] hover:opacity-90 hover:-translate-y-px",
+  secondary: "bg-slate-100 text-slate-900 font-medium hover:bg-slate-200 border border-slate-200",
+  outline: "border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 hover:text-slate-900",
+  ghost: "text-slate-600 font-medium hover:text-slate-900 hover:bg-slate-100",
+  danger: "bg-rose-600 text-white font-medium hover:bg-rose-500",
 };
 
 const sizeClasses: Record<Size, string> = {
@@ -29,7 +29,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ref={ref}
       disabled={disabled}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent,#4f46e5)]/40 disabled:opacity-50 disabled:pointer-events-none",
+        "inline-flex items-center justify-center gap-2 rounded-lg transition-all duration-150 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary,#4f46e5)]/20 disabled:opacity-50 disabled:pointer-events-none",
         variantClasses[variant],
         sizeClasses[size],
         className

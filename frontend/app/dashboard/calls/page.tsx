@@ -149,7 +149,7 @@ export default function CallsPage() {
   return (
     <div className="space-y-6">
       <div className="no-print flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-lg font-semibold text-slate-900">Call History</h1>
+        <h1 className="text-2xl font-bold text-[#0f172a]">Call History</h1>
         {canExportCalls && (
           <ExportMenu
             section="calls"

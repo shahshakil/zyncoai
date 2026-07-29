@@ -60,7 +60,7 @@ export function StaffOverview() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-lg font-semibold text-[#0f172a]">Today</h1>
+        <h1 className="text-2xl font-bold text-[#0f172a]">Today</h1>
         <p className="text-sm text-[#94a3b8]">{business.name}</p>
       </div>
 

@@ -16,7 +16,7 @@ import { LiveAgentHud } from "@/components/dashboard/LiveAgentHud";
 import { DynamicAnalyticsPanel } from "@/components/dashboard/DynamicAnalyticsPanel";
 import { CountUp } from "@/components/dashboard/ui/CountUp";
 import { Sparkline } from "@/components/dashboard/ui/Sparkline";
-import { GlassTooltip } from "@/components/dashboard/ui/ChartTooltip";
+import { LightTooltip } from "@/components/dashboard/ui/ChartTooltip";
 import { CHART_COLORS } from "@/components/dashboard/ui/chartTheme";
 import VerticalPanelsSection from "@/components/dashboard/vertical/VerticalPanelsSection";
 import AiMetricsSection from "@/components/dashboard/ai-metrics/AiMetricsSection";
@@ -149,7 +149,7 @@ export default function OverviewDashboard() {
     <div className="space-y-6">
       <div className="no-print flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-lg font-semibold text-[#0f172a]">Overview</h1>
+          <h1 className="text-2xl font-bold text-[#0f172a]">Overview</h1>
           <p className="text-sm text-[#94a3b8]">{business.name}</p>
         </div>
         <div className="flex gap-2">
@@ -181,7 +181,7 @@ export default function OverviewDashboard() {
               <div className="flex items-start justify-between">
                 <div className="min-w-0">
                   <p className="text-xs uppercase tracking-wide text-slate-400">Today&apos;s Appointments</p>
-                  <p className="mt-2 text-3xl font-bold tabular-nums text-slate-900"><CountUp value={resp.topStats.appointments.count} /></p>
+                  <p className="mt-2 text-[2rem] font-bold tabular-nums text-slate-900"><CountUp value={resp.topStats.appointments.count} /></p>
                   <p className="mt-1 text-[11px] text-slate-400">{resp.topStats.appointments.done} done · {resp.topStats.appointments.active} active · {resp.topStats.appointments.wait} wait</p>
                 </div>
                 <div className="shrink-0 rounded-xl bg-indigo-50 p-2.5"><CalendarClock className="h-5 w-5 text-indigo-600" /></div>
@@ -196,7 +196,7 @@ export default function OverviewDashboard() {
               <div className="flex items-start justify-between">
                 <div className="min-w-0">
                   <p className="text-xs uppercase tracking-wide text-slate-400">No-shows Today</p>
-                  <p className="mt-2 text-3xl font-bold tabular-nums text-slate-900">{resp.topStats.noShow.today}</p>
+                  <p className="mt-2 text-[2rem] font-bold tabular-nums text-slate-900">{resp.topStats.noShow.today}</p>
                   <p className="mt-1 text-[11px] text-slate-400">{resp.topStats.noShow.thisWeek} this week</p>
                 </div>
                 <div className="shrink-0 rounded-xl bg-rose-50 p-2.5"><UserX className="h-5 w-5 text-rose-600" /></div>
@@ -206,7 +206,7 @@ export default function OverviewDashboard() {
               <div className="flex items-start justify-between">
                 <div className="min-w-0">
                   <p className="text-xs uppercase tracking-wide text-slate-400">Utilization</p>
-                  <p className="mt-2 text-3xl font-bold tabular-nums text-slate-900">{resp.topStats.utilization.booked}/{resp.topStats.utilization.capacity}</p>
+                  <p className="mt-2 text-[2rem] font-bold tabular-nums text-slate-900">{resp.topStats.utilization.booked}/{resp.topStats.utilization.capacity}</p>
                   <p className="mt-1 text-[11px] text-slate-400">{resp.topStats.utilization.pctFilled}% slots filled</p>
                 </div>
                 <div className="shrink-0 rounded-xl bg-amber-50 p-2.5"><PieChartIcon className="h-5 w-5 text-amber-600" /></div>
@@ -216,7 +216,7 @@ export default function OverviewDashboard() {
               <div className="flex items-start justify-between">
                 <div className="min-w-0">
                   <p className="text-xs uppercase tracking-wide text-slate-400">AI Calls Today</p>
-                  <p className="mt-2 text-3xl font-bold tabular-nums text-slate-900"><CountUp value={resp.topStats.aiCalls.today} /></p>
+                  <p className="mt-2 text-[2rem] font-bold tabular-nums text-slate-900"><CountUp value={resp.topStats.aiCalls.today} /></p>
                   <p className="mt-1 text-[11px] text-slate-400">{resp.topStats.aiCalls.changePctVsYesterday >= 0 ? "+" : ""}{resp.topStats.aiCalls.changePctVsYesterday}% vs yesterday</p>
                 </div>
                 <div className="shrink-0 rounded-xl bg-emerald-50 p-2.5"><PhoneCall className="h-5 w-5 text-emerald-600" /></div>
@@ -227,7 +227,7 @@ export default function OverviewDashboard() {
                 <div className="flex items-start justify-between">
                   <div className="min-w-0">
                     <p className="text-xs uppercase tracking-wide text-slate-400">Revenue Saved Today</p>
-                    <p className="mt-2 text-3xl font-bold tabular-nums text-slate-900">
+                    <p className="mt-2 text-[2rem] font-bold tabular-nums text-slate-900">
                       AUD $<CountUp value={Math.round(resp.topStats.revenueSaved.cents / 100)} />
                     </p>
                     <p className="mt-1 text-[11px] text-slate-400">{resp.topStats.revenueSaved.bookings} AI bookings × $150</p>
@@ -466,7 +466,7 @@ export default function OverviewDashboard() {
                 <ResponsiveContainer width="100%" height={170}>
                   <BarChart data={resp.weeklyTrend}>
                     <XAxis dataKey="day" stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
-                    <Tooltip content={<GlassTooltip />} cursor={{ fill: "#F1F5F9" }} />
+                    <Tooltip content={<LightTooltip />} cursor={{ fill: "#F1F5F9" }} />
                     <Bar dataKey="count" name="Appointments" radius={[4, 4, 0, 0]}>
                       {resp.weeklyTrend.map((d) => (
                         <Cell key={d.dateISO} fill={d.isToday ? CHART_COLORS.primary : d.isWeekend ? "#e0e7ff" : "#c7d2fe"} />

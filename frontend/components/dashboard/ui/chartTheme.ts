@@ -11,5 +11,5 @@ export const CHART_COLORS = {
   danger: "#f43f5e", // rose
 } as const;
 
-export const CHART_GRID_STROKE = "#E5E7EB";
+export const CHART_GRID_STROKE = "#f1f5f9";
 export const CHART_AXIS_STYLE = { fontSize: 11, fill: "#94a3b8" };

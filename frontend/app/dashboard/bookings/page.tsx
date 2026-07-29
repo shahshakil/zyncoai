@@ -227,7 +227,7 @@ export default function BookingsPage() {
   return (
     <div className="space-y-6">
       <div className="no-print flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-lg font-semibold text-slate-900">{copy.noun}s</h1>
+        <h1 className="text-2xl font-bold text-[#0f172a]">{copy.noun}s</h1>
         <div className="flex flex-wrap items-center gap-2">
           {selected.size > 0 && <span className="text-xs text-slate-400">{selected.size} selected</span>}
           <ExportMenu

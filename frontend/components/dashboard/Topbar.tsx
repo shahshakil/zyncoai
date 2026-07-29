@@ -163,17 +163,17 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   }
 
   return (
-    <header className="no-print flex h-14 items-center justify-between gap-4 border-b border-slate-200 bg-white/90 px-4 backdrop-blur">
+    <header className="no-print sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b border-[var(--border,#e2e8f0)] bg-white/80 px-4 backdrop-blur-md">
       <div className="flex flex-1 items-center gap-3">
         <button onClick={onMenuClick} className="text-slate-500 hover:text-slate-900 lg:hidden">
           <Menu className="h-5 w-5" />
         </button>
         <GlobalSearch />
         <div className="hidden items-center gap-2 md:flex">
-          <Badge tone="purple">
+          <span className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium" style={{ background: "var(--accent-light)", color: "var(--accent-text)", borderColor: "var(--accent-border)" }}>
             <span className="mr-1">{theme.icon}</span>
             {theme.badge}
-          </Badge>
+          </span>
           {business.status === "SUSPENDED" && <Badge tone="danger">suspended</Badge>}
         </div>
       </div>

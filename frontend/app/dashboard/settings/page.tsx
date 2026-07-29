@@ -74,7 +74,7 @@ function SettingsTabs() {
 export default function SettingsPage() {
   return (
     <div className="space-y-6">
-      <h1 className="text-lg font-semibold text-slate-900">Settings</h1>
+      <h1 className="text-2xl font-bold text-[#0f172a]">Settings</h1>
       <Suspense fallback={null}>
         <SettingsTabs />
       </Suspense>

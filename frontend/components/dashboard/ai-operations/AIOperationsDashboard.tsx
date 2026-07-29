@@ -11,7 +11,7 @@ import { Button } from "@/components/dashboard/ui/button";
 import { Skeleton } from "@/components/dashboard/ui/skeleton";
 import { EmptyState } from "@/components/dashboard/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog";
-import { GlassTooltip } from "@/components/dashboard/ui/ChartTooltip";
+import { LightTooltip } from "@/components/dashboard/ui/ChartTooltip";
 import { CHART_COLORS } from "@/components/dashboard/ui/chartTheme";
 
 const SENTIMENT_EMOJI: Record<string, string> = { positive: "😊", neutral: "😐", negative: "😟" };
@@ -145,7 +145,7 @@ function AIPerformanceMetrics() {
                     <Pie data={donutData} dataKey="value" nameKey="name" innerRadius={45} outerRadius={70} paddingAngle={2}>
                       {donutData.map((d) => <PieCell key={d.name} fill={d.color} />)}
                     </Pie>
-                    <Tooltip content={<GlassTooltip formatter={(v) => `${v}%`} />} />
+                    <Tooltip content={<LightTooltip formatter={(v) => `${v}%`} />} />
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="mt-1 flex justify-center gap-4 text-[11px] text-slate-600">
@@ -164,7 +164,7 @@ function AIPerformanceMetrics() {
               <ResponsiveContainer width="100%" height={140}>
                 <BarChart data={data.avgDurationByHour}>
                   <XAxis dataKey="hour" tickFormatter={(h) => `${h}h`} fontSize={10} stroke="#94a3b8" tickLine={false} axisLine={false} interval={2} />
-                  <Tooltip content={<GlassTooltip formatter={(v) => `${v}m avg`} labelFormatter={(h) => `${h}:00`} />} />
+                  <Tooltip content={<LightTooltip formatter={(v) => `${v}m avg`} labelFormatter={(h) => `${h}:00`} />} />
                   <Bar dataKey="avgMinutes" name="Avg duration" fill={CHART_COLORS.secondary} radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -231,7 +231,7 @@ function AfterHoursAnalytics() {
               <ResponsiveContainer width="100%" height={120}>
                 <BarChart data={data.timeDistribution}>
                   <XAxis dataKey="hour" tickFormatter={(h) => `${h}h`} fontSize={10} stroke="#94a3b8" tickLine={false} axisLine={false} interval={2} />
-                  <Tooltip content={<GlassTooltip labelFormatter={(h) => `${h}:00`} />} />
+                  <Tooltip content={<LightTooltip labelFormatter={(h) => `${h}:00`} />} />
                   <Bar dataKey="count" name="Calls" fill={CHART_COLORS.info} radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -245,7 +245,7 @@ function AfterHoursAnalytics() {
                       <PieCell key={i} fill={["#06b6d4", "#22d3ee", "#67e8f9", "#a5f3fc", "#155e75"][i % 5]} />
                     ))}
                   </Pie>
-                  <Tooltip content={<GlassTooltip />} />
+                  <Tooltip content={<LightTooltip />} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -334,7 +334,7 @@ export default function AIOperationsDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="flex items-center gap-2 text-lg font-semibold text-[#0f172a]"><Phone className="h-5 w-5" /> AI Voice Operations</h1>
+        <h1 className="flex items-center gap-2 text-2xl font-bold text-[#0f172a]"><Phone className="h-5 w-5" /> AI Voice Operations</h1>
         <p className="text-sm text-[#94a3b8]">Real-time call centre, AI performance, and telephony analytics</p>
       </div>
       <LiveCallCentre />

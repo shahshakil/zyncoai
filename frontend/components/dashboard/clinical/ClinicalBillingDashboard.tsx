@@ -11,7 +11,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/dashboard
 import { Button } from "@/components/dashboard/ui/button";
 import { Skeleton } from "@/components/dashboard/ui/skeleton";
 import { EmptyState } from "@/components/dashboard/ui/table";
-import { GlassTooltip } from "@/components/dashboard/ui/ChartTooltip";
+import { LightTooltip } from "@/components/dashboard/ui/ChartTooltip";
 import { CHART_COLORS } from "@/components/dashboard/ui/chartTheme";
 
 // ---------------- Section 1: Triage Queue ----------------
@@ -307,7 +307,7 @@ function Demographics() {
               <ResponsiveContainer width="100%" height={120}>
                 <BarChart data={data.ageGroups}>
                   <XAxis dataKey="label" fontSize={10} stroke="#94a3b8" tickLine={false} axisLine={false} />
-                  <Tooltip content={<GlassTooltip />} />
+                  <Tooltip content={<LightTooltip />} />
                   <Bar dataKey="count" name="Patients" fill={CHART_COLORS.info} radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -359,7 +359,7 @@ function RevenueAnalytics() {
               <ResponsiveContainer width="100%" height={120}>
                 <BarChart data={data.monthlyTrend}>
                   <XAxis dataKey="month" fontSize={10} stroke="#94a3b8" tickLine={false} axisLine={false} />
-                  <Tooltip content={<GlassTooltip formatter={(v) => `$${(v / 100).toLocaleString()}`} />} />
+                  <Tooltip content={<LightTooltip formatter={(v) => `$${(v / 100).toLocaleString()}`} />} />
                   <Bar dataKey="amountCents" name="Revenue" fill={CHART_COLORS.warning} radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -400,7 +400,7 @@ export default function ClinicalBillingDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-lg font-semibold text-[#0f172a]">Clinical & Billing</h1>
+        <h1 className="text-2xl font-bold text-[#0f172a]">Clinical & Billing</h1>
         <p className="text-sm text-[#94a3b8]">{isDoctor ? "Your triage queue" : "Triage, patient flow, and clinic operations"}</p>
       </div>
       <TriageQueue />

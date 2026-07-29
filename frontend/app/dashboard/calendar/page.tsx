@@ -69,7 +69,7 @@ export default function CalendarPage() {
     <div className="space-y-6">
       <div className="no-print flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900">My Calendar</h1>
+          <h1 className="text-2xl font-bold text-[#0f172a]">My Calendar</h1>
           <p className="text-sm text-slate-400">{providerName || "You"} · Week of {weekAnchor.toLocaleDateString("en-AU")}</p>
         </div>
         <div className="flex items-center gap-2">

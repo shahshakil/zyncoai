@@ -5,7 +5,7 @@
 // dashboard doesn't otherwise have a charts wrapper.
 import { AreaChart, Area, BarChart, Bar, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts";
 import { ChartGradient } from "./ui/ChartGradient";
-import { GlassTooltip } from "./ui/ChartTooltip";
+import { LightTooltip } from "./ui/ChartTooltip";
 import { CHART_COLORS, CHART_GRID_STROKE, CHART_AXIS_STYLE } from "./ui/chartTheme";
 
 function money(cents: number): string { return `$${(cents / 100).toFixed(2)}`; }
@@ -21,7 +21,7 @@ export function RevenueAreaChart({ data, dataKey = "amountCents", xKey = "month"
         <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} vertical={false} />
         <XAxis dataKey={xKey} tick={CHART_AXIS_STYLE} axisLine={false} tickLine={false} tickFormatter={(v) => String(v).slice(5)} minTickGap={20} />
         <YAxis tick={CHART_AXIS_STYLE} axisLine={false} tickLine={false} tickFormatter={(v) => `$${(v / 100).toFixed(0)}`} />
-        <Tooltip content={<GlassTooltip formatter={money} />} />
+        <Tooltip content={<LightTooltip formatter={money} />} />
         <Area type="monotone" dataKey={dataKey} stroke={color} strokeWidth={2.5} fill={`url(#${gradId})`} />
       </AreaChart>
     </ResponsiveContainer>
@@ -35,7 +35,7 @@ export function RevenueBarChart({ data, dataKey = "amountCents", xKey = "date", 
         <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} vertical={false} />
         <XAxis dataKey={xKey} tick={CHART_AXIS_STYLE} axisLine={false} tickLine={false} tickFormatter={(v) => String(v).slice(5)} minTickGap={20} />
         <YAxis tick={CHART_AXIS_STYLE} axisLine={false} tickLine={false} tickFormatter={(v) => `$${(v / 100).toFixed(0)}`} />
-        <Tooltip content={<GlassTooltip formatter={money} />} cursor={{ fill: "#F1F5F9" }} />
+        <Tooltip content={<LightTooltip formatter={money} />} cursor={{ fill: "#F1F5F9" }} />
         <Bar dataKey={dataKey} fill={color} radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>

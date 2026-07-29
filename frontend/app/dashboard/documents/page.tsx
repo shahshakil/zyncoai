@@ -70,7 +70,7 @@ export default function DocumentsPage() {
   return (
     <div className="space-y-6">
       <div className="no-print flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-slate-900">{ops.documentsLabel}</h1>
+        <h1 className="text-2xl font-bold text-[#0f172a]">{ops.documentsLabel}</h1>
         <div className="flex gap-2">
           <a href={`/api/business/documents/export-zip?${qs}`}>
             <Button variant="outline" size="sm"><Download className="h-4 w-4" /> Download ZIP</Button>

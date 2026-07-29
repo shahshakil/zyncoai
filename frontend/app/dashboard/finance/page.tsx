@@ -49,7 +49,7 @@ function StatTile({ label, value, icon: Icon, tone = "default" }: { label: strin
         <div className="rounded-xl bg-[var(--accent-soft,#eff6ff)] p-3"><Icon className="h-5 w-5 text-[var(--accent,#2563eb)]" /></div>
         <div className="min-w-0">
           <p className="text-xs uppercase tracking-wide text-slate-400">{label}</p>
-          <p className={`text-2xl font-bold tabular-nums ${toneClass}`}>{value}</p>
+          <p className={`text-[2rem] font-bold tabular-nums ${toneClass}`}>{value}</p>
         </div>
       </CardContent>
     </Card>
@@ -98,7 +98,7 @@ export default function FinancePage() {
   return (
     <div className="space-y-6">
       <div className="no-print flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-900">Financial Dashboard</h1>
+        <h1 className="text-2xl font-bold text-[#0f172a]">Financial Dashboard</h1>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={exportRevenueReport}><Download className="h-4 w-4" /> Revenue Report</Button>
           <Button variant="outline" size="sm" onClick={exportCostReport}><Download className="h-4 w-4" /> Cost Report</Button>

@@ -116,7 +116,7 @@ export default function ContactsPage() {
   return (
     <div className="space-y-6">
       <div className="no-print flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-lg font-semibold text-slate-900">{theme.stats.patients}</h1>
+        <h1 className="text-2xl font-bold text-[#0f172a]">{theme.stats.patients}</h1>
         <div className="flex items-center gap-2">
           {selected.size > 0 && <span className="text-xs text-slate-400">{selected.size} selected</span>}
           <ExportMenu

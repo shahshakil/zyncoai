@@ -68,7 +68,7 @@ export default function ClaimsPage() {
   return (
     <div className="space-y-6">
       <div className="no-print flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-slate-900">{ops.claimsLabel}</h1>
+        <h1 className="text-2xl font-bold text-[#0f172a]">{ops.claimsLabel}</h1>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={exportReport}><Download className="h-4 w-4" /> Excel</Button>
           <Button variant="outline" size="sm" onClick={() => triggerPrint("print")}><Printer className="h-4 w-4" /> Print</Button>

@@ -71,9 +71,12 @@ function GlassCard({ children, className = "", style }: { children: React.ReactN
 function DeltaBadge({ pct }: { pct: number | null }) {
   if (pct == null) return <span className="text-[11px] font-medium text-slate-500">New</span>;
   const Icon = pct > 0 ? TrendingUp : pct < 0 ? TrendingDown : Minus;
-  const cls = pct > 0 ? "text-emerald-400" : pct < 0 ? "text-rose-400" : "text-slate-400";
+  // Dark-glass equivalent of the elite theme's light trend pills
+  // (bg-emerald-50/text-emerald-600 up, bg-red-50/text-red-600 down) — same
+  // red-for-down convention, tuned for this card's dark background.
+  const cls = pct > 0 ? "bg-emerald-500/15 text-emerald-400" : pct < 0 ? "bg-red-500/15 text-red-400" : "bg-slate-500/15 text-slate-400";
   return (
-    <span className={`flex items-center gap-1 text-[11px] font-medium ${cls}`}>
+    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${cls}`}>
       <Icon className="h-3 w-3" /> {pct > 0 ? "+" : ""}{pct}% vs last month
     </span>
   );
@@ -85,7 +88,7 @@ function KpiCard({ label, value, delta, icon: Icon, accent }: { label: string; v
       <div className="flex items-start justify-between">
         <div className="min-w-0">
           <p className="text-xs uppercase tracking-wide text-slate-400">{label}</p>
-          <p className="mt-2 text-2xl font-bold tabular-nums text-white">{value}</p>
+          <p className="mt-2 text-[2rem] font-bold tabular-nums text-white">{value}</p>
           {delta !== undefined && <div className="mt-1"><DeltaBadge pct={delta} /></div>}
         </div>
         <div className="shrink-0 rounded-xl p-2.5" style={{ background: `${accent}22` }}>

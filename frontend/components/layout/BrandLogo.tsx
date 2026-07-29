@@ -1,7 +1,8 @@
 // Premium gradient wordmark for the dashboard sidebar — distinct from the
 // small platform-admin "ZyncoAI Admin" mark and from marketing's ZyncoMark.
-// Transparent background so it drops onto any sidebar surface (dark
-// slate-800 today, or a future themed one) without its own card.
+// Transparent background so it drops onto any sidebar surface; the gradient
+// icon badge is self-contained and reads fine on either light or dark, but
+// the wordmark/tagline text colors are tuned for the white sidebar.
 export function BrandLogo({ collapsed }: { collapsed?: boolean }) {
   return (
     <div className="flex items-center gap-2.5">
@@ -13,8 +14,8 @@ export function BrandLogo({ collapsed }: { collapsed?: boolean }) {
       </div>
       {!collapsed && (
         <div className="min-w-0 leading-tight">
-          <p className="truncate text-sm font-bold tracking-tight text-white">ZyncoAI</p>
-          <p className="truncate text-xs font-medium uppercase tracking-wider text-slate-300">Voice Core</p>
+          <p className="truncate text-sm font-bold tracking-tight text-slate-900">ZyncoAI</p>
+          <p className="truncate text-xs font-medium uppercase tracking-wider text-slate-400">Voice Core</p>
         </div>
       )}
     </div>

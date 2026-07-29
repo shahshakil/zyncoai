@@ -31,21 +31,42 @@ function ThemedShell({ children, sidebarOpen, onCloseSidebar, onOpenSidebar }: {
     }
   }, [canManageBusiness, canSeeFinancials, pathname, router]);
 
+  // Elite light theme — base tokens are constant across verticals, accent
+  // tokens (+ the derived --gradient) come from the business's vertical.
+  // Every value here is a real CSS custom property on this wrapper (which,
+  // since custom properties inherit, is functionally :root for everything
+  // the dashboard renders) — components reference var(--accent-primary) etc
+  // directly rather than re-deriving colors themselves.
+  const themeVars = {
+    "--bg-canvas": "#f8fafc",
+    "--bg-card": "#ffffff",
+    "--bg-card-hover": "#f8fafc",
+    "--border": "#e2e8f0",
+    "--border-subtle": "#f1f5f9",
+    "--text-primary": "#0f172a",
+    "--text-secondary": "#475569",
+    "--text-muted": "#94a3b8",
+    "--shadow-card": "0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)",
+    "--shadow-card-hover": "0 4px 12px rgba(0,0,0,0.1)",
+    "--accent": theme.accent,
+    "--accent-soft": theme.accentSoft,
+    "--sidebar-bg": theme.accentDark,
+    "--accent-primary": theme.accentPrimary,
+    "--accent-light": theme.accentLight,
+    "--accent-border": theme.accentBorder,
+    "--accent-text": theme.accentText,
+    "--gradient": theme.gradient,
+  } as React.CSSProperties;
+
   return (
-    <div
-      className="flex h-screen overflow-hidden bg-slate-50"
-      style={
-        {
-          "--accent": theme.accent,
-          "--accent-soft": theme.accentSoft,
-          "--sidebar-bg": theme.accentDark,
-        } as React.CSSProperties
-      }
-    >
+    <div className="flex h-screen overflow-hidden bg-[var(--bg-canvas)]" style={themeVars}>
       <Sidebar open={sidebarOpen} onClose={onCloseSidebar} />
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <Topbar onMenuClick={onOpenSidebar} />
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+        <main
+          className="flex-1 overflow-y-auto p-4 sm:p-6"
+          style={{ backgroundImage: `radial-gradient(${theme.accentPrimary}08 1px, transparent 1px)`, backgroundSize: "20px 20px" }}
+        >
           <AnimatePresence mode="wait">
             <motion.div
               key={pathname}
@@ -58,7 +79,7 @@ function ThemedShell({ children, sidebarOpen, onCloseSidebar, onOpenSidebar }: {
             </motion.div>
           </AnimatePresence>
         </main>
-        <footer className="no-print shrink-0 border-t border-slate-200 bg-white px-4 py-4 text-xs text-slate-400 sm:px-6">
+        <footer className="no-print shrink-0 border-t border-[var(--border)] bg-[var(--bg-card)] px-4 py-4 text-xs text-[var(--text-muted)] sm:px-6">
           <p>
             {isMedical
               ? "ZyncoAI complies with the Australian Privacy Act 1988, My Health Records Act 2012, and applicable healthcare regulations."
