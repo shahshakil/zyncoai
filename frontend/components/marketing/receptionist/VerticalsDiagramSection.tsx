@@ -24,7 +24,7 @@ const VERTICALS = [
   { label: "Mechanic Shops", icon: Wrench, accent: "#06b6d4", top: 131, href: "/solutions/mechanic" },
   { label: "Restaurants", icon: UtensilsCrossed, accent: "#f59e0b", top: 211, href: "/solutions/restaurant" },
   { label: "Law Firms", icon: Scale, accent: "#7c3aed", top: 291, href: "/solutions/legal" },
-  { label: "Financial Services", icon: Landmark, accent: "#6366f1", top: 371, href: "/solutions/bank" },
+  { label: "Financial Services", icon: Landmark, accent: "#4f46e5", top: 371, href: "/solutions/bank" },
   { label: "Customer Care", icon: Headset, accent: "#10b981", top: 451, href: "/demo" },
 ];
 
@@ -65,7 +65,7 @@ export function VerticalsDiagramSection() {
       >
         <div
           className="relative mx-auto h-[620px] w-[1150px] rounded-3xl border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(15,23,42,0.04)]"
-          style={{ backgroundImage: "radial-gradient(rgba(99,102,241,0.10) 1px, transparent 1px)", backgroundSize: "22px 22px" }}
+          style={{ backgroundImage: "radial-gradient(rgba(79,70,229,0.10) 1px, transparent 1px)", backgroundSize: "22px 22px" }}
         >
           <div className="absolute left-6 top-[70px] text-[11px] font-bold uppercase tracking-[0.14em] text-[#94a3b8]">Inbound channels</div>
           <div className="absolute left-[900px] top-[22px] text-[11px] font-bold uppercase tracking-[0.14em] text-[#94a3b8]">Verticals ZyncoAI serves</div>
@@ -74,7 +74,7 @@ export function VerticalsDiagramSection() {
           <svg className="pointer-events-none absolute inset-0 h-full w-full overflow-visible">
             <defs>
               <linearGradient id="flowGrad" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#6366f1" />
+                <stop offset="0%" stopColor="#4f46e5" />
                 <stop offset="100%" stopColor="#06b6d4" />
               </linearGradient>
             </defs>
@@ -85,7 +85,7 @@ export function VerticalsDiagramSection() {
               return (
                 <g key={id}>
                   <path id={id} d={d} fill="none" stroke="url(#flowGrad)" strokeWidth={1.8} strokeDasharray="4 9" className="animate-zynco-dash opacity-50" />
-                  <circle r={3.2} fill="#6366f1">
+                  <circle r={3.2} fill="#4f46e5">
                     <animateMotion dur={`${(1.7 + i * 0.25).toFixed(2)}s`} repeatCount="indefinite" begin={`${(i * 0.3).toFixed(2)}s`}>
                       <mpath href={`#${id}`} />
                     </animateMotion>
@@ -100,7 +100,7 @@ export function VerticalsDiagramSection() {
               return (
                 <g key={id}>
                   <path id={id} d={d} fill="none" stroke="url(#flowGrad)" strokeWidth={1.8} strokeDasharray="4 9" className="animate-zynco-dash opacity-50" />
-                  <circle r={3.2} fill="#6366f1">
+                  <circle r={3.2} fill="#4f46e5">
                     <animateMotion dur={`${(1.7 + i * 0.18).toFixed(2)}s`} repeatCount="indefinite" begin={`${(i * 0.22).toFixed(2)}s`}>
                       <mpath href={`#${id}`} />
                     </animateMotion>
@@ -114,19 +114,19 @@ export function VerticalsDiagramSection() {
           {CHANNELS.map((c) => (
             <div
               key={c.label}
-              className="absolute left-5 flex w-[200px] items-center gap-2.5 rounded-2xl border-l-[3px] border-[#6366f1] bg-white px-3.5 shadow-[0_2px_8px_rgba(15,23,42,0.05)] transition duration-150 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(15,23,42,0.1)]"
+              className="absolute left-5 flex w-[200px] items-center gap-2.5 rounded-2xl border-l-[3px] border-[#4f46e5] bg-white px-3.5 shadow-[0_2px_8px_rgba(15,23,42,0.05)] transition duration-150 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(15,23,42,0.1)]"
               style={{ top: c.top, height: CHANNEL_NODE_H }}
             >
-              <c.icon className="h-[18px] w-[18px] shrink-0 text-[#6366f1]" />
+              <c.icon className="h-[18px] w-[18px] shrink-0 text-[#4f46e5]" />
               <span className="text-[13px] font-semibold text-[#1e293b]">{c.label}</span>
             </div>
           ))}
 
           {/* hub, with rotating conic-gradient halo */}
           <div className="absolute left-[440px] top-[245px] h-[150px] w-[260px]">
-            <div className="animate-zynco-spin pointer-events-none absolute -inset-6 rounded-[999px] opacity-60 blur-2xl" style={{ backgroundImage: "conic-gradient(from 0deg, #6366f1, #7c3aed, #06b6d4, #6366f1)" }} />
-            <div className="relative flex h-full w-full flex-col items-center justify-center gap-2 rounded-[22px] bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)] text-center shadow-[0_20px_45px_rgba(99,102,241,0.32)]">
-              <div className="relative flex h-10 w-10 items-center justify-center rounded-[11px] bg-white text-lg font-extrabold text-[#6366f1]">
+            <div className="animate-zynco-spin pointer-events-none absolute -inset-6 rounded-[999px] opacity-60 blur-2xl" style={{ backgroundImage: "conic-gradient(from 0deg, #4f46e5, #7c3aed, #06b6d4, #4f46e5)" }} />
+            <div className="relative flex h-full w-full flex-col items-center justify-center gap-2 rounded-[22px] bg-[image:linear-gradient(135deg,#4f46e5,#06b6d4)] text-center shadow-[0_20px_45px_rgba(79,70,229,0.32)]">
+              <div className="relative flex h-10 w-10 items-center justify-center rounded-[11px] bg-white text-lg font-extrabold text-[#4f46e5]">
                 Z
                 <span className="animate-zynco-pulse pointer-events-none absolute -inset-2 rounded-2xl bg-white opacity-40 blur-[11px]" />
               </div>
@@ -153,7 +153,7 @@ export function VerticalsDiagramSection() {
           ))}
           <Link
             href="/pricing"
-            className="absolute left-[900px] flex w-[220px] items-center justify-center rounded-2xl bg-[image:linear-gradient(90deg,#6366f1,#7c3aed)] px-3.5 shadow-[0_2px_8px_rgba(15,23,42,0.05)] transition duration-150 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(99,102,241,0.25)]"
+            className="absolute left-[900px] flex w-[220px] items-center justify-center rounded-2xl bg-[image:linear-gradient(90deg,#4f46e5,#7c3aed)] px-3.5 shadow-[0_2px_8px_rgba(15,23,42,0.05)] transition duration-150 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(79,70,229,0.25)]"
             style={{ top: 531, height: VERTICAL_NODE_H }}
           >
             <span className="text-[13px] font-bold text-white">+ More verticals</span>
