@@ -51,6 +51,7 @@ const STATUS_TONE: Record<string, Tone> = {
   CONFIRMED: "success",
   REQUESTED: "warning",
   RESCHEDULED: "info",
+  ARRIVED: "info",
   CANCELLED: "danger",
   NO_SHOW: "danger",
   ACTIVE: "success",

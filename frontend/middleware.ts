@@ -44,6 +44,9 @@ const PUBLIC_PATHS = [
 ];
 
 const PUBLIC_PREFIXES = [
+  // Patient QR/link self check-in (frontend/app/checkin/[token]/page.tsx) —
+  // unauthenticated, the token is the credential, same as /accept-invite.
+  "/checkin/",
   "/products/",
   "/solutions/",
   "/resources/",

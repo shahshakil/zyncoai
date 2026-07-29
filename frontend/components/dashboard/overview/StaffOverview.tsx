@@ -9,7 +9,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Search, CalendarClock, UserCheck, Phone, Users } from "lucide-react";
+import { Search, CalendarClock, Phone, Users } from "lucide-react";
 import { useApi, apiPost } from "@/lib/useApi";
 import { useDashboard } from "@/components/dashboard/BusinessContext";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/dashboard/ui/card";
@@ -17,11 +17,20 @@ import { Input } from "@/components/dashboard/ui/input";
 import { Skeleton } from "@/components/dashboard/ui/skeleton";
 import { EmptyState } from "@/components/dashboard/ui/table";
 
-const PIPELINE_STEP_LABELS = ["Booked", "Arrived", "In Consultation", "Checked Out"];
-const PIPELINE_STEP_STATUS = ["CONFIRMED", "ARRIVED", "IN_CONSULTATION", "COMPLETED"];
+// Same color language as Bookings' check-in buttons/row borders: yellow =
+// waiting, blue = checked in, green = done, red = no-show, grey = cancelled.
+const ROW_STATUS_STYLE: Record<string, { border: string; dot: string; label: string }> = {
+  REQUESTED: { border: "border-l-amber-400", dot: "bg-amber-400", label: "Waiting" },
+  CONFIRMED: { border: "border-l-amber-400", dot: "bg-amber-400", label: "Waiting" },
+  RESCHEDULED: { border: "border-l-amber-400", dot: "bg-amber-400", label: "Waiting" },
+  ARRIVED: { border: "border-l-blue-500", dot: "bg-blue-500", label: "Checked In" },
+  COMPLETED: { border: "border-l-emerald-500", dot: "bg-emerald-500", label: "Completed" },
+  NO_SHOW: { border: "border-l-rose-500", dot: "bg-rose-500", label: "No Show" },
+  CANCELLED: { border: "border-l-slate-400", dot: "bg-slate-400", label: "Cancelled" },
+};
 
 interface StaffPayload {
-  patientList: { id: string; contactName: string; service: string; timeLabel: string; status: string; pipelineStep: number }[];
+  patientList: { id: string; contactName: string; service: string; timeLabel: string; rawStatus: string }[];
   liveCallFeed: { calls: { id: string; fromNumber: string; contactName: string | null; summary: string; durationLabel: string; statusLabel: string; timeAgo: string }[] };
 }
 
@@ -31,24 +40,22 @@ interface ContactHit {
 
 export function StaffOverview() {
   const { business } = useDashboard();
-  const { data: resp, isLoading, mutate } = useApi<StaffPayload & { ok: boolean }>("/api/business/dashboard/overview", { refreshInterval: 20000 });
+  const { data: resp, isLoading, mutate } = useApi<StaffPayload & { ok: boolean }>("/api/business/dashboard/overview", { refreshInterval: 8000 });
   const [q, setQ] = useState("");
-  const [advancingIds, setAdvancingIds] = useState<Set<string>>(new Set());
+  const [updatingIds, setUpdatingIds] = useState<Set<string>>(new Set());
   const { data: searchResults, isLoading: searching } = useApi<{ data: ContactHit[] }>(q.trim() ? `/api/business/contacts?q=${encodeURIComponent(q.trim())}&pageSize=8` : null);
 
-  async function advanceStatus(appointmentId: string, step: number) {
-    setAdvancingIds((s) => new Set(s).add(appointmentId));
+  async function updateStatus(appointmentId: string, status: string) {
+    setUpdatingIds((s) => new Set(s).add(appointmentId));
     try {
-      await apiPost(`/api/business/appointments/${appointmentId}`, { status: PIPELINE_STEP_STATUS[step] }, "PATCH");
+      await apiPost(`/api/business/appointments/${appointmentId}`, { status }, "PATCH");
       mutate();
     } catch {
       toast.error("Could not update patient status");
     } finally {
-      setAdvancingIds((s) => { const n = new Set(s); n.delete(appointmentId); return n; });
+      setUpdatingIds((s) => { const n = new Set(s); n.delete(appointmentId); return n; });
     }
   }
-
-  const checkInQueue = (resp?.patientList || []).filter((p) => p.pipelineStep < 3 && !["Cancelled", "No-show"].includes(p.status));
 
   return (
     <div className="space-y-6">
@@ -84,61 +91,61 @@ export function StaffOverview() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        {/* Today's appointments */}
-        <Card>
-          <CardHeader><CardTitle className="flex items-center gap-1.5"><CalendarClock className="h-4 w-4 text-slate-400" /> Today&apos;s Appointments</CardTitle></CardHeader>
-          <CardContent className="space-y-1.5">
-            {isLoading || !resp ? (
-              <div className="space-y-2">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}</div>
-            ) : resp.patientList.length === 0 ? (
-              <EmptyState icon={CalendarClock} title="No appointments today" />
-            ) : (
-              resp.patientList.map((p) => (
-                <div key={p.id} className="flex items-center justify-between rounded-lg border border-slate-100 px-3 py-2 text-sm">
-                  <div className="min-w-0">
-                    <p className="truncate font-medium text-slate-900">{p.contactName}</p>
-                    <p className="truncate text-xs text-slate-400">{p.service}</p>
+      {/* Today's appointments — one color-coded board, one-tap actions.
+          Whether a row got here via SMS/QR/IVR self check-in or a manual
+          tap, it's the same appointment status underneath — never
+          double-counted, and every logged-in device sees it within the
+          8s poll. */}
+      <Card>
+        <CardHeader><CardTitle className="flex items-center gap-1.5"><CalendarClock className="h-4 w-4 text-slate-400" /> Today&apos;s Appointments</CardTitle></CardHeader>
+        <CardContent className="space-y-1.5">
+          {isLoading || !resp ? (
+            <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}</div>
+          ) : resp.patientList.length === 0 ? (
+            <EmptyState icon={CalendarClock} title="No appointments today" />
+          ) : (
+            resp.patientList.map((p) => {
+              const style = ROW_STATUS_STYLE[p.rawStatus] || ROW_STATUS_STYLE.CONFIRMED;
+              const busy = updatingIds.has(p.id);
+              return (
+                <div key={p.id} className={`rounded-lg border border-l-4 border-slate-100 p-2.5 ${style.border}`}>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-slate-900">{p.contactName}</p>
+                      <p className="truncate text-xs text-slate-400">{p.service} · {p.timeLabel}</p>
+                    </div>
+                    <span className="flex shrink-0 items-center gap-1.5 text-xs text-slate-500">
+                      <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} /> {style.label}
+                    </span>
                   </div>
-                  <span className="shrink-0 text-xs text-slate-500">{p.timeLabel}</span>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {["REQUESTED", "CONFIRMED", "RESCHEDULED"].includes(p.rawStatus) && (
+                      <button disabled={busy} onClick={() => updateStatus(p.id, "ARRIVED")} className="rounded-lg bg-blue-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-blue-500 disabled:opacity-50">
+                        Check In
+                      </button>
+                    )}
+                    {["CONFIRMED", "RESCHEDULED", "ARRIVED"].includes(p.rawStatus) && (
+                      <button disabled={busy} onClick={() => updateStatus(p.id, "COMPLETED")} className="rounded-lg bg-emerald-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-emerald-500 disabled:opacity-50">
+                        Complete
+                      </button>
+                    )}
+                    {["REQUESTED", "CONFIRMED", "RESCHEDULED"].includes(p.rawStatus) && (
+                      <button disabled={busy} onClick={() => updateStatus(p.id, "NO_SHOW")} className="rounded-lg bg-rose-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-rose-500 disabled:opacity-50">
+                        No Show
+                      </button>
+                    )}
+                    {!["COMPLETED", "CANCELLED", "NO_SHOW"].includes(p.rawStatus) && (
+                      <button disabled={busy} onClick={() => updateStatus(p.id, "CANCELLED")} className="rounded-lg bg-slate-500 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-slate-400 disabled:opacity-50">
+                        Cancel
+                      </button>
+                    )}
+                  </div>
                 </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Check-in queue */}
-        <Card>
-          <CardHeader><CardTitle className="flex items-center gap-1.5"><UserCheck className="h-4 w-4 text-slate-400" /> Check-in Queue</CardTitle></CardHeader>
-          <CardContent className="space-y-2">
-            {isLoading || !resp ? (
-              <div className="space-y-2">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}</div>
-            ) : checkInQueue.length === 0 ? (
-              <EmptyState icon={UserCheck} title="Nobody waiting" description="Patients still moving through arrival show up here." />
-            ) : (
-              checkInQueue.map((p) => (
-                <div key={p.id} className="rounded-lg border border-slate-100 p-2.5">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-slate-900">{p.contactName}</p>
-                    <span className="text-xs text-slate-400">{PIPELINE_STEP_LABELS[p.pipelineStep]}</span>
-                  </div>
-                  <div className="mt-2 flex items-center gap-1">
-                    {PIPELINE_STEP_LABELS.map((label, i) => (
-                      <button
-                        key={label}
-                        title={`Mark as ${label}`}
-                        disabled={advancingIds.has(p.id) || i < p.pipelineStep}
-                        onClick={() => advanceStatus(p.id, i)}
-                        className={`h-1.5 flex-1 rounded-full transition ${i <= p.pipelineStep ? "bg-indigo-500" : "bg-slate-200 hover:bg-slate-300"} ${i === p.pipelineStep + 1 ? "cursor-pointer" : i <= p.pipelineStep ? "cursor-default" : "cursor-not-allowed opacity-60"}`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
-      </div>
+              );
+            })
+          )}
+        </CardContent>
+      </Card>
 
       {/* Call log — outcomes/summaries only, no financial data */}
       <Card>

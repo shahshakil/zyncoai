@@ -77,7 +77,6 @@ interface Appointment {
   status: string;
   recordType: string | null;
   notes: string | null;
-  metadata?: { checkedInAt?: string } | null;
   provider: { id: string; name: string };
   contact: { id: string; name: string | null; phone: string } | null;
 }
@@ -86,6 +85,18 @@ interface Provider {
   id: string;
   name: string;
 }
+
+// Row color-coding, matching the check-in board's scheme: yellow = waiting,
+// blue = checked in, green = done, red = no-show, grey = cancelled.
+const ROW_STATUS_BORDER: Record<string, string> = {
+  REQUESTED: "border-l-amber-400",
+  CONFIRMED: "border-l-amber-400",
+  RESCHEDULED: "border-l-amber-400",
+  ARRIVED: "border-l-blue-500",
+  COMPLETED: "border-l-emerald-500",
+  NO_SHOW: "border-l-rose-500",
+  CANCELLED: "border-l-slate-400",
+};
 
 function weekStartOf(d: Date): Date {
   const day = d.getDay();
@@ -170,29 +181,21 @@ export default function BookingsPage() {
   const [scheduleData, setScheduleData] = useState<{ providers: ScheduleProvider[]; weekStart: Date } | null>(null);
 
   const query = new URLSearchParams(status ? { status } : {}).toString();
-  const { data, isLoading, mutate } = useApi<{ data: Appointment[] }>(`/api/business/appointments?${query}`, { refreshInterval: 20000 });
+  const { data, isLoading, mutate } = useApi<{ data: Appointment[] }>(`/api/business/appointments?${query}`, { refreshInterval: 8000 });
   const { data: providersData } = useApi<{ providers: Provider[] }>("/api/business/providers");
 
+  // ARRIVED is the canonical "checked in" status (also used by the
+  // Clinical & Billing pipeline and the hybrid check-in system's SMS/QR/IVR
+  // flows) — one signal, never double-tracked against a separate
+  // metadata.checkedInAt flag.
   async function updateStatus(id: string, newStatus: string) {
+    const labels: Record<string, string> = { ARRIVED: "checked in", COMPLETED: "completed", NO_SHOW: "no-show", CANCELLED: "cancelled" };
     try {
       await apiPost(`/api/business/appointments/${id}`, { status: newStatus }, "PATCH");
-      toast.success(`Marked as ${newStatus.toLowerCase()}`);
+      toast.success(`Marked as ${labels[newStatus] || newStatus.toLowerCase()}`);
       mutate();
     } catch {
       toast.error("Could not update booking");
-    }
-  }
-
-  // No dedicated "checked in" appointment status exists — stored in the
-  // existing generic `metadata` field (already used for vertical-specific
-  // extras) rather than adding a new enum value + migration for one flag.
-  async function checkIn(id: string) {
-    try {
-      await apiPost(`/api/business/appointments/${id}`, { metadata: { checkedInAt: new Date().toISOString() } }, "PATCH");
-      toast.success("Checked in");
-      mutate();
-    } catch {
-      toast.error("Could not check in");
     }
   }
 
@@ -249,7 +252,7 @@ export default function BookingsPage() {
         <div className="flex items-center gap-3 border-b border-slate-200 p-4">
           <Select value={status} onChange={(e) => setStatus(e.target.value)} className="w-48">
             <option value="">All statuses</option>
-            {["REQUESTED", "CONFIRMED", "RESCHEDULED", "COMPLETED", "CANCELLED", "NO_SHOW"].map((s) => <option key={s} value={s}>{s}</option>)}
+            {["REQUESTED", "CONFIRMED", "RESCHEDULED", "ARRIVED", "COMPLETED", "CANCELLED", "NO_SHOW"].map((s) => <option key={s} value={s}>{s}</option>)}
           </Select>
         </div>
         <Table>
@@ -281,7 +284,7 @@ export default function BookingsPage() {
               Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} cols={7} />)
             ) : data?.data.length ? (
               data.data.map((a) => (
-                <Tr key={a.id}>
+                <Tr key={a.id} className={`border-l-4 ${ROW_STATUS_BORDER[a.status] || "border-l-transparent"}`}>
                   <Td><input type="checkbox" checked={selected.has(a.id)} onChange={() => toggleSelected(a.id)} /></Td>
                   <Td className="font-medium text-slate-900">
                     {a.contact ? (
@@ -295,18 +298,26 @@ export default function BookingsPage() {
                   <Td><StatusBadge status={a.status} /></Td>
                   <Td className="max-w-[200px] truncate text-slate-500">{a.notes || "—"}</Td>
                   <Td className="text-right">
-                    <div className="flex justify-end gap-1.5">
-                      {a.status === "CONFIRMED" && !a.metadata?.checkedInAt && (
-                        <Button variant="outline" size="sm" onClick={() => checkIn(a.id)}>Check in</Button>
+                    <div className="flex flex-wrap justify-end gap-1.5">
+                      {["REQUESTED", "CONFIRMED", "RESCHEDULED"].includes(a.status) && (
+                        <button onClick={() => updateStatus(a.id, "ARRIVED")} className="rounded-lg bg-blue-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-blue-500">
+                          Check In
+                        </button>
                       )}
-                      {a.metadata?.checkedInAt && a.status === "CONFIRMED" && (
-                        <span className="px-2 py-1 text-[10px] font-medium text-emerald-600">Checked in</span>
+                      {["CONFIRMED", "RESCHEDULED", "ARRIVED"].includes(a.status) && (
+                        <button onClick={() => updateStatus(a.id, "COMPLETED")} className="rounded-lg bg-emerald-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-emerald-500">
+                          Complete
+                        </button>
                       )}
-                      {a.status !== "COMPLETED" && a.status !== "CANCELLED" && (
-                        <>
-                          <Button variant="outline" size="sm" onClick={() => updateStatus(a.id, "COMPLETED")}>Complete</Button>
-                          <Button variant="outline" size="sm" onClick={() => updateStatus(a.id, "CANCELLED")}>Cancel</Button>
-                        </>
+                      {["REQUESTED", "CONFIRMED", "RESCHEDULED"].includes(a.status) && (
+                        <button onClick={() => updateStatus(a.id, "NO_SHOW")} className="rounded-lg bg-rose-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-rose-500">
+                          No Show
+                        </button>
+                      )}
+                      {!["COMPLETED", "CANCELLED", "NO_SHOW"].includes(a.status) && (
+                        <button onClick={() => updateStatus(a.id, "CANCELLED")} className="rounded-lg bg-slate-500 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-slate-400">
+                          Cancel
+                        </button>
                       )}
                     </div>
                   </Td>

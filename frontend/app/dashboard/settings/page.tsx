@@ -12,6 +12,7 @@ import { IntegrationsTab } from "@/components/dashboard/settings/IntegrationsTab
 import { EmailSendingSection } from "@/components/dashboard/settings/EmailSendingSection";
 import { CallRoutingSection } from "@/components/dashboard/settings/CallRoutingSection";
 import { AutomationSection } from "@/components/dashboard/settings/AutomationSection";
+import { CheckInAutomationSection } from "@/components/dashboard/settings/CheckInAutomationSection";
 import { WebhooksTab } from "@/components/dashboard/settings/WebhooksTab";
 import { BillingTab } from "@/components/dashboard/settings/BillingTab";
 import { ComplianceTab } from "@/components/dashboard/settings/ComplianceTab";
@@ -59,6 +60,7 @@ function SettingsTabs() {
         <IntegrationsTab />
         <EmailSendingSection />
         <CallRoutingSection />
+        <CheckInAutomationSection />
         <AutomationSection />
       </TabsContent>
       <TabsContent value="webhooks"><WebhooksTab /></TabsContent>
