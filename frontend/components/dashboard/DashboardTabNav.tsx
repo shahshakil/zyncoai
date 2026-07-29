@@ -36,12 +36,12 @@ export function DashboardTabNav() {
             key={t.href}
             href={t.href}
             className={`relative flex items-center gap-1.5 px-4 py-2.5 text-sm transition ${
-              active ? "border-b-2 border-[#2563eb] font-bold text-[#2563eb]" : "border-b-2 border-transparent text-[#64748b] hover:text-[#0f172a]"
+              active ? "border-b-2 border-indigo-500 font-semibold text-slate-900" : "border-b-2 border-transparent text-slate-400 hover:text-slate-600"
             }`}
           >
             {t.label}
             {!!t.badge && (
-              <span className="flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-[#dc2626] px-1 text-[10px] font-semibold text-white">
+              <span className="flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-rose-600 px-1 text-[10px] font-semibold text-white">
                 {t.badge}
               </span>
             )}

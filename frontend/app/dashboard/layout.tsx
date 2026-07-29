@@ -28,7 +28,7 @@ function ThemedShell({ children, sidebarOpen, onCloseSidebar, onOpenSidebar }: {
 
   return (
     <div
-      className="flex min-h-screen bg-slate-50"
+      className="flex h-screen overflow-hidden bg-slate-50"
       style={
         {
           "--accent": theme.accent,
@@ -38,9 +38,9 @@ function ThemedShell({ children, sidebarOpen, onCloseSidebar, onOpenSidebar }: {
       }
     >
       <Sidebar open={sidebarOpen} onClose={onCloseSidebar} />
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <Topbar onMenuClick={onOpenSidebar} />
-        <main className="flex-1 p-4 sm:p-6">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
           <AnimatePresence mode="wait">
             <motion.div
               key={pathname}
@@ -53,7 +53,7 @@ function ThemedShell({ children, sidebarOpen, onCloseSidebar, onOpenSidebar }: {
             </motion.div>
           </AnimatePresence>
         </main>
-        <footer className="no-print border-t border-slate-200 bg-white px-4 py-4 text-xs text-slate-400 sm:px-6">
+        <footer className="no-print shrink-0 border-t border-slate-200 bg-white px-4 py-4 text-xs text-slate-400 sm:px-6">
           <p>
             {isMedical
               ? "ZyncoAI complies with the Australian Privacy Act 1988, My Health Records Act 2012, and applicable healthcare regulations."

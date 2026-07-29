@@ -29,9 +29,24 @@ export function Td({ className, ...props }: TdHTMLAttributes<HTMLTableCellElemen
   return <td className={cn("px-4 py-3 text-slate-700", className)} {...props} />;
 }
 
-export function EmptyState({ title, description, action }: { title: string; description?: string; action?: React.ReactNode }) {
+export function EmptyState({
+  title,
+  description,
+  action,
+  icon: Icon,
+}: {
+  title: string;
+  description?: string;
+  action?: React.ReactNode;
+  icon?: React.ComponentType<{ className?: string }>;
+}) {
   return (
     <div className="flex flex-col items-center justify-center gap-2 px-6 py-16 text-center">
+      {Icon && (
+        <div className="mb-1 flex h-11 w-11 items-center justify-center rounded-full bg-slate-100">
+          <Icon className="h-5 w-5 text-slate-400" />
+        </div>
+      )}
       <p className="text-sm font-medium text-slate-700">{title}</p>
       {description && <p className="max-w-sm text-sm text-slate-400">{description}</p>}
       {action}

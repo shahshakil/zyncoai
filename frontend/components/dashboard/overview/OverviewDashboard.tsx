@@ -4,7 +4,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { BarChart, Bar, Cell, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 import {
-  CalendarClock, UserX, PieChart as PieChartIcon, PhoneCall, Phone, PhoneMissed, Clock, CalendarPlus, Search, FileText, PhoneOutgoing, Sparkles,
+  CalendarClock, UserX, PieChart as PieChartIcon, PhoneCall, Phone, PhoneMissed, Clock, CalendarPlus, Search, FileText, PhoneOutgoing, Sparkles, CalendarX2, CheckCircle2,
 } from "lucide-react";
 import { useApi, apiPost } from "@/lib/useApi";
 import { useDashboard } from "@/components/dashboard/BusinessContext";
@@ -15,6 +15,9 @@ import { EmptyState } from "@/components/dashboard/ui/table";
 import { LiveAgentHud } from "@/components/dashboard/LiveAgentHud";
 import { DynamicAnalyticsPanel } from "@/components/dashboard/DynamicAnalyticsPanel";
 import { CountUp } from "@/components/dashboard/ui/CountUp";
+import { Sparkline } from "@/components/dashboard/ui/Sparkline";
+import { GlassTooltip } from "@/components/dashboard/ui/ChartTooltip";
+import { CHART_COLORS } from "@/components/dashboard/ui/chartTheme";
 import VerticalPanelsSection from "@/components/dashboard/vertical/VerticalPanelsSection";
 import AiMetricsSection from "@/components/dashboard/ai-metrics/AiMetricsSection";
 import SentimentHeatmapSection from "@/components/dashboard/sentiment/SentimentHeatmapSection";
@@ -75,16 +78,20 @@ const STATUS_BADGE: Record<string, string> = {
   "No-show": "bg-[#fef2f2] text-[#dc2626]",
 };
 
+// Color-by-meaning, matching the shared tag-pill convention: positive
+// outcome (booked) = emerald, informational (faq) = cyan, neutral = slate,
+// live-in-progress gets its own indigo lane so it never reads as "already
+// booked."
 const CALL_BORDER: Record<string, string> = {
-  ongoing: "border-l-[#10b981]",
-  booked: "border-l-[#60a5fa]",
-  faq: "border-l-[#fbbf24]",
-  other: "border-l-[#475569]",
+  ongoing: "border-l-indigo-500",
+  booked: "border-l-emerald-500",
+  faq: "border-l-cyan-400",
+  other: "border-l-slate-600",
 };
 const CALL_BADGE: Record<string, string> = {
-  ongoing: "bg-emerald-500/15 text-emerald-300",
-  booked: "bg-blue-500/15 text-blue-300",
-  faq: "bg-amber-500/15 text-amber-300",
+  ongoing: "bg-indigo-500/15 text-indigo-300",
+  booked: "bg-emerald-500/15 text-emerald-300",
+  faq: "bg-cyan-500/15 text-cyan-300",
   other: "bg-slate-500/15 text-slate-300",
 };
 
@@ -170,48 +177,63 @@ export default function OverviewDashboard() {
           Array.from({ length: 5 }).map((_, i) => <SkeletonStatTile key={i} />)
         ) : (
           <>
-            <Card className="border-l-4 border-l-[#2563eb] bg-gradient-to-br from-[#eff6ff]/60 to-white p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-[#94a3b8]">Today&apos;s Appointments</span>
-                <CalendarClock className="h-4 w-4 text-[#2563eb]" />
+            <Card className="p-4">
+              <div className="flex items-start justify-between">
+                <div className="min-w-0">
+                  <p className="text-xs uppercase tracking-wide text-slate-400">Today&apos;s Appointments</p>
+                  <p className="mt-2 text-3xl font-bold tabular-nums text-slate-900"><CountUp value={resp.topStats.appointments.count} /></p>
+                  <p className="mt-1 text-[11px] text-slate-400">{resp.topStats.appointments.done} done · {resp.topStats.appointments.active} active · {resp.topStats.appointments.wait} wait</p>
+                </div>
+                <div className="shrink-0 rounded-xl bg-indigo-50 p-2.5"><CalendarClock className="h-5 w-5 text-indigo-600" /></div>
               </div>
-              <div className="mt-2 text-2xl font-semibold text-[#0f172a]"><CountUp value={resp.topStats.appointments.count} /></div>
-              <p className="mt-0.5 text-[11px] text-[#94a3b8]">{resp.topStats.appointments.done} done · {resp.topStats.appointments.active} active · {resp.topStats.appointments.wait} wait</p>
+              {resp.weeklyTrend.some((d) => d.count > 0) && (
+                <div className="mt-3">
+                  <Sparkline data={resp.weeklyTrend.map((d) => d.count)} color={CHART_COLORS.primary} />
+                </div>
+              )}
             </Card>
-            <Card className="border-l-4 border-l-[#dc2626] bg-gradient-to-br from-[#fef2f2]/60 to-white p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-[#94a3b8]">No-shows Today</span>
-                <UserX className="h-4 w-4 text-[#dc2626]" />
+            <Card className="p-4">
+              <div className="flex items-start justify-between">
+                <div className="min-w-0">
+                  <p className="text-xs uppercase tracking-wide text-slate-400">No-shows Today</p>
+                  <p className="mt-2 text-3xl font-bold tabular-nums text-slate-900">{resp.topStats.noShow.today}</p>
+                  <p className="mt-1 text-[11px] text-slate-400">{resp.topStats.noShow.thisWeek} this week</p>
+                </div>
+                <div className="shrink-0 rounded-xl bg-rose-50 p-2.5"><UserX className="h-5 w-5 text-rose-600" /></div>
               </div>
-              <div className="mt-2 text-2xl font-semibold text-[#0f172a]">{resp.topStats.noShow.today}</div>
-              <p className="mt-0.5 text-[11px] text-[#94a3b8]">{resp.topStats.noShow.thisWeek} this week</p>
             </Card>
-            <Card className="border-l-4 border-l-[#d97706] bg-gradient-to-br from-[#fffbeb]/60 to-white p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-[#94a3b8]">Utilization</span>
-                <PieChartIcon className="h-4 w-4 text-[#d97706]" />
+            <Card className="p-4">
+              <div className="flex items-start justify-between">
+                <div className="min-w-0">
+                  <p className="text-xs uppercase tracking-wide text-slate-400">Utilization</p>
+                  <p className="mt-2 text-3xl font-bold tabular-nums text-slate-900">{resp.topStats.utilization.booked}/{resp.topStats.utilization.capacity}</p>
+                  <p className="mt-1 text-[11px] text-slate-400">{resp.topStats.utilization.pctFilled}% slots filled</p>
+                </div>
+                <div className="shrink-0 rounded-xl bg-amber-50 p-2.5"><PieChartIcon className="h-5 w-5 text-amber-600" /></div>
               </div>
-              <div className="mt-2 text-2xl font-semibold text-[#0f172a]">{resp.topStats.utilization.booked}/{resp.topStats.utilization.capacity}</div>
-              <p className="mt-0.5 text-[11px] text-[#94a3b8]">{resp.topStats.utilization.pctFilled}% slots filled</p>
             </Card>
-            <Card className="border-l-4 border-l-[#16a34a] bg-gradient-to-br from-[#f0fdf4]/60 to-white p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-[#94a3b8]">AI Calls Today</span>
-                <PhoneCall className="h-4 w-4 text-[#16a34a]" />
+            <Card className="p-4">
+              <div className="flex items-start justify-between">
+                <div className="min-w-0">
+                  <p className="text-xs uppercase tracking-wide text-slate-400">AI Calls Today</p>
+                  <p className="mt-2 text-3xl font-bold tabular-nums text-slate-900"><CountUp value={resp.topStats.aiCalls.today} /></p>
+                  <p className="mt-1 text-[11px] text-slate-400">{resp.topStats.aiCalls.changePctVsYesterday >= 0 ? "+" : ""}{resp.topStats.aiCalls.changePctVsYesterday}% vs yesterday</p>
+                </div>
+                <div className="shrink-0 rounded-xl bg-emerald-50 p-2.5"><PhoneCall className="h-5 w-5 text-emerald-600" /></div>
               </div>
-              <div className="mt-2 text-2xl font-semibold text-[#0f172a]"><CountUp value={resp.topStats.aiCalls.today} /></div>
-              <p className="mt-0.5 text-[11px] text-[#94a3b8]">{resp.topStats.aiCalls.changePctVsYesterday >= 0 ? "+" : ""}{resp.topStats.aiCalls.changePctVsYesterday}% vs yesterday</p>
             </Card>
             {canSeeFinancials && (
-              <Card className="border-l-4 border-l-[#7c3aed] bg-gradient-to-br from-[#f5f3ff]/60 to-white p-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-[#94a3b8]">Revenue Saved Today</span>
-                  <Sparkles className="h-4 w-4 text-[#7c3aed]" />
+              <Card className="p-4">
+                <div className="flex items-start justify-between">
+                  <div className="min-w-0">
+                    <p className="text-xs uppercase tracking-wide text-slate-400">Revenue Saved Today</p>
+                    <p className="mt-2 text-3xl font-bold tabular-nums text-slate-900">
+                      AUD $<CountUp value={Math.round(resp.topStats.revenueSaved.cents / 100)} />
+                    </p>
+                    <p className="mt-1 text-[11px] text-slate-400">{resp.topStats.revenueSaved.bookings} AI bookings × $150</p>
+                  </div>
+                  <div className="shrink-0 rounded-xl bg-violet-50 p-2.5"><Sparkles className="h-5 w-5 text-violet-600" /></div>
                 </div>
-                <div className="mt-2 text-2xl font-semibold text-[#0f172a]">
-                  AUD $<CountUp value={Math.round(resp.topStats.revenueSaved.cents / 100)} />
-                </div>
-                <p className="mt-0.5 text-[11px] text-[#94a3b8]">{resp.topStats.revenueSaved.bookings} AI bookings × $150</p>
               </Card>
             )}
           </>
@@ -300,7 +322,7 @@ export default function OverviewDashboard() {
             {isLoading || !resp ? (
               <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}</div>
             ) : filteredPatients.length === 0 ? (
-              <EmptyState title="No patients in this slot" description="Nothing scheduled today for that duration." />
+              <EmptyState icon={CalendarX2} title="No patients in this slot" description="Nothing scheduled today for that duration." />
             ) : (
               <div className="max-h-[420px] space-y-1.5 overflow-y-auto pr-1">
                 {filteredPatients.map((p) => (
@@ -402,7 +424,10 @@ export default function OverviewDashboard() {
             {isLoading || !resp ? (
               Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-16 w-full animate-pulse rounded-xl bg-[#1e293b]" />)
             ) : resp.liveCallFeed.calls.length === 0 ? (
-              <div className="rounded-xl border border-[#1e293b] bg-[#1e293b] p-6 text-center text-sm text-[#94a3b8]">No calls yet today</div>
+              <div className="flex flex-col items-center gap-2 rounded-xl border border-[#1e293b] bg-[#1e293b] p-6 text-center">
+                <PhoneMissed className="h-5 w-5 text-slate-500" />
+                <p className="text-sm text-[#94a3b8]">No calls yet today — the feed will fill in as calls come in.</p>
+              </div>
             ) : (
               resp.liveCallFeed.calls.map((c) => (
                 <div key={c.id} className={`rounded-xl border-l-4 bg-[#1e293b] p-3 ${CALL_BORDER[c.border]}`}>
@@ -435,24 +460,24 @@ export default function OverviewDashboard() {
           <CardHeader><CardTitle>Weekly Trend</CardTitle></CardHeader>
           <CardContent>
             {isLoading || !resp ? <Skeleton className="h-48 w-full" /> : resp.weeklyTrend.every((d) => d.count === 0) ? (
-              <EmptyState title="No appointments this week" />
+              <EmptyState icon={CalendarX2} title="No appointments this week" />
             ) : (
               <>
                 <ResponsiveContainer width="100%" height={170}>
                   <BarChart data={resp.weeklyTrend}>
                     <XAxis dataKey="day" stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
-                    <Tooltip contentStyle={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 12 }} />
-                    <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                    <Tooltip content={<GlassTooltip />} cursor={{ fill: "#F1F5F9" }} />
+                    <Bar dataKey="count" name="Appointments" radius={[4, 4, 0, 0]}>
                       {resp.weeklyTrend.map((d) => (
-                        <Cell key={d.dateISO} fill={d.isToday ? "#2563eb" : d.isWeekend ? "#e0e7ff" : "#bfdbfe"} />
+                        <Cell key={d.dateISO} fill={d.isToday ? CHART_COLORS.primary : d.isWeekend ? "#e0e7ff" : "#c7d2fe"} />
                       ))}
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
                 <div className="mt-2 flex items-center justify-center gap-4 text-[11px] text-[#64748b]">
-                  <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-sm bg-[#bfdbfe]" /> Weekday</span>
+                  <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-sm bg-[#c7d2fe]" /> Weekday</span>
                   <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-sm bg-[#e0e7ff]" /> Weekend</span>
-                  <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-sm bg-[#2563eb]" /> Today</span>
+                  <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-sm bg-indigo-500" /> Today</span>
                 </div>
               </>
             )}
@@ -477,7 +502,7 @@ export default function OverviewDashboard() {
             {isLoading || !resp ? (
               <div className="space-y-2">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}</div>
             ) : resp.recalls.patients.length === 0 ? (
-              <EmptyState title="No recalls due — great work! ✓" />
+              <EmptyState icon={CheckCircle2} title="No recalls due — great work!" />
             ) : (
               <>
                 {resp.recalls.patients.map((r) => (
