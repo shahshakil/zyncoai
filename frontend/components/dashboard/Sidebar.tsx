@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
   LayoutDashboard,
+  BarChart3,
   Phone,
   CalendarClock,
   Users,
@@ -42,6 +43,10 @@ const SETTINGS_CHILDREN = [
 function buildNav(role: string, vertical: string): NavItem[] {
   const ops = getVerticalOps(vertical);
   const base: NavItem[] = [{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }];
+
+  if (role === "OWNER" || role === "ADMIN") {
+    base.push({ href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 });
+  }
 
   if (role !== "DOCTOR") {
     base.push({ href: "/dashboard/calls", label: "Call History", icon: Phone });

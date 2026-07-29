@@ -11,7 +11,7 @@ import { getVerticalTheme } from "@/components/dashboard/verticalTheme";
 import "../print.css";
 
 function ThemedShell({ children, sidebarOpen, onCloseSidebar, onOpenSidebar }: { children: React.ReactNode; sidebarOpen: boolean; onCloseSidebar: () => void; onOpenSidebar: () => void }) {
-  const { business, canManageBusiness } = useDashboard();
+  const { business, canManageBusiness, canSeeFinancials } = useDashboard();
   const pathname = usePathname();
   const router = useRouter();
   const theme = getVerticalTheme(business.vertical);
@@ -19,12 +19,17 @@ function ThemedShell({ children, sidebarOpen, onCloseSidebar, onOpenSidebar }: {
 
   // Settings/billing/integrations are OWNER/ADMIN-only — the backend already
   // 403s these calls for STAFF/DOCTOR, this just avoids showing a broken
-  // page if someone lands here directly (e.g. a stale bookmark).
+  // page if someone lands here directly (e.g. a stale bookmark). Analytics
+  // is OWNER/ADMIN-only too (revenue/ROI data) — same reasoning, backend
+  // 403s STAFF/DOCTOR via requireBusinessRole on analyticsDashboard.ts.
   useEffect(() => {
     if (!canManageBusiness && pathname?.startsWith("/dashboard/settings")) {
       router.replace("/dashboard");
     }
-  }, [canManageBusiness, pathname, router]);
+    if (!canSeeFinancials && pathname?.startsWith("/dashboard/analytics")) {
+      router.replace("/dashboard");
+    }
+  }, [canManageBusiness, canSeeFinancials, pathname, router]);
 
   return (
     <div
