@@ -90,14 +90,14 @@ function SetupMfaForm() {
 
   if (backupCodes) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-950 px-4">
-        <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-          <ShieldCheck className="mx-auto mb-3 h-10 w-10 text-emerald-400" />
-          <h1 className="text-center text-lg font-semibold text-white">Save your backup codes</h1>
-          <p className="mt-2 text-center text-sm text-white/50">
+      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-[#f8fafc] px-4">
+        <div className="w-full max-w-sm rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-6">
+          <ShieldCheck className="mx-auto mb-3 h-10 w-10 text-emerald-600" />
+          <h1 className="text-center text-lg font-semibold text-[#0f172a]">Save your backup codes</h1>
+          <p className="mt-2 text-center text-sm text-[#475569]">
             Each code works once, if you lose access to your authenticator app. Store them somewhere safe — they won&apos;t be shown again.
           </p>
-          <div className="mt-4 grid grid-cols-2 gap-2 rounded-lg border border-white/10 bg-black/30 p-3 font-mono text-xs text-white/80">
+          <div className="mt-4 grid grid-cols-2 gap-2 rounded-lg border border-[#e2e8f0] bg-slate-50 p-3 font-mono text-xs text-[#0f172a]">
             {backupCodes.map((c) => (
               <span key={c}>{c}</span>
             ))}
@@ -115,27 +115,27 @@ function SetupMfaForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-950 px-4">
+    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-[#f8fafc] px-4">
       <div className="w-full max-w-sm">
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-4 h-10 w-10 rounded-xl bg-indigo-500" />
-          <h1 className="text-xl font-semibold text-white">Set up two-factor authentication</h1>
-          <p className="mt-1 text-sm text-white/40">Required for new ZyncoAI accounts — scan with Google Authenticator or a similar app</p>
+          <div className="mx-auto mb-4 h-10 w-10 rounded-xl bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)]" />
+          <h1 className="text-xl font-semibold text-[#0f172a]">Set up two-factor authentication</h1>
+          <p className="mt-1 text-sm text-[#94a3b8]">Required for new ZyncoAI accounts — scan with Google Authenticator or a similar app</p>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+        <div className="rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-6">
           {qrDataUrl ? (
-            <div className="flex justify-center rounded-lg bg-white p-3">
+            <div className="flex justify-center rounded-lg border border-[#e2e8f0] bg-white p-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={qrDataUrl} alt="MFA QR code" width={180} height={180} />
             </div>
           ) : (
-            <div className="flex h-[196px] items-center justify-center text-sm text-white/40">Loading QR code…</div>
+            <div className="flex h-[196px] items-center justify-center text-sm text-[#94a3b8]">Loading QR code…</div>
           )}
 
           {secret && (
-            <p className="mt-3 break-all text-center text-xs text-white/40">
-              Can&apos;t scan? Enter manually: <span className="text-white/70">{secret}</span>
+            <p className="mt-3 break-all text-center text-xs text-[#94a3b8]">
+              Can&apos;t scan? Enter manually: <span className="text-[#0f172a]">{secret}</span>
             </p>
           )}
 

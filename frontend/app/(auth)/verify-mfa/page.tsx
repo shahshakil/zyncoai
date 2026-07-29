@@ -56,15 +56,15 @@ function VerifyMfaForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-950 px-4">
+    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-[#f8fafc] px-4">
       <div className="w-full max-w-sm">
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-4 h-10 w-10 rounded-xl bg-indigo-500" />
-          <h1 className="text-xl font-semibold text-white">Two-factor verification</h1>
-          <p className="mt-1 text-sm text-white/40">Enter the code from your authenticator app</p>
+          <div className="mx-auto mb-4 h-10 w-10 rounded-xl bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)]" />
+          <h1 className="text-xl font-semibold text-[#0f172a]">Two-factor verification</h1>
+          <p className="mt-1 text-sm text-[#94a3b8]">Enter the code from your authenticator app</p>
         </div>
 
-        <form onSubmit={onSubmit} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 space-y-4">
+        <form onSubmit={onSubmit} className="rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-6 space-y-4">
           <div>
             <Label htmlFor="code">{useBackupCode ? "Backup code" : "6-digit code"}</Label>
             <Input
@@ -87,7 +87,7 @@ function VerifyMfaForm() {
               setUseBackupCode((v) => !v);
               setCode("");
             }}
-            className="w-full text-center text-xs text-white/40 hover:text-white/60"
+            className="w-full text-center text-xs text-[#94a3b8] hover:text-[#475569]"
           >
             {useBackupCode ? "Use my authenticator app instead" : "Use a backup code instead"}
           </button>

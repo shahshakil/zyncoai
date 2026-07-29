@@ -120,7 +120,7 @@ function AcceptInviteForm() {
 
 export default function AcceptInvitePage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] px-4">
+    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-[#f8fafc] px-4">
       <Suspense fallback={<div className="h-40 w-full max-w-sm animate-pulse rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)]" />}>
         <AcceptInviteForm />
       </Suspense>

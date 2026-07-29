@@ -64,102 +64,50 @@ export default function ForgotPage() {
   }
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
-      {/* Background */}
-      <div aria-hidden className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              "radial-gradient(900px 520px at 20% 15%, rgba(99,102,241,.20), transparent 60%)," +
-              "radial-gradient(900px 520px at 80% 20%, rgba(217,70,239,.18), transparent 60%)," +
-              "radial-gradient(900px 520px at 55% 90%, rgba(56,189,248,.10), transparent 65%)",
-          }}
-        />
-        <div
-          className="absolute inset-0 opacity-[0.10]"
-          style={{
-            backgroundImage:
-              "linear-gradient(to right, rgba(255,255,255,.25) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.25) 1px, transparent 1px)",
-            backgroundSize: "64px 64px",
-            maskImage: "radial-gradient(circle at 30% 20%, black, transparent 70%)",
-            WebkitMaskImage: "radial-gradient(circle at 30% 20%, black, transparent 70%)",
-          }}
-        />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,transparent_0%,rgba(0,0,0,.55)_65%,rgba(0,0,0,.92)_100%)]" />
-      </div>
-
-      {/* Top nav */}
-      <header className="relative mx-auto flex max-w-6xl items-center justify-between px-4 py-6">
-        <Link href="/" className="group inline-flex items-center gap-3">
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-fuchsia-500/60 via-indigo-500/60 to-cyan-400/50 ring-1 ring-white/15 shadow-[0_0_0_1px_rgba(255,255,255,.06)]" />
-          <div className="leading-tight">
-            <div className="text-sm font-semibold tracking-tight">ZyncoAI</div>
-            <div className="text-xs text-zinc-400 group-hover:text-zinc-300">
-              Secure account recovery
-            </div>
-          </div>
-        </Link>
-
-        <nav className="flex items-center gap-3 text-sm">
-          <Link
-            href="/docs"
-            className="rounded-lg px-3 py-2 text-zinc-300 hover:text-white hover:bg-white/5"
-          >
-            Docs
-          </Link>
-          <Link
-            href="/security"
-            className="rounded-lg px-3 py-2 text-zinc-300 hover:text-white hover:bg-white/5"
-          >
-            Security
-          </Link>
-          <Link
-            href="/login"
-            className="rounded-lg px-3 py-2 text-zinc-300 hover:text-white hover:bg-white/5"
-          >
-            Log in
-          </Link>
-        </nav>
-      </header>
+    <main className="min-h-[calc(100vh-4rem)] bg-[#f8fafc] text-[#0f172a]">
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 overflow-hidden opacity-40"
+        style={{ backgroundImage: "radial-gradient(#6366f108 1px, transparent 1px)", backgroundSize: "24px 24px" }}
+      />
 
       {/* Content */}
-      <section className="relative mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 pb-16 pt-6 lg:grid-cols-2 lg:items-center">
+      <section className="relative mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 pb-16 pt-14 lg:grid-cols-2 lg:items-center">
         {/* Left: Copy */}
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-200">
-            <span className="h-2 w-2 rounded-full bg-emerald-400/90" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] bg-white px-3 py-1 text-xs text-[#475569] shadow-sm">
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
             Account recovery • Email reset
           </div>
 
-          <h1 className="mt-4 text-4xl font-semibold tracking-tight md:text-5xl">
+          <h1 className="mt-4 text-4xl font-semibold tracking-tight md:text-5xl text-[#0f172a]">
             Reset your password
-            <span className="block bg-gradient-to-r from-indigo-300 via-fuchsia-200 to-cyan-200 bg-clip-text text-transparent">
+            <span className="block bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)] bg-clip-text text-transparent">
               without losing access.
             </span>
           </h1>
 
-          <p className="mt-4 max-w-xl text-zinc-300">
+          <p className="mt-4 max-w-xl text-[#475569]">
             Enter the email associated with your ZyncoAI workspace. If it matches an account,
             we’ll send a secure password reset link. For privacy, we don’t reveal whether an
             email exists.
           </p>
 
-          <div className="mt-6 flex flex-wrap gap-3 text-sm text-zinc-300">
-            <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+          <div className="mt-6 flex flex-wrap gap-3 text-sm text-[#475569]">
+            <div className="rounded-xl border border-[#e2e8f0] bg-white px-3 py-2 shadow-sm">
               ✅ SOC2-style UX patterns
             </div>
-            <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+            <div className="rounded-xl border border-[#e2e8f0] bg-white px-3 py-2 shadow-sm">
               ✅ Anti-enumeration messaging
             </div>
-            <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+            <div className="rounded-xl border border-[#e2e8f0] bg-white px-3 py-2 shadow-sm">
               ✅ Rate-limit friendly
             </div>
           </div>
 
-          <div className="mt-8 text-sm text-zinc-400">
+          <div className="mt-8 text-sm text-[#94a3b8]">
             Having trouble?{" "}
-            <Link href="/security" className="text-zinc-200 hover:text-white underline underline-offset-4">
+            <Link href="/security" className="text-[#6366f1] hover:text-[#4f46e5] underline underline-offset-4">
               Review account security
             </Link>
             .
@@ -168,40 +116,40 @@ export default function ForgotPage() {
 
         {/* Right: Form card */}
         <div className="lg:justify-self-end">
-          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.06] p-6 shadow-[0_20px_120px_rgba(0,0,0,.55)] backdrop-blur-xl">
+          <div className="w-full max-w-md rounded-2xl border border-[#e2e8f0] bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <div className="text-lg font-semibold">Password reset</div>
-                <div className="mt-1 text-sm text-zinc-400">
+                <div className="text-lg font-semibold text-[#0f172a]">Password reset</div>
+                <div className="mt-1 text-sm text-[#475569]">
                   We’ll email you a reset link.
                 </div>
               </div>
-              <div className="rounded-xl bg-gradient-to-br from-indigo-500/30 via-fuchsia-500/20 to-cyan-400/20 px-3 py-2 text-xs text-zinc-200 ring-1 ring-white/10">
+              <div className="rounded-xl bg-[#eef2ff] px-3 py-2 text-xs text-[#4f46e5] ring-1 ring-[#c7d2fe]">
                 Production
               </div>
             </div>
 
             <form onSubmit={onSubmit} className="mt-6 space-y-4">
               <div className="space-y-2">
-                <label className="text-sm text-zinc-200">Email</label>
+                <label className="text-sm text-[#475569]">Email</label>
                 <input
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   inputMode="email"
                   autoComplete="email"
                   placeholder="you@company.com"
-                  className="w-full rounded-xl border border-white/10 bg-zinc-950/40 px-4 py-3 text-sm text-white placeholder:text-zinc-500 outline-none ring-0 focus:border-indigo-400/40 focus:ring-4 focus:ring-indigo-500/10"
+                  className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm text-[#0f172a] placeholder:text-[#94a3b8] outline-none ring-0 focus:border-[#6366f1]/50 focus:ring-4 focus:ring-[#6366f1]/10"
                 />
               </div>
 
               {error && (
-                <div className="rounded-xl border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+                <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
                   {error}
                 </div>
               )}
 
               {stage === "sent" && (
-                <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
                   If that email matches an account, we’ve sent a reset link. Please check your inbox
                   (and spam folder).
                 </div>
@@ -210,7 +158,7 @@ export default function ForgotPage() {
               <button
                 type="submit"
                 disabled={stage === "submitting" || cooldown > 0}
-                className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-cyan-400 px-4 py-3 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(99,102,241,.22)] disabled:opacity-60"
+                className="group relative w-full overflow-hidden rounded-xl bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)] px-4 py-3 text-sm font-semibold text-white shadow-[0_0_20px_rgba(99,102,241,0.25)] hover:opacity-90 disabled:opacity-60"
               >
                 <span className="relative z-10">
                   {stage === "submitting"
@@ -219,21 +167,20 @@ export default function ForgotPage() {
                       ? `Try again in ${cooldown}s`
                       : "Send reset link"}
                 </span>
-                <span className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-white/10" />
               </button>
 
               <div className="flex items-center justify-between text-sm">
-                <Link href="/login" className="text-zinc-300 hover:text-white underline underline-offset-4">
+                <Link href="/login" className="text-[#475569] hover:text-[#0f172a] underline underline-offset-4">
                   Back to login
                 </Link>
-                <Link href="/signup" className="text-zinc-300 hover:text-white underline underline-offset-4">
+                <Link href="/signup" className="text-[#475569] hover:text-[#0f172a] underline underline-offset-4">
                   Create account
                 </Link>
               </div>
 
-              <div className="pt-4 text-xs text-zinc-500">
+              <div className="pt-4 text-xs text-[#94a3b8]">
                 By continuing, you agree to our{" "}
-                <Link href="/security" className="text-zinc-300 hover:text-white underline underline-offset-4">
+                <Link href="/security" className="text-[#6366f1] hover:text-[#4f46e5] underline underline-offset-4">
                   security policies
                 </Link>{" "}
                 and safe access practices.
@@ -242,17 +189,6 @@ export default function ForgotPage() {
           </div>
         </div>
       </section>
-
-      <footer className="relative mx-auto max-w-6xl px-4 pb-10 text-xs text-zinc-500">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>© {new Date().getFullYear()} ZyncoAI. All rights reserved.</div>
-          <div className="flex gap-4">
-            <Link href="/security" className="hover:text-zinc-200">Security</Link>
-            <Link href="/docs" className="hover:text-zinc-200">Docs</Link>
-            <Link href="/pricing" className="hover:text-zinc-200">Pricing</Link>
-          </div>
-        </div>
-      </footer>
     </main>
   );
 }
