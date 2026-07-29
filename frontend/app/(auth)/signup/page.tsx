@@ -5,10 +5,9 @@ import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/dashboard/ui/button";
 import { Input, Label } from "@/components/dashboard/ui/input";
-import { Mail, AlertTriangle } from "lucide-react";
+import { Mail } from "lucide-react";
 import { PRICING_PLANS } from "@/components/marketing/receptionist/data";
-import { PasswordStrengthMeter, scorePassword } from "@/components/auth/PasswordStrengthMeter";
-import { checkPwned } from "@/lib/hibp";
+import { PasswordHints, allPasswordRulesPass } from "@/components/auth/PasswordHints";
 
 export default function SignupPage() {
   return (
@@ -28,28 +27,16 @@ function SignupForm() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState<string | null>(null);
-  const [pwnedWarning, setPwnedWarning] = useState<string | null>(null);
-  const strength = scorePassword(password);
+  const rulesPass = allPasswordRulesPass(password);
 
   useEffect(() => {
     if (planKey) sessionStorage.setItem("zynco_selected_plan", planKey);
   }, [planKey]);
 
-  async function onPasswordBlur() {
-    if (!password) return;
-    try {
-      const { pwned, count } = await checkPwned(password);
-      setPwnedWarning(pwned ? `This password has appeared in ${count.toLocaleString()} data breaches. Please choose a different password.` : null);
-    } catch {
-      // Fail open — a third-party API outage must never block signup.
-      setPwnedWarning(null);
-    }
-  }
-
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (strength !== "strong") {
-      toast.error("Please choose a stronger password before continuing.");
+    if (!rulesPass) {
+      toast.error("Please meet all password requirements before continuing.");
       return;
     }
     setLoading(true);
@@ -120,22 +107,15 @@ function SignupForm() {
               id="password"
               type="password"
               required
-              minLength={8}
+              minLength={12}
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              onBlur={onPasswordBlur}
               placeholder="At least 12 characters"
             />
-            <PasswordStrengthMeter password={password} />
-            {pwnedWarning && (
-              <p className="mt-1.5 flex items-start gap-1.5 text-xs text-amber-700">
-                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                {pwnedWarning}
-              </p>
-            )}
+            <PasswordHints password={password} />
           </div>
-          <Button type="submit" className="w-full" disabled={loading || strength !== "strong"}>
+          <Button type="submit" className="w-full" disabled={loading || !rulesPass}>
             {loading ? "Creating account…" : "Create account"}
           </Button>
         </form>
