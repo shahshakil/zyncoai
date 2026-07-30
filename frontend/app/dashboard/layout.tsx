@@ -69,7 +69,14 @@ function ThemedShell({ children, sidebarOpen, onCloseSidebar, onOpenSidebar }: {
           className="flex-1 overflow-y-auto p-4 sm:p-6"
           style={{ backgroundImage: `radial-gradient(${theme.accentPrimary}08 1px, transparent 1px)`, backgroundSize: "20px 20px" }}
         >
-          <AnimatePresence mode="wait">
+          {/* mode="wait" (removed) forced every dashboard navigation to sit
+              through the outgoing page's full exit animation before the new
+              page even started rendering — a ~150ms+ dead pause on every
+              single click, invisible to network/server diagnostics since
+              it's pure client-side animation sequencing. Default mode runs
+              enter/exit concurrently instead, keeping the fade/shift polish
+              without the artificial wait. */}
+          <AnimatePresence>
             <motion.div
               key={pathname}
               initial={{ opacity: 0, y: 6 }}
