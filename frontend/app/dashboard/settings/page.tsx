@@ -17,6 +17,7 @@ const CallRoutingSection = dynamic(() => import("@/components/dashboard/settings
 const AutomationSection = dynamic(() => import("@/components/dashboard/settings/AutomationSection").then((m) => ({ default: m.AutomationSection })), { loading: TabSkeleton });
 const CheckInAutomationSection = dynamic(() => import("@/components/dashboard/settings/CheckInAutomationSection").then((m) => ({ default: m.CheckInAutomationSection })), { loading: TabSkeleton });
 const WebhooksTab = dynamic(() => import("@/components/dashboard/settings/WebhooksTab").then((m) => ({ default: m.WebhooksTab })), { loading: TabSkeleton });
+const NotificationsTab = dynamic(() => import("@/components/dashboard/settings/NotificationsTab").then((m) => ({ default: m.NotificationsTab })), { loading: TabSkeleton });
 const BillingTab = dynamic(() => import("@/components/dashboard/settings/BillingTab").then((m) => ({ default: m.BillingTab })), { loading: TabSkeleton });
 const ComplianceTab = dynamic(() => import("@/components/dashboard/settings/ComplianceTab").then((m) => ({ default: m.ComplianceTab })), { loading: TabSkeleton });
 const MenuTab = dynamic(() => import("@/components/dashboard/settings/MenuTab").then((m) => ({ default: m.MenuTab })), { loading: TabSkeleton });
@@ -51,6 +52,7 @@ function SettingsTabs() {
         <TabsTrigger value="ai-prompt">AI Prompt</TabsTrigger>
         <TabsTrigger value="integrations">Integrations</TabsTrigger>
         <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
+        <TabsTrigger value="notifications">Notifications</TabsTrigger>
         <TabsTrigger value="billing">Billing</TabsTrigger>
         <TabsTrigger value="compliance">Security & Compliance</TabsTrigger>
         <TabsTrigger value="danger">Danger Zone</TabsTrigger>
@@ -67,6 +69,7 @@ function SettingsTabs() {
         <AutomationSection />
       </TabsContent>
       <TabsContent value="webhooks"><WebhooksTab /></TabsContent>
+      <TabsContent value="notifications"><NotificationsTab /></TabsContent>
       <TabsContent value="billing"><BillingTab /></TabsContent>
       <TabsContent value="compliance"><ComplianceTab /></TabsContent>
       <TabsContent value="danger"><DangerZoneTab /></TabsContent>

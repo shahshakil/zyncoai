@@ -17,6 +17,7 @@ interface BusinessDetail {
   id: string; name: string; phoneNumber: string; vertical: string; status: string; createdAt: string;
   manualPlan: string | null; abn: string | null; trialEndsAt: string | null;
   planOverridePriceCents: number | null; planOverrideCallAllowance: number | null;
+  smsConfirmationsEnabled: boolean; smsConfirmationsPaid: boolean;
   team: { name: string };
   members: { role: string; user: { email: string; name: string | null } }[];
   providers: { id: string; name: string; title: string | null; active: boolean }[];
@@ -67,6 +68,22 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
       toast.error("Failed to save billing details");
     } finally {
       setSavingPlan(false);
+    }
+  }
+
+  const [savingSms, setSavingSms] = useState(false);
+
+  async function toggleSmsConfirmations(field: "enabled" | "paid", value: boolean) {
+    setSavingSms(true);
+    try {
+      await apiPost(`/api/admin/platform/businesses/${businessId}/sms-confirmations`, { [field]: value });
+      toast.success("SMS confirmations updated");
+      mutate();
+      onChanged();
+    } catch {
+      toast.error("Failed to update SMS confirmations");
+    } finally {
+      setSavingSms(false);
     }
   }
 
@@ -322,6 +339,32 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
                             </div>
                             <p className="text-[11px] text-[#9CA3AF]">Overrides are for Enterprise/custom deals — leave blank to inherit the selected plan&apos;s price and allowance.</p>
                             <Button size="sm" onClick={savePlan} disabled={savingPlan}>{savingPlan ? "Saving…" : "Save billing details"}</Button>
+                          </div>
+                        </div>
+                        <div className="rounded-xl border border-[#E5E7EB] p-3">
+                          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-[#6B7280]">SMS Confirmations</h3>
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between rounded-lg bg-[#F8F9FA] px-3 py-2">
+                              <div>
+                                <p className="text-xs font-medium text-[#6B7280]">Enabled (owner opt-in)</p>
+                                <p className="text-sm text-[#1F2937]">{data.business.smsConfirmationsEnabled ? "Yes" : "No"}</p>
+                              </div>
+                              <Button size="sm" variant="outline" disabled={savingSms} onClick={() => toggleSmsConfirmations("enabled", !data.business.smsConfirmationsEnabled)}>
+                                {data.business.smsConfirmationsEnabled ? "Disable" : "Enable"}
+                              </Button>
+                            </div>
+                            <div className="flex items-center justify-between rounded-lg bg-[#F8F9FA] px-3 py-2">
+                              <div>
+                                <p className="text-xs font-medium text-[#6B7280]">Paid ($20/mo add-on)</p>
+                                <p className="text-sm text-[#1F2937]">{data.business.smsConfirmationsPaid ? "Confirmed" : "Not confirmed"}</p>
+                              </div>
+                              <Button size="sm" variant="outline" disabled={savingSms} onClick={() => toggleSmsConfirmations("paid", !data.business.smsConfirmationsPaid)}>
+                                {data.business.smsConfirmationsPaid ? "Mark unpaid" : "Mark paid"}
+                              </Button>
+                            </div>
+                            {data.business.smsConfirmationsEnabled && !data.business.smsConfirmationsPaid && (
+                              <p className="text-[11px] text-[#9CA3AF]">Owner has enabled SMS but billing hasn&apos;t been confirmed — SMS won&apos;t send until both are on.</p>
+                            )}
                           </div>
                         </div>
                         <a href={`tel:${data.business.phoneNumber}`} className="flex w-full items-center gap-2 justify-start rounded-xl border border-[#E5E7EB] px-4 py-2 text-sm font-medium text-[#1F2937] hover:bg-[#F8F9FA]">

@@ -44,6 +44,7 @@ export default function OnboardingPage() {
   const [name, setName] = useState("");
   const [vertical, setVertical] = useState("MEDICAL");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [ownerMobile, setOwnerMobile] = useState("");
   const [timezone, setTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC");
   const [address, setAddress] = useState("");
   const [placeId, setPlaceId] = useState<string | null>(null);
@@ -103,6 +104,7 @@ export default function OnboardingPage() {
         address: address || undefined,
         placeId: placeId || undefined,
         hours,
+        ownerMobile: ownerMobile || undefined,
         privacyPolicyAccepted: true,
       });
       setBusinessId(res.business.id);
@@ -172,6 +174,10 @@ export default function OnboardingPage() {
                     <Label>Business phone</Label>
                     <Input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="+1 555 123 4567" />
                   </div>
+                </div>
+                <div>
+                  <Label>Owner mobile number</Label>
+                  <Input value={ownerMobile} onChange={(e) => setOwnerMobile(e.target.value)} placeholder="+61 4XX XXX XXX (for important notifications)" />
                 </div>
                 <div className="relative">
                   <Label>Address</Label>
