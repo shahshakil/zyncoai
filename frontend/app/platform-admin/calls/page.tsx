@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { PhoneCall, Calendar, Clock, Flame, Siren, FileText, Gauge, Download, Printer, Radio, Timer, DollarSign } from "lucide-react";
+import { PhoneCall, Calendar, CalendarCheck, Clock, Flame, Siren, FileText, Gauge, Download, Printer, Radio, Timer, DollarSign } from "lucide-react";
 import { useApi } from "@/lib/useApi";
 import { Card, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { Button } from "@/components/dashboard/ui/button";
@@ -34,7 +34,7 @@ interface CallsLive { callsInProgress: number; callsLastHour: number; minutesTod
 
 interface UsageRow { businessId: string; name: string; planName: string | null; callAllowance: number | null; callsUsed: number; pctUsed: number | null; overageCalls: number }
 interface CallsAnalytics {
-  totalToday: number; totalThisMonth: number; avgDurationSec: number; busiestHour: number | null;
+  totalToday: number; totalThisMonth: number; avgDurationSec: number; busiestHour: number | null; bookingRatePct: number;
   callsPerDay: { date: string; count: number }[];
   heatmap: { dow: number; hour: number; count: number }[];
   byVertical: { vertical: string; count: number }[];
@@ -95,11 +95,12 @@ export default function CallsAnalyticsPage() {
           </div>
         </Card>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <StatCard label="Calls Today" value={formatNumber(data?.totalToday || 0)} icon={PhoneCall} gradient="linear-gradient(135deg,#10B981,#34D399)" loading={!data} />
           <StatCard label="Calls This Month" value={formatNumber(data?.totalThisMonth || 0)} icon={Calendar} gradient="linear-gradient(135deg,#3B82F6,#60A5FA)" loading={!data} />
           <StatCard label="Average Duration" value={formatDuration(data?.avgDurationSec || 0)} icon={Clock} gradient="linear-gradient(135deg,#6366F1,#8B5CF6)" loading={!data} />
           <StatCard label="Busiest Hour" value={data?.busiestHour != null ? `${String(data.busiestHour).padStart(2, "0")}:00` : "—"} icon={Flame} gradient="linear-gradient(135deg,#F59E0B,#FBBF24)" loading={!data} />
+          <StatCard label="AI Booking Rate (30d)" value={`${data?.bookingRatePct ?? 0}%`} icon={CalendarCheck} gradient="linear-gradient(135deg,#10B981,#34D399)" loading={!data} sublabel="Booked calls / all calls" />
         </div>
 
         <Card>

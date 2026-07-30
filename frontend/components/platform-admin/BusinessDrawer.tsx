@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
-import { X, Ban, PlayCircle, Mail, ExternalLink, Phone, Plug, CreditCard } from "lucide-react";
+import { X, Ban, PlayCircle, Mail, ExternalLink, Phone, Plug, CreditCard, KeyRound } from "lucide-react";
 import { useApi, apiPost } from "@/lib/useApi";
 import { Button } from "@/components/dashboard/ui/button";
 import { Badge, StatusBadge } from "@/components/dashboard/ui/badge";
@@ -15,7 +15,7 @@ interface PricingPlan { key: string; name: string; priceCents: number; callAllow
 
 interface BusinessDetail {
   id: string; name: string; phoneNumber: string; vertical: string; status: string; createdAt: string;
-  manualPlan: string | null; abn: string | null;
+  manualPlan: string | null; abn: string | null; trialEndsAt: string | null;
   planOverridePriceCents: number | null; planOverrideCallAllowance: number | null;
   team: { name: string };
   members: { role: string; user: { email: string; name: string | null } }[];
@@ -70,6 +70,22 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
     }
   }
 
+  const [extendingTrial, setExtendingTrial] = useState(false);
+
+  async function extendTrial(days: number) {
+    setExtendingTrial(true);
+    try {
+      await apiPost(`/api/admin/platform/businesses/${businessId}/extend-trial`, { days });
+      toast.success(`Trial extended ${days} days`);
+      mutate();
+      onChanged();
+    } catch {
+      toast.error("Failed to extend trial");
+    } finally {
+      setExtendingTrial(false);
+    }
+  }
+
   async function toggleStatus() {
     if (!data) return;
     const action = data.business.status === "SUSPENDED" ? "activate" : "suspend";
@@ -82,6 +98,19 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
       onChanged();
     } catch {
       toast.error("Action failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function resetOwnerPassword() {
+    if (!confirm(`Send a password reset email to ${data?.business.name}'s owner?`)) return;
+    setBusy(true);
+    try {
+      await apiPost(`/api/admin/platform/businesses/${businessId}/reset-owner-password`);
+      toast.success("Password reset email sent");
+    } catch {
+      toast.error("Failed to send password reset email");
     } finally {
       setBusy(false);
     }
@@ -255,6 +284,21 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
                             <CreditCard className="h-3.5 w-3.5" /> Billing
                           </h3>
                           <div className="space-y-3">
+                            <div className="flex items-center justify-between rounded-lg bg-[#F8F9FA] px-3 py-2">
+                              <div>
+                                <p className="text-xs font-medium text-[#6B7280]">Trial status</p>
+                                <p className="text-sm text-[#1F2937]">
+                                  {!data.business.trialEndsAt
+                                    ? "No trial (existing business)"
+                                    : new Date(data.business.trialEndsAt) > new Date()
+                                    ? `Ends ${new Date(data.business.trialEndsAt).toLocaleDateString()}`
+                                    : "Trial expired"}
+                                </p>
+                              </div>
+                              <Button size="sm" variant="outline" onClick={() => extendTrial(7)} disabled={extendingTrial}>
+                                {extendingTrial ? "Extending…" : "+7 days"}
+                              </Button>
+                            </div>
                             <div>
                               <Label>Plan</Label>
                               <Select value={planKey} onChange={(e) => setPlanKey(e.target.value)}>
@@ -285,6 +329,9 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
                         </a>
                         <Button variant="outline" className="w-full justify-start" onClick={viewAsOwner} disabled={busy}>
                           <ExternalLink className="h-4 w-4" /> View as Owner
+                        </Button>
+                        <Button variant="outline" className="w-full justify-start" onClick={resetOwnerPassword} disabled={busy}>
+                          <KeyRound className="h-4 w-4" /> Reset owner password
                         </Button>
                         <Button variant="outline" className="w-full justify-start" onClick={() => setEmailOpen((v) => !v)}>
                           <Mail className="h-4 w-4" /> Email business

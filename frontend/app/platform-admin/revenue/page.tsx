@@ -1,6 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
-import { DollarSign, TrendingDown, TrendingUp, Percent, Download } from "lucide-react";
+import { DollarSign, TrendingDown, TrendingUp, Percent, Download, Repeat, Users, Info } from "lucide-react";
 import { toast } from "sonner";
 import { useApi, apiPost } from "@/lib/useApi";
 import { Card, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
@@ -20,7 +20,10 @@ const CostPieChart = dynamic(() => import("@/components/platform-admin/charts").
 
 interface PricingPlan { key: string; name: string; priceCents: number }
 interface RevenueData {
-  totalIncomeCents: number; totalCostCents: number; netProfitCents: number; profitMarginPct: number;
+  mrrCents: number; arrCents: number; arpuCents: number; revenueGrowthPct: number | null;
+  totalIncomeCents: number; totalIncomeLastMonthCents: number; totalCostCents: number; netProfitCents: number; profitMarginPct: number;
+  revenueByPlan: { plan: string; amountCents: number }[];
+  churnRevenueLostCents: number | null; netRevenueRetentionPct: number | null; notAvailableReason: string;
   costBreakdown: { openAiCostCents: number; twilioCostCents: number; serverCostCents: number };
   costsAreEstimated: boolean;
   openAiCostNote: string;
@@ -75,6 +78,20 @@ export default function RevenuePage() {
         )}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard label="MRR" value={formatCents(data?.mrrCents || 0)} icon={Repeat} gradient="linear-gradient(135deg,#6366F1,#8B5CF6)" loading={!data} sublabel="Active businesses' current plan price" />
+          <StatCard label="ARR" value={formatCents(data?.arrCents || 0)} icon={TrendingUp} gradient="linear-gradient(135deg,#0EA5E9,#38BDF8)" loading={!data} sublabel="MRR x 12" />
+          <StatCard label="ARPU" value={formatCents(data?.arpuCents || 0)} icon={Users} gradient="linear-gradient(135deg,#10B981,#34D399)" loading={!data} sublabel="MRR / active paying businesses" />
+          <StatCard
+            label="Revenue Growth (MoM)"
+            value={data?.revenueGrowthPct === null || data?.revenueGrowthPct === undefined ? "N/A" : `${data.revenueGrowthPct > 0 ? "+" : ""}${data.revenueGrowthPct}%`}
+            icon={data && (data.revenueGrowthPct ?? 0) < 0 ? TrendingDown : TrendingUp}
+            gradient={data && (data.revenueGrowthPct ?? 0) < 0 ? "linear-gradient(135deg,#EF4444,#F87171)" : "linear-gradient(135deg,#F59E0B,#FBBF24)"}
+            loading={!data}
+            sublabel={data ? `${formatCents(data.totalIncomeLastMonthCents)} last month` : undefined}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard label="Platform Revenue (Month)" value={formatCents(data?.totalIncomeCents || 0)} icon={DollarSign} gradient="linear-gradient(135deg,#10B981,#34D399)" loading={!data} />
           <StatCard label="Total Costs This Month (estimated)" value={formatCents(data?.totalCostCents || 0)} icon={TrendingDown} gradient="linear-gradient(135deg,#EF4444,#F87171)" loading={!data} sublabel="OpenAI + Twilio, estimated" />
           <StatCard
@@ -84,6 +101,15 @@ export default function RevenuePage() {
           />
           <StatCard label="Profit Margin" value={`${data?.profitMarginPct ?? 0}%`} icon={Percent} gradient="linear-gradient(135deg,#F59E0B,#FBBF24)" loading={!data} />
         </div>
+
+        {data && (
+          <div className="flex items-start gap-2 rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm text-[#6B7280]">
+            <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#9CA3AF]" />
+            <div>
+              <p><span className="font-medium text-[#1F2937]">Churn revenue lost</span> and <span className="font-medium text-[#1F2937]">Net Revenue Retention</span> are not available: {data.notAvailableReason}</p>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <Card>
@@ -127,13 +153,17 @@ export default function RevenuePage() {
             <p className="mt-0.5 text-xs text-[#9CA3AF]">Manual plan tiers — edit in Platform Settings. Businesses are assigned a plan manually until real Stripe billing exists.</p>
           </CardHeader>
           <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-3">
-            {data?.pricingPlans.map((p) => (
-              <div key={p.key} className="rounded-xl border border-[#E5E7EB] p-4">
-                <p className="text-sm font-semibold text-[#1F2937]">{p.name}</p>
-                <p className="mt-1 text-2xl font-bold text-[#1F2937]">{formatCents(p.priceCents)}<span className="text-xs font-normal text-[#9CA3AF]">/mo</span></p>
-                <p className="mt-1 text-xs text-[#9CA3AF]">{data.businesses.filter((b) => b.manualPlanKey === p.key).length} businesses on this plan</p>
-              </div>
-            ))}
+            {data?.pricingPlans.map((p) => {
+              const revenueForPlan = data.revenueByPlan.find((r) => r.plan === p.name)?.amountCents || 0;
+              return (
+                <div key={p.key} className="rounded-xl border border-[#E5E7EB] p-4">
+                  <p className="text-sm font-semibold text-[#1F2937]">{p.name}</p>
+                  <p className="mt-1 text-2xl font-bold text-[#1F2937]">{formatCents(p.priceCents)}<span className="text-xs font-normal text-[#9CA3AF]">/mo</span></p>
+                  <p className="mt-1 text-xs text-[#9CA3AF]">{data.businesses.filter((b) => b.manualPlanKey === p.key).length} businesses on this plan</p>
+                  <p className="mt-0.5 text-xs font-medium text-[#10B981]">{formatCents(revenueForPlan)}/mo MRR from this plan</p>
+                </div>
+              );
+            })}
             {!data && <Skel height={100} />}
           </div>
         </Card>

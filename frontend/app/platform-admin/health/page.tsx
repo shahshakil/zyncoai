@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { Table, Thead, Th, Tbody, Tr, Td, EmptyState } from "@/components/dashboard/ui/table";
 import { Badge } from "@/components/dashboard/ui/badge";
 import { Topbar } from "@/components/platform-admin/Topbar";
+import { formatNumber } from "@/components/platform-admin/format";
 
 const RealtimeLineChart = dynamic(() => import("@/components/platform-admin/charts").then((m) => ({ default: m.RealtimeLineChart })), { loading: () => <div className="h-40 animate-pulse rounded-xl bg-slate-100" />, ssr: false });
 
@@ -19,6 +20,8 @@ interface HealthData {
   jobs: { completedToday: number; failedToday: number; pendingNow: number };
   requestsPerMinute: number;
   errorRatePct: number;
+  errorRate24hPct: number;
+  requests24h: number;
   memoryUsageMb: number;
   uptimeSec: number;
   resources: { cpuPct: number; memPct: number; diskPct: number; cpuStatus: SvcStatus; memStatus: SvcStatus; diskStatus: SvcStatus };
@@ -107,7 +110,17 @@ export default function SystemHealthPage() {
             </div>
           </Card>
           <Card>
-            <CardHeader><CardTitle>Error Rate</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle>Error Rate</CardTitle>
+              <p className="mt-0.5 text-xs text-[#9CA3AF]">
+                Chart is the last ~5 minutes.{" "}
+                {data && (
+                  <span className={data.errorRate24hPct > 1 ? "font-medium text-[#EF4444]" : "font-medium text-[#10B981]"}>
+                    Trailing 24h: {data.errorRate24hPct}% ({formatNumber(data.requests24h)} requests)
+                  </span>
+                )}
+              </p>
+            </CardHeader>
             <div className="p-4">
               {history.length ? <RealtimeLineChart data={history} dataKey="errPct" color={data && data.errorRatePct > 1 ? "#EF4444" : "#10B981"} unit="%" /> : <Skel height={160} />}
             </div>

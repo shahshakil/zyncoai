@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
-import { Building2, PhoneCall, CalendarCheck, DollarSign, PhoneMissed, UserPlus, Bell, BellOff, FileText } from "lucide-react";
+import { Building2, PhoneCall, CalendarCheck, DollarSign, PhoneMissed, UserPlus, Bell, BellOff, FileText, TrendingDown, Activity, AlertTriangle } from "lucide-react";
 import { useApi } from "@/lib/useApi";
 import { Card, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { Topbar } from "@/components/platform-admin/Topbar";
@@ -19,8 +19,12 @@ import { TranscriptModal } from "@/components/platform-admin/TranscriptModal";
 
 interface Stats {
   totalBusinesses: number; activeBusinesses: number; suspendedBusinesses: number;
-  totalCalls: number; callsToday: number; callsYesterday: number; bookingsToday: number; bookingsYesterday: number;
-  newBusinessesThisWeek: number; newBusinessesPriorWeek: number;
+  totalCalls: number;
+  callsToday: number; callsYesterday: number; callsThisWeek: number; callsThisMonth: number;
+  bookingsToday: number; bookingsYesterday: number; bookingsThisWeek: number; bookingsThisMonth: number;
+  newBusinessesToday: number; newBusinessesThisWeek: number; newBusinessesPriorWeek: number;
+  churnRatePct: number; churnedThisMonth: number;
+  uptimePct30d: number; uptimeHealthyNow: boolean;
   platformRevenueThisMonthCents: number; billingConfigured: boolean;
 }
 interface ActivityItem {
@@ -145,6 +149,25 @@ export default function CommandCentrePage() {
               icon={DollarSign} gradient="linear-gradient(135deg,#10B981,#059669)"
             />
           )}
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
+          <StatCard label="New Signups Today" loading={statsLoading} value={formatNumber(stats?.newBusinessesToday || 0)} icon={UserPlus} gradient="linear-gradient(135deg,#F59E0B,#FBBF24)" />
+          <StatCard label="Calls This Week / Month" loading={statsLoading} value={`${formatNumber(stats?.callsThisWeek || 0)} / ${formatNumber(stats?.callsThisMonth || 0)}`} icon={PhoneCall} gradient="linear-gradient(135deg,#10B981,#34D399)" />
+          <StatCard label="Bookings This Week / Month" loading={statsLoading} value={`${formatNumber(stats?.bookingsThisWeek || 0)} / ${formatNumber(stats?.bookingsThisMonth || 0)}`} icon={CalendarCheck} gradient="linear-gradient(135deg,#3B82F6,#60A5FA)" />
+          <StatCard
+            label="Churn Rate (Month)" loading={statsLoading} value={`${stats?.churnRatePct ?? 0}%`}
+            icon={TrendingDown} gradient={stats && stats.churnRatePct > 5 ? "linear-gradient(135deg,#EF4444,#F87171)" : "linear-gradient(135deg,#94A3B8,#CBD5E1)"}
+            sublabel={`${formatNumber(stats?.churnedThisMonth || 0)} businesses suspended`}
+          />
+          <Link href="/platform-admin/health">
+            <StatCard
+              label="Platform Uptime (30d)" loading={statsLoading} value={`${stats?.uptimePct30d ?? 100}%`}
+              icon={stats?.uptimeHealthyNow === false ? AlertTriangle : Activity}
+              gradient={stats?.uptimeHealthyNow === false ? "linear-gradient(135deg,#EF4444,#F87171)" : "linear-gradient(135deg,#10B981,#34D399)"}
+              sublabel={stats?.uptimeHealthyNow === false ? "Active incident — view Health" : "All systems healthy"}
+            />
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
