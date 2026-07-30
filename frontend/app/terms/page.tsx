@@ -29,7 +29,7 @@ const Bullet = ({ children }: { children: React.ReactNode }) => (
 );
 
 export default function TermsPage() {
-  const updated = "February 20, 2026";
+  const updated = "July 30, 2026";
 
   return (
     <main className="min-h-screen bg-[#f8fafc]">
@@ -111,9 +111,14 @@ export default function TermsPage() {
                   ["usage", "Acceptable use"],
                   ["workflows", "Workflows, connectors & data"],
                   ["ai", "AI features & outputs"],
+                  ["adm", "Automated decision making"],
+                  ["ai-transparency", "AI transparency & human handling"],
+                  ["tga", "TGA disclaimer"],
                   ["billing", "Billing & plans"],
                   ["cancellation", "Cancellation & refunds"],
                   ["security", "Security & incidents"],
+                  ["incident-reporting", "Incident reporting obligations"],
+                  ["nsw-workplace", "NSW workplace digital systems"],
                   ["ip", "Intellectual property"],
                   ["warranty", "Disclaimers"],
                   ["liability", "Limitation of liability"],
@@ -244,6 +249,33 @@ export default function TermsPage() {
               </ul>
             </Section>
 
+            <Section id="adm" title="Automated decision making">
+              <p>
+                ZyncoAI uses AI to assist with appointment booking. No decisions significantly affecting your rights
+                are made without human oversight — clinic staff review all bookings before they are treated as final.
+              </p>
+            </Section>
+
+            <Section id="ai-transparency" title="AI transparency & right to request human handling">
+              <p>
+                Callers are informed they are speaking with an AI assistant, Ella, at the start of every call. Full
+                details of the AI models we use, how they make decisions, our data retention periods, and how to
+                make a complaint are published at{" "}
+                <Link href="/ai-transparency" className="text-[#6366f1] underline underline-offset-4 hover:text-[#4f46e5]">
+                  /ai-transparency
+                </Link>
+                . Any caller may opt out of speaking with the AI and request a human receptionist at any time by
+                saying &quot;transfer me to a person.&quot;
+              </p>
+            </Section>
+
+            <Section id="tga" title="Therapeutic Goods Administration (TGA) disclaimer">
+              <p>
+                ZyncoAI is an administrative tool only. It does not provide medical advice, diagnosis, or treatment.
+                Always consult a qualified healthcare professional for medical concerns.
+              </p>
+            </Section>
+
             <Section id="billing" title="Billing & plans">
               <p>
                 If you subscribe to a paid plan, you agree to pay the fees described on{" "}
@@ -299,6 +331,27 @@ export default function TermsPage() {
                   docs
                 </Link>
                 .
+              </p>
+            </Section>
+
+            <Section id="incident-reporting" title="Incident reporting obligations">
+              <p>
+                If a data breach occurs that is likely to result in serious harm to affected individuals, ZyncoAI
+                will assess and, where required, notify the Office of the Australian Information Commissioner (OAIC)
+                and affected individuals within 30 days, as required by the Notifiable Data Breaches (NDB) scheme
+                under the Privacy Act 1988. See our{" "}
+                <Link href="/privacy#breach" className="text-[#6366f1] underline underline-offset-4 hover:text-[#4f46e5]">
+                  Privacy Policy
+                </Link>{" "}
+                for full details.
+              </p>
+            </Section>
+
+            <Section id="nsw-workplace" title="NSW workplace digital systems">
+              <p>
+                ZyncoAI is designed to assist, not replace, clinic staff. Usage data collected by the platform is
+                not used to monitor individual staff performance without consent, consistent with New South Wales
+                digital workplace surveillance requirements.
               </p>
             </Section>
 

@@ -24,6 +24,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/platform-admin/fraud": "Fraud Monitor",
   "/platform-admin/security": "Security",
   "/platform-admin/alerts": "Alert Inbox",
+  "/platform-admin/data-breaches": "Data Breach Report",
 };
 
 function SitewideHealthBanner() {

@@ -60,11 +60,42 @@ export default function MarketingMegaFooter() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-[#94a3b8] md:flex-row md:items-center md:justify-between">
+        <div className="mt-12 border-t border-white/10 pt-6">
+          <p className="text-xs leading-5 text-[#64748b]">
+            ZyncoAI is an AI-powered phone answering service. It does not replace licensed medical professionals.
+            ZyncoAI uses AI-assisted decision making — see our{" "}
+            <Link href="/privacy#adm" className="underline hover:text-[#94a3b8]">
+              Privacy Policy
+            </Link>{" "}
+            for details.
+          </p>
+
+          <div className="mt-5">
+            <div className="text-xs font-semibold uppercase tracking-wide text-[#64748b]">Built for Australian compliance</div>
+            <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-2 text-xs text-[#94a3b8]">
+              <li>✅ Privacy Act 1988</li>
+              <li>✅ Spam Act 2003</li>
+              <li>✅ Australian Consumer Law 2026</li>
+              <li>✅ My Health Records Act 2012</li>
+              <li>
+                ✅ AI Transparency (
+                <Link href="/ai-transparency" className="underline hover:text-[#f8fafc]">
+                  ADM disclosed
+                </Link>
+                )
+              </li>
+              <li>✅ Cyber Security Act 2024 aligned</li>
+              <li>✅ TGA administrative tool disclaimer</li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-[#94a3b8] md:flex-row md:items-center md:justify-between">
           <div>© 2026 ZyncoAI Pty Ltd. ABN available on request.</div>
           <div className="flex gap-4">
             <Link href="/privacy" className="hover:text-[#f8fafc]">Privacy</Link>
             <Link href="/terms" className="hover:text-[#f8fafc]">Terms</Link>
+            <Link href="/ai-transparency" className="hover:text-[#f8fafc]">AI Transparency</Link>
           </div>
         </div>
       </div>

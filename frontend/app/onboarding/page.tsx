@@ -244,6 +244,15 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
+              {(vertical === "MEDICAL" || vertical === "DENTAL") && (
+                <div className="mt-6 rounded-lg border border-amber-400/20 bg-amber-400/[0.03] p-3">
+                  <p className="text-xs text-amber-200/80">
+                    ZyncoAI is an administrative tool only. It does not provide medical advice, diagnosis, or
+                    treatment. Always consult a qualified healthcare professional for medical concerns.
+                  </p>
+                </div>
+              )}
+
               <div className="mt-6 space-y-2 rounded-lg border border-white/10 bg-white/[0.02] p-3">
                 <p className="text-xs text-white/40">
                   ZyncoAI stores scheduling data only — no clinical records are stored or accessible.

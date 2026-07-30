@@ -29,7 +29,7 @@ const Bullet = ({ children }: { children: React.ReactNode }) => (
 );
 
 export default function PrivacyPage() {
-  const updated = "July 18, 2026";
+  const updated = "July 30, 2026";
 
   return (
     <main className="min-h-screen bg-[#f8fafc]">
@@ -77,13 +77,16 @@ export default function PrivacyPage() {
                   ["health-records", "Clinical & health records"],
                   ["identifiers", "Healthcare identifiers"],
                   ["how-we-use", "How we use information"],
+                  ["adm", "Automated decision-making"],
                   ["consent", "Consent"],
                   ["access-correction", "Access & correction"],
                   ["storage", "Data storage & sovereignty"],
                   ["sharing", "Disclosure to third parties"],
                   ["breach", "Data breach notification"],
+                  ["cyber-security", "Security practices"],
                   ["marketing", "Marketing & unsubscribe"],
                   ["calls", "Call recording"],
+                  ["tga", "Administrative tool only"],
                   ["ahpra", "Practitioner information"],
                   ["contact", "Contact us"],
                 ].map(([id, label]) => (
@@ -133,6 +136,18 @@ export default function PrivacyPage() {
               </ul>
             </Section>
 
+            <Section id="adm" title="Automated decision-making">
+              <p>
+                ZyncoAI uses AI to assist with appointment booking. No decisions significantly affecting your rights
+                are made without human oversight — clinic staff review all bookings. Callers are told they are
+                speaking with an AI assistant, Ella, at the start of every call. See our{" "}
+                <Link href="/ai-transparency" className="text-indigo-300 underline">
+                  AI Transparency page
+                </Link>{" "}
+                for the models we use, how they make decisions, and how to request a human instead.
+              </p>
+            </Section>
+
             <Section id="consent" title="Consent">
               <p>
                 Before any OAuth connection or API sync begins, clinic owners are shown a consent notice describing
@@ -175,6 +190,15 @@ export default function PrivacyPage() {
               </p>
             </Section>
 
+            <Section id="cyber-security" title="Security practices">
+              <p>
+                ZyncoAI maintains security practices aligned with the <strong>Australian Cyber Security Act 2024
+                (Cth)</strong>, including encryption of data in transit and at rest, access controls, and incident
+                response procedures. See the <a href="#breach">data breach notification</a> section above for our
+                obligations if a security incident occurs.
+              </p>
+            </Section>
+
             <Section id="marketing" title="Marketing & unsubscribe">
               <p>
                 In accordance with the <strong>Spam Act 2003 (Cth)</strong>, any email sent to imported staff
@@ -196,6 +220,13 @@ export default function PrivacyPage() {
                 above was actually given, stored securely, and retained for up to 90 days before being
                 automatically deleted. A practice owner can delete a recording earlier at any time from the
                 dashboard.
+              </p>
+            </Section>
+
+            <Section id="tga" title="Administrative tool only">
+              <p>
+                ZyncoAI is an administrative tool only. It does not provide medical advice, diagnosis, or treatment.
+                Always consult a qualified healthcare professional for medical concerns.
               </p>
             </Section>
 
