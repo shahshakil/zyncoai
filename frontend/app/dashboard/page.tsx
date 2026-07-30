@@ -1,6 +1,7 @@
 "use client";
 import OverviewDashboard from "@/components/dashboard/overview/OverviewDashboard";
 import { StaffOverview } from "@/components/dashboard/overview/StaffOverview";
+import { OnboardingChecklist } from "@/components/dashboard/overview/OnboardingChecklist";
 import { DashboardTabNav } from "@/components/dashboard/DashboardTabNav";
 import { useDashboard } from "@/components/dashboard/BusinessContext";
 
@@ -17,6 +18,7 @@ export default function DashboardHome() {
   return (
     <div className="space-y-6">
       <DashboardTabNav />
+      <OnboardingChecklist />
       <OverviewDashboard />
     </div>
   );
