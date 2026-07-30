@@ -79,13 +79,22 @@ export function CallRecordingSection() {
                 </p>
               )}
             </div>
-            <ToggleRow
-              label="Enable call recording"
-              description="Record calls for quality and training purposes."
-              checked={data.business.callRecordingEnabled}
-              disabled={saving === "callRecordingEnabled"}
-              onChange={(v) => save("callRecordingEnabled", v)}
-            />
+            <div className="py-3 last:pb-0">
+              <ToggleRow
+                label="Enable call recording"
+                description="Record calls for quality and training purposes."
+                checked={data.business.callRecordingEnabled}
+                disabled={saving === "callRecordingEnabled"}
+                onChange={(v) => save("callRecordingEnabled", v)}
+              />
+              {data.business.callRecordingEnabled && !data.business.recordingDisclosure && (
+                <p className="mt-1.5 flex items-start gap-1.5 text-xs text-amber-600">
+                  <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                  Recording is currently inactive — callers must be told a call may be recorded, so turn on
+                  Call Recording Disclosure above for recordings to actually be captured.
+                </p>
+              )}
+            </div>
           </div>
         )}
       </CardContent>

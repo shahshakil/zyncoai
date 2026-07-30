@@ -2,7 +2,8 @@
 import { useEffect, useState } from "react";
 import { Search, PhoneCall } from "lucide-react";
 import posthog from "posthog-js";
-import { useApi } from "@/lib/useApi";
+import { toast } from "sonner";
+import { useApi, apiPost } from "@/lib/useApi";
 import { useDashboard } from "@/components/dashboard/BusinessContext";
 import { ExportMenu } from "@/components/dashboard/ExportMenu";
 import { PrintLetterhead, PrintFooter } from "@/components/dashboard/PrintLetterhead";
@@ -46,6 +47,64 @@ const CALL_COLUMNS: ExportColumn[] = [
   { key: "transcriptSummary", label: "Transcript Summary" },
   { key: "followUpRequired", label: "Follow-up Required" },
 ];
+
+// OWNER/ADMIN only (stricter than transcript access, which every
+// BusinessMember role can read) — recordings can carry more identifying
+// detail than transcript text. Lazy-loaded on click rather than eagerly with
+// the transcript, since the signed URL is short-TTL (5 min) and most calls
+// were never recorded (the toggle + spoken disclosure gate is new).
+function RecordingSection({ callId }: { callId: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const { data, error, mutate } = useApi<{ ok: boolean; url: string; durationSec: number | null }>(
+    expanded ? `/api/business/calls/${callId}/recording` : null
+  );
+
+  async function handleDelete() {
+    if (!confirm("Delete this call recording? This cannot be undone.")) return;
+    setDeleting(true);
+    try {
+      await apiPost(`/api/business/calls/${callId}/recording`, undefined, "DELETE");
+      toast.success("Recording deleted");
+      setExpanded(false);
+      mutate(undefined, { revalidate: false });
+    } catch {
+      toast.error("Could not delete recording");
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  return (
+    <div className="mt-4 border-t border-slate-100 pt-4">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-medium uppercase tracking-wide text-slate-400">Call recording</span>
+        {!expanded && (
+          <Button variant="ghost" size="sm" onClick={() => setExpanded(true)}>
+            Load recording
+          </Button>
+        )}
+      </div>
+      {expanded && (
+        <div className="mt-2">
+          {!data && !error ? (
+            <p className="text-sm text-slate-400">Loading…</p>
+          ) : error ? (
+            <p className="text-sm text-slate-400">No recording available for this call.</p>
+          ) : (
+            <div className="flex items-center gap-3">
+              {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+              <audio controls src={data!.url} className="h-9 flex-1" />
+              <Button variant="danger" size="sm" disabled={deleting} onClick={handleDelete}>
+                Delete
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function TranscriptDialog({ call, onClose, businessName }: { call: Call | null; onClose: () => void; businessName: string }) {
   const { data } = useApi<{ turns: Turn[] }>(call ? `/api/business/calls/${call.id}/transcript` : null);
@@ -104,6 +163,7 @@ function TranscriptDialog({ call, onClose, businessName }: { call: Call | null; 
             ))
           )}
         </div>
+        {call && (role === "OWNER" || role === "ADMIN") && <RecordingSection key={call.id} callId={call.id} />}
       </DialogContent>
 
       {call && printReady && data && (

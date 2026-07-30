@@ -191,6 +191,12 @@ export default function PrivacyPage() {
                 logged per call in our audit log. A practice can turn this disclosure off in Settings, in which case
                 it is not given and not logged for that practice&apos;s calls.
               </p>
+              <p>
+                Where a practice has recording enabled, audio is only ever captured for calls where the disclosure
+                above was actually given, stored securely, and retained for up to 90 days before being
+                automatically deleted. A practice owner can delete a recording earlier at any time from the
+                dashboard.
+              </p>
             </Section>
 
             <Section id="ahpra" title="Practitioner information">
