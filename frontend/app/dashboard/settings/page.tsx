@@ -1,24 +1,27 @@
 "use client";
 import { Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import posthog from "posthog-js";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/dashboard/ui/tabs";
 import { useDashboard } from "@/components/dashboard/BusinessContext";
 import { getVerticalOps } from "@/lib/verticalOps";
-import { ProfileTab } from "@/components/dashboard/settings/ProfileTab";
-import { StaffTab } from "@/components/dashboard/settings/StaffTab";
-import { IntegrationsTab } from "@/components/dashboard/settings/IntegrationsTab";
-import { EmailSendingSection } from "@/components/dashboard/settings/EmailSendingSection";
-import { CallRoutingSection } from "@/components/dashboard/settings/CallRoutingSection";
-import { AutomationSection } from "@/components/dashboard/settings/AutomationSection";
-import { CheckInAutomationSection } from "@/components/dashboard/settings/CheckInAutomationSection";
-import { WebhooksTab } from "@/components/dashboard/settings/WebhooksTab";
-import { BillingTab } from "@/components/dashboard/settings/BillingTab";
-import { ComplianceTab } from "@/components/dashboard/settings/ComplianceTab";
-import { MenuTab } from "@/components/dashboard/settings/MenuTab";
-import { AiPromptTab } from "@/components/dashboard/settings/AiPromptTab";
-import { DangerZoneTab } from "@/components/dashboard/settings/DangerZoneTab";
+
+const TabSkeleton = () => <div className="h-48 animate-pulse rounded-xl bg-slate-100" />;
+const ProfileTab = dynamic(() => import("@/components/dashboard/settings/ProfileTab").then((m) => ({ default: m.ProfileTab })), { loading: TabSkeleton });
+const StaffTab = dynamic(() => import("@/components/dashboard/settings/StaffTab").then((m) => ({ default: m.StaffTab })), { loading: TabSkeleton });
+const IntegrationsTab = dynamic(() => import("@/components/dashboard/settings/IntegrationsTab").then((m) => ({ default: m.IntegrationsTab })), { loading: TabSkeleton });
+const EmailSendingSection = dynamic(() => import("@/components/dashboard/settings/EmailSendingSection").then((m) => ({ default: m.EmailSendingSection })), { loading: TabSkeleton });
+const CallRoutingSection = dynamic(() => import("@/components/dashboard/settings/CallRoutingSection").then((m) => ({ default: m.CallRoutingSection })), { loading: TabSkeleton });
+const AutomationSection = dynamic(() => import("@/components/dashboard/settings/AutomationSection").then((m) => ({ default: m.AutomationSection })), { loading: TabSkeleton });
+const CheckInAutomationSection = dynamic(() => import("@/components/dashboard/settings/CheckInAutomationSection").then((m) => ({ default: m.CheckInAutomationSection })), { loading: TabSkeleton });
+const WebhooksTab = dynamic(() => import("@/components/dashboard/settings/WebhooksTab").then((m) => ({ default: m.WebhooksTab })), { loading: TabSkeleton });
+const BillingTab = dynamic(() => import("@/components/dashboard/settings/BillingTab").then((m) => ({ default: m.BillingTab })), { loading: TabSkeleton });
+const ComplianceTab = dynamic(() => import("@/components/dashboard/settings/ComplianceTab").then((m) => ({ default: m.ComplianceTab })), { loading: TabSkeleton });
+const MenuTab = dynamic(() => import("@/components/dashboard/settings/MenuTab").then((m) => ({ default: m.MenuTab })), { loading: TabSkeleton });
+const AiPromptTab = dynamic(() => import("@/components/dashboard/settings/AiPromptTab").then((m) => ({ default: m.AiPromptTab })), { loading: TabSkeleton });
+const DangerZoneTab = dynamic(() => import("@/components/dashboard/settings/DangerZoneTab").then((m) => ({ default: m.DangerZoneTab })), { loading: TabSkeleton });
 
 function SettingsTabs() {
   const searchParams = useSearchParams();

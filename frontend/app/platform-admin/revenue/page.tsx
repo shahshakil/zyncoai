@@ -1,4 +1,5 @@
 "use client";
+import dynamic from "next/dynamic";
 import { DollarSign, TrendingDown, TrendingUp, Percent, Download } from "lucide-react";
 import { toast } from "sonner";
 import { useApi, apiPost } from "@/lib/useApi";
@@ -9,9 +10,13 @@ import { Badge } from "@/components/dashboard/ui/badge";
 import { Select } from "@/components/dashboard/ui/input";
 import { Topbar } from "@/components/platform-admin/Topbar";
 import { StatCard } from "@/components/platform-admin/StatCard";
-import { GradientBarChart, HorizontalBarChart, CostPieChart } from "@/components/platform-admin/charts";
 import { formatCents, VERTICAL_LABELS } from "@/components/platform-admin/format";
 import { exportToExcel, type ExportColumn } from "@/lib/exportUtils";
+
+const ChartSkeleton = () => <div className="h-56 animate-pulse rounded-xl bg-slate-100" />;
+const GradientBarChart = dynamic(() => import("@/components/platform-admin/charts").then((m) => ({ default: m.GradientBarChart })), { loading: ChartSkeleton, ssr: false });
+const HorizontalBarChart = dynamic(() => import("@/components/platform-admin/charts").then((m) => ({ default: m.HorizontalBarChart })), { loading: ChartSkeleton, ssr: false });
+const CostPieChart = dynamic(() => import("@/components/platform-admin/charts").then((m) => ({ default: m.CostPieChart })), { loading: ChartSkeleton, ssr: false });
 
 interface PricingPlan { key: string; name: string; priceCents: number }
 interface RevenueData {

@@ -4,6 +4,7 @@
 // sidebar for those roles, but we still gate the render in case of a direct
 // link, matching the pattern elsewhere in this dashboard).
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { DollarSign, TrendingUp, Receipt, PiggyBank, Plus, Pencil, Download, Printer } from "lucide-react";
 import { useApi, apiPost } from "@/lib/useApi";
@@ -15,9 +16,12 @@ import { Table, Thead, Th, Tbody, Tr, Td, EmptyState } from "@/components/dashbo
 import { Badge } from "@/components/dashboard/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/dashboard/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog";
-import { RevenueAreaChart, RevenueBarChart } from "@/components/dashboard/RevenueCharts";
 import { exportToExcel, triggerPrint, type ExportColumn } from "@/lib/exportUtils";
 import { getVerticalOps } from "@/lib/verticalOps";
+
+const ChartSkeleton = () => <div className="h-56 animate-pulse rounded-xl bg-slate-100" />;
+const RevenueAreaChart = dynamic(() => import("@/components/dashboard/RevenueCharts").then((m) => ({ default: m.RevenueAreaChart })), { loading: ChartSkeleton, ssr: false });
+const RevenueBarChart = dynamic(() => import("@/components/dashboard/RevenueCharts").then((m) => ({ default: m.RevenueBarChart })), { loading: ChartSkeleton, ssr: false });
 
 function money(cents: number): string { return `$${(cents / 100).toLocaleString("en-AU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`; }
 

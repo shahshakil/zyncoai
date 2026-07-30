@@ -6,10 +6,8 @@
 // used to be the last dark-glass holdout; now it's on --bg-card/--border
 // like everything else.
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { toast } from "sonner";
-import {
-  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell as PieCell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-} from "recharts";
 import {
   Phone, CalendarCheck, Percent, DollarSign, Clock, Sparkles, TrendingUp, TrendingDown, Minus, Download, FileSpreadsheet, Mail, MapPin, Users,
 } from "lucide-react";
@@ -19,9 +17,23 @@ import { getVerticalTheme } from "@/components/dashboard/verticalTheme";
 import { Skeleton } from "@/components/dashboard/ui/skeleton";
 import { LightTooltip } from "@/components/dashboard/ui/ChartTooltip";
 import { CHART_COLORS, CHART_GRID_STROKE, CHART_AXIS_STYLE } from "@/components/dashboard/ui/chartTheme";
-import { Sparkline } from "@/components/dashboard/ui/Sparkline";
 import { PrintLetterhead, PrintFooter } from "@/components/dashboard/PrintLetterhead";
 import { exportToExcel, triggerPrint } from "@/lib/exportUtils";
+
+const ChartSkeleton = () => <div className="h-64 animate-pulse rounded-xl bg-slate-100" />;
+const LineChart = dynamic(() => import("recharts").then((m) => ({ default: m.LineChart })), { loading: ChartSkeleton, ssr: false });
+const Line = dynamic(() => import("recharts").then((m) => ({ default: m.Line })), { ssr: false });
+const BarChart = dynamic(() => import("recharts").then((m) => ({ default: m.BarChart })), { loading: ChartSkeleton, ssr: false });
+const Bar = dynamic(() => import("recharts").then((m) => ({ default: m.Bar })), { ssr: false });
+const PieChart = dynamic(() => import("recharts").then((m) => ({ default: m.PieChart })), { loading: ChartSkeleton, ssr: false });
+const Pie = dynamic(() => import("recharts").then((m) => ({ default: m.Pie })), { ssr: false });
+const PieCell = dynamic(() => import("recharts").then((m) => ({ default: m.Cell })), { ssr: false });
+const XAxis = dynamic(() => import("recharts").then((m) => ({ default: m.XAxis })), { ssr: false });
+const YAxis = dynamic(() => import("recharts").then((m) => ({ default: m.YAxis })), { ssr: false });
+const CartesianGrid = dynamic(() => import("recharts").then((m) => ({ default: m.CartesianGrid })), { ssr: false });
+const Tooltip = dynamic(() => import("recharts").then((m) => ({ default: m.Tooltip })), { ssr: false });
+const ResponsiveContainer = dynamic(() => import("recharts").then((m) => ({ default: m.ResponsiveContainer })), { ssr: false });
+const Sparkline = dynamic(() => import("@/components/dashboard/ui/Sparkline").then((m) => ({ default: m.Sparkline })), { ssr: false });
 
 interface Overview {
   kpis: {

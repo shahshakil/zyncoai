@@ -2,8 +2,16 @@
 // dashboard — one implementation of "styled Excel workbook" / "CSV" /
 // "trigger browser print" rather than bespoke logic per page. See
 // components/dashboard/ExportMenu.tsx for the UI half.
-import * as XLSX from "xlsx-js-style";
+//
+// xlsx-js-style (~3.1MB) is deliberately NOT a top-level import — several
+// pages (e.g. dashboard/contacts/[id]) import this module only for
+// triggerPrint/logExport/consent helpers and never call exportToExcel, so a
+// static import would ship the whole library to every page that imports
+// anything from this file. Dynamically imported inside the two functions
+// that actually use it instead.
 import { toast } from "sonner";
+
+type XlsxModule = typeof import("xlsx-js-style");
 
 export interface ExportColumn {
   key: string;
@@ -47,7 +55,7 @@ function renderValue(col: ExportColumn, row: Record<string, any>): string | numb
   return raw;
 }
 
-function buildSheet(sheet: ExportSheet, meta: ExportMeta): XLSX.WorkSheet {
+function buildSheet(XLSX: XlsxModule, sheet: ExportSheet, meta: ExportMeta): import("xlsx-js-style").WorkSheet {
   const aoa: any[][] = [];
 
   aoa.push([meta.businessName]);
@@ -152,10 +160,11 @@ function buildSheet(sheet: ExportSheet, meta: ExportMeta): XLSX.WorkSheet {
   return ws;
 }
 
-export function exportToExcel(sheets: ExportSheet[], meta: ExportMeta, filename: string) {
+export async function exportToExcel(sheets: ExportSheet[], meta: ExportMeta, filename: string) {
+  const XLSX = await import("xlsx-js-style");
   const wb = XLSX.utils.book_new();
   for (const sheet of sheets) {
-    XLSX.utils.book_append_sheet(wb, buildSheet(sheet, meta), sheet.name.slice(0, 31));
+    XLSX.utils.book_append_sheet(wb, buildSheet(XLSX, sheet, meta), sheet.name.slice(0, 31));
   }
   XLSX.writeFile(wb, filename.endsWith(".xlsx") ? filename : `${filename}.xlsx`);
 }
@@ -254,7 +263,8 @@ export function buildScheduleGrid(provider: ScheduleProvider, weekDays: Date[]):
 // sheet per provider, since Admin can export every provider's schedule at
 // once while a Doctor only ever has their own. Distinct from exportToExcel
 // (columnar list) because a schedule genuinely reads better as a grid.
-export function exportScheduleToExcel(providers: ScheduleProvider[], weekStart: Date, meta: ExportMeta, filename: string) {
+export async function exportScheduleToExcel(providers: ScheduleProvider[], weekStart: Date, meta: ExportMeta, filename: string) {
+  const XLSX = await import("xlsx-js-style");
   const wb = XLSX.utils.book_new();
   const weekDays = Array.from({ length: 7 }).map((_, i) => new Date(weekStart.getTime() + i * 86400000));
   const dayLabels = weekDays.map((d) => d.toLocaleDateString("en-AU", { weekday: "short", day: "2-digit", month: "short" }));

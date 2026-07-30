@@ -1,8 +1,8 @@
 "use client";
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { toast } from "sonner";
-import { BarChart, Bar, Cell, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 import {
   CalendarClock, UserX, PieChart as PieChartIcon, PhoneCall, Phone, PhoneMissed, Clock, CalendarPlus, Search, FileText, PhoneOutgoing, Sparkles, CalendarX2, CheckCircle2,
 } from "lucide-react";
@@ -12,16 +12,27 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/dashboard
 import { Button } from "@/components/dashboard/ui/button";
 import { Skeleton, SkeletonStatTile } from "@/components/dashboard/ui/skeleton";
 import { EmptyState } from "@/components/dashboard/ui/table";
-import { LiveAgentHud } from "@/components/dashboard/LiveAgentHud";
-import { DynamicAnalyticsPanel } from "@/components/dashboard/DynamicAnalyticsPanel";
 import { CountUp } from "@/components/dashboard/ui/CountUp";
-import { Sparkline } from "@/components/dashboard/ui/Sparkline";
 import { LightTooltip } from "@/components/dashboard/ui/ChartTooltip";
 import { CHART_COLORS } from "@/components/dashboard/ui/chartTheme";
-import VerticalPanelsSection from "@/components/dashboard/vertical/VerticalPanelsSection";
-import AiMetricsSection from "@/components/dashboard/ai-metrics/AiMetricsSection";
-import SentimentHeatmapSection from "@/components/dashboard/sentiment/SentimentHeatmapSection";
-import SystemHealthSection from "@/components/dashboard/system-health/SystemHealthSection";
+
+const ChartSkeleton = () => <div className="h-40 animate-pulse rounded-xl bg-slate-100" />;
+const SectionSkeleton = () => <div className="h-64 animate-pulse rounded-xl bg-slate-100" />;
+const HudSkeleton = () => <div className="h-32 animate-pulse rounded-xl bg-slate-100" />;
+
+const BarChart = dynamic(() => import("recharts").then((m) => ({ default: m.BarChart })), { loading: ChartSkeleton, ssr: false });
+const Bar = dynamic(() => import("recharts").then((m) => ({ default: m.Bar })), { ssr: false });
+const Cell = dynamic(() => import("recharts").then((m) => ({ default: m.Cell })), { ssr: false });
+const XAxis = dynamic(() => import("recharts").then((m) => ({ default: m.XAxis })), { ssr: false });
+const Tooltip = dynamic(() => import("recharts").then((m) => ({ default: m.Tooltip })), { ssr: false });
+const ResponsiveContainer = dynamic(() => import("recharts").then((m) => ({ default: m.ResponsiveContainer })), { ssr: false });
+const Sparkline = dynamic(() => import("@/components/dashboard/ui/Sparkline").then((m) => ({ default: m.Sparkline })), { ssr: false });
+const LiveAgentHud = dynamic(() => import("@/components/dashboard/LiveAgentHud").then((m) => ({ default: m.LiveAgentHud })), { loading: HudSkeleton, ssr: false });
+const DynamicAnalyticsPanel = dynamic(() => import("@/components/dashboard/DynamicAnalyticsPanel").then((m) => ({ default: m.DynamicAnalyticsPanel })), { loading: SectionSkeleton, ssr: false });
+const VerticalPanelsSection = dynamic(() => import("@/components/dashboard/vertical/VerticalPanelsSection"), { loading: SectionSkeleton, ssr: false });
+const AiMetricsSection = dynamic(() => import("@/components/dashboard/ai-metrics/AiMetricsSection"), { loading: SectionSkeleton, ssr: false });
+const SentimentHeatmapSection = dynamic(() => import("@/components/dashboard/sentiment/SentimentHeatmapSection"), { loading: SectionSkeleton, ssr: false });
+const SystemHealthSection = dynamic(() => import("@/components/dashboard/system-health/SystemHealthSection"), { loading: SectionSkeleton, ssr: false });
 
 const AVATAR_COLORS = ["#2563eb", "#7c3aed", "#0891b2", "#d97706", "#dc2626", "#059669", "#db2777"];
 function avatarColor(name: string): string {

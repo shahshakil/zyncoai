@@ -1,11 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { Activity, PhoneCall, Radio, Gauge } from "lucide-react";
 import { useApi } from "@/lib/useApi";
 import { Card, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { Badge } from "@/components/dashboard/ui/badge";
-import { RealtimeLineChart } from "@/components/platform-admin/charts";
 import { Topbar } from "@/components/platform-admin/Topbar";
+
+const RealtimeLineChart = dynamic(() => import("@/components/platform-admin/charts").then((m) => ({ default: m.RealtimeLineChart })), { loading: () => <div className="h-40 animate-pulse rounded-xl bg-slate-100" />, ssr: false });
 
 interface Overview {
   concurrency: { current: number; capacity: number; pctCapacity: number; level: "ok" | "warning" | "critical" };

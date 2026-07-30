@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { PhoneCall, Calendar, Clock, Flame, Siren, FileText, Gauge, Download, Printer, Radio, Timer, DollarSign } from "lucide-react";
 import { useApi } from "@/lib/useApi";
 import { Card, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
@@ -8,11 +9,17 @@ import { Table, Thead, Th, Tbody, Tr, Td, EmptyState } from "@/components/dashbo
 import { Badge } from "@/components/dashboard/ui/badge";
 import { Topbar } from "@/components/platform-admin/Topbar";
 import { StatCard } from "@/components/platform-admin/StatCard";
-import { GradientBarChart, GradientAreaChart, HorizontalBarChart, DonutChart, PeakHoursHeatmap } from "@/components/platform-admin/charts";
 import { UsageProgressBar } from "@/components/platform-admin/UsageProgressBar";
 import { formatNumber, formatMicros, formatDuration, VERTICAL_LABELS, timeAgo } from "@/components/platform-admin/format";
 import { TranscriptModal } from "@/components/platform-admin/TranscriptModal";
 import { exportToExcel, triggerPrint, type ExportColumn } from "@/lib/exportUtils";
+
+const ChartSkeleton = () => <div className="h-56 animate-pulse rounded-xl bg-slate-100" />;
+const GradientBarChart = dynamic(() => import("@/components/platform-admin/charts").then((m) => ({ default: m.GradientBarChart })), { loading: ChartSkeleton, ssr: false });
+const GradientAreaChart = dynamic(() => import("@/components/platform-admin/charts").then((m) => ({ default: m.GradientAreaChart })), { loading: ChartSkeleton, ssr: false });
+const HorizontalBarChart = dynamic(() => import("@/components/platform-admin/charts").then((m) => ({ default: m.HorizontalBarChart })), { loading: ChartSkeleton, ssr: false });
+const DonutChart = dynamic(() => import("@/components/platform-admin/charts").then((m) => ({ default: m.DonutChart })), { loading: ChartSkeleton, ssr: false });
+const PeakHoursHeatmap = dynamic(() => import("@/components/platform-admin/charts").then((m) => ({ default: m.PeakHoursHeatmap })), { loading: ChartSkeleton, ssr: false });
 
 const USAGE_COLUMNS: ExportColumn[] = [
   { key: "name", label: "Business", width: 26 },

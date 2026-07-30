@@ -1,13 +1,19 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { Building2, PhoneCall, CalendarCheck, DollarSign, PhoneMissed, UserPlus, Bell, BellOff, FileText } from "lucide-react";
 import { useApi } from "@/lib/useApi";
 import { Card, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { Topbar } from "@/components/platform-admin/Topbar";
 import { StatCard } from "@/components/platform-admin/StatCard";
-import { GradientAreaChart, GradientBarChart, DonutChart } from "@/components/platform-admin/charts";
+
+// ChartSkeleton is defined further down in this file (function declarations
+// hoist, so it's safe to reference here) and already accepts a height prop.
+const GradientAreaChart = dynamic(() => import("@/components/platform-admin/charts").then((m) => ({ default: m.GradientAreaChart })), { loading: ChartSkeleton, ssr: false });
+const GradientBarChart = dynamic(() => import("@/components/platform-admin/charts").then((m) => ({ default: m.GradientBarChart })), { loading: ChartSkeleton, ssr: false });
+const DonutChart = dynamic(() => import("@/components/platform-admin/charts").then((m) => ({ default: m.DonutChart })), { loading: ChartSkeleton, ssr: false });
 import { formatNumber, formatCents, timeAgo, activityDotColor, VERTICAL_ICONS } from "@/components/platform-admin/format";
 import { TranscriptModal } from "@/components/platform-admin/TranscriptModal";
 

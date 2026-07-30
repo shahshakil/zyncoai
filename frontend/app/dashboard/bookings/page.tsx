@@ -129,7 +129,7 @@ function ScheduleExportButton({ businessName, reportTitle, onPrintReady }: { bus
         return;
       }
       if (kind === "excel") {
-        exportScheduleToExcel(result.providers, result.weekStart, { businessName, reportTitle }, slugFilename(businessName, "WeeklySchedule"));
+        await exportScheduleToExcel(result.providers, result.weekStart, { businessName, reportTitle }, slugFilename(businessName, "WeeklySchedule"));
         logExport("staff-schedule", "excel", result.providers.reduce((s, p) => s + p.appointments.length, 0));
         toast.success("Weekly schedule downloaded");
       } else {

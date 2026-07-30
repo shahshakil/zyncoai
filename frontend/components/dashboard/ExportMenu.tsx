@@ -74,7 +74,7 @@ export function ExportMenu({ section, filename, meta, loadSheets, onRowsReady, f
     setPendingAction(null);
   }
 
-  async function withData(kind: ExportFormatKey, run: (sheets: ExportSheet[]) => void) {
+  async function withData(kind: ExportFormatKey, run: (sheets: ExportSheet[]) => void | Promise<void>) {
     setLoading(kind);
     try {
       const sheets = await loadSheets();
@@ -82,7 +82,7 @@ export function ExportMenu({ section, filename, meta, loadSheets, onRowsReady, f
         toast.info("Nothing to export yet");
         return;
       }
-      run(sheets);
+      await run(sheets);
       logExport(section, kind, sheets[0].rows.length);
       posthog.capture("export_downloaded", { type: section, format: kind });
     } catch {
@@ -93,8 +93,8 @@ export function ExportMenu({ section, filename, meta, loadSheets, onRowsReady, f
   }
 
   function doExcel() {
-    withData("excel", (sheets) => {
-      exportToExcel(sheets, meta, filename);
+    withData("excel", async (sheets) => {
+      await exportToExcel(sheets, meta, filename);
       toast.success("Excel file downloaded");
     });
   }
