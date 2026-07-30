@@ -112,6 +112,7 @@ export default function TermsPage() {
                   ["workflows", "Workflows, connectors & data"],
                   ["ai", "AI features & outputs"],
                   ["billing", "Billing & plans"],
+                  ["cancellation", "Cancellation & refunds"],
                   ["security", "Security & incidents"],
                   ["ip", "Intellectual property"],
                   ["warranty", "Disclaimers"],
@@ -259,6 +260,27 @@ export default function TermsPage() {
                   temporarily pause workflows that cause repeated failures or excessive load.
                 </p>
               </div>
+            </Section>
+
+            <Section id="cancellation" title="Cancellation & refunds">
+              <ul className="mt-2 space-y-2">
+                <Bullet>Every plan starts with a <strong>7-day free trial</strong> — you&apos;re not charged anything during this period.</Bullet>
+                <Bullet>You can <strong>cancel at any time</strong> from Settings → Billing.</Bullet>
+                <Bullet><strong>30 days&apos; notice is required</strong> to cancel a paid subscription — your plan remains active and billable through that notice period.</Bullet>
+                <Bullet>We don&apos;t offer <strong>partial-month refunds</strong> for the current billing period once it&apos;s begun.</Bullet>
+                <Bullet>
+                  <strong>You can export your data at any time</strong>, including during your notice period — patients/contacts, appointments, call
+                  history, revenue records, staff, and claims are all available as CSV/Excel exports from their respective dashboard pages, on demand,
+                  with no separate request required.
+                </Bullet>
+                <Bullet>
+                  <strong>Your data is retained after cancellation</strong>, not automatically deleted. If you want your data deleted, email{" "}
+                  <a href="mailto:support@zyncoai.com" className="text-[#6366f1] underline underline-offset-4 hover:text-[#4f46e5]">
+                    support@zyncoai.com
+                  </a>{" "}
+                  and we&apos;ll process the request manually.
+                </Bullet>
+              </ul>
             </Section>
 
             <Section id="security" title="Security & incidents">

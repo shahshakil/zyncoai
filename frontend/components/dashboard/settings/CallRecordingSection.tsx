@@ -1,6 +1,13 @@
 "use client";
 // Settings > AI Prompt > Call Recording. Mirrors CheckInAutomationSection's
 // pattern: GET/PATCH /api/business/settings, one field per toggle.
+//
+// "Call Recording Disclosure" is deliberately NOT nested under/gated by
+// "Enable call recording" — src/voice/pipecat/server.py's greeting checks
+// recordingDisclosure alone, independent of callRecordingEnabled, so the
+// Privacy Policy's "callers are informed at the start of each call... that
+// the call may be recorded" promise holds regardless of that separate
+// toggle. Keeping them visually nested here would misrepresent that.
 import { useState } from "react";
 import { toast } from "sonner";
 import { AlertTriangle, Mic } from "lucide-react";
@@ -17,12 +24,11 @@ interface RecordingSettingsResponse {
   };
 }
 
-// Verticals where a spoken recording disclosure is worth flagging as
-// recommended (health records, legal privilege, financial/banking
-// regulation, and student records — not a literal "healthcare" list).
-// This is advisory only, matching the pattern used elsewhere in this app
-// (e.g. the HaveIBeenPwned breach check on signup): it warns, it never
-// blocks the toggle.
+// Verticals where turning this OFF is worth flagging as not recommended
+// (health records, legal privilege, financial/banking regulation, and
+// student records — not a literal "healthcare" list). Advisory only,
+// matching the pattern used elsewhere in this app (e.g. the
+// HaveIBeenPwned breach check on signup): it warns, it never blocks.
 const DISCLOSURE_RECOMMENDED_VERTICALS = ["MEDICAL", "DENTAL", "LAW", "BANK", "UNIVERSITY"];
 
 export function CallRecordingSection() {
@@ -58,6 +64,21 @@ export function CallRecordingSection() {
           <Skeleton className="h-24 w-full" />
         ) : (
           <div className="divide-y divide-slate-100">
+            <div className="py-3 first:pt-0">
+              <ToggleRow
+                label="Call Recording Disclosure"
+                description="When enabled Ella will inform callers at the start of each call that the call may be recorded."
+                checked={data.business.recordingDisclosure}
+                disabled={saving === "recordingDisclosure"}
+                onChange={(v) => save("recordingDisclosure", v)}
+              />
+              {isDisclosureRecommendedVertical && !data.business.recordingDisclosure && (
+                <p className="mt-1.5 flex items-start gap-1.5 text-xs text-amber-600">
+                  <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                  Recommended for your industry under the Australian Privacy Act 1988 and state surveillance-device consent laws.
+                </p>
+              )}
+            </div>
             <ToggleRow
               label="Enable call recording"
               description="Record calls for quality and training purposes."
@@ -65,23 +86,6 @@ export function CallRecordingSection() {
               disabled={saving === "callRecordingEnabled"}
               onChange={(v) => save("callRecordingEnabled", v)}
             />
-            {data.business.callRecordingEnabled && (
-              <div className="py-3">
-                <ToggleRow
-                  label="Recording disclosure to callers"
-                  description={`Ella will say "this call may be recorded" at the start of each call.`}
-                  checked={data.business.recordingDisclosure}
-                  disabled={saving === "recordingDisclosure"}
-                  onChange={(v) => save("recordingDisclosure", v)}
-                />
-                {isDisclosureRecommendedVertical && !data.business.recordingDisclosure && (
-                  <p className="mt-1.5 flex items-start gap-1.5 text-xs text-amber-600">
-                    <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                    Recommended for your industry under the Australian Privacy Act 1988 and state surveillance-device consent laws.
-                  </p>
-                )}
-              </div>
-            )}
           </div>
         )}
       </CardContent>

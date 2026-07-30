@@ -187,8 +187,9 @@ export default function PrivacyPage() {
             <Section id="calls" title="Call recording">
               <p>
                 In accordance with the <strong>Telecommunications (Interception and Access) Act 1979 (Cth)</strong>,
-                callers are informed at the start of each call that they are speaking with an automated voice
-                assistant and that the call may be recorded. Consent is logged per call in our audit log.
+                callers are informed at the start of each call that the call may be recorded. This disclosure is
+                logged per call in our audit log. A practice can turn this disclosure off in Settings, in which case
+                it is not given and not logged for that practice&apos;s calls.
               </p>
             </Section>
 

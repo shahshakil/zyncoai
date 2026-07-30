@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { ResourcePageShell, ResourceSection } from "@/components/marketing/receptionist/ResourcePageShell";
 
 export const metadata: Metadata = {
@@ -12,7 +13,7 @@ const FAQS = [
   { q: "What happens if the AI can't answer a question?", a: "She transfers to a human — either by queuing a callback or, on supported plans, transferring the live call straight away." },
   { q: "How do I add staff members?", a: "Settings → Staff → Invite. Enter their email, choose a role, and they'll get a secure link to join." },
   { q: "What languages does Ella speak?", a: "15+ languages, detected automatically, including Mandarin, Hindi, Arabic, and Vietnamese." },
-  { q: "Can I cancel anytime?", a: "Yes — 30 days' notice, no lock-in contract beyond that." },
+  { q: "Can I cancel anytime?", a: "Yes — see the full Cancellation & Refunds policy on our Terms page for the exact notice period and what happens to your data." },
   { q: "What is the setup fee?", a: "AUD $499 one-time, across every plan." },
 ];
 
@@ -61,8 +62,12 @@ export default function HelpPage() {
 
       <ResourceSection title="Cancellation and refund policy">
         <p>
-          Cancel any time from Settings → Billing with 30 days&apos; notice — there&apos;s no lock-in contract beyond that. We don&apos;t offer partial-month
-          refunds, but the 7-day free trial means you can try ZyncoAI risk-free before you&apos;re charged anything.
+          The full cancellation, refund, data-export, and data-retention policy now lives on our{" "}
+          <Link href="/terms#cancellation" className="text-[#6366f1] underline underline-offset-4 hover:text-[#4f46e5]">
+            Terms page
+          </Link>{" "}
+          — that&apos;s the canonical source. Short version: cancel any time from Settings → Billing, 30 days&apos; notice required, no partial-month
+          refunds, and your 7-day free trial means nothing&apos;s charged until you&apos;re sure.
         </p>
       </ResourceSection>
     </ResourcePageShell>
