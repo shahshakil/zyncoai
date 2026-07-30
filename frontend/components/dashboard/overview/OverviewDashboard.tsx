@@ -15,6 +15,7 @@ import { EmptyState } from "@/components/dashboard/ui/table";
 import { CountUp } from "@/components/dashboard/ui/CountUp";
 import { LightTooltip } from "@/components/dashboard/ui/ChartTooltip";
 import { CHART_COLORS } from "@/components/dashboard/ui/chartTheme";
+import { AiPhoneNumberCard } from "./AiPhoneNumberCard";
 
 const ChartSkeleton = () => <div className="h-40 animate-pulse rounded-xl bg-slate-100" />;
 const SectionSkeleton = () => <div className="h-64 animate-pulse rounded-xl bg-slate-100" />;
@@ -181,6 +182,8 @@ export default function OverviewDashboard() {
           )}
         </div>
       </div>
+
+      <AiPhoneNumberCard phoneNumber={business.phoneNumber} />
 
       {/* ---------------- TOP STATS ROW ---------------- */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
