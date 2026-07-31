@@ -24,12 +24,12 @@ interface RevenueData {
   totalIncomeCents: number; totalIncomeLastMonthCents: number; totalCostCents: number; netProfitCents: number; profitMarginPct: number;
   revenueByPlan: { plan: string; amountCents: number }[];
   churnRevenueLostCents: number | null; netRevenueRetentionPct: number | null; notAvailableReason: string;
-  costBreakdown: { openAiCostCents: number; twilioCostCents: number; serverCostCents: number };
+  costBreakdown: { openAiCostCents: number; twilioCostCents: number; serverCostCents: number; numberCostCents: number };
   costsAreEstimated: boolean;
   openAiCostNote: string;
   monthlyRevenue: { month: string; amountCents: number }[];
   byVertical: { vertical: string; amountCents: number }[];
-  businesses: { id: string; name: string; vertical: string; plan: string; planPriceCents: number; planIsManual: boolean; manualPlanKey: string | null; revenueThisMonthCents: number; totalRevenueCents: number }[];
+  businesses: { id: string; name: string; vertical: string; plan: string; planPriceCents: number; planIsManual: boolean; manualPlanKey: string | null; revenueThisMonthCents: number; totalRevenueCents: number; numberCostCents: number }[];
   pricingPlans: PricingPlan[];
   stale?: boolean;
 }
@@ -140,10 +140,16 @@ export default function RevenuePage() {
             {data ? (
               <CostPieChart data={[
                 { key: "openai", label: "OpenAI (estimated)", cents: data.costBreakdown.openAiCostCents },
-                { key: "twilio", label: "Twilio (estimated)", cents: data.costBreakdown.twilioCostCents },
+                { key: "twilio", label: "Twilio calls (estimated)", cents: data.costBreakdown.twilioCostCents },
+                { key: "numbers", label: "Twilio numbers (real)", cents: data.costBreakdown.numberCostCents },
                 { key: "server", label: "Server & other", cents: data.costBreakdown.serverCostCents },
               ]} />
             ) : <Skel height={180} />}
+            {data && (
+              <p className="mt-3 text-xs text-[#6B7280]">
+                Twilio numbers: <a href="/platform-admin/phone-numbers" className="text-[#6366F1] hover:underline">{formatCents(data.costBreakdown.numberCostCents)}/mo</a> — real, not estimated ($1.50/mo per purchased number, see the Phone Numbers page).
+              </p>
+            )}
           </div>
         </Card>
 
@@ -184,7 +190,7 @@ export default function RevenuePage() {
           </div>
           <Table>
             <Thead>
-              <tr><Th>Rank</Th><Th>Business</Th><Th>Vertical</Th><Th>Revenue (Month)</Th><Th>Total Revenue</Th><Th>Plan</Th></tr>
+              <tr><Th>Rank</Th><Th>Business</Th><Th>Vertical</Th><Th>Revenue (Month)</Th><Th>Total Revenue</Th><Th>Number Cost</Th><Th>Plan</Th></tr>
             </Thead>
             <Tbody>
               {data?.businesses.map((b, i) => (
@@ -194,6 +200,7 @@ export default function RevenuePage() {
                   <Td><Badge tone="purple">{VERTICAL_LABELS[b.vertical] || b.vertical}</Badge></Td>
                   <Td>{formatCents(b.revenueThisMonthCents)}</Td>
                   <Td>{formatCents(b.totalRevenueCents)}</Td>
+                  <Td className="text-xs text-[#6B7280]">{b.numberCostCents ? `${formatCents(b.numberCostCents)}/mo` : "—"}</Td>
                   <Td>
                     {b.plan === "No plan" || b.planIsManual ? (
                       <Select value={b.manualPlanKey || ""} onChange={(e) => assignPlan(b.id, e.target.value)} className="h-8 w-36 text-xs">
