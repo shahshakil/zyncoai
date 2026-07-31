@@ -10,6 +10,7 @@ import { Input, Label, Select } from "@/components/dashboard/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/dashboard/ui/tabs";
 import { VerticalBadge } from "./VerticalBadge";
 import { formatCents, timeAgo } from "./format";
+import { DiscountsPanel } from "./DiscountsPanel";
 
 interface PricingPlan { key: string; name: string; priceCents: number; callAllowance: number | null }
 
@@ -372,6 +373,7 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
                             <Button size="sm" onClick={savePlan} disabled={savingPlan}>{savingPlan ? "Saving…" : "Save billing details"}</Button>
                           </div>
                         </div>
+                        <DiscountsPanel businessId={businessId!} />
                         <div className="rounded-xl border border-[#E5E7EB] p-3">
                           <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-[#6B7280]">SMS Confirmations</h3>
                           <div className="space-y-2">
@@ -386,7 +388,7 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
                             </div>
                             <div className="flex items-center justify-between rounded-lg bg-[#F8F9FA] px-3 py-2">
                               <div>
-                                <p className="text-xs font-medium text-[#6B7280]">Paid ($20/mo add-on)</p>
+                                <p className="text-xs font-medium text-[#6B7280]">Paid ($25/mo add-on)</p>
                                 <p className="text-sm text-[#1F2937]">{data.business.smsConfirmationsPaid ? "Confirmed" : "Not confirmed"}</p>
                               </div>
                               <Button size="sm" variant="outline" disabled={savingSms} onClick={() => toggleSmsConfirmations("paid", !data.business.smsConfirmationsPaid)}>

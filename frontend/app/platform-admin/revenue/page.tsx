@@ -27,6 +27,11 @@ interface RevenueData {
   costBreakdown: { openAiCostCents: number; twilioCostCents: number; serverCostCents: number; numberCostCents: number };
   costsAreEstimated: boolean;
   openAiCostNote: string;
+  grossRevenueCents: number; totalDiscountsCents: number; netRevenueCents: number; avgDiscountPerClientCents: number;
+  addOnRevenueCents: number;
+  addOnBreakdown: { key: string; name: string; activeCount: number; revenueCents: number }[];
+  mostPopularAddOns: { key: string; name: string; activeCount: number; revenueCents: number }[];
+  referralPerformance: { pendingCount: number; approvedCount: number; rejectedCount: number; totalSignupsFromReferral: number; totalCreditsGivenCents: number };
   monthlyRevenue: { month: string; amountCents: number }[];
   byVertical: { vertical: string; amountCents: number }[];
   businesses: { id: string; name: string; vertical: string; plan: string; planPriceCents: number; planIsManual: boolean; manualPlanKey: string | null; revenueThisMonthCents: number; totalRevenueCents: number; numberCostCents: number }[];
@@ -102,6 +107,13 @@ export default function RevenuePage() {
           <StatCard label="Profit Margin" value={`${data?.profitMarginPct ?? 0}%`} icon={Percent} gradient="linear-gradient(135deg,#F59E0B,#FBBF24)" loading={!data} />
         </div>
 
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard label="Gross Revenue (Month)" value={formatCents(data?.grossRevenueCents || 0)} icon={DollarSign} gradient="linear-gradient(135deg,#10B981,#34D399)" loading={!data} sublabel="Before discounts" />
+          <StatCard label="Discounts Given (Month)" value={formatCents(data?.totalDiscountsCents || 0)} icon={TrendingDown} gradient="linear-gradient(135deg,#F59E0B,#FBBF24)" loading={!data} />
+          <StatCard label="Net Revenue (Month)" value={formatCents(data?.netRevenueCents || 0)} icon={TrendingUp} gradient="linear-gradient(135deg,#6366F1,#8B5CF6)" loading={!data} sublabel="After discounts — what's actually collected" />
+          <StatCard label="Avg Discount / Discounted Client" value={formatCents(data?.avgDiscountPerClientCents || 0)} icon={Percent} gradient="linear-gradient(135deg,#EC4899,#F472B6)" loading={!data} />
+        </div>
+
         {data && (
           <div className="flex items-start gap-2 rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm text-[#6B7280]">
             <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#9CA3AF]" />
@@ -110,6 +122,33 @@ export default function RevenuePage() {
             </div>
           </div>
         )}
+
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <Card>
+            <CardHeader><CardTitle>Add-on Revenue — {formatCents(data?.addOnRevenueCents || 0)}/mo</CardTitle></CardHeader>
+            {!data || data.addOnBreakdown.length === 0 ? (
+              <div className="p-4"><EmptyState title="No add-ons active yet" /></div>
+            ) : (
+              <Table>
+                <Thead><Tr><Th>Add-on</Th><Th>Active</Th><Th>Revenue/mo</Th></Tr></Thead>
+                <Tbody>
+                  {data.mostPopularAddOns.map((a) => (
+                    <Tr key={a.key}><Td>{a.name}</Td><Td>{a.activeCount}</Td><Td>{formatCents(a.revenueCents)}</Td></Tr>
+                  ))}
+                </Tbody>
+              </Table>
+            )}
+          </Card>
+          <Card>
+            <CardHeader><CardTitle>Referral Program</CardTitle></CardHeader>
+            <div className="grid grid-cols-2 gap-3 p-4">
+              <StatCard label="Pending" value={String(data?.referralPerformance.pendingCount ?? 0)} icon={Users} gradient="linear-gradient(135deg,#F59E0B,#FBBF24)" loading={!data} />
+              <StatCard label="Approved" value={String(data?.referralPerformance.approvedCount ?? 0)} icon={Users} gradient="linear-gradient(135deg,#10B981,#34D399)" loading={!data} />
+              <StatCard label="Total Signups" value={String(data?.referralPerformance.totalSignupsFromReferral ?? 0)} icon={Users} gradient="linear-gradient(135deg,#6366F1,#8B5CF6)" loading={!data} />
+              <StatCard label="Credits Given" value={formatCents(data?.referralPerformance.totalCreditsGivenCents || 0)} icon={DollarSign} gradient="linear-gradient(135deg,#EC4899,#F472B6)" loading={!data} />
+            </div>
+          </Card>
+        </div>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <Card>

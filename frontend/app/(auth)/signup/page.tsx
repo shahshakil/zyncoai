@@ -31,7 +31,12 @@ function SignupForm() {
 
   useEffect(() => {
     if (planKey) sessionStorage.setItem("zynco_selected_plan", planKey);
-  }, [planKey]);
+    // zyncoai.com/signup?ref={referrerBusinessId} — carried through to
+    // onboarding's business-creation call, which is the step that actually
+    // knows about Referral/Discount (see app/onboarding/page.tsx).
+    const ref = searchParams.get("ref");
+    if (ref) sessionStorage.setItem("zynco_referral_code", ref);
+  }, [planKey, searchParams]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();

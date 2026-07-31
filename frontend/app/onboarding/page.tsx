@@ -96,6 +96,7 @@ export default function OnboardingPage() {
     }
     setSaving(true);
     try {
+      const referralCode = typeof window !== "undefined" ? sessionStorage.getItem("zynco_referral_code") || undefined : undefined;
       const res = await apiPost<{ business: { id: string } }>("/api/business/onboarding/business", {
         name,
         vertical,
@@ -106,7 +107,9 @@ export default function OnboardingPage() {
         hours,
         ownerMobile: ownerMobile || undefined,
         privacyPolicyAccepted: true,
+        referralCode,
       });
+      sessionStorage.removeItem("zynco_referral_code");
       setBusinessId(res.business.id);
       setStep(1);
     } catch (err: any) {
