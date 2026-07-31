@@ -163,7 +163,7 @@ export default function SystemHealthPage() {
             <Card key={service} className="p-4">
               <div className="flex items-center justify-between"><span className="text-xs font-medium capitalize text-[#6B7280]">{service} Circuit</span><Zap className="h-4 w-4" style={{ color: state === "open" ? "#EF4444" : state === "half-open" ? "#F59E0B" : "#10B981" }} /></div>
               <div className="mt-2"><Badge tone={state === "open" ? "danger" : state === "half-open" ? "warning" : "success"}>{state}</Badge></div>
-              <p className="mt-1 text-[11px] text-[#9CA3AF]">api process only — voice-gateway has its own instance</p>
+              <p className="mt-1 text-[11px] text-[#9CA3AF]">api process only — pipecat-voice is a separate process</p>
             </Card>
           ))}
         </div>
