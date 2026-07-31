@@ -3,12 +3,14 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Plug, Trash2, RefreshCw } from "lucide-react";
 import { useApi, apiPost } from "@/lib/useApi";
+import { useDashboard } from "@/components/dashboard/BusinessContext";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input, Label } from "../ui/input";
 import { Skeleton } from "../ui/skeleton";
 import { Badge } from "../ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { IntegrationsCatalogSection } from "./IntegrationsCatalogSection";
 
 // hasDirectSync = this provider has a working practitioner-fetch adapter
 // (backend/src/lib/staffSync/providers/*) wired into the connect-time
@@ -37,7 +39,7 @@ interface IntegrationState {
   webhookUrl?: string | null;
 }
 
-export function IntegrationsTab() {
+function PracticeManagementIntegrations() {
   const { data, isLoading, mutate } = useApi<{ integrations: Record<string, IntegrationState> }>("/api/business/integrations");
   const [active, setActive] = useState<(typeof PROVIDERS)[number] | null>(null);
   const [apiKey, setApiKey] = useState("");
@@ -186,5 +188,17 @@ export function IntegrationsTab() {
         </DialogContent>
       </Dialog>
     </Card>
+  );
+}
+
+export function IntegrationsTab() {
+  const { business } = useDashboard();
+  const isMedical = business.vertical === "MEDICAL" || business.vertical === "DENTAL";
+
+  return (
+    <div className="space-y-6">
+      <IntegrationsCatalogSection />
+      {isMedical && <PracticeManagementIntegrations />}
+    </div>
   );
 }

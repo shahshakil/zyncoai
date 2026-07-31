@@ -35,6 +35,11 @@ function SettingsTabs() {
     const error = searchParams.get("calendar_error");
     if (connected === "1") toast.success("Google Calendar connected successfully!");
     else if (error) toast.error(error === "invalid_state" ? "That connection link expired — please try again" : "Could not connect Google Calendar");
+
+    const squareConnected = searchParams.get("square_connected");
+    const squareError = searchParams.get("square_error");
+    if (squareConnected === "1") toast.success("Square connected successfully!");
+    else if (squareError) toast.error(squareError === "invalid_state" ? "That connection link expired — please try again" : "Could not connect Square");
   }, [searchParams]);
 
   const trackTab = (tab: string) => {
