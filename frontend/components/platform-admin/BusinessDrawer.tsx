@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
-import { X, Ban, PlayCircle, Mail, ExternalLink, Phone, Plug, CreditCard, KeyRound } from "lucide-react";
+import { X, Ban, PlayCircle, Mail, ExternalLink, Phone, PhoneOff, RefreshCw, Plug, CreditCard, KeyRound } from "lucide-react";
 import { useApi, apiPost } from "@/lib/useApi";
 import { Button } from "@/components/dashboard/ui/button";
 import { Badge, StatusBadge } from "@/components/dashboard/ui/badge";
@@ -18,6 +18,7 @@ interface BusinessDetail {
   manualPlan: string | null; abn: string | null; trialEndsAt: string | null;
   planOverridePriceCents: number | null; planOverrideCallAllowance: number | null;
   smsConfirmationsEnabled: boolean; smsConfirmationsPaid: boolean;
+  twilioNumberSid: string | null; provisioningStatus: "PENDING" | "ACTIVE" | "FAILED"; provisioningError: string | null;
   team: { name: string };
   members: { role: string; user: { email: string; name: string | null } }[];
   providers: { id: string; name: string; title: string | null; active: boolean }[];
@@ -128,6 +129,36 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
       toast.success("Password reset email sent");
     } catch {
       toast.error("Failed to send password reset email");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function retryNumberProvisioning() {
+    setBusy(true);
+    try {
+      await apiPost(`/api/admin/platform/businesses/${businessId}/provision-number`);
+      toast.success("Number provisioning re-queued");
+      mutate();
+      onChanged();
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to re-queue number provisioning");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function releaseNumber() {
+    if (!data) return;
+    if (!confirm(`Release ${data.business.phoneNumber} back to Twilio and stop paying for it? The business will have no working phone line until a new number is provisioned.`)) return;
+    setBusy(true);
+    try {
+      await apiPost(`/api/admin/platform/businesses/${businessId}/release-number`);
+      toast.success("Number released");
+      mutate();
+      onChanged();
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to release number");
     } finally {
       setBusy(false);
     }
@@ -367,9 +398,29 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
                             )}
                           </div>
                         </div>
-                        <a href={`tel:${data.business.phoneNumber}`} className="flex w-full items-center gap-2 justify-start rounded-xl border border-[#E5E7EB] px-4 py-2 text-sm font-medium text-[#1F2937] hover:bg-[#F8F9FA]">
-                          <Phone className="h-4 w-4" /> Call this business ({data.business.phoneNumber})
-                        </a>
+                        {data.business.provisioningStatus === "PENDING" && (
+                          <div className="rounded-lg bg-[#FFFBEB] px-3 py-2 text-xs font-medium text-[#B45309]">Setting up AI phone line…</div>
+                        )}
+                        {data.business.provisioningStatus === "FAILED" && (
+                          <div className="rounded-lg bg-[#FEF2F2] px-3 py-2">
+                            <p className="text-xs font-medium text-[#B91C1C]">Number provisioning failed{data.business.provisioningError ? `: ${data.business.provisioningError}` : ""}</p>
+                          </div>
+                        )}
+                        {data.business.provisioningStatus !== "ACTIVE" && (
+                          <Button variant="outline" className="w-full justify-start" onClick={retryNumberProvisioning} disabled={busy}>
+                            <RefreshCw className="h-4 w-4" /> Provision number now
+                          </Button>
+                        )}
+                        {data.business.provisioningStatus === "ACTIVE" && (
+                          <a href={`tel:${data.business.phoneNumber}`} className="flex w-full items-center gap-2 justify-start rounded-xl border border-[#E5E7EB] px-4 py-2 text-sm font-medium text-[#1F2937] hover:bg-[#F8F9FA]">
+                            <Phone className="h-4 w-4" /> Call this business ({data.business.phoneNumber})
+                          </a>
+                        )}
+                        {data.business.twilioNumberSid && (
+                          <Button variant="outline" className="w-full justify-start text-[#B91C1C]" onClick={releaseNumber} disabled={busy}>
+                            <PhoneOff className="h-4 w-4" /> Release number ($1.50/mo)
+                          </Button>
+                        )}
                         <Button variant="outline" className="w-full justify-start" onClick={viewAsOwner} disabled={busy}>
                           <ExternalLink className="h-4 w-4" /> View as Owner
                         </Button>

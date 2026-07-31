@@ -24,6 +24,7 @@ interface Business {
   _count: { calls: number; appointments: number; providers: number; contacts: number };
   plan: string; manualPlan: string | null; monthlyRevenueCents: number; callAllowance: number | null; callsUsedThisMonth: number; callsUsedPct: number | null;
   trialStatus: "none" | "active" | "expired"; trialEndsAt: string | null;
+  twilioNumberSid: string | null; provisioningStatus: "PENDING" | "ACTIVE" | "FAILED"; provisioningError: string | null;
 }
 
 const COLUMNS: ExportColumn[] = [
@@ -255,7 +256,8 @@ export default function BusinessesPage() {
                     </Td>
                     <Td>
                       <button onClick={() => setDrawerId(b.id)} className="text-left font-medium text-[#1F2937] hover:text-[#6366F1]">{b.name}</button>
-                      <p className="text-xs text-[#9CA3AF]">{b.phoneNumber}</p>
+                      <p className="text-xs text-[#9CA3AF]">{b.provisioningStatus === "PENDING" ? "Setting up…" : b.phoneNumber}</p>
+                      {b.provisioningStatus === "FAILED" && <p className="text-[10px] font-medium text-[#EF4444]">Number provisioning failed</p>}
                     </Td>
                     <Td><VerticalBadge vertical={b.vertical} /></Td>
                     <Td>{b.team.name}</Td>

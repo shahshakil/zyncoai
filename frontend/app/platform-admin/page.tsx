@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
-import { Building2, PhoneCall, CalendarCheck, DollarSign, PhoneMissed, UserPlus, Bell, BellOff, FileText, TrendingDown, Activity, AlertTriangle } from "lucide-react";
+import { Building2, PhoneCall, CalendarCheck, DollarSign, PhoneMissed, UserPlus, Bell, BellOff, FileText, TrendingDown, Activity, AlertTriangle, Phone } from "lucide-react";
 import { useApi } from "@/lib/useApi";
 import { Card, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { Topbar } from "@/components/platform-admin/Topbar";
@@ -26,6 +26,7 @@ interface Stats {
   churnRatePct: number; churnedThisMonth: number;
   uptimePct30d: number; uptimeHealthyNow: boolean;
   platformRevenueThisMonthCents: number; billingConfigured: boolean;
+  twilioNumbersActive: number; twilioNumberMonthlyCostCents: number;
 }
 interface ActivityItem {
   type: "call" | "booking" | "signup" | "callback" | "emergency" | "abandoned";
@@ -166,6 +167,13 @@ export default function CommandCentrePage() {
               icon={stats?.uptimeHealthyNow === false ? AlertTriangle : Activity}
               gradient={stats?.uptimeHealthyNow === false ? "linear-gradient(135deg,#EF4444,#F87171)" : "linear-gradient(135deg,#10B981,#34D399)"}
               sublabel={stats?.uptimeHealthyNow === false ? "Active incident — view Health" : "All systems healthy"}
+            />
+          </Link>
+          <Link href="/platform-admin/businesses">
+            <StatCard
+              label="Twilio Number Cost (Monthly)" loading={statsLoading} value={formatCents(stats?.twilioNumberMonthlyCostCents || 0)}
+              icon={Phone} gradient="linear-gradient(135deg,#6366F1,#818CF8)"
+              sublabel={`${formatNumber(stats?.twilioNumbersActive || 0)} auto-provisioned numbers @ $1.50/mo`}
             />
           </Link>
         </div>
