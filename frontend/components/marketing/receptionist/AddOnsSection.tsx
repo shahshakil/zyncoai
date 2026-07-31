@@ -68,7 +68,7 @@ export function AddOnsSection({ showTitle = true }: { showTitle?: boolean }) {
               </div>
               <h3 className="mt-4 text-sm font-semibold text-[#0f172a]">{a.name}</h3>
               <p className="mt-1.5 text-xs leading-relaxed text-[#475569]">{a.description}</p>
-              <p className="mt-3 text-lg font-bold text-[#0f172a]">${a.priceMonthly}<span className="text-xs font-normal text-[#94a3b8]">/month</span></p>
+              <p className="mt-3 text-lg font-bold text-[#0f172a]">AUD ${a.priceMonthly}<span className="text-xs font-normal text-[#94a3b8]">/month</span></p>
               <button
                 disabled={locked || isAdded}
                 onClick={() => addToPlan(a.key)}

@@ -66,7 +66,7 @@ interface Overview {
 }
 
 function money(cents: number): string {
-  return `$${(cents / 100).toLocaleString("en-AU", { maximumFractionDigits: 0 })}`;
+  return `A$${(cents / 100).toLocaleString("en-AU", { maximumFractionDigits: 0 })}`;
 }
 
 function AnalyticsCard({ children, className = "", style }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {

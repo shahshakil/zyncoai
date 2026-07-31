@@ -1,12 +1,12 @@
 export function formatCents(cents: number): string {
-  return new Intl.NumberFormat("en-AU", { style: "currency", currency: "USD" }).format((cents || 0) / 100);
+  return new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD" }).format((cents || 0) / 100);
 }
 
 // 1,000,000 micros = $1 — used by the owner financial command centre's
 // cost-tracking figures (CallCost/UsageCostEvent are stored in micros for
 // sub-cent precision).
 export function formatMicros(micros: number): string {
-  return new Intl.NumberFormat("en-AU", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 4 }).format((micros || 0) / 1_000_000);
+  return new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD", minimumFractionDigits: 2, maximumFractionDigits: 4 }).format((micros || 0) / 1_000_000);
 }
 
 export function formatNumber(n: number): string {

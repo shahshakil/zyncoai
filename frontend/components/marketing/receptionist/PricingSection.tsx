@@ -30,7 +30,7 @@ export function PricingSection({ showTitle = true }: { showTitle?: boolean }) {
       {showTitle && (
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold text-[#0f172a] sm:text-4xl">Simple, transparent pricing</h2>
-          <p className="mt-3 text-[#475569]">All plans billed in AUD. 7-day free trial included. AUD $499 setup fee all plans.</p>
+          <p className="mt-3 text-[#475569]">All plans billed in AUD. 7-day free trial included. A one-time setup fee applies, varying by plan.</p>
         </div>
       )}
 
@@ -40,6 +40,13 @@ export function PricingSection({ showTitle = true }: { showTitle?: boolean }) {
           Every plan includes the complete ZyncoAI platform — all features, all dashboards, all integrations. Plans differ only by minutes included and
           number of locations.
         </p>
+      </div>
+
+      <div className="mx-auto mt-4 flex max-w-2xl flex-wrap items-center justify-center gap-2 text-center text-sm text-[#64748b]">
+        <span>Pricing shown is for Medical &amp; Dental practices — pricing varies by industry.</span>
+        <Link href="/contact" className="font-semibold text-[#6366f1] hover:underline">
+          Contact us for your industry&rsquo;s pricing →
+        </Link>
       </div>
 
       <div className="mx-auto mt-8 flex w-fit items-center gap-1 rounded-full border border-[#e2e8f0] bg-white p-1 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
@@ -129,7 +136,7 @@ export function PricingSection({ showTitle = true }: { showTitle?: boolean }) {
       </div>
 
       <p className="mt-8 text-center text-xs text-[#94a3b8]">
-        Setup: AUD $499 one-time for all plans · Self-serve setup: AUD $299 · Standard Managed Medical: AUD $799–$999
+        One-time setup fee (Medical/Dental): Starter AUD $499 · Growth AUD $699 · Max AUD $899 · Enterprise AUD $1,999
       </p>
     </section>
   );

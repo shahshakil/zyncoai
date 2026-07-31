@@ -17,11 +17,10 @@ import { Input, Select, Label } from "@/components/dashboard/ui/input";
 import { Table, Thead, Th, Tbody, Tr, Td, EmptyState } from "@/components/dashboard/ui/table";
 import { Badge } from "@/components/dashboard/ui/badge";
 import { exportToExcel, triggerPrint } from "@/lib/exportUtils";
+import { formatAUD as money } from "@/lib/money";
 
 const CLAIM_STATUSES = ["LODGED", "APPROVED", "REJECTED", "PENDING"];
 const STATUS_TONE: Record<string, "success" | "warning" | "danger" | "info"> = { APPROVED: "success", PENDING: "warning", LODGED: "info", REJECTED: "danger" };
-
-function money(cents: number): string { return `$${(cents / 100).toFixed(2)}`; }
 
 interface ClaimRow {
   id: string; claimType: string; insurerName: string | null; claimNumber: string | null;

@@ -175,40 +175,49 @@ export interface PricingPlan {
 // identically under every plan card (collapsed behind an "All features
 // included" toggle) rather than duplicated per-plan, since the list never
 // changes between plans.
+//
+// These are the real Medical/Dental plan numbers from
+// backend/src/lib/platformSettings.ts's DEFAULT_MEDICAL_PLANS — shown here
+// as the flagship/default example since Medical & Dental is ZyncoAI's
+// primary vertical. Every other industry (Law, Restaurant, Mechanic, Salon,
+// Real Estate, Bank, University, ...) is priced differently in the actual
+// product — see the "pricing varies by industry" note rendered above this
+// list in PricingSection.tsx. Setup fee is one-time, varies by tier (not a
+// flat rate across plans).
 export const PRICING_PLANS: PricingPlan[] = [
   {
-    key: "startup",
-    name: "Startup",
-    priceMonthly: 299,
-    priceAnnualMonthly: 239,
+    key: "starter",
+    name: "Starter",
+    priceMonthly: 399,
+    priceAnnualMonthly: 319,
     borderColor: "#16a34a",
-    minutesIncluded: "600 minutes/month",
-    perMinute: "AUD $0.50 per extra minute",
+    minutesIncluded: "800 minutes/month",
+    perMinute: "AUD $0.50 per extra minute · AUD $499 setup fee",
     locations: "1 location",
     support: "Email support",
     cta: "Start free trial",
   },
   {
-    key: "professional",
-    name: "Professional",
-    priceMonthly: 399,
-    priceAnnualMonthly: 319,
+    key: "growth",
+    name: "Growth",
+    priceMonthly: 599,
+    priceAnnualMonthly: 479,
     borderColor: "#6366f1",
     popular: true,
-    minutesIncluded: "1,000 minutes/month",
-    perMinute: "AUD $0.40 per extra minute",
+    minutesIncluded: "1,500 minutes/month",
+    perMinute: "AUD $0.50 per extra minute · AUD $699 setup fee",
     locations: "1 location",
     support: "Email + chat support",
     cta: "Start free trial",
   },
   {
-    key: "premium",
-    name: "Premium",
-    priceMonthly: 699,
-    priceAnnualMonthly: 559,
+    key: "max",
+    name: "Max",
+    priceMonthly: 799,
+    priceAnnualMonthly: 639,
     borderColor: "#06b6d4",
     minutesIncluded: "2,000 minutes/month",
-    perMinute: "AUD $0.40 per extra minute",
+    perMinute: "AUD $0.50 per extra minute · AUD $899 setup fee",
     locations: "Multiple locations",
     support: "Email + chat + phone support",
     cta: "Start free trial",
@@ -220,7 +229,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     priceAnnualMonthly: 0,
     borderColor: "#f59e0b",
     minutesIncluded: "Unlimited minutes",
-    perMinute: "SLA-backed volume pricing",
+    perMinute: "From AUD $1,499/month · AUD $1,999 setup fee",
     locations: "Multiple locations",
     support: "Dedicated SLA support",
     cta: "Contact sales",

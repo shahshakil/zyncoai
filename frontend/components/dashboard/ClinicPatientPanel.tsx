@@ -20,6 +20,7 @@ import { Table, Thead, Th, Tbody, Tr, Td, EmptyState } from "@/components/dashbo
 import { Badge } from "@/components/dashboard/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/dashboard/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog";
+import { formatAUD as money } from "@/lib/money";
 
 interface ClinicContact {
   dob: string | null; address: string | null;
@@ -34,8 +35,6 @@ interface PatientFlags { visit: "new" | "returning" | "regular"; isClaimant: boo
 
 const DOC_TYPES = ["REFERRAL", "SPECIALIST_REPORT", "IMAGING_REPORT", "PATHOLOGY_REPORT", "INSURANCE_FORM", "CONSENT_FORM", "SCAN_RESULT", "OTHER"];
 const CLAIM_STATUS_TONE: Record<string, "success" | "warning" | "danger" | "info"> = { APPROVED: "success", PENDING: "warning", LODGED: "info", REJECTED: "danger" };
-
-function money(cents: number): string { return `$${(cents / 100).toFixed(2)}`; }
 
 export function PatientFlagBadges({ flags, vertical }: { flags: PatientFlags; vertical?: string }) {
   const ops = getVerticalOps(vertical);

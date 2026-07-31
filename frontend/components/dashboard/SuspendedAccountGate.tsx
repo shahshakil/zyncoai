@@ -7,15 +7,12 @@ import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
 import { Select } from "./ui/input";
 import { SquarePaymentMethodCard } from "./settings/SquarePaymentMethodCard";
+import { formatAUD as money } from "@/lib/money";
 
 interface AvailablePlan { key: string; name: string; priceCents: number; isCustom: boolean }
 interface BillingData {
   square: { configured: boolean; clientConfig: { applicationId: string; locationId: string; environment: "sandbox" | "production" } | null; card: { brand: string | null; last4: string | null; expMonth: number | null; expYear: number | null } | null };
   availablePlans: AvailablePlan[];
-}
-
-function money(cents: number): string {
-  return `$${(cents / 100).toFixed(2)}`;
 }
 
 // Rendered by DashboardGate INSTEAD of the normal dashboard whenever

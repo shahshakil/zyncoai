@@ -7,8 +7,9 @@ import { AreaChart, Area, BarChart, Bar, ResponsiveContainer, Tooltip, XAxis, YA
 import { ChartGradient } from "./ui/ChartGradient";
 import { LightTooltip } from "./ui/ChartTooltip";
 import { CHART_COLORS, CHART_GRID_STROKE, CHART_AXIS_STYLE } from "./ui/chartTheme";
+import { formatAUD } from "@/lib/money";
 
-function money(cents: number): string { return `$${(cents / 100).toFixed(2)}`; }
+const money = formatAUD;
 
 export function RevenueAreaChart({ data, dataKey = "amountCents", xKey = "month", color = CHART_COLORS.primary, height = 240 }: { data: any[]; dataKey?: string; xKey?: string; color?: string; height?: number }) {
   const gradId = `rev-area-${color.replace("#", "")}`;
@@ -20,7 +21,7 @@ export function RevenueAreaChart({ data, dataKey = "amountCents", xKey = "month"
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} vertical={false} />
         <XAxis dataKey={xKey} tick={CHART_AXIS_STYLE} axisLine={false} tickLine={false} tickFormatter={(v) => String(v).slice(5)} minTickGap={20} />
-        <YAxis tick={CHART_AXIS_STYLE} axisLine={false} tickLine={false} tickFormatter={(v) => `$${(v / 100).toFixed(0)}`} />
+        <YAxis tick={CHART_AXIS_STYLE} axisLine={false} tickLine={false} tickFormatter={(v) => `A$${(v / 100).toFixed(0)}`} />
         <Tooltip content={<LightTooltip formatter={money} />} />
         <Area type="monotone" dataKey={dataKey} stroke={color} strokeWidth={2.5} fill={`url(#${gradId})`} />
       </AreaChart>
@@ -34,7 +35,7 @@ export function RevenueBarChart({ data, dataKey = "amountCents", xKey = "date", 
       <BarChart data={data} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} vertical={false} />
         <XAxis dataKey={xKey} tick={CHART_AXIS_STYLE} axisLine={false} tickLine={false} tickFormatter={(v) => String(v).slice(5)} minTickGap={20} />
-        <YAxis tick={CHART_AXIS_STYLE} axisLine={false} tickLine={false} tickFormatter={(v) => `$${(v / 100).toFixed(0)}`} />
+        <YAxis tick={CHART_AXIS_STYLE} axisLine={false} tickLine={false} tickFormatter={(v) => `A$${(v / 100).toFixed(0)}`} />
         <Tooltip content={<LightTooltip formatter={money} />} cursor={{ fill: "#F1F5F9" }} />
         <Bar dataKey={dataKey} fill={color} radius={[4, 4, 0, 0]} />
       </BarChart>

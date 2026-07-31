@@ -12,9 +12,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { ToggleRow } from "../ui/toggle";
 import { Table, Thead, Tbody, Tr, Th, Td, EmptyState } from "../ui/table";
 import { SquarePaymentMethodCard } from "./SquarePaymentMethodCard";
+import { formatAUD as money } from "@/lib/money";
 
 interface BillingPlan {
   key: string; name: string; priceCents: number; callAllowance: number | null; minuteAllowance: number | null;
+  overageCentsPerMinute: number;
+  minutesUsedThisMonth: number;
+  minutesRemaining: number | null;
+  pctMinutesUsed: number | null;
+  nextBillingDate: string;
+  setupFeeCents: number | null;
 }
 interface AvailablePlan extends BillingPlan {
   setupFeeCents: number; isCustom: boolean;
@@ -45,10 +52,6 @@ interface BillingData {
     clientConfig: { applicationId: string; locationId: string; environment: "sandbox" | "production" } | null;
     card: { brand: string | null; last4: string | null; expMonth: number | null; expYear: number | null } | null;
   };
-}
-
-function money(cents: number): string {
-  return `$${(cents / 100).toFixed(2)}`;
 }
 
 function discountLabel(d: BillingDiscount): string {
@@ -149,19 +152,42 @@ export function BillingTab() {
         <CardHeader><CardTitle>Plan</CardTitle></CardHeader>
         <CardContent>
           {data.plan ? (
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-lg font-semibold text-slate-900">{data.plan.name}</p>
-                <p className="text-sm text-slate-500">
-                  {money(data.plan.priceCents)}/month
-                  {data.plan.minuteAllowance != null && ` · ${data.plan.minuteAllowance} minutes included`}
-                  {data.plan.callAllowance != null && ` · ${data.plan.callAllowance} calls included`}
-                </p>
-                {data.billingCycle === "ANNUAL" && (
-                  <p className="mt-1 text-xs text-emerald-600">Annual plan{data.annualPaidUntil ? ` — paid until ${new Date(data.annualPaidUntil).toLocaleDateString("en-AU")}` : ""}</p>
-                )}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-lg font-semibold text-slate-900">{data.plan.name}</p>
+                  <p className="text-sm text-slate-500">
+                    {money(data.plan.priceCents)}/month
+                    {data.plan.minuteAllowance != null && ` · ${data.plan.minuteAllowance} minutes included`}
+                    {data.plan.callAllowance != null && ` · ${data.plan.callAllowance} calls included`}
+                  </p>
+                  {data.billingCycle === "ANNUAL" && (
+                    <p className="mt-1 text-xs text-emerald-600">Annual plan{data.annualPaidUntil ? ` — paid until ${new Date(data.annualPaidUntil).toLocaleDateString("en-AU")}` : ""}</p>
+                  )}
+                </div>
+                <Button variant="outline" size="sm" onClick={() => { setSelectedPlan(data.plan?.key || ""); setChangingPlan(true); }}>Change plan</Button>
               </div>
-              <Button variant="outline" size="sm" onClick={() => { setSelectedPlan(data.plan?.key || ""); setChangingPlan(true); }}>Change plan</Button>
+
+              {data.plan.minuteAllowance != null && (
+                <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
+                  <div className="flex items-center justify-between">
+                    <span>{Math.round(data.plan.minutesUsedThisMonth)} of {data.plan.minuteAllowance} minutes used this month</span>
+                    <span className="font-medium text-slate-800">{data.plan.minutesRemaining} remaining</span>
+                  </div>
+                  {data.plan.pctMinutesUsed != null && data.plan.pctMinutesUsed >= 80 && (
+                    <p className="mt-2 text-xs font-medium text-amber-600">
+                      You have used {data.plan.pctMinutesUsed}% of your monthly minutes. Extra minutes will be charged at {money(data.plan.overageCentsPerMinute)}/min.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-slate-500">
+                <span>Next billing date: {new Date(data.plan.nextBillingDate).toLocaleDateString("en-AU")}</span>
+                {data.plan.setupFeeCents ? (
+                  <span className="font-medium text-amber-600">Setup fee {money(data.plan.setupFeeCents)} — unpaid, will appear on your next invoice</span>
+                ) : null}
+              </div>
             </div>
           ) : (
             <div className="flex items-center justify-between">

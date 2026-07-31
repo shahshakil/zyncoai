@@ -18,12 +18,11 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/dashboard
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog";
 import { exportToExcel, triggerPrint, type ExportColumn } from "@/lib/exportUtils";
 import { getVerticalOps } from "@/lib/verticalOps";
+import { formatAUD as money } from "@/lib/money";
 
 const ChartSkeleton = () => <div className="h-56 animate-pulse rounded-xl bg-slate-100" />;
 const RevenueAreaChart = dynamic(() => import("@/components/dashboard/RevenueCharts").then((m) => ({ default: m.RevenueAreaChart })), { loading: ChartSkeleton, ssr: false });
 const RevenueBarChart = dynamic(() => import("@/components/dashboard/RevenueCharts").then((m) => ({ default: m.RevenueBarChart })), { loading: ChartSkeleton, ssr: false });
-
-function money(cents: number): string { return `$${(cents / 100).toLocaleString("en-AU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`; }
 
 interface Overview {
   revenue: {
