@@ -11,6 +11,7 @@ import { Badge } from "../ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { ToggleRow } from "../ui/toggle";
 import { Table, Thead, Tbody, Tr, Th, Td, EmptyState } from "../ui/table";
+import { SquarePaymentMethodCard } from "./SquarePaymentMethodCard";
 
 interface BillingPlan {
   key: string; name: string; priceCents: number; callAllowance: number | null; minuteAllowance: number | null;
@@ -28,6 +29,7 @@ interface BillingDiscount {
 }
 interface BillingInvoice {
   id: string; invoiceNumber: string; periodStart: string; periodEnd: string; totalCents: number; status: string; issuedAt: string; dueDate: string;
+  paidVia: "BANK_TRANSFER" | "SQUARE" | null; autoChargeError: string | null;
 }
 interface BillingData {
   plan: BillingPlan | null;
@@ -38,6 +40,11 @@ interface BillingData {
   discounts: BillingDiscount[];
   referral: { link: string; wasReferredBy: boolean; pendingCount: number; approvedCount: number; creditsEarnedCents: number };
   invoices: BillingInvoice[];
+  square: {
+    configured: boolean;
+    clientConfig: { applicationId: string; locationId: string; environment: "sandbox" | "production" } | null;
+    card: { brand: string | null; last4: string | null; expMonth: number | null; expYear: number | null } | null;
+  };
 }
 
 function money(cents: number): string {
@@ -99,6 +106,19 @@ export function BillingTab() {
     }
   }
 
+  async function payNow(invoiceId: string) {
+    setBusyKey(invoiceId);
+    try {
+      await apiPost(`/api/business/billing/invoices/${invoiceId}/pay-now`);
+      toast.success("Payment successful");
+      mutate();
+    } catch (e) {
+      toast.error(e instanceof ApiError && e.status === 402 ? "That charge didn't go through — check your card details" : "Could not process payment");
+    } finally {
+      setBusyKey(null);
+    }
+  }
+
   function copyReferralLink() {
     if (!data) return;
     navigator.clipboard.writeText(data.referral.link);
@@ -135,6 +155,8 @@ export function BillingTab() {
           )}
         </CardContent>
       </Card>
+
+      <SquarePaymentMethodCard configured={data.square.configured} clientConfig={data.square.clientConfig} card={data.square.card} onChanged={mutate} />
 
       <Card>
         <CardHeader><CardTitle>Add-ons</CardTitle></CardHeader>
@@ -207,7 +229,7 @@ export function BillingTab() {
           ) : (
             <Table>
               <Thead>
-                <Tr><Th>Invoice</Th><Th>Period</Th><Th>Amount</Th><Th>Status</Th><Th></Th></Tr>
+                <Tr><Th>Invoice</Th><Th>Period</Th><Th>Amount</Th><Th>Status</Th><Th></Th><Th></Th></Tr>
               </Thead>
               <Tbody>
                 {data.invoices.map((inv) => (
@@ -215,7 +237,15 @@ export function BillingTab() {
                     <Td>{inv.invoiceNumber}</Td>
                     <Td>{new Date(inv.periodStart).toLocaleDateString("en-AU")} – {new Date(inv.periodEnd).toLocaleDateString("en-AU")}</Td>
                     <Td>{money(inv.totalCents)}</Td>
-                    <Td><Badge tone={STATUS_TONE[inv.status] || "default"}>{inv.status.toLowerCase()}</Badge></Td>
+                    <Td>
+                      <Badge tone={STATUS_TONE[inv.status] || "default"}>{inv.status.toLowerCase()}</Badge>
+                      {inv.autoChargeError && inv.status === "ISSUED" && <p className="mt-1 text-[11px] text-rose-500">Card payment failed — try again or pay by bank transfer</p>}
+                    </Td>
+                    <Td>
+                      {inv.status === "ISSUED" && data.square.configured && (
+                        <Button size="sm" disabled={busyKey === inv.id} onClick={() => payNow(inv.id)}>{busyKey === inv.id ? "…" : "Pay now"}</Button>
+                      )}
+                    </Td>
                     <Td>
                       <a href={`/api/business/billing/invoices/${inv.id}/pdf`} target="_blank" rel="noreferrer">
                         <Button variant="ghost" size="sm"><Download className="h-4 w-4" /></Button>

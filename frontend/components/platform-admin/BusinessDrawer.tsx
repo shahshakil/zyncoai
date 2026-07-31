@@ -11,6 +11,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/dashboard
 import { VerticalBadge } from "./VerticalBadge";
 import { formatCents, timeAgo } from "./format";
 import { DiscountsPanel } from "./DiscountsPanel";
+import { SquareBillingPanel } from "./SquareBillingPanel";
 
 interface PricingPlan { key: string; name: string; priceCents: number; callAllowance: number | null }
 
@@ -20,16 +21,22 @@ interface BusinessDetail {
   planOverridePriceCents: number | null; planOverrideCallAllowance: number | null;
   smsConfirmationsEnabled: boolean; smsConfirmationsPaid: boolean;
   twilioNumberSid: string | null; provisioningStatus: "PENDING" | "ACTIVE" | "FAILED"; provisioningError: string | null;
+  squareCardId: string | null; squareCardBrand: string | null; squareCardLast4: string | null; squareCardExpMonth: number | null; squareCardExpYear: number | null;
   team: { name: string };
   members: { role: string; user: { email: string; name: string | null } }[];
   providers: { id: string; name: string; title: string | null; active: boolean }[];
   thirdPartyApiKeys: { provider: string; enabled: boolean; connectedAt: string }[];
   _count: { calls: number; appointments: number; contacts: number };
 }
+interface RecentInvoice {
+  id: string; invoiceNumber: string; totalCents: number; status: "ISSUED" | "PAID" | "VOID";
+  paidVia: "BANK_TRANSFER" | "SQUARE" | null; autoChargeFailedAt: string | null; autoChargeError: string | null; issuedAt: string;
+}
 interface DrawerData {
   business: BusinessDetail;
   recentCalls: { id: string; startedAt: string; outcome: string | null; status: string; contact: { name: string | null; phone: string } | null }[];
   upcomingAppointments: { id: string; startAt: string; status: string; contact: { name: string | null; phone: string } | null; provider: { name: string } | null }[];
+  recentInvoices: RecentInvoice[];
 }
 
 export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId: string | null; onClose: () => void; onChanged: () => void }) {
@@ -374,6 +381,12 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
                           </div>
                         </div>
                         <DiscountsPanel businessId={businessId!} />
+                        <SquareBillingPanel
+                          businessId={businessId!}
+                          card={data.business.squareCardId ? { brand: data.business.squareCardBrand, last4: data.business.squareCardLast4, expMonth: data.business.squareCardExpMonth, expYear: data.business.squareCardExpYear } : null}
+                          recentInvoices={data.recentInvoices}
+                          onChanged={mutate}
+                        />
                         <div className="rounded-xl border border-[#E5E7EB] p-3">
                           <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-[#6B7280]">SMS Confirmations</h3>
                           <div className="space-y-2">
