@@ -7,6 +7,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { SessionTimeoutGuard } from "@/components/dashboard/SessionTimeoutGuard";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Topbar } from "@/components/dashboard/Topbar";
+import { TrialBanner } from "@/components/dashboard/TrialBanner";
 import { useDashboard } from "@/components/dashboard/BusinessContext";
 import { getVerticalTheme } from "@/components/dashboard/verticalTheme";
 import "../print.css";
@@ -64,6 +65,7 @@ function ThemedShell({ children, sidebarOpen, onCloseSidebar, onOpenSidebar }: {
       <SessionTimeoutGuard />
       <Sidebar open={sidebarOpen} onClose={onCloseSidebar} />
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <TrialBanner business={business} />
         <Topbar onMenuClick={onOpenSidebar} />
         <main
           className="flex-1 overflow-y-auto p-4 sm:p-6"

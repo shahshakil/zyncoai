@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import posthog from "posthog-js";
 import { DashboardContext, DashboardBusiness, DashboardUser, BusinessRole } from "./BusinessContext";
 import { Skeleton } from "./ui/skeleton";
+import { SuspendedAccountGate } from "./SuspendedAccountGate";
 
 type GateState = {
   user: DashboardUser;
@@ -97,6 +98,23 @@ export function DashboardGate({ children }: { children: React.ReactNode }) {
         <Skeleton className="h-64" />
       </div>
     );
+  }
+
+  if (state.business.status === "SUSPENDED") {
+    // Billing routes are OWNER/ADMIN-only server-side (requireBusinessRole in
+    // billing.ts), so STAFF/DOCTOR can't drive the card-entry gate — they'd
+    // just get 403s from it. Give them a plain message instead and let an
+    // owner/admin reactivate.
+    if (!state.canManageBusiness) {
+      return (
+        <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
+          <p className="max-w-sm text-center text-sm text-slate-500">
+            This account is currently suspended. Please contact your business owner or admin to reactivate it.
+          </p>
+        </div>
+      );
+    }
+    return <SuspendedAccountGate />;
   }
 
   return <DashboardContext.Provider value={state}>{children}</DashboardContext.Provider>;

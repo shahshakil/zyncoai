@@ -78,7 +78,12 @@ export function SquarePaymentMethodCard({
         await cardInput.attach(containerRef.current);
         cardInstanceRef.current = cardInput;
         setSdkReady(true);
-      } catch {
+      } catch (err) {
+        // Previously swallowed entirely — a CSP block, a bad applicationId/
+        // locationId, and a plain network failure all produced the exact
+        // same generic toast with zero way to tell them apart. Logging the
+        // real error is what actually let us find the CSP root cause.
+        console.error("[SquarePaymentMethodCard] card form failed to load:", err);
         toast.error("Could not load the card form — please try again");
         setAdding(false);
       }
@@ -104,11 +109,12 @@ export function SquarePaymentMethodCard({
         toast.error("Card details look invalid — please check and try again");
         return;
       }
-      await apiPost("/api/business/billing/payment-method", { sourceId: tokenResult.token });
-      toast.success("Payment method saved");
+      const res = await apiPost<{ card: SavedCard }>("/api/business/billing/payment-method", { sourceId: tokenResult.token });
+      toast.success(`Card ending in ${res.card.last4} saved`);
       setAdding(false);
       onChanged();
     } catch (e) {
+      console.error("[SquarePaymentMethodCard] card save failed:", e);
       toast.error(e instanceof ApiError ? "Could not save that card" : "Something went wrong saving your card");
     } finally {
       setSaving(false);

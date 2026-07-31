@@ -75,10 +75,26 @@ export function BillingTab() {
       setChangingPlan(false);
       mutate();
     } catch (e) {
-      toast.error(e instanceof ApiError && e.message === "custom_plan_requires_contacting_support" ? "Contact support to switch to this plan" : "Could not change plan");
+      if (e instanceof ApiError && e.status === 402) {
+        // Server-side gate (billing.ts PATCH /plan) — shouldn't normally hit
+        // this since the dialog shows the card form first, but covers the
+        // race where a card was removed elsewhere while this dialog was open.
+        toast.error("Add a payment method to activate this plan");
+        mutate();
+      } else {
+        toast.error(e instanceof ApiError && e.message === "custom_plan_requires_contacting_support" ? "Contact support to switch to this plan" : "Could not change plan");
+      }
     } finally {
       setSavingPlan(false);
     }
+  }
+
+  // Card just got saved while a plan change was pending — refresh billing
+  // data then immediately retry activating the selected plan, so the user
+  // never has to click "Confirm" twice.
+  async function handleCardSavedDuringPlanChange() {
+    await mutate();
+    await savePlan();
   }
 
   async function toggleAddOn(key: string, active: boolean) {
@@ -274,7 +290,19 @@ export function BillingTab() {
             {selectedPlan && data.availablePlans.find((p) => p.key === selectedPlan)?.setupFeeCents ? (
               <p className="text-xs text-amber-600">A one-time setup fee of {money(data.availablePlans.find((p) => p.key === selectedPlan)!.setupFeeCents)} applies the first time you switch to this plan.</p>
             ) : null}
-            <Button className="w-full" disabled={!selectedPlan || savingPlan} onClick={savePlan}>{savingPlan ? "Saving…" : "Confirm plan change"}</Button>
+            {selectedPlan && !data.square.card ? (
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-slate-700">To activate your plan, please add a payment method.</p>
+                <SquarePaymentMethodCard
+                  configured={data.square.configured}
+                  clientConfig={data.square.clientConfig}
+                  card={data.square.card}
+                  onChanged={handleCardSavedDuringPlanChange}
+                />
+              </div>
+            ) : (
+              <Button className="w-full" disabled={!selectedPlan || savingPlan} onClick={savePlan}>{savingPlan ? "Saving…" : "Confirm plan change"}</Button>
+            )}
           </div>
         </DialogContent>
       </Dialog>
