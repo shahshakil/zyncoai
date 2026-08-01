@@ -5,6 +5,7 @@ import { FinalCtaSection } from "@/components/marketing/receptionist/FinalCtaSec
 export const metadata: Metadata = {
   title: "Pricing | ZyncoAI",
   description: "Simple, transparent AI receptionist pricing for Australian practices. 7-day free trial on every plan.",
+  alternates: { canonical: "/pricing" },
 };
 
 export default function PricingPage() {

@@ -15,6 +15,15 @@ import { PricingSection } from "@/components/marketing/receptionist/PricingSecti
 import { AddOnsSection } from "@/components/marketing/receptionist/AddOnsSection";
 import { FinalCtaSection } from "@/components/marketing/receptionist/FinalCtaSection";
 
+export const metadata = {
+  title: "ZyncoAI — AI Receptionist That Answers Every Call",
+  description:
+    "ZyncoAI is an AI receptionist that answers calls, books appointments, and handles enquiries 24/7 for medical, dental, legal, restaurant, and trade businesses.",
+  alternates: {
+    canonical: "https://zyncoai.com",
+  },
+};
+
 export default function Page() {
   return (
     <div className="bg-[#f8fafc]">

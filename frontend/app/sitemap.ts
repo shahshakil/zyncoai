@@ -8,9 +8,11 @@ import { INDUSTRIES, USE_CASES, COMPANY_SIZES } from "@/components/marketing/rec
 // this sitemap regardless of whether a page.tsx exists for it).
 // Deliberately excludes: /dashboard, /platform-admin, /(auth)/*,
 // /onboarding, /checkin/[token] (tokenized, per-patient), /app/* (the
-// authenticated product surface, route group (app)), /dev/*, and any
+// authenticated product surface, route group (app)), /dev/*, any
 // dynamic [id] route with no generateStaticParams (platform/connectors/[id],
-// executions/[id] — unbounded per-record pages, not discoverable content).
+// executions/[id] — unbounded per-record pages, not discoverable content),
+// and /privacy + /terms (low-value boilerplate pages, kept crawlable via
+// robots.txt but not worth a sitemap entry).
 type ChangeFreq = MetadataRoute.Sitemap[number]["changeFrequency"];
 
 const STATIC_ROUTES: { path: string; priority: number; changeFrequency: ChangeFreq }[] = [
@@ -45,8 +47,12 @@ const STATIC_ROUTES: { path: string; priority: number; changeFrequency: ChangeFr
   { path: "/resources/help", priority: 0.5, changeFrequency: "monthly" },
   { path: "/resources/status", priority: 0.4, changeFrequency: "daily" },
   { path: "/resources/trust", priority: 0.5, changeFrequency: "monthly" },
+  { path: "/platform", priority: 0.7, changeFrequency: "monthly" },
   { path: "/platform/connectors", priority: 0.6, changeFrequency: "weekly" },
+  { path: "/agentops", priority: 0.7, changeFrequency: "monthly" },
+  { path: "/workflowops", priority: 0.7, changeFrequency: "monthly" },
   { path: "/executions", priority: 0.5, changeFrequency: "monthly" },
+  { path: "/use-cases", priority: 0.6, changeFrequency: "monthly" },
   { path: "/use-cases/marketing-teams", priority: 0.6, changeFrequency: "monthly" },
   { path: "/workflowops/automation-analytics", priority: 0.6, changeFrequency: "monthly" },
   { path: "/workflowops/workflow-builder", priority: 0.6, changeFrequency: "monthly" },
@@ -64,8 +70,6 @@ const STATIC_ROUTES: { path: string; priority: number; changeFrequency: ChangeFr
   { path: "/solutions/sales-ops", priority: 0.6, changeFrequency: "monthly" },
   { path: "/solutions/support", priority: 0.6, changeFrequency: "monthly" },
   { path: "/legal/dpa", priority: 0.3, changeFrequency: "yearly" },
-  { path: "/terms", priority: 0.3, changeFrequency: "yearly" },
-  { path: "/privacy", priority: 0.3, changeFrequency: "yearly" },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
