@@ -1,8 +1,9 @@
 "use client";
-import { useState, useEffect, useRef, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
+import NProgress from "nprogress";
 import { Button } from "@/components/dashboard/ui/button";
 import { Input, Label } from "@/components/dashboard/ui/input";
 import { redirectAfterAuth } from "@/lib/postAuthRedirect";
@@ -21,21 +22,9 @@ function LoginForm() {
     if (params.get("reason") === "inactivity") toast.error("You were logged out for security. Please log in again.");
   }, [params]);
 
-  // Hover-intent prefetch: the moment someone starts filling in the form,
-  // warm the /dashboard route's JS chunk (Next.js router.prefetch) so it's
-  // already cached by the time redirectAfterAuth() navigates there post-
-  // login — the actual dashboard data fetches still need the session
-  // cookie from a successful login, so only the route chunk can be
-  // pre-warmed here, not the API calls themselves.
-  const prefetchedDashboard = useRef(false);
-  function prefetchDashboard() {
-    if (prefetchedDashboard.current) return;
-    prefetchedDashboard.current = true;
-    router.prefetch("/dashboard");
-  }
-
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    NProgress.start();
     setLoading(true);
     try {
       const r = await fetch("/api/auth/login", {
@@ -45,6 +34,7 @@ function LoginForm() {
       });
       const data = await r.json();
       if (!r.ok || !data.ok) {
+        NProgress.done();
         if (data.error === "email_not_verified") {
           setNeedsVerification(true);
           toast.error("Please verify your email before logging in — check your inbox for the link, or resend it below.");
@@ -55,6 +45,7 @@ function LoginForm() {
           setNeedsVerification(false);
           toast.error(data.message || "Invalid email or password");
         }
+        setPassword("");
         setLoading(false);
         return;
       }
@@ -63,6 +54,7 @@ function LoginForm() {
       const next = params.get("next");
 
       if (data.mfaRequired || data.mfaSetupRequired) {
+        NProgress.done();
         // Tab-scoped, short-lived — cleared by the MFA page once used. Never
         // put a bearer token in a URL (referrer/history/log exposure).
         sessionStorage.setItem("zyn_mfa_pending_token", data.mfa_pending_token);
@@ -71,9 +63,15 @@ function LoginForm() {
         return;
       }
 
-      await redirectAfterAuth(router, next);
+      // redirectAfterAuth does a hard navigation (window.location.href), so
+      // the browser's own page-load spinner takes over from here — no
+      // NProgress.done() call needed, the bar just gets torn down with the
+      // rest of this page.
+      await redirectAfterAuth(next);
     } catch {
+      NProgress.done();
       toast.error("Something went wrong. Try again.");
+      setPassword("");
       setLoading(false);
     }
   }
@@ -115,7 +113,6 @@ function LoginForm() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              onFocus={prefetchDashboard}
               placeholder="you@business.com"
             />
           </div>
@@ -123,7 +120,13 @@ function LoginForm() {
             <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
           </div>
-          <Button type="submit" className="w-full" disabled={loading} onMouseEnter={prefetchDashboard}>
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading && (
+              <svg className="mr-1.5 h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            )}
             {loading ? "Signing in…" : "Sign in"}
           </Button>
 

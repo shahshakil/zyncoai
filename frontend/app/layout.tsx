@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import { PostHogProvider } from "../components/PostHogProvider";
 import { SiteJsonLd } from "../components/seo/SiteJsonLd";
 import { GoogleAnalytics } from "../components/seo/GoogleAnalytics";
+import { RouteProgress } from "../components/RouteProgress";
 
 // The site-wide fallback — any page without its own metadata export
 // previously had no <title>/<meta description> at all (verified: root
@@ -93,6 +94,7 @@ export default function RootLayout({
           element here was silently dropped instead of merging. */}
       <link rel="dns-prefetch" href="//api.zyncoai.com" />
       <body className={inter.className}>
+        <RouteProgress />
         <SiteJsonLd />
         <GoogleAnalytics />
         <PostHogProvider>

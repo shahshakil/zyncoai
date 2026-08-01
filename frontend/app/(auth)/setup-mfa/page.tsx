@@ -85,7 +85,7 @@ function SetupMfaForm() {
   }
 
   async function onContinue() {
-    await redirectAfterAuth(router, params.get("next"));
+    await redirectAfterAuth(params.get("next"));
   }
 
   if (backupCodes) {

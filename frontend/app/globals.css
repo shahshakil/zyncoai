@@ -428,3 +428,14 @@ html, body {
 body {
 background:#faf7f2;
 }
+
+/* NProgress route-transition bar, brand-colored (see RouteProgress.tsx) */
+#nprogress .bar {
+  background: #6366f1;
+  height: 3px;
+  z-index: 9999;
+}
+#nprogress .peg {
+  box-shadow: 0 0 10px #6366f1, 0 0 5px #6366f1;
+}
+#nprogress .spinner { display: none; }

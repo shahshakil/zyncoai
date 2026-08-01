@@ -48,7 +48,7 @@ function VerifyMfaForm() {
         return;
       }
       sessionStorage.removeItem("zyn_mfa_pending_token");
-      await redirectAfterAuth(router, params.get("next"));
+      await redirectAfterAuth(params.get("next"));
     } catch {
       toast.error("Something went wrong. Try again.");
       setLoading(false);
