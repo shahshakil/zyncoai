@@ -18,6 +18,7 @@ import {
   FileHeart,
   CalendarDays,
   FolderOpen,
+  ChefHat,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDashboard } from "./BusinessContext";
@@ -59,6 +60,10 @@ function buildNav(role: string, vertical: string): NavItem[] {
 
   if (role === "DOCTOR" && ops) {
     base.push({ href: "/dashboard/calendar", label: "My Calendar", icon: CalendarDays });
+  }
+
+  if (vertical === "RESTAURANT" && role !== "DOCTOR") {
+    base.push({ href: "/dashboard/kitchen", label: "Kitchen", icon: ChefHat });
   }
 
   if (ops && (role === "OWNER" || role === "ADMIN")) {

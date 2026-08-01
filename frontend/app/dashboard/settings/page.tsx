@@ -21,6 +21,7 @@ const NotificationsTab = dynamic(() => import("@/components/dashboard/settings/N
 const BillingTab = dynamic(() => import("@/components/dashboard/settings/BillingTab").then((m) => ({ default: m.BillingTab })), { loading: TabSkeleton });
 const ComplianceTab = dynamic(() => import("@/components/dashboard/settings/ComplianceTab").then((m) => ({ default: m.ComplianceTab })), { loading: TabSkeleton });
 const MenuTab = dynamic(() => import("@/components/dashboard/settings/MenuTab").then((m) => ({ default: m.MenuTab })), { loading: TabSkeleton });
+const RestaurantMenuManager = dynamic(() => import("@/components/dashboard/settings/RestaurantMenuManager").then((m) => ({ default: m.RestaurantMenuManager })), { loading: TabSkeleton });
 const AiPromptTab = dynamic(() => import("@/components/dashboard/settings/AiPromptTab").then((m) => ({ default: m.AiPromptTab })), { loading: TabSkeleton });
 const DangerZoneTab = dynamic(() => import("@/components/dashboard/settings/DangerZoneTab").then((m) => ({ default: m.DangerZoneTab })), { loading: TabSkeleton });
 
@@ -64,7 +65,11 @@ function SettingsTabs() {
       </TabsList>
       <TabsContent value="profile"><ProfileTab /></TabsContent>
       <TabsContent value="staff"><StaffTab /></TabsContent>
-      {ops?.menuEnabled && <TabsContent value="menu"><MenuTab /></TabsContent>}
+      {ops?.menuEnabled && (
+        <TabsContent value="menu">
+          {business.vertical === "RESTAURANT" ? <RestaurantMenuManager /> : <MenuTab />}
+        </TabsContent>
+      )}
       <TabsContent value="ai-prompt"><AiPromptTab /></TabsContent>
       <TabsContent value="integrations">
         <IntegrationsTab />

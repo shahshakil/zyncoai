@@ -34,6 +34,7 @@ const CartesianGrid = dynamic(() => import("recharts").then((m) => ({ default: m
 const Tooltip = dynamic(() => import("recharts").then((m) => ({ default: m.Tooltip })), { ssr: false });
 const ResponsiveContainer = dynamic(() => import("recharts").then((m) => ({ default: m.ResponsiveContainer })), { ssr: false });
 const Sparkline = dynamic(() => import("@/components/dashboard/ui/Sparkline").then((m) => ({ default: m.Sparkline })), { ssr: false });
+const RestaurantOrderAnalytics = dynamic(() => import("./RestaurantOrderAnalytics").then((m) => ({ default: m.RestaurantOrderAnalytics })), { ssr: false });
 
 interface Overview {
   kpis: {
@@ -200,6 +201,8 @@ export function AnalyticsDashboard() {
           )}
         </div>
       </div>
+
+      {business.vertical === "RESTAURANT" && <RestaurantOrderAnalytics />}
 
       {/* A. Performance overview */}
       <div className="no-print grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
