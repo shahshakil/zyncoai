@@ -17,6 +17,8 @@ export interface DashboardBusiness {
   capacityCount?: number;
   address?: string | null;
   phoneNumber?: string | null;
+  provisioningStatus?: string | null;
+  twilioNumberSid?: string | null;
   trialEndsAt?: string | null;
   manualPlan?: string | null;
 }

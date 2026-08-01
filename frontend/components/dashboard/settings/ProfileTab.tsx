@@ -17,7 +17,7 @@ export function ProfileTab() {
 
   useEffect(() => {
     if (data?.business && !form) {
-      setForm({ name: data.business.name, vertical: data.business.vertical, phoneNumber: data.business.phoneNumber, address: data.business.address || "", timezone: data.business.timezone });
+      setForm({ name: data.business.name, vertical: data.business.vertical, address: data.business.address || "", timezone: data.business.timezone });
     }
   }, [data, form]);
 
@@ -57,8 +57,19 @@ export function ProfileTab() {
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label>Phone number</Label>
-            <Input value={form.phoneNumber} onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })} />
+            <Label>AI phone number</Label>
+            <Input
+              value={
+                data?.business.provisioningStatus === "ACTIVE" && data?.business.twilioNumberSid
+                  ? data.business.phoneNumber
+                  : data?.business.provisioningStatus === "PENDING"
+                    ? "Setting up your AI line..."
+                    : "Contact support to activate your number"
+              }
+              disabled
+              readOnly
+            />
+            <p className="mt-1 text-xs text-slate-400">Provisioned automatically — not editable here.</p>
           </div>
           <div>
             <Label>Timezone</Label>

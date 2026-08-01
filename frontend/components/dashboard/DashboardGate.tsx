@@ -58,6 +58,8 @@ export function DashboardGate({ children }: { children: React.ReactNode }) {
             capacityCount: businessMe?.business?.capacityCount,
             address: businessMe?.business?.address ?? null,
             phoneNumber: businessMe?.business?.phoneNumber ?? null,
+            provisioningStatus: businessMe?.business?.provisioningStatus ?? null,
+            twilioNumberSid: businessMe?.business?.twilioNumberSid ?? null,
           };
           setState({
             user: me.user,

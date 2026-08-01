@@ -33,7 +33,6 @@ export default function OnboardingPageClient() {
   // Step 1
   const [name, setName] = useState("");
   const [vertical, setVertical] = useState("MEDICAL");
-  const [phoneNumber, setPhoneNumber] = useState("");
   const [ownerMobile, setOwnerMobile] = useState("");
   const [timezone, setTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC");
   const [address, setAddress] = useState("");
@@ -103,8 +102,8 @@ export default function OnboardingPageClient() {
   }
 
   async function submitBusiness() {
-    if (!name.trim() || !phoneNumber.trim()) {
-      toast.error("Business name and phone number are required");
+    if (!name.trim()) {
+      toast.error("Business name is required");
       return;
     }
     if (!privacyAccepted || !dpaAccepted) {
@@ -117,7 +116,6 @@ export default function OnboardingPageClient() {
       const res = await apiPost<{ business: { id: string } }>("/api/business/onboarding/business", {
         name,
         vertical,
-        phoneNumber,
         timezone,
         address: address || undefined,
         placeId: placeId || undefined,
@@ -179,29 +177,23 @@ export default function OnboardingPageClient() {
                   <Label>Business name</Label>
                   <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Bright Smile Dental" />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Industry</Label>
-                    <Select
-                      value={vertical}
-                      onChange={(e) => {
-                        setVertical(e.target.value);
-                        setVerticalTouched(true);
-                        setDetectedVertical(null);
-                      }}
-                    >
-                      {VERTICALS.map((v) => (
-                        <option key={v.value} value={v.value}>
-                          {v.label}
-                        </option>
-                      ))}
-                    </Select>
-                    {detecting && <p className="mt-1 text-xs text-white/30">Detecting business type…</p>}
-                  </div>
-                  <div>
-                    <Label>Business phone</Label>
-                    <Input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="+1 555 123 4567" />
-                  </div>
+                <div>
+                  <Label>Industry</Label>
+                  <Select
+                    value={vertical}
+                    onChange={(e) => {
+                      setVertical(e.target.value);
+                      setVerticalTouched(true);
+                      setDetectedVertical(null);
+                    }}
+                  >
+                    {VERTICALS.map((v) => (
+                      <option key={v.value} value={v.value}>
+                        {v.label}
+                      </option>
+                    ))}
+                  </Select>
+                  {detecting && <p className="mt-1 text-xs text-white/30">Detecting business type…</p>}
                 </div>
 
                 {detectedVertical && (
@@ -436,7 +428,7 @@ export default function OnboardingPageClient() {
                       <MapPin className="h-3.5 w-3.5" /> {address}
                     </p>
                   )}
-                  <p className="mt-1 text-white/50">{phoneNumber}</p>
+                  <p className="mt-1 text-xs text-white/30">Your AI phone number will be provisioned automatically once activated.</p>
                 </div>
                 <div className="rounded-lg border border-white/10 p-4">
                   <p className="mb-2 font-medium text-white">Staff ({createdStaff.length})</p>

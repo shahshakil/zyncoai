@@ -183,7 +183,11 @@ export default function OverviewDashboard() {
         </div>
       </div>
 
-      <AiPhoneNumberCard phoneNumber={business.phoneNumber} />
+      <AiPhoneNumberCard
+        phoneNumber={business.phoneNumber || ""}
+        provisioningStatus={business.provisioningStatus}
+        twilioNumberSid={business.twilioNumberSid}
+      />
 
       {/* ---------------- TOP STATS ROW ---------------- */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
