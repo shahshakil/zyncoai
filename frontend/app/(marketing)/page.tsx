@@ -14,11 +14,33 @@ import { ProductDemoSection } from "@/components/marketing/receptionist/ProductD
 import { PricingSection } from "@/components/marketing/receptionist/PricingSection";
 import { AddOnsSection } from "@/components/marketing/receptionist/AddOnsSection";
 import { FinalCtaSection } from "@/components/marketing/receptionist/FinalCtaSection";
+import { FaqSection } from "@/components/marketing/receptionist/FaqSection";
+import { HomepageFaqJsonLd } from "@/components/seo/HomepageFaqJsonLd";
+
+const TITLE = "ZyncoAI — AI Receptionist for Australian Businesses | 24/7 Call Answering";
+const DESCRIPTION =
+  "ZyncoAI answers every call 24/7, books appointments automatically, and never misses a customer. AI receptionist for medical clinics, restaurants, mechanics and more. From AUD $149/month.";
+const SHORT_DESCRIPTION = "Ella answers every call 24/7 and books appointments automatically.";
 
 export const metadata = {
-  title: "ZyncoAI — AI Receptionist That Answers Every Call",
-  description:
-    "ZyncoAI is an AI receptionist that answers calls, books appointments, and handles enquiries 24/7 for medical, dental, legal, restaurant, and trade businesses.",
+  title: TITLE,
+  description: DESCRIPTION,
+  keywords: ["AI receptionist Australia", "AI phone answering", "automatic booking", "ZyncoAI", "medical receptionist AI"],
+  openGraph: {
+    title: "ZyncoAI — AI Receptionist for Australian Businesses",
+    description: SHORT_DESCRIPTION,
+    url: "https://zyncoai.com",
+    siteName: "ZyncoAI",
+    locale: "en_AU",
+    type: "website",
+    images: ["/opengraph-image"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ZyncoAI — AI Receptionist for Australian Businesses",
+    description: SHORT_DESCRIPTION,
+    images: ["/opengraph-image"],
+  },
   alternates: {
     canonical: "https://zyncoai.com",
   },
@@ -27,6 +49,7 @@ export const metadata = {
 export default function Page() {
   return (
     <div className="bg-[#f8fafc]">
+      <HomepageFaqJsonLd />
       <HeroSection />
       <VerticalsDiagramSection />
       <LiveDemoSection />
@@ -42,6 +65,7 @@ export default function Page() {
       <ProductDemoSection />
       <PricingSection />
       <AddOnsSection />
+      <FaqSection />
       <FinalCtaSection />
     </div>
   );

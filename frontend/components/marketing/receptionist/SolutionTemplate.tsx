@@ -1,12 +1,12 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import posthog from "posthog-js";
 import { motion } from "framer-motion";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, ChevronDown } from "lucide-react";
 import { PricingSection } from "./PricingSection";
 import { FinalCtaSection } from "./FinalCtaSection";
-import { TESTIMONIALS } from "./data";
+import { TESTIMONIALS, type IndustryFaq } from "./data";
 
 export interface SolutionContent {
   eyebrow: string;
@@ -15,10 +15,16 @@ export interface SolutionContent {
   greeting: string;
   callerLine: string;
   features: string[];
+  // Optional — only the /solutions/[industry] pages have real overview/FAQ
+  // content today; /solutions/use-case/[slug] and /solutions/size/[slug]
+  // reuse this same template without them.
+  overview?: string;
+  faqs?: IndustryFaq[];
 }
 
 export function SolutionTemplate({ content }: { content: SolutionContent }) {
   const testimonial = TESTIMONIALS[content.name.length % TESTIMONIALS.length];
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   useEffect(() => {
     posthog.capture("industry_page_viewed", { industry: content.name });
@@ -78,6 +84,14 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
         </div>
       </section>
 
+      {content.overview && (
+        <section className="py-14">
+          <div className="mx-auto max-w-3xl px-6">
+            <p className="text-base leading-relaxed text-[#475569]">{content.overview}</p>
+          </div>
+        </section>
+      )}
+
       <section className="py-14">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-2xl font-bold text-[#0f172a] sm:text-3xl">Built for {content.name.toLowerCase()}</h2>
@@ -99,6 +113,51 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
           <p className="text-xs text-[#94a3b8]">{testimonial.role} · {testimonial.location}</p>
         </div>
       </section>
+
+      {content.faqs && content.faqs.length > 0 && (
+        <section className="py-14">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-2xl font-bold text-[#0f172a] sm:text-3xl">Frequently asked questions</h2>
+          </div>
+          <div className="mx-auto mt-10 max-w-2xl space-y-3">
+            {content.faqs.map((f, i) => {
+              const open = openFaq === i;
+              return (
+                <div key={f.question} className="overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+                  <button
+                    type="button"
+                    onClick={() => setOpenFaq(open ? null : i)}
+                    className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
+                    aria-expanded={open}
+                  >
+                    <span className="text-base font-semibold text-[#0f172a]">{f.question}</span>
+                    <ChevronDown className={`h-5 w-5 shrink-0 text-[#94a3b8] transition-transform ${open ? "rotate-180" : ""}`} />
+                  </button>
+                  {open && (
+                    <div className="px-6 pb-5">
+                      <p className="text-sm leading-relaxed text-[#475569]">{f.answer}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                mainEntity: content.faqs.map((f) => ({
+                  "@type": "Question",
+                  name: f.question,
+                  acceptedAnswer: { "@type": "Answer", text: f.answer },
+                })),
+              }),
+            }}
+          />
+        </section>
+      )}
 
       <PricingSection showTitle={false} />
       <FinalCtaSection />

@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
 import { PostHogProvider } from "../components/PostHogProvider";
+import { SiteJsonLd } from "../components/seo/SiteJsonLd";
 
 // The site-wide fallback — any page without its own metadata export
 // previously had no <title>/<meta description> at all (verified: root
@@ -18,6 +19,29 @@ export const metadata: Metadata = {
   },
   description:
     "ZyncoAI is an AI receptionist that answers calls, books appointments, and handles enquiries 24/7 for medical, dental, legal, restaurant, and trade businesses.",
+  keywords: [
+    "AI receptionist Australia",
+    "AI phone answering",
+    "automatic booking system",
+    "medical receptionist AI",
+    "restaurant phone orders",
+    "ZyncoAI",
+  ],
+  authors: [{ name: "ZyncoAI" }],
+  robots: {
+    index: true,
+    follow: true,
+    "max-snippet": -1,
+    "max-image-preview": "large",
+    "max-video-preview": -1,
+  },
+  // Renders only once a real code exists — GOOGLE_SITE_VERIFICATION is
+  // unset today (no Search Console property verified yet), and Next
+  // simply omits the meta tag when verification.google is undefined
+  // rather than emitting a broken placeholder.
+  verification: process.env.GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.GOOGLE_SITE_VERIFICATION }
+    : undefined,
 };
 
 // globals.css already declares `body { font-family: Inter, Arial, ... }`,
@@ -41,6 +65,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <SiteJsonLd />
         <PostHogProvider>
           {children}
           <Toaster theme="dark" position="top-right" toastOptions={{ style: { background: "#0a0a0a", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" } }} />

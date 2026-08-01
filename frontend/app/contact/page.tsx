@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: "Get in touch with the ZyncoAI team — support, sales, or a live demo of Ella, your AI receptionist.",
 };
 
-const DEMO_NUMBER = "+61 2 5747 4612";
+const CONTACT_NUMBER = "+61 480 738 227";
 
 const CHANNELS = [
   {
@@ -18,9 +18,9 @@ const CHANNELS = [
   },
   {
     icon: Phone,
-    label: "Call Ella (live demo)",
-    value: DEMO_NUMBER,
-    href: `tel:${DEMO_NUMBER.replace(/\s/g, "")}`,
+    label: "Call us",
+    value: CONTACT_NUMBER,
+    href: `tel:${CONTACT_NUMBER.replace(/\s/g, "")}`,
   },
   {
     icon: MapPin,

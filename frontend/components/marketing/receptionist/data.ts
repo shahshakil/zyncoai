@@ -5,6 +5,11 @@
 // already supports (MEDICAL/DENTAL/MECHANIC/RESTAURANT/LAW/BANK/UNIVERSITY/
 // SALON) — these aren't hypothetical markets, the product already runs them.
 
+export interface IndustryFaq {
+  question: string;
+  answer: string;
+}
+
 export interface Industry {
   slug: string;
   name: string;
@@ -14,6 +19,10 @@ export interface Industry {
   callerLine: string;
   callsHandledToday: number;
   features: string[];
+  // A real paragraph of unique body copy, not just bullet points — SEO
+  // aside, a bare feature-bullet page reads as thin to a human too.
+  overview: string;
+  faqs: IndustryFaq[];
 }
 
 export const INDUSTRIES: Industry[] = [
@@ -26,6 +35,13 @@ export const INDUSTRIES: Industry[] = [
     callerLine: "Hi, I need to book in with Dr Johnson for a check-up",
     callsHandledToday: 1204,
     features: ["Books appointments against real provider calendars", "Understands Medicare, private health, DVA and WorkCover questions", "Flags emergency symptoms and escalates instantly", "Syncs with Cliniko, Best Practice and Medical Director"],
+    overview:
+      "A medical clinic's phone line carries genuine urgency — a parent calling about a sick child, a patient chasing test results, someone trying to book before symptoms get worse. Every one of those calls competing for the same one or two reception staff means some of them go to voicemail, and a caller who hits voicemail when they're worried rarely leaves a message; they just call the next clinic. Ella answers every single call in under a second, day or night, and checks each provider's real calendar before offering a time, so there's no double-booking and no back-and-forth. Medicare, private health fund, DVA and WorkCover questions are handled in the same conversation, and anything that sounds like it needs urgent clinical attention is flagged and escalated immediately rather than quietly booked in for next Tuesday.",
+    faqs: [
+      { question: "Is ZyncoAI compliant with Australian healthcare privacy law?", answer: "Yes. ZyncoAI is built with the Australian Privacy Act 1988 and My Health Records Act 2012 in mind — sensitive patient fields are encrypted at rest, and ZyncoAI never submits claims to Medicare or a health fund on your behalf." },
+      { question: "How much does ZyncoAI cost for a medical clinic?", answer: "Medical clinic plans start from AUD $399/month, with a 7-day free trial on every plan." },
+      { question: "Does Ella give medical advice?", answer: "No. Ella books appointments and answers logistical questions — Medicare, hours, availability — but symptoms and clinical questions are always escalated to your practice, never diagnosed or advised on by the AI." },
+    ],
   },
   {
     slug: "dental",
@@ -36,6 +52,13 @@ export const INDUSTRIES: Industry[] = [
     callerLine: "I chipped a tooth, can someone see me today?",
     callsHandledToday: 863,
     features: ["Triages urgent dental pain vs routine bookings", "Handles recalls for 6-monthly checkups automatically", "Answers insurance and payment-plan questions", "Books hygienist and dentist appointments separately"],
+    overview:
+      "Dental practices lose money two ways on the phone: a chair sitting empty because a routine recall call went to voicemail, and a patient in real pain who couldn't get through and found another clinic that answered. Ella tells those two situations apart immediately — someone describing acute pain gets triaged toward the next available urgent slot, while a routine 6-monthly checkup call gets booked calmly against the right hygienist or dentist's calendar. Insurance and payment-plan questions are answered in the same call instead of being deferred to a callback, and every booking lands straight in your practice software, so the chair that would have sat empty gets filled instead.",
+    faqs: [
+      { question: "Can Ella tell the difference between an emergency and a routine booking?", answer: "Yes — Ella triages based on what the caller describes (acute pain vs a routine checkup) and prioritises urgent cases toward the next available slot rather than booking everyone in call order." },
+      { question: "How much does ZyncoAI cost for a dental practice?", answer: "Dental plans use the same pricing as medical clinics, starting from AUD $399/month with a 7-day free trial." },
+      { question: "Does Ella handle recall bookings automatically?", answer: "Yes — 6-monthly recall calls are handled the same way as any other booking request, checked against real provider availability before confirming." },
+    ],
   },
   {
     slug: "legal",
@@ -46,6 +69,13 @@ export const INDUSTRIES: Industry[] = [
     callerLine: "I was in a car accident and need to speak to your solicitor about a claim",
     callsHandledToday: 412,
     features: ["Screens new matters before they reach a solicitor", "Books consultations across multiple practice areas", "Captures urgent WorkCover/CTP details accurately", "Never discusses legal advice — routes to a human for that"],
+    overview:
+      "A law firm's phone line is often the first contact a prospective client has with the practice, and a formal, professional tone matters from the first word — which is why Ella's legal-firm persona is deliberately measured rather than casual. New matters are screened for the basics (what kind of matter, urgency, which practice area) before a consultation is booked, so a solicitor's time isn't spent re-asking questions the caller already answered. Time-sensitive details — a CTP or WorkCover claim, a court deadline mentioned in passing — are captured accurately rather than paraphrased. Ella never discusses the substance of legal advice; anything beyond intake and scheduling is routed straight to a solicitor.",
+    faqs: [
+      { question: "Does Ella give legal advice to callers?", answer: "No — Ella only handles intake, screening, and booking consultations. Legal advice is never given by the AI; anything substantive is routed to a solicitor." },
+      { question: "How much does ZyncoAI cost for a law firm?", answer: "Legal firm plans start from AUD $499/month, with a 7-day free trial." },
+      { question: "Can Ella book consultations across different practice areas?", answer: "Yes — callers are screened for what kind of matter they have and booked against the right solicitor or practice area's availability." },
+    ],
   },
   {
     slug: "mechanic",
@@ -56,6 +86,13 @@ export const INDUSTRIES: Industry[] = [
     callerLine: "My car's making a grinding noise — can our technician take a look this week?",
     callsHandledToday: 578,
     features: ["Books service bays and quotes turnaround times", "Captures the vehicle make, model and the issue upfront", "Handles parts-availability and pricing questions", "Sends job confirmations by SMS automatically"],
+    overview:
+      "A mechanic mid-job can't stop to answer the phone, which is exactly when most workshops lose the call to a competitor who picks up. Ella answers every time, gets the vehicle's make, model and the actual problem described upfront — instead of a technician calling back to ask the same questions — and books the job against real bay availability so the workshop doesn't end up double-booked. Parts-availability and pricing questions get answered on the spot where possible, and every confirmed booking goes out as an SMS automatically, so there's no confusion about the time when the customer turns up.",
+    faqs: [
+      { question: "How much does ZyncoAI cost for a mechanic shop?", answer: "Workshop plans start from AUD $149/month, with a 7-day free trial." },
+      { question: "Does Ella capture the vehicle details before booking?", answer: "Yes — make, model, and a description of the issue are captured during the call, so the technician isn't starting from scratch when the vehicle arrives." },
+      { question: "Can customers get a quote over the phone?", answer: "Ella can answer general pricing and parts-availability questions, and for anything that needs the vehicle physically inspected, books the job in and flags it for a proper quote." },
+    ],
   },
   {
     slug: "restaurant",
@@ -66,6 +103,13 @@ export const INDUSTRIES: Industry[] = [
     callerLine: "Could our team fit in a table for 6 this Saturday at 7:30pm?",
     callsHandledToday: 991,
     features: ["Takes bookings without pulling staff off the floor", "Handles dietary requirements and large-group requests", "Answers opening-hours and menu questions instantly", "Never puts a caller on hold during dinner rush"],
+    overview:
+      "Friday and Saturday dinner service is exactly when a restaurant gets the most booking calls and has the least spare staff to answer them — pulling a waiter off the floor to take a reservation call costs real table-turn time. Ella takes the booking instead: table size, date, time, and any dietary requirements or large-group requests, checked against real availability rather than guessed. Menu and opening-hours questions are answered instantly rather than put on hold, and phone orders are handled the same way — confirming each item and modification back to the caller before the order is placed, never inventing a menu item or price that isn't real.",
+    faqs: [
+      { question: "How much does ZyncoAI cost for a restaurant?", answer: "Restaurant plans start from AUD $149/month, with a 7-day free trial." },
+      { question: "Can Ella take phone orders as well as bookings?", answer: "Yes — Ella handles both table reservations and phone orders, reading back the order and total before confirming, and never inventing a menu item or price." },
+      { question: "Does Ella handle large group bookings and dietary requirements?", answer: "Yes — group size and dietary requirements are captured as part of the booking, not left for staff to chase up separately." },
+    ],
   },
   {
     slug: "bank",
@@ -76,6 +120,13 @@ export const INDUSTRIES: Industry[] = [
     callerLine: "I'd like to book a time to talk to your banker about a home loan",
     callsHandledToday: 1530,
     features: ["Books appointments with the right banker or advisor", "Screens and routes enquiries by product type", "Never handles account numbers or transactions — routes securely", "Available after-hours for members in every timezone"],
+    overview:
+      "Members calling a bank or credit union outside branch hours today just get a queue or a voicemail — Ella answers instead, every hour of every day, and books an appointment with the right banker based on what the member actually needs (a home loan enquiry goes to a different calendar than a general account question). This is the one vertical with a hard, non-negotiable rule built into the AI itself: Ella never discusses account details, balances, transactions, card numbers or PINs under any circumstances. If a caller raises any of those, the call is transferred to a human banker immediately rather than the AI attempting to help.",
+    faqs: [
+      { question: "Does Ella handle sensitive banking information like account numbers?", answer: "No, never — this is a hard rule enforced in the AI itself. Any call touching account details, balances, transactions, or card/PIN numbers is transferred to a human banker immediately." },
+      { question: "How much does ZyncoAI cost for a bank or credit union?", answer: "Bank and credit union plans start from AUD $599/month, with a 7-day free trial." },
+      { question: "Can Ella route enquiries to the right banker or product specialist?", answer: "Yes — enquiries are screened by product type (home loans, general accounts, etc.) and booked against the right banker or advisor's calendar." },
+    ],
   },
   {
     slug: "university",
@@ -86,6 +137,13 @@ export const INDUSTRIES: Industry[] = [
     callerLine: "I need to know the enrolment deadline for semester two",
     callsHandledToday: 2140,
     features: ["Answers enrolment, fees and semester-date questions", "Books appointments with student advisors and faculty", "Routes urgent welfare calls to the right support line", "Handles the enrolment-period call surge without hiring casuals"],
+    overview:
+      "Enrolment week produces a call volume spike most student services teams can only cover by bringing in casual staff for a few weeks a year — and even then, wait times climb. Ella absorbs that surge without any extra hiring: enrolment deadlines, fee questions, and semester dates are answered directly, and anything that needs a real advisor is booked against the right faculty's calendar instead of the student being transferred around. Calls that sound like a welfare concern are routed to the appropriate support line immediately rather than treated as a routine enquiry — Ella is tuned to recognise that difference, not just answer whatever's asked literally.",
+    faqs: [
+      { question: "Can Ella handle the enrolment-period call surge?", answer: "Yes — Ella answers every call regardless of volume, which is specifically where universities otherwise need to bring on casual staff for a few weeks a year." },
+      { question: "How much does ZyncoAI cost for a university?", answer: "University plans start from AUD $299/month, with a 7-day free trial." },
+      { question: "Does Ella recognise urgent student welfare calls?", answer: "Yes — calls that sound like a welfare concern are routed to the appropriate support line rather than handled as a routine enquiry." },
+    ],
   },
   {
     slug: "salon",
@@ -96,6 +154,13 @@ export const INDUSTRIES: Industry[] = [
     callerLine: "Can I book a colour and cut for next Tuesday afternoon?",
     callsHandledToday: 704,
     features: ["Books against each stylist's real availability", "Handles service-length and pricing questions", "Sends automatic reminder calls to cut no-shows", "Rebooks clients for their next appointment on the spot"],
+    overview:
+      "A stylist mid-colour can't answer the phone, and a salon with one person on reception is constantly torn between the desk and the floor. Ella takes the booking instead — checking the specific stylist's real availability, not just a generic salon-wide calendar, and answering service-length and pricing questions a client would otherwise wait on hold for. Automatic reminder calls cut down no-shows, which matter more for a salon than almost any other vertical given how much of the day's revenue a single empty chair represents, and clients are offered their next rebooking on the spot at the end of the call rather than being expected to remember to call back in six weeks.",
+    faqs: [
+      { question: "How much does ZyncoAI cost for a salon?", answer: "Salon and beauty plans start from AUD $99/month, with a 7-day free trial." },
+      { question: "Does Ella book against a specific stylist's availability?", answer: "Yes — bookings check the individual stylist's real calendar, not just a generic salon-wide slot." },
+      { question: "Can Ella help reduce no-shows?", answer: "Yes — automatic reminder calls are sent ahead of appointments, and clients can be rebooked for their next visit at the end of the call." },
+    ],
   },
   {
     slug: "financial-services",
@@ -106,6 +171,13 @@ export const INDUSTRIES: Industry[] = [
     callerLine: "I'd like to book a review of my super with my adviser",
     callsHandledToday: 356,
     features: ["Books client review meetings automatically", "Screens new-client enquiries before they reach an adviser", "Never gives financial advice — always routes to a human for that", "Captures urgent compliance-sensitive calls correctly"],
+    overview:
+      "Financial advisory and planning practices sit under the same compliance-first approach as banking on ZyncoAI: Ella books client review meetings and screens new-client enquiries before they reach an adviser, but never gives financial advice or discusses specific account or portfolio detail — anything substantive is routed straight to a human. That split lets the practice capture every enquiry (a missed call from a prospective client is a missed relationship) without any risk of the AI stepping into advice it's not licensed or appropriate to give.",
+    faqs: [
+      { question: "Does Ella give financial advice to callers?", answer: "No — Ella books appointments and screens enquiries, but never gives financial advice. Anything substantive is routed to a human adviser." },
+      { question: "How much does ZyncoAI cost for a financial services practice?", answer: "Financial services practices are set up on the same compliance-focused plan tier as banks and credit unions, from AUD $599/month with a 7-day free trial." },
+      { question: "Can Ella screen new client enquiries?", answer: "Yes — new-client calls are screened for basic context before being booked in with an adviser, so the first real conversation isn't starting from zero." },
+    ],
   },
   {
     slug: "home-services",
@@ -116,6 +188,13 @@ export const INDUSTRIES: Industry[] = [
     callerLine: "I've got a burst pipe, I need someone urgently",
     callsHandledToday: 1042,
     features: ["Triages urgent call-outs from routine bookings", "Captures the job address and issue before dispatch", "Books tradespeople against real-time availability", "Answers after-hours when emergencies actually happen"],
+    overview:
+      "Home service emergencies — a burst pipe, no hot water, an electrical fault — don't happen during business hours, and a tradesperson who doesn't answer after-hours simply loses the job to whoever does. Ella answers every time, tells a genuine emergency apart from a routine booking, and captures the job address and issue upfront so a tradesperson can be dispatched instead of calling back to ask basic questions first. Bookings are checked against real-time tradesperson availability rather than guessed at, so a job isn't promised for a slot that's already taken.",
+    faqs: [
+      { question: "How much does ZyncoAI cost for a home services business?", answer: "Home services businesses run on ZyncoAI's standard plan tier, from AUD $199/month with a 7-day free trial." },
+      { question: "Can Ella tell an emergency call-out from a routine booking?", answer: "Yes — Ella triages based on what the caller describes and prioritises genuine emergencies (burst pipes, no power, no hot water) accordingly." },
+      { question: "Does Ella work after hours for emergency call-outs?", answer: "Yes — Ella answers 24/7, which is specifically when most home-service emergencies actually happen." },
+    ],
   },
 ];
 

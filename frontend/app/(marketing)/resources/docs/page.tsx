@@ -21,6 +21,23 @@ export default function DocsPage() {
         </p>
       </ResourceSection>
 
+      <ResourceSection title="The voice technology behind Ella">
+        <p>
+          ZyncoAI is built on <span className="font-medium text-[#0f172a]">Pipecat</span>, an open-source real-time voice AI framework, orchestrating
+          four specialist services rather than one general-purpose model trying to do everything:
+        </p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li><span className="font-medium text-[#0f172a]">Twilio Media Streams</span> carries the call audio in real time — this is also how ZyncoAI answers on your existing business number without you needing any new hardware.</li>
+          <li><span className="font-medium text-[#0f172a]">Deepgram</span> (Nova-2) turns the caller&apos;s speech into text, tuned for Australian English so accents and local place names are recognised correctly.</li>
+          <li>An LLM reasons over that text — deciding whether to answer a question, check availability, or book an appointment — and calls the relevant tool.</li>
+          <li><span className="font-medium text-[#0f172a]">Cartesia</span> converts the response back into natural-sounding Australian speech, with Deepgram Aura as an automatic fallback voice if Cartesia is ever unavailable.</li>
+        </ul>
+        <p>
+          Every leg of that pipeline is monitored in real time, and the whole system runs across multiple concurrent call workers load-balanced behind
+          the scenes — so Ella keeps answering even if one component has a bad moment, and multiple callers can reach your business at once.
+        </p>
+      </ResourceSection>
+
       <ResourceSection title="Setting up call forwarding">
         <p>ZyncoAI issues you a dedicated number. To have your existing business number ring through to it, set up call forwarding with your carrier:</p>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

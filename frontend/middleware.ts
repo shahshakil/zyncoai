@@ -49,6 +49,7 @@ const PUBLIC_PATHS = [
   "/platform-admin",
   "/ai",
   "/executions",
+  "/blog",
 ];
 
 const PUBLIC_PREFIXES = [
@@ -67,6 +68,7 @@ const PUBLIC_PREFIXES = [
   "/ai-brain/",
   "/agentops/",
   "/capabilities/",
+  "/blog/",
   // ZyncoAI super-admin panel uses its own 30-min admin JWT (zyn_admin_access
   // cookie), completely separate from the tenant zyn_access/zyn_refresh pair
   // this middleware checks below — it self-gates in
@@ -129,6 +131,9 @@ export function middleware(req: NextRequest) {
     pathname.startsWith("/favicon") ||
     pathname === "/robots.txt" ||
     pathname === "/sitemap.xml" ||
+    // Next.js file-convention route (app/opengraph-image.tsx) — framework
+    // content, not user-facing pages, same bucket as robots.txt/sitemap.xml.
+    pathname.startsWith("/opengraph-image") ||
     pathname.startsWith("/api") ||
     pathname.startsWith("/videos") ||
     pathname.startsWith("/audio")
