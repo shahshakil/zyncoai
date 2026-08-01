@@ -64,22 +64,53 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Founder bio — initials avatar, not a fabricated photo (no real
-          headshot asset exists). Founding-story copy is deliberately
-          minimal and factual (year + location only) pending real story
-          details to expand it with. */}
+      {/* Founder's note — real story, first person, as given by the
+          founder. Initials avatar, not a fabricated photo (no real
+          headshot asset exists). */}
       <section className="mx-auto max-w-2xl px-6 pb-16 lg:px-8">
-        <div className="flex items-start gap-5 rounded-2xl border border-[#e2e8f0] bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)] text-xl font-bold text-white">
-            SS
+        <div className="rounded-2xl border border-[#e2e8f0] bg-white p-8 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+          <div className="flex items-center gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)] text-lg font-bold text-white">
+              SS
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-[#0f172a]">Shah Md Ahsan Habib Shakil</h2>
+              <p className="text-sm text-[#94a3b8]">Founder &amp; CEO, ZyncoAI</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-lg font-semibold text-[#0f172a]">Shah Shakil</h2>
-            <p className="text-sm text-[#94a3b8]">Founder, ZyncoAI</p>
-            <p className="mt-3 text-sm leading-relaxed text-[#475569]">
-              ZyncoAI was founded in 2026 in Newcastle, NSW, to give Australian medical, dental, legal, and trade businesses an AI receptionist that
-              actually answers every call — built and supported locally, not an offshore product wearing an Australian accent.
+
+          <div className="mt-6 space-y-4 text-sm leading-relaxed text-[#475569]">
+            <p>I built ZyncoAI because I saw a problem nobody was solving.</p>
+            <p>
+              Every day, thousands of Australian small businesses — fish and chip shops, dental clinics, mechanics, salons — were losing customers
+              simply because nobody picked up the phone.
             </p>
+            <p>
+              A missed call is a missed customer. A missed customer is lost revenue. And for a small business owner already working 12-hour days,
+              hiring a full-time receptionist is simply not an option.
+            </p>
+            <p>So I built Ella.</p>
+            <p>
+              While completing my Master of Information Technology and Systems at Victoria Institute of Technology in Sydney, I became obsessed with
+              one question: what if every small business in Australia could have a world-class receptionist — without the world-class cost?
+            </p>
+            <p>That obsession became ZyncoAI.</p>
+            <p>
+              Built from Newcastle, NSW, ZyncoAI is purpose-built for Australian businesses. Ella speaks with a natural Australian accent, understands
+              Australian culture, and is fully compliant with Australian privacy laws.
+            </p>
+            <p>
+              I believe every Australian business — no matter how small — deserves to sound professional, never miss a customer, and compete with
+              the big players.
+            </p>
+            <p>From a single student with a vision to Australia&apos;s leading AI receptionist platform — we are just getting started.</p>
+          </div>
+
+          <div className="mt-6 border-t border-[#e2e8f0] pt-5 text-xs leading-relaxed text-[#94a3b8]">
+            <p className="font-semibold text-[#475569]">Shah Md Ahsan Habib Shakil</p>
+            <p>Founder &amp; CEO, ZyncoAI</p>
+            <p>Master of Information Technology and Systems — Victoria Institute of Technology, Sydney</p>
+            <p>Newcastle, NSW, Australia · 2026</p>
           </div>
         </div>
       </section>

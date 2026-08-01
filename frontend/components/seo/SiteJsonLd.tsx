@@ -24,7 +24,17 @@ export function SiteJsonLd() {
     description:
       "AI-powered receptionist platform for Australian businesses. Answers calls 24/7, books appointments automatically.",
     foundingDate: "2026",
-    founders: [{ "@type": "Person", name: "Shah Shakil" }],
+    founders: [
+      {
+        "@type": "Person",
+        name: "Shah Md Ahsan Habib Shakil",
+        jobTitle: "Founder & CEO",
+        alumniOf: {
+          "@type": "CollegeOrUniversity",
+          name: "Victoria Institute of Technology",
+        },
+      },
+    ],
     address: {
       "@type": "PostalAddress",
       streetAddress: "2 Hopkins Street",
