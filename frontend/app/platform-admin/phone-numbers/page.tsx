@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Phone, DollarSign, Loader2, AlertTriangle, RefreshCw, PhoneOff, Repeat, PhoneCall, RotateCw } from "lucide-react";
+import { Phone, DollarSign, Loader2, AlertTriangle, RefreshCw, PhoneOff, Repeat, PhoneCall, RotateCw, PlusCircle } from "lucide-react";
 import { useApi, apiPost } from "@/lib/useApi";
 import { Card, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { Button } from "@/components/dashboard/ui/button";
@@ -38,6 +38,9 @@ interface SyncResult {
   ghost: { businessId: string; businessName: string; phoneNumber: string; twilioNumberSid: string }[];
   matchedCount: number;
 }
+interface PurchasableBusiness {
+  id: string; name: string; vertical: string; status: string; phoneNumber: string; provisioningStatus: string;
+}
 
 const STATUS_TONE: Record<NumberRow["status"], "success" | "warning" | "danger" | "default"> = {
   ACTIVE: "success", SUSPENDED: "default", PROVISIONING: "warning", FAILED: "danger",
@@ -54,6 +57,12 @@ export default function PhoneNumbersPage() {
   const [syncOpen, setSyncOpen] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<SyncResult | null>(null);
+  const [purchaseOpen, setPurchaseOpen] = useState(false);
+  const [purchaseTarget, setPurchaseTarget] = useState("");
+  const [purchasing, setPurchasing] = useState(false);
+  const { data: purchasableData } = useApi<{ businesses: PurchasableBusiness[] }>(
+    purchaseOpen ? "/api/admin/platform/phone-numbers/purchasable-businesses" : null
+  );
 
   const targets = (data?.rows || []).filter((r) => r.status === "PROVISIONING" || r.status === "FAILED");
 
@@ -140,6 +149,22 @@ export default function PhoneNumbersPage() {
     }
   }
 
+  async function submitPurchase() {
+    if (!purchaseTarget) return;
+    setPurchasing(true);
+    try {
+      await apiPost(`/api/admin/platform/phone-numbers/purchase/${purchaseTarget}`);
+      toast.success("Purchase queued — number will be assigned shortly");
+      setPurchaseOpen(false);
+      setPurchaseTarget("");
+      mutate();
+    } catch (err: any) {
+      toast.error(err?.message || "Purchase failed");
+    } finally {
+      setPurchasing(false);
+    }
+  }
+
   async function fixOrphan(sid: string) {
     if (!confirm("Release this orphaned Twilio number? It has no business owner in our database and is costing $1.50/mo for nothing.")) return;
     setBusy(sid);
@@ -203,9 +228,14 @@ export default function PhoneNumbersPage() {
         <Card>
           <div className="flex items-center justify-between p-4 pb-0">
             <CardTitle>Purchased Numbers</CardTitle>
-            <Button size="sm" variant="outline" onClick={() => { setSyncOpen(true); setSyncResult(null); }}>
-              <RotateCw className="h-3.5 w-3.5" /> Sync from Twilio
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline" onClick={() => { setPurchaseOpen(true); setPurchaseTarget(""); }}>
+                <PlusCircle className="h-3.5 w-3.5" /> Purchase for business
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => { setSyncOpen(true); setSyncResult(null); }}>
+                <RotateCw className="h-3.5 w-3.5" /> Sync from Twilio
+              </Button>
+            </div>
           </div>
           <Table>
             <Thead>
@@ -278,6 +308,33 @@ export default function PhoneNumbersPage() {
             </div>
             <Button className="w-full" disabled={!reassignTo || busy === reassignFrom?.businessId} onClick={submitReassign}>
               {busy === reassignFrom?.businessId ? "Reassigning…" : "Reassign"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={purchaseOpen} onOpenChange={setPurchaseOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Purchase a number for a business</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <p className="text-xs text-[#6B7280]">
+              Special-case only — every new signup already gets a number automatically at Activate. Use this for businesses
+              that opted for bring-your-own-number at signup and now want a dedicated ZyncoAI line instead.
+            </p>
+            <div>
+              <Label>Business</Label>
+              <Select value={purchaseTarget} onChange={(e) => setPurchaseTarget(e.target.value)}>
+                <option value="">Select a business…</option>
+                {(purchasableData?.businesses || []).map((b) => (
+                  <option key={b.id} value={b.id}>{b.name} — {b.phoneNumber || "no number"}</option>
+                ))}
+              </Select>
+              {purchasableData && !purchasableData.businesses.length && (
+                <p className="mt-1 text-[11px] text-[#9CA3AF]">Every business already has a real Twilio number.</p>
+              )}
+            </div>
+            <Button className="w-full" disabled={!purchaseTarget || purchasing} onClick={submitPurchase}>
+              {purchasing ? "Purchasing…" : "Purchase number"}
             </Button>
           </div>
         </DialogContent>
