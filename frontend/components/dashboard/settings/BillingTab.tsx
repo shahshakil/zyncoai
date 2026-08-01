@@ -32,7 +32,7 @@ interface BillingAddOn {
 }
 interface BillingDiscount {
   id: string; type: "PERCENTAGE" | "FIXED_AMOUNT" | "CREDIT"; valuePercent: number | null; valueCents: number | null;
-  reason: string; source: string; recurring: boolean; expiresAt: string | null;
+  reason: string; source: string; recurring: boolean; expiresAt: string | null; appliesToSetupFee: boolean;
 }
 interface BillingInvoice {
   id: string; invoiceNumber: string; periodStart: string; periodEnd: string; totalCents: number; status: string; issuedAt: string; dueDate: string;
@@ -55,6 +55,11 @@ interface BillingData {
 }
 
 function discountLabel(d: BillingDiscount): string {
+  if (d.appliesToSetupFee) {
+    if (d.type === "PERCENTAGE" && d.valuePercent === 100) return `${d.reason} — setup fee waiver (100%)`;
+    if (d.type === "PERCENTAGE") return `${d.reason} — setup fee discount (${d.valuePercent}% off)`;
+    return `${d.reason} — setup fee discount (${money(d.valueCents || 0)} off)`;
+  }
   if (d.type === "PERCENTAGE") return `${d.reason} — ${d.valuePercent}% off${d.recurring ? "" : " (next invoice)"}`;
   if (d.type === "CREDIT") return `${d.reason} — ${money(d.valueCents || 0)} credit`;
   return `${d.reason} — ${money(d.valueCents || 0)} off${d.recurring ? "/mo" : " (next invoice)"}`;
