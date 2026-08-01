@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import { DashboardGate } from "@/components/dashboard/DashboardGate";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { SessionTimeoutGuard } from "@/components/dashboard/SessionTimeoutGuard";
@@ -26,6 +27,10 @@ function ThemedShell({ children, sidebarOpen, onCloseSidebar, onOpenSidebar }: {
   // 403s STAFF/DOCTOR via requireBusinessRole on analyticsDashboard.ts.
   useEffect(() => {
     if (!canManageBusiness && pathname?.startsWith("/dashboard/settings")) {
+      router.replace("/dashboard");
+    }
+    if (!canManageBusiness && pathname?.startsWith("/dashboard/billing")) {
+      toast.error("Access restricted");
       router.replace("/dashboard");
     }
     if (!canSeeFinancials && pathname?.startsWith("/dashboard/analytics")) {

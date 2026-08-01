@@ -19,6 +19,7 @@ import {
   CalendarDays,
   FolderOpen,
   ChefHat,
+  CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDashboard } from "./BusinessContext";
@@ -37,7 +38,6 @@ const SETTINGS_CHILDREN = [
   { href: "/dashboard/settings?tab=staff", label: "Staff Management" },
   { href: "/dashboard/settings?tab=integrations", label: "Integrations" },
   { href: "/dashboard/settings?tab=webhooks", label: "Webhooks" },
-  { href: "/dashboard/settings?tab=billing", label: "Billing" },
   { href: "/dashboard/settings?tab=compliance", label: "Security & Compliance" },
 ];
 
@@ -47,6 +47,7 @@ function buildNav(role: string, vertical: string): NavItem[] {
 
   if (role === "OWNER" || role === "ADMIN") {
     base.push({ href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 });
+    base.push({ href: "/dashboard/billing", label: "Billing & Subscription", icon: CreditCard });
   }
 
   if (role !== "DOCTOR") {

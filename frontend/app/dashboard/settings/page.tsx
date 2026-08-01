@@ -1,6 +1,6 @@
 "use client";
 import { Suspense, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import posthog from "posthog-js";
@@ -18,7 +18,6 @@ const AutomationSection = dynamic(() => import("@/components/dashboard/settings/
 const CheckInAutomationSection = dynamic(() => import("@/components/dashboard/settings/CheckInAutomationSection").then((m) => ({ default: m.CheckInAutomationSection })), { loading: TabSkeleton });
 const WebhooksTab = dynamic(() => import("@/components/dashboard/settings/WebhooksTab").then((m) => ({ default: m.WebhooksTab })), { loading: TabSkeleton });
 const NotificationsTab = dynamic(() => import("@/components/dashboard/settings/NotificationsTab").then((m) => ({ default: m.NotificationsTab })), { loading: TabSkeleton });
-const BillingTab = dynamic(() => import("@/components/dashboard/settings/BillingTab").then((m) => ({ default: m.BillingTab })), { loading: TabSkeleton });
 const ComplianceTab = dynamic(() => import("@/components/dashboard/settings/ComplianceTab").then((m) => ({ default: m.ComplianceTab })), { loading: TabSkeleton });
 const MenuTab = dynamic(() => import("@/components/dashboard/settings/MenuTab").then((m) => ({ default: m.MenuTab })), { loading: TabSkeleton });
 const RestaurantMenuManager = dynamic(() => import("@/components/dashboard/settings/RestaurantMenuManager").then((m) => ({ default: m.RestaurantMenuManager })), { loading: TabSkeleton });
@@ -26,10 +25,17 @@ const AiPromptTab = dynamic(() => import("@/components/dashboard/settings/AiProm
 const DangerZoneTab = dynamic(() => import("@/components/dashboard/settings/DangerZoneTab").then((m) => ({ default: m.DangerZoneTab })), { loading: TabSkeleton });
 
 function SettingsTabs() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("tab") || "profile";
   const { business } = useDashboard();
   const ops = getVerticalOps(business.vertical);
+
+  // Billing moved to its own page — old ?tab=billing links/bookmarks land
+  // here instead of a blank tab.
+  useEffect(() => {
+    if (initialTab === "billing") router.replace("/dashboard/billing");
+  }, [initialTab, router]);
 
   useEffect(() => {
     const connected = searchParams.get("calendar_connected");
@@ -46,7 +52,6 @@ function SettingsTabs() {
   const trackTab = (tab: string) => {
     posthog.capture("dashboard_tab_viewed", { tab });
     if (tab === "integrations") posthog.capture("integration_page_viewed", {});
-    if (tab === "billing") posthog.capture("billing_page_viewed", {});
   };
 
   return (
@@ -59,7 +64,6 @@ function SettingsTabs() {
         <TabsTrigger value="integrations">Integrations</TabsTrigger>
         <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
         <TabsTrigger value="notifications">Notifications</TabsTrigger>
-        <TabsTrigger value="billing">Billing</TabsTrigger>
         <TabsTrigger value="compliance">Security & Compliance</TabsTrigger>
         <TabsTrigger value="danger">Danger Zone</TabsTrigger>
       </TabsList>
@@ -80,7 +84,6 @@ function SettingsTabs() {
       </TabsContent>
       <TabsContent value="webhooks"><WebhooksTab /></TabsContent>
       <TabsContent value="notifications"><NotificationsTab /></TabsContent>
-      <TabsContent value="billing"><BillingTab /></TabsContent>
       <TabsContent value="compliance"><ComplianceTab /></TabsContent>
       <TabsContent value="danger"><DangerZoneTab /></TabsContent>
     </Tabs>
