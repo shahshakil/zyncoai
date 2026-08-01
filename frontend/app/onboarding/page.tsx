@@ -3,25 +3,15 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Check, MapPin } from "lucide-react";
+import { Check, MapPin, Sparkles } from "lucide-react";
 import { Button } from "@/components/dashboard/ui/button";
 import { Input, Label, Select } from "@/components/dashboard/ui/input";
 import { StaffSyncPanel } from "@/components/dashboard/StaffSyncPanel";
 import { apiPost } from "@/lib/useApi";
+import { VERTICAL_CONFIG, getVerticalConfig } from "@/lib/onboardingVerticalConfig";
+import { getIntegrationsCatalog } from "@/lib/integrationsCatalog";
 
-const VERTICALS = [
-  { value: "MEDICAL", label: "Medical Clinic" },
-  { value: "DENTAL", label: "Dental Practice" },
-  { value: "LAW", label: "Law Firm" },
-  { value: "UNIVERSITY", label: "University / Education" },
-  { value: "RESTAURANT", label: "Restaurant" },
-  { value: "MECHANIC", label: "Auto Repair Shop" },
-  { value: "RETAIL", label: "Retail Store" },
-  { value: "SALON", label: "Salon / Spa" },
-  { value: "REAL_ESTATE", label: "Real Estate" },
-  { value: "BANK", label: "Bank / Financial" },
-  { value: "OTHER", label: "Other" },
-];
+const VERTICALS = Object.entries(VERTICAL_CONFIG).map(([value, cfg]) => ({ value, label: `${cfg.emoji} ${cfg.label}` }));
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const STEPS = ["Business", "Staff", "Review & Activate"];
@@ -52,6 +42,14 @@ export default function OnboardingPage() {
   const [hours, setHours] = useState<Hours>(defaultHours());
   const [mapsConfigured, setMapsConfigured] = useState(true);
 
+  // Vertical auto-detection — suggests, never silently overrides. Once the
+  // owner touches the Industry select directly, detection stops proposing
+  // (their manual choice wins for the rest of the session).
+  const [verticalTouched, setVerticalTouched] = useState(false);
+  const [detecting, setDetecting] = useState(false);
+  const [detectedVertical, setDetectedVertical] = useState<string | null>(null);
+  const [detectedForName, setDetectedForName] = useState<string | null>(null);
+
   // Step 2
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [createdStaff, setCreatedStaff] = useState<{ id: string; name: string }[]>([]);
@@ -78,6 +76,25 @@ export default function OnboardingPage() {
     }, 350);
     return () => clearTimeout(t);
   }, [address, placeId]);
+
+  useEffect(() => {
+    if (verticalTouched || name.trim().length < 3 || name.trim() === detectedForName) {
+      return;
+    }
+    const t = setTimeout(async () => {
+      setDetecting(true);
+      try {
+        const res = await apiPost<{ vertical: string | null }>("/api/business/onboarding/detect-vertical", { businessName: name.trim() });
+        setDetectedForName(name.trim());
+        if (res.vertical && res.vertical !== vertical) setDetectedVertical(res.vertical);
+      } catch {
+        // silent — detection is a convenience, the Industry select always works manually
+      } finally {
+        setDetecting(false);
+      }
+    }, 600);
+    return () => clearTimeout(t);
+  }, [name, verticalTouched, detectedForName, vertical]);
 
   async function selectPrediction(p: Prediction) {
     setAddress(p.description);
@@ -165,19 +182,61 @@ export default function OnboardingPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Industry</Label>
-                    <Select value={vertical} onChange={(e) => setVertical(e.target.value)}>
+                    <Select
+                      value={vertical}
+                      onChange={(e) => {
+                        setVertical(e.target.value);
+                        setVerticalTouched(true);
+                        setDetectedVertical(null);
+                      }}
+                    >
                       {VERTICALS.map((v) => (
                         <option key={v.value} value={v.value}>
                           {v.label}
                         </option>
                       ))}
                     </Select>
+                    {detecting && <p className="mt-1 text-xs text-white/30">Detecting business type…</p>}
                   </div>
                   <div>
                     <Label>Business phone</Label>
                     <Input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="+1 555 123 4567" />
                   </div>
                 </div>
+
+                {detectedVertical && (
+                  <div className="flex items-center justify-between gap-3 rounded-lg border border-indigo-400/20 bg-indigo-400/[0.06] px-3 py-2.5 text-sm">
+                    <div className="flex items-center gap-2 text-white/70">
+                      <Sparkles className="h-4 w-4 shrink-0 text-indigo-300" />
+                      <span>
+                        We detected your business type as: {getVerticalConfig(detectedVertical).emoji} {getVerticalConfig(detectedVertical).label}. Is this correct?
+                      </span>
+                    </div>
+                    <div className="flex shrink-0 gap-2">
+                      <button
+                        type="button"
+                        className="rounded-md bg-indigo-500 px-2.5 py-1 text-xs font-semibold text-white hover:bg-indigo-400"
+                        onClick={() => {
+                          setVertical(detectedVertical);
+                          setDetectedVertical(null);
+                        }}
+                      >
+                        Yes
+                      </button>
+                      <button
+                        type="button"
+                        className="rounded-md border border-white/15 px-2.5 py-1 text-xs font-medium text-white/60 hover:text-white"
+                        onClick={() => {
+                          setVerticalTouched(true);
+                          setDetectedVertical(null);
+                        }}
+                      >
+                        Change
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <Label>Owner mobile number</Label>
                   <Input value={ownerMobile} onChange={(e) => setOwnerMobile(e.target.value)} placeholder="+61 4XX XXX XXX (for important notifications)" />
@@ -218,6 +277,7 @@ export default function OnboardingPage() {
 
                 <div>
                   <Label>Hours</Label>
+                  <p className="mb-1.5 text-xs text-white/40">{getVerticalConfig(vertical).hoursHint}</p>
                   <div className="space-y-1.5 rounded-lg border border-white/10 p-3">
                     {DAYS.map((day) => (
                       <div key={day} className="flex items-center gap-3 text-sm">
@@ -292,15 +352,23 @@ export default function OnboardingPage() {
 
           {step === 1 && (
             <motion.div key="step1" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-              <h1 className="mb-1 text-lg font-semibold text-white">Add your staff</h1>
-              <p className="mb-6 text-sm text-white/40">Connect your practice software to import staff automatically, or add them by hand.</p>
+              <h1 className="mb-1 text-lg font-semibold text-white">{getVerticalConfig(vertical).staffTitle}</h1>
+              <p className="mb-6 text-sm text-white/40">
+                Connect your booking software to import {getVerticalConfig(vertical).staffLabel.toLowerCase()}s automatically, or add them by hand
+                {getVerticalConfig(vertical).staffOptional ? " — or skip this for now." : "."}
+              </p>
 
               {!staffImportConsent ? (
                 <>
                   <div className="rounded-lg border border-white/10 bg-white/[0.02] p-3 text-xs text-white/60">
                     <p className="mb-2 font-medium text-white/80">Before we import this data:</p>
                     <p><span className="text-emerald-400">We will import:</span> staff names, titles, email addresses.</p>
-                    <p className="mt-1"><span className="text-rose-400">We will NOT import:</span> patient records, clinical data, Medicare numbers, health identifiers.</p>
+                    <p className="mt-1">
+                      <span className="text-rose-400">We will NOT import:</span>{" "}
+                      {vertical === "MEDICAL" || vertical === "DENTAL"
+                        ? "patient records, clinical data, Medicare numbers, health identifiers."
+                        : "customer records or any personal data belonging to your customers/clients."}
+                    </p>
                     <label className="mt-2 flex items-start gap-2">
                       <input type="checkbox" className="mt-0.5" onChange={(e) => setStaffImportConsent(e.target.checked)} />
                       <span>I understand and consent to importing this staff data.</span>
@@ -308,6 +376,18 @@ export default function OnboardingPage() {
                   </div>
                   <div className="mt-4 flex gap-3">
                     <Button variant="outline" onClick={() => setStep(0)}>Back</Button>
+                    {getVerticalConfig(vertical).staffOptional && (
+                      <Button
+                        variant="outline"
+                        className="ml-auto"
+                        onClick={() => {
+                          setCreatedStaff([]);
+                          setStep(2);
+                        }}
+                      >
+                        Skip for now
+                      </Button>
+                    )}
                   </div>
                 </>
               ) : (
@@ -320,8 +400,20 @@ export default function OnboardingPage() {
                       }}
                     />
                   </Suspense>
-                  <div className="mt-4">
+                  <div className="mt-4 flex gap-3">
                     <Button variant="outline" onClick={() => setStep(0)}>Back</Button>
+                    {getVerticalConfig(vertical).staffOptional && (
+                      <Button
+                        variant="outline"
+                        className="ml-auto"
+                        onClick={() => {
+                          setCreatedStaff([]);
+                          setStep(2);
+                        }}
+                      >
+                        Skip for now
+                      </Button>
+                    )}
                   </div>
                 </>
               )}
@@ -331,12 +423,14 @@ export default function OnboardingPage() {
           {step === 2 && (
             <motion.div key="step2" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
               <h1 className="mb-1 text-lg font-semibold text-white">Review & activate</h1>
-              <p className="mb-6 text-sm text-white/40">Everything looks good? Activate your line to start taking calls.</p>
+              <p className="mb-6 text-sm text-white/40">{getVerticalConfig(vertical).welcomeMessage}</p>
 
               <div className="space-y-4 text-sm">
                 <div className="rounded-lg border border-white/10 p-4">
                   <p className="font-medium text-white">{name}</p>
-                  <p className="text-white/40">{VERTICALS.find((v) => v.value === vertical)?.label}</p>
+                  <p className="text-white/40">
+                    {getVerticalConfig(vertical).emoji} {getVerticalConfig(vertical).label}
+                  </p>
                   {address && (
                     <p className="mt-1 flex items-center gap-1 text-white/50">
                       <MapPin className="h-3.5 w-3.5" /> {address}
@@ -346,11 +440,38 @@ export default function OnboardingPage() {
                 </div>
                 <div className="rounded-lg border border-white/10 p-4">
                   <p className="mb-2 font-medium text-white">Staff ({createdStaff.length})</p>
+                  {createdStaff.length > 0 ? (
+                    <ul className="space-y-1 text-white/50">
+                      {createdStaff.map((s) => (
+                        <li key={s.id}>{s.name}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-white/30">None added — you can invite staff later from Settings.</p>
+                  )}
+                </div>
+                <div className="rounded-lg border border-white/10 p-4">
+                  <p className="mb-2 font-medium text-white">What Ella will do</p>
                   <ul className="space-y-1 text-white/50">
-                    {createdStaff.map((s) => (
-                      <li key={s.id}>{s.name}</li>
+                    {getVerticalConfig(vertical).features.map((f) => (
+                      <li key={f} className="flex items-start gap-1.5">
+                        <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" /> {f}
+                      </li>
                     ))}
                   </ul>
+                </div>
+                <div className="rounded-lg border border-white/10 p-4">
+                  <p className="mb-2 font-medium text-white">Connect your systems (optional)</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {getIntegrationsCatalog(vertical)
+                      .slice(0, 6)
+                      .map((i) => (
+                        <span key={i.key} className="rounded-full bg-white/[0.04] px-2.5 py-1 text-xs text-white/50">
+                          {i.name}
+                        </span>
+                      ))}
+                  </div>
+                  <p className="mt-2 text-xs text-white/30">Available anytime from Dashboard → Settings → Integrations.</p>
                 </div>
               </div>
 
