@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { CheckCircle2, AlertTriangle, XCircle, Radio, Cpu, MemoryStick, HardDrive, Server, HeartPulse, Zap } from "lucide-react";
+import { CheckCircle2, AlertTriangle, XCircle, Radio, Cpu, MemoryStick, HardDrive, Server, HeartPulse, Zap, PhoneCall, Network, Layers } from "lucide-react";
 import { useApi } from "@/lib/useApi";
 import { Card, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { Table, Thead, Th, Tbody, Tr, Td, EmptyState } from "@/components/dashboard/ui/table";
@@ -31,6 +31,14 @@ interface HealthData {
 interface Incident {
   id: string; service: string; detail: string | null; openedAt: string; resolvedAt: string | null; durationSec: number | null; ongoing: boolean;
 }
+interface VoiceInfraData {
+  concurrency: { current: number; capacity: number; pctCapacity: number; level: SvcStatus };
+  haproxy: { connected: boolean; workersUp: number; workersTotal: number; workers: { name: string; status: string }[] };
+  avgResponseTimeMs: number;
+  transcriptQueueDepth: number;
+  callsRejectedCapacityToday: number;
+  providerFallback: { ttsToday: number; llmToday: number };
+}
 
 const HISTORY_MAX = 30; // 5 minutes at a 10s poll
 
@@ -56,6 +64,7 @@ export default function SystemHealthPage() {
     circuitBreakers: Record<string, "closed" | "open" | "half-open">;
     processes: { name: string; status: string; memoryMb: number; restarts: number; lastRestartAt: string; uptimePct: Record<string, number> }[];
   }>("/api/admin/platform/resilience/overview", { refreshInterval: 15000 });
+  const { data: voice } = useApi<VoiceInfraData>("/api/admin/platform/infrastructure/overview", { refreshInterval: 10000 });
   const [history, setHistory] = useState<{ t: string; rpm: number; errPct: number }[]>([]);
   const lastTs = useRef<number>(0);
 
@@ -99,6 +108,63 @@ export default function SystemHealthPage() {
           <ResourceGauge icon={MemoryStick} label="Memory" pct={data?.resources.memPct} status={data?.resources.memStatus} />
           <ResourceGauge icon={HardDrive} label="Disk" pct={data?.resources.diskPct} status={data?.resources.diskStatus} />
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><PhoneCall className="h-4 w-4 text-[#6366F1]" /> Voice Call Capacity</CardTitle>
+            <p className="mt-0.5 text-xs text-[#9CA3AF]">HAProxy pipecat_pool — 3 workers, right-sized to this box, not the theoretical peak of any single provider.</p>
+          </CardHeader>
+          <div className="grid grid-cols-1 gap-3 p-4 pt-0 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-lg border border-[#E5E7EB] p-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-[#6B7280]">Active concurrent calls</span>
+                <span className="text-sm font-bold" style={{ color: voice ? STATUS_COLOR[voice.concurrency.level] : "#94A3B8" }}>
+                  {voice ? `${voice.concurrency.current} / ${voice.concurrency.capacity}` : "—"}
+                </span>
+              </div>
+              <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-[#F1F5F9]">
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{ width: `${voice ? Math.min(100, voice.concurrency.pctCapacity) : 0}%`, background: voice ? STATUS_COLOR[voice.concurrency.level] : "#94A3B8" }}
+                />
+              </div>
+              <p className="mt-1 text-[11px] text-[#9CA3AF]">{voice ? `${voice.concurrency.pctCapacity}% capacity` : "—"}{voice && voice.concurrency.level !== "ok" ? ` — ${voice.concurrency.level === "critical" ? "over 90%, Slack alert active" : "over 80%"}` : ""}</p>
+            </div>
+
+            <div className="rounded-lg border border-[#E5E7EB] p-3">
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-1.5 text-xs font-medium text-[#6B7280]"><Network className="h-3.5 w-3.5" /> HAProxy</span>
+                <Badge tone={voice?.haproxy.connected ? "success" : "danger"}>{voice ? (voice.haproxy.connected ? "connected" : "disconnected") : "…"}</Badge>
+              </div>
+              <p className="mt-2 text-lg font-semibold text-[#1F2937]">{voice ? `${voice.haproxy.workersUp}/${voice.haproxy.workersTotal}` : "—"} <span className="text-xs font-normal text-[#9CA3AF]">workers online</span></p>
+              {voice && voice.haproxy.workers.some((w) => w.status !== "UP") && (
+                <p className="mt-1 text-[11px] text-[#EF4444]">{voice.haproxy.workers.filter((w) => w.status !== "UP").map((w) => w.name).join(", ")} down</p>
+              )}
+            </div>
+
+            <div className="rounded-lg border border-[#E5E7EB] p-3">
+              <span className="text-xs font-medium text-[#6B7280]">TTS / LLM fallback events today</span>
+              <p className="mt-2 text-lg font-semibold text-[#1F2937]">{voice ? `${voice.providerFallback.ttsToday} / ${voice.providerFallback.llmToday}` : "—"}</p>
+              <p className="mt-1 text-[11px] text-[#9CA3AF]">LLM fallback not wired up yet — no backup provider configured (see server.py)</p>
+            </div>
+
+            <div className="rounded-lg border border-[#E5E7EB] p-3">
+              <span className="flex items-center gap-1.5 text-xs font-medium text-[#6B7280]"><Layers className="h-3.5 w-3.5" /> Transcript queue depth</span>
+              <p className="mt-2 text-lg font-semibold text-[#1F2937]">{voice?.transcriptQueueDepth ?? "—"}</p>
+              <p className="mt-1 text-[11px] text-[#9CA3AF]">pending</p>
+            </div>
+
+            <div className="rounded-lg border border-[#E5E7EB] p-3">
+              <span className="text-xs font-medium text-[#6B7280]">Average response time (TTFB)</span>
+              <p className="mt-2 text-lg font-semibold text-[#1F2937]">{voice ? `${voice.avgResponseTimeMs}ms` : "—"}</p>
+            </div>
+
+            <div className="rounded-lg border border-[#E5E7EB] p-3">
+              <span className="text-xs font-medium text-[#6B7280]">Calls rejected (capacity) today</span>
+              <p className={`mt-2 text-lg font-semibold ${voice && voice.callsRejectedCapacityToday > 0 ? "text-[#EF4444]" : "text-[#1F2937]"}`}>{voice?.callsRejectedCapacityToday ?? "—"}</p>
+            </div>
+          </div>
+        </Card>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <Card>
