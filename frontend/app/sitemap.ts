@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { INDUSTRIES, USE_CASES, COMPANY_SIZES } from "@/components/marketing/receptionist/data";
-import { BLOG_POSTS } from "@/components/marketing/blog/posts";
+import { BLOG_POSTS, BLOG_CATEGORIES, BLOG_AUTHOR, getAllTags } from "@/components/marketing/blog/posts";
 
 // Every real, public, statically-crawlable marketing route — cross-checked
 // against the actual .next build output and middleware.ts's PUBLIC_PATHS/
@@ -72,6 +72,8 @@ const STATIC_ROUTES: { path: string; priority: number; changeFrequency: ChangeFr
   { path: "/solutions/support", priority: 0.6, changeFrequency: "monthly" },
   { path: "/legal/dpa", priority: 0.3, changeFrequency: "yearly" },
   { path: "/blog", priority: 0.7, changeFrequency: "weekly" },
+  { path: "/solutions", priority: 0.7, changeFrequency: "monthly" },
+  { path: `/blog/author/${BLOG_AUTHOR.slug}`, priority: 0.4, changeFrequency: "weekly" },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -115,5 +117,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...staticEntries, ...industryEntries, ...useCaseEntries, ...sizeEntries, ...blogEntries];
+  const blogCategoryEntries = BLOG_CATEGORIES.map((c) => ({
+    url: `${baseUrl}/blog/category/${c.slug}`,
+    lastModified: now,
+    changeFrequency: "weekly" as const,
+    priority: 0.4,
+  }));
+
+  const blogTagEntries = getAllTags().map((tag) => ({
+    url: `${baseUrl}/blog/tag/${tag}`,
+    lastModified: now,
+    changeFrequency: "weekly" as const,
+    priority: 0.3,
+  }));
+
+  return [...staticEntries, ...industryEntries, ...useCaseEntries, ...sizeEntries, ...blogEntries, ...blogCategoryEntries, ...blogTagEntries];
 }

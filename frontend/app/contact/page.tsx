@@ -1,12 +1,11 @@
-import type { Metadata } from "next";
+"use client";
 import Link from "next/link";
 import { Mail, MapPin, Phone } from "lucide-react";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { trackConversion } from "@/components/seo/GoogleAnalytics";
 
-export const metadata: Metadata = {
-  title: "Contact | ZyncoAI",
-  description: "Get in touch with the ZyncoAI team — support, sales, or a live demo of Ella, your AI receptionist.",
-};
-
+// Metadata can't be exported from a Client Component — moved to a
+// sibling layout.tsx in this same route segment.
 const CONTACT_NUMBER = "+61 480 738 227";
 
 const CHANNELS = [
@@ -15,24 +14,28 @@ const CHANNELS = [
     label: "Email",
     value: "support@zyncoai.com",
     href: "mailto:support@zyncoai.com",
+    event: "contact_email_click",
   },
   {
     icon: Phone,
     label: "Call us",
     value: CONTACT_NUMBER,
     href: `tel:${CONTACT_NUMBER.replace(/\s/g, "")}`,
+    event: "contact_phone_click",
   },
   {
     icon: MapPin,
     label: "Based in",
     value: "Newcastle, NSW, Australia",
     href: undefined,
+    event: undefined,
   },
 ];
 
 export default function ContactPage() {
   return (
     <div className="bg-[#f8fafc] pt-8">
+      <Breadcrumbs crumbs={[{ name: "Home", href: "/" }, { name: "Contact", href: "/contact" }]} />
       <section className="mx-auto max-w-2xl px-6 py-16 text-center lg:px-8">
         <h1 className="text-3xl font-bold text-[#0f172a] sm:text-4xl">Get in touch</h1>
         <p className="mt-4 text-lg leading-relaxed text-[#475569]">
@@ -53,7 +56,7 @@ export default function ContactPage() {
               </div>
             );
             return c.href ? (
-              <a key={c.label} href={c.href}>
+              <a key={c.label} href={c.href} onClick={() => c.event && trackConversion(c.event)}>
                 {content}
               </a>
             ) : (

@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
 import { PostHogProvider } from "../components/PostHogProvider";
 import { SiteJsonLd } from "../components/seo/SiteJsonLd";
+import { GoogleAnalytics } from "../components/seo/GoogleAnalytics";
 
 // The site-wide fallback — any page without its own metadata export
 // previously had no <title>/<meta description> at all (verified: root
@@ -42,6 +43,20 @@ export const metadata: Metadata = {
   verification: process.env.GOOGLE_SITE_VERIFICATION
     ? { google: process.env.GOOGLE_SITE_VERIFICATION }
     : undefined,
+  // en-AU is the primary target (Australian pricing/compliance content
+  // throughout); en (no region) as a fallback for any English-speaking
+  // visitor. Next.js's `alternates` object doesn't deep-merge with a
+  // page's own `alternates.canonical` override — pages that set their own
+  // canonical replicate `languages` alongside it (see e.g. the homepage).
+  alternates: {
+    languages: {
+      "en-AU": "https://zyncoai.com",
+      en: "https://zyncoai.com",
+    },
+    types: {
+      "application/rss+xml": "https://zyncoai.com/blog/feed.xml",
+    },
+  },
 };
 
 // globals.css already declares `body { font-family: Inter, Arial, ... }`,
@@ -64,8 +79,22 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      {/* The spec's suggested preload (/fonts/inter.woff2) and Google Fonts
+          preconnect don't apply to this codebase — Inter loads via
+          next/font/google, which self-hosts the actual font file at a
+          build-time hashed path and already auto-preloads it (confirmed in
+          rendered HTML); there's no real request to fonts.googleapis.com to
+          preconnect to. This dns-prefetch is the one genuinely real
+          optimization — several client-side lib files (lib/api.ts,
+          lib/public-api.ts, lib/backendAuth.ts) do call api.zyncoai.com
+          cross-origin. Rendered as a bare <link>, not wrapped in a manual
+          <head> — Next.js's App Router auto-hoists <link>/<meta> found
+          anywhere in the tree into <head> itself; a hand-written <head>
+          element here was silently dropped instead of merging. */}
+      <link rel="dns-prefetch" href="//api.zyncoai.com" />
       <body className={inter.className}>
         <SiteJsonLd />
+        <GoogleAnalytics />
         <PostHogProvider>
           {children}
           <Toaster theme="dark" position="top-right" toastOptions={{ style: { background: "#0a0a0a", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" } }} />

@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 
 export const metadata = {
   title: "Use Cases | ZyncoAI",
   description:
     "How teams use ZyncoAI to automate lead routing, reporting, incident response, and approvals — with agents handling the steps that need judgment.",
-  alternates: { canonical: "/use-cases" },
+  alternates: { canonical: "/use-cases", languages: { "en-AU": "/use-cases", en: "/use-cases" } },
 };
 
 const PATTERNS = [
@@ -29,6 +30,7 @@ const PATTERNS = [
 export default function UseCasesPage() {
   return (
     <main className="mx-auto max-w-6xl px-6 py-16">
+      <Breadcrumbs crumbs={[{ name: "Home", href: "/" }, { name: "Use Cases", href: "/use-cases" }]} />
       <div className="mb-10 max-w-3xl">
         <p className="text-sm uppercase tracking-[0.2em] text-neutral-500">Use Cases</p>
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-neutral-950 md:text-5xl">

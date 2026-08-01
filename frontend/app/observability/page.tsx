@@ -6,7 +6,7 @@ export const metadata = {
   title: "Observability | ZyncoAI",
   description:
     "Run history, retries, metrics, logs, and tracing for every workflow — so a failure is something you can diagnose, not just something you notice happened.",
-  alternates: { canonical: "/observability" },
+  alternates: { canonical: "/observability", languages: { "en-AU": "/observability", en: "/observability" } },
 };
 
 const SIGNALS = [

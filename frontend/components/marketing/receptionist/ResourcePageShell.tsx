@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 
 const RESOURCE_NAV = [
   { href: "/resources/docs", label: "Documentation" },
@@ -20,8 +21,11 @@ export function ResourcePageShell({
   description: string;
   children: React.ReactNode;
 }) {
+  const currentHref = RESOURCE_NAV.find((n) => n.label === title)?.href || "/resources";
+
   return (
     <div className="bg-[#f8fafc] pt-8">
+      <Breadcrumbs crumbs={[{ name: "Home", href: "/" }, { name: "Resources", href: "/resources" }, { name: title, href: currentHref }]} />
       <div className="mx-auto max-w-6xl px-6 py-14 lg:px-8">
         <span className="inline-flex items-center rounded-full border border-[#e2e8f0] bg-slate-100 px-3 py-1 text-xs font-medium text-[#475569]">{eyebrow}</span>
         <h1 className="mt-4 text-3xl font-bold text-[#0f172a] sm:text-4xl">{title}</h1>

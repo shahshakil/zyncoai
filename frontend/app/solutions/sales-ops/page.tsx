@@ -5,7 +5,7 @@ export const metadata = {
   title: "Sales Ops | ZyncoAI",
   description:
     "ZyncoAI automates lead capture, enrichment, routing, and CRM updates — with approval thresholds and a full audit trail.",
-  alternates: { canonical: "/solutions/sales-ops" },
+  alternates: { canonical: "/solutions/sales-ops", languages: { "en-AU": "/solutions/sales-ops", en: "/solutions/sales-ops" } },
 };
 
 function Pill({ children }: { children: React.ReactNode }) {

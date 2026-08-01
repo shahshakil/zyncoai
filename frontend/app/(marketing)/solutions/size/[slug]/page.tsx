@@ -10,7 +10,11 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
   const size = COMPANY_SIZES.find((s) => s.slug === params.slug);
   if (!size) return {};
-  return { title: `${size.name} | ZyncoAI`, description: size.tagline };
+  return {
+    title: `${size.name} | ZyncoAI`,
+    description: size.tagline,
+    alternates: { canonical: `/solutions/size/${size.slug}`, languages: { "en-AU": `/solutions/size/${size.slug}`, en: `/solutions/size/${size.slug}` } },
+  };
 }
 
 export default function CompanySizePage({ params }: { params: { slug: string } }) {
@@ -30,6 +34,11 @@ export default function CompanySizePage({ params }: { params: { slug: string } }
           "Set up in minutes, no IT team required",
           "Grows with you — no re-platforming later",
           "One flat monthly fee, no per-seat pricing",
+        ],
+        crumbs: [
+          { name: "Home", href: "/" },
+          { name: "Solutions", href: "/solutions" },
+          { name: size.name, href: `/solutions/size/${size.slug}` },
         ],
       }}
     />

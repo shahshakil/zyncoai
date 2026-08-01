@@ -10,7 +10,12 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
   const useCase = USE_CASES.find((u) => u.slug === params.slug);
   if (!useCase) return {};
-  return { title: `${useCase.name} | ZyncoAI`, description: useCase.tagline };
+  const title = `${useCase.name} | ZyncoAI`;
+  return {
+    title,
+    description: useCase.tagline,
+    alternates: { canonical: `/solutions/use-case/${useCase.slug}`, languages: { "en-AU": `/solutions/use-case/${useCase.slug}`, en: `/solutions/use-case/${useCase.slug}` } },
+  };
 }
 
 export default function UseCasePage({ params }: { params: { slug: string } }) {
@@ -30,6 +35,11 @@ export default function UseCasePage({ params }: { params: { slug: string } }) {
           "Answers in under 1 second, every time",
           "Books directly into your real calendar",
           "Escalates anything it can't handle straight to your team",
+        ],
+        crumbs: [
+          { name: "Home", href: "/" },
+          { name: "Solutions", href: "/solutions" },
+          { name: useCase.name, href: `/solutions/use-case/${useCase.slug}` },
         ],
       }}
     />

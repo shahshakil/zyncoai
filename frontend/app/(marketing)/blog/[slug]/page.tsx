@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
-import { BLOG_POSTS, getBlogPost, type BlogBlock } from "@/components/marketing/blog/posts";
+import { BLOG_POSTS, BLOG_CATEGORIES, BLOG_AUTHOR, getBlogPost, type BlogBlock } from "@/components/marketing/blog/posts";
+import { INDUSTRIES } from "@/components/marketing/receptionist/data";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 
 export function generateStaticParams() {
   return BLOG_POSTS.map((p) => ({ slug: p.slug }));
@@ -25,7 +27,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
       images: ["/opengraph-image"],
     },
     twitter: { card: "summary_large_image", title: post.title, description: post.description, images: ["/opengraph-image"] },
-    alternates: { canonical: `/blog/${post.slug}` },
+    alternates: { canonical: `/blog/${post.slug}`, languages: { "en-AU": `/blog/${post.slug}`, en: `/blog/${post.slug}` } },
   };
 }
 
@@ -49,6 +51,8 @@ function Block({ block }: { block: BlogBlock }) {
 export default function BlogPostPage({ params }: { params: { slug: string } }) {
   const post = getBlogPost(params.slug);
   if (!post) return notFound();
+  const category = BLOG_CATEGORIES.find((c) => c.slug === post.category);
+  const relatedIndustries = INDUSTRIES.filter((i) => post.relatedIndustrySlugs.includes(i.slug));
 
   const articleJsonLd = {
     "@context": "https://schema.org",
@@ -57,7 +61,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
     description: post.description,
     datePublished: post.publishedAt,
     dateModified: post.publishedAt,
-    author: { "@type": "Organization", name: "ZyncoAI" },
+    author: { "@type": "Organization", name: BLOG_AUTHOR.name },
     publisher: {
       "@type": "Organization",
       name: "ZyncoAI",
@@ -69,12 +73,20 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
   return (
     <div className="bg-[#f8fafc] pt-8">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
+      <Breadcrumbs crumbs={[{ name: "Home", href: "/" }, { name: "Blog", href: "/blog" }, { name: post.title, href: `/blog/${post.slug}` }]} />
       <article className="mx-auto max-w-2xl px-6 py-16 lg:px-8">
         <Link href="/blog" className="text-sm font-medium text-[#6366f1] hover:underline">
           ← All articles
         </Link>
         <p className="mt-6 text-xs font-medium text-[#94a3b8]">
-          {formatDate(post.publishedAt)} · {post.readingMinutes} min read
+          {formatDate(post.publishedAt)} · {post.readingMinutes} min read · by{" "}
+          <Link href={`/blog/author/${BLOG_AUTHOR.slug}`} className="underline hover:text-[#0f172a]">{BLOG_AUTHOR.name}</Link>
+          {category && (
+            <>
+              {" "}
+              · <Link href={`/blog/category/${category.slug}`} className="underline hover:text-[#0f172a]">{category.name}</Link>
+            </>
+          )}
         </p>
         <h1 className="mt-2 text-3xl font-bold leading-tight text-[#0f172a] sm:text-4xl">{post.title}</h1>
         <div className="mt-8">
@@ -82,6 +94,30 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
             <Block key={i} block={block} />
           ))}
         </div>
+
+        <div className="mt-8 flex flex-wrap gap-2">
+          {post.tags.map((tag) => (
+            <Link key={tag} href={`/blog/tag/${tag}`} className="rounded-full bg-slate-100 px-3 py-1 text-xs text-[#475569] hover:bg-slate-200">
+              #{tag}
+            </Link>
+          ))}
+        </div>
+
+        {relatedIndustries.length > 0 && (
+          <div className="mt-8 rounded-2xl border border-dashed border-[#e2e8f0] bg-slate-50 p-5">
+            <p className="text-xs font-medium text-[#94a3b8]">Related</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {relatedIndustries.map((i) => (
+                <Link key={i.slug} href={`/solutions/${i.slug}`} className="rounded-full border border-[#e2e8f0] bg-white px-3 py-1.5 text-xs font-medium text-[#475569] hover:border-[#c7d2fe] hover:text-[#0f172a]">
+                  {i.name}
+                </Link>
+              ))}
+              <Link href="/pricing" className="rounded-full border border-[#e2e8f0] bg-white px-3 py-1.5 text-xs font-medium text-[#475569] hover:border-[#c7d2fe] hover:text-[#0f172a]">
+                Pricing
+              </Link>
+            </div>
+          </div>
+        )}
 
         <div className="mt-12 rounded-2xl border border-[#e2e8f0] bg-white p-8 text-center shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
           <h2 className="text-lg font-bold text-[#0f172a]">See how ZyncoAI works for your business</h2>

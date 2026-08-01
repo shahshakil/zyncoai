@@ -6,7 +6,7 @@ export const metadata = {
   title: "Integrations | ZyncoAI",
   description:
     "Connect apps, databases, and services through the ZyncoAI connector registry — credentials stored encrypted and scoped to the workflows that need them.",
-  alternates: { canonical: "/integrations" },
+  alternates: { canonical: "/integrations", languages: { "en-AU": "/integrations", en: "/integrations" } },
 };
 
 const CATEGORIES = [

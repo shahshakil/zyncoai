@@ -5,7 +5,7 @@ export const metadata = {
   title: "AI Automation | ZyncoAI",
   description:
     "Let AI plan and generate a workflow from a plain-language request, then execute it inside the same guardrails and approvals as anything built by hand.",
-  alternates: { canonical: "/capabilities/ai-automation" },
+  alternates: { canonical: "/capabilities/ai-automation", languages: { "en-AU": "/capabilities/ai-automation", en: "/capabilities/ai-automation" } },
 };
 
 export default function AIAutomationCapability() {

@@ -5,7 +5,7 @@ export const metadata = {
   title: "Secure Execution | ZyncoAI",
   description:
     "How workflow runs are isolated from each other, how session controls limit what a logged-in user can do mid-run, and how RBAC and audit logs cover secure execution end to end.",
-  alternates: { canonical: "/capabilities/security" },
+  alternates: { canonical: "/capabilities/security", languages: { "en-AU": "/capabilities/security", en: "/capabilities/security" } },
 };
 
 export default function SecurityCapability() {

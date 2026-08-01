@@ -5,12 +5,41 @@
 
 export type BlogBlock = { type: "p"; text: string } | { type: "h2"; text: string } | { type: "ul"; items: string[] };
 
+export interface BlogAuthor {
+  slug: string;
+  name: string;
+  bio: string;
+}
+
+// Organization-level byline, not attributed to an individual — matches
+// the Article JSON-LD's author (Organization, not Person). Still gets a
+// real author page since the spec asks for one.
+export const BLOG_AUTHOR: BlogAuthor = {
+  slug: "zyncoai-team",
+  name: "ZyncoAI Team",
+  bio: "The team building ZyncoAI, out of Newcastle, NSW.",
+};
+
+export interface BlogCategory {
+  slug: string;
+  name: string;
+}
+
+export const BLOG_CATEGORIES: BlogCategory[] = [
+  { slug: "cost-roi", name: "Cost & ROI" },
+  { slug: "industry-guides", name: "Industry Guides" },
+  { slug: "comparisons", name: "Comparisons" },
+];
+
 export interface BlogPost {
   slug: string;
   title: string;
   description: string;
   publishedAt: string; // ISO date
   readingMinutes: number;
+  category: string; // BlogCategory.slug
+  tags: string[];
+  relatedIndustrySlugs: string[]; // Industry.slug, for internal linking
   blocks: BlogBlock[];
 }
 
@@ -22,6 +51,9 @@ export const BLOG_POSTS: BlogPost[] = [
       "A practical look at where a medical clinic actually loses money on the phone, and how 24/7 AI call answering changes the math.",
     publishedAt: "2026-07-15",
     readingMinutes: 6,
+    category: "cost-roi",
+    tags: ["medical", "healthcare", "pricing", "compliance"],
+    relatedIndustrySlugs: ["healthcare", "dental"],
     blocks: [
       {
         type: "p",
@@ -64,6 +96,9 @@ export const BLOG_POSTS: BlogPost[] = [
       "What to actually look for in an AI phone system for a restaurant, and how ZyncoAI handles bookings and phone orders during a real dinner rush.",
     publishedAt: "2026-07-22",
     readingMinutes: 5,
+    category: "industry-guides",
+    tags: ["restaurant", "hospitality", "phone-orders"],
+    relatedIndustrySlugs: ["restaurant"],
     blocks: [
       {
         type: "p",
@@ -102,6 +137,9 @@ export const BLOG_POSTS: BlogPost[] = [
       "An honest comparison — where an AI receptionist genuinely outperforms a human front desk, and where it doesn't try to.",
     publishedAt: "2026-07-29",
     readingMinutes: 7,
+    category: "comparisons",
+    tags: ["comparison", "receptionist", "roi"],
+    relatedIndustrySlugs: ["healthcare", "restaurant", "salon"],
     blocks: [
       {
         type: "p",
@@ -144,4 +182,16 @@ export const BLOG_POSTS: BlogPost[] = [
 
 export function getBlogPost(slug: string): BlogPost | undefined {
   return BLOG_POSTS.find((p) => p.slug === slug);
+}
+
+export function getPostsByCategory(categorySlug: string): BlogPost[] {
+  return BLOG_POSTS.filter((p) => p.category === categorySlug);
+}
+
+export function getAllTags(): string[] {
+  return Array.from(new Set(BLOG_POSTS.flatMap((p) => p.tags))).sort();
+}
+
+export function getPostsByTag(tag: string): BlogPost[] {
+  return BLOG_POSTS.filter((p) => p.tags.includes(tag));
 }

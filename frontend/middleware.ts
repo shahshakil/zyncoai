@@ -131,6 +131,8 @@ export function middleware(req: NextRequest) {
     pathname.startsWith("/favicon") ||
     pathname === "/robots.txt" ||
     pathname === "/sitemap.xml" ||
+    pathname === "/llms.txt" ||
+    pathname === "/blog/feed.xml" ||
     // Next.js file-convention route (app/opengraph-image.tsx) — framework
     // content, not user-facing pages, same bucket as robots.txt/sitemap.xml.
     pathname.startsWith("/opengraph-image") ||

@@ -6,7 +6,7 @@ export const metadata = {
   title: "Docs & Help | ZyncoAI",
   description:
     "Find ZyncoAI's product documentation, help centre, and API reference — call forwarding setup, connecting your practice software, webhooks, and troubleshooting.",
-  alternates: { canonical: "/docs" },
+  alternates: { canonical: "/docs", languages: { "en-AU": "/docs", en: "/docs" } },
 };
 
 const SECTIONS = [

@@ -10,6 +10,10 @@ const nextConfig = {
     // here — lodash/date-fns aren't dependencies of this project, adding
     // them would be a no-op.
     optimizePackageImports: ["recharts", "lucide-react"],
+    // Inlines critical above-the-fold CSS per page instead of blocking
+    // render on the full stylesheet — real Core Web Vitals (LCP) win.
+    // Requires the `critters` package (added as a devDependency).
+    optimizeCss: true,
   },
   async headers() {
     return [

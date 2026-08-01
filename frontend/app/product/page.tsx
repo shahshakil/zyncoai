@@ -6,7 +6,7 @@ export const metadata = {
   title: "Product | ZyncoAI",
   description:
     "How ZyncoAI's workflow platform fits together: the builder, the execution engine, the connector registry, and the agent runtime that handles the steps a fixed rule can't.",
-  alternates: { canonical: "/product" },
+  alternates: { canonical: "/product", languages: { "en-AU": "/product", en: "/product" } },
 };
 
 const AREAS = [

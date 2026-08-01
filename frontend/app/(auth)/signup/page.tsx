@@ -8,6 +8,7 @@ import { Input, Label } from "@/components/dashboard/ui/input";
 import { Mail } from "lucide-react";
 import { PRICING_PLANS } from "@/components/marketing/receptionist/data";
 import { PasswordHints, allPasswordRulesPass } from "@/components/auth/PasswordHints";
+import { trackConversion } from "@/components/seo/GoogleAnalytics";
 
 export default function SignupPage() {
   return (
@@ -58,6 +59,7 @@ function SignupForm() {
         setLoading(false);
         return;
       }
+      trackConversion("sign_up", { plan: planKey || undefined });
       setSent(email);
     } catch {
       toast.error("Something went wrong. Try again.");

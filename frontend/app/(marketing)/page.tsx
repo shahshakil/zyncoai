@@ -43,6 +43,10 @@ export const metadata = {
   },
   alternates: {
     canonical: "https://zyncoai.com",
+    languages: {
+      "en-AU": "https://zyncoai.com",
+      en: "https://zyncoai.com",
+    },
   },
 };
 

@@ -6,7 +6,7 @@ export const metadata = {
   title: "Governance | ZyncoAI",
   description:
     "Approvals, policy guardrails, and change tracking for automation — how ZyncoAI keeps agent and workflow actions inside the boundaries a team actually agreed to.",
-  alternates: { canonical: "/governance" },
+  alternates: { canonical: "/governance", languages: { "en-AU": "/governance", en: "/governance" } },
 };
 
 const CONTROLS = [

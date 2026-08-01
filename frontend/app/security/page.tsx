@@ -6,7 +6,7 @@ export const metadata = {
   title: "Security | ZyncoAI",
   description:
     "RBAC, immutable audit logs, encrypted secrets, and SSO/SCIM controls — how ZyncoAI limits who can do what and records what actually happened.",
-  alternates: { canonical: "/security" },
+  alternates: { canonical: "/security", languages: { "en-AU": "/security", en: "/security" } },
 };
 
 const CONTROLS = [

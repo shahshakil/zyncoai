@@ -5,7 +5,7 @@ export const metadata = {
   title: "App Integrations | ZyncoAI",
   description:
     "How the ZyncoAI connector framework actually works: shared auth per connector, one registry reused across every workflow, and a generic HTTP step for anything without a pre-built connector.",
-  alternates: { canonical: "/capabilities/integrations" },
+  alternates: { canonical: "/capabilities/integrations", languages: { "en-AU": "/capabilities/integrations", en: "/capabilities/integrations" } },
 };
 
 export default function IntegrationsCapability() {

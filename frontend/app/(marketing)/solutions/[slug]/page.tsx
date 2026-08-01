@@ -30,7 +30,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
       description,
       images: ["/opengraph-image"],
     },
-    alternates: { canonical: `/solutions/${industry.slug}` },
+    alternates: { canonical: `/solutions/${industry.slug}`, languages: { "en-AU": `/solutions/${industry.slug}`, en: `/solutions/${industry.slug}` } },
   };
 }
 
@@ -49,6 +49,12 @@ export default function IndustrySolutionPage({ params }: { params: { slug: strin
         features: industry.features,
         overview: industry.overview,
         faqs: industry.faqs,
+        currentIndustrySlug: industry.slug,
+        crumbs: [
+          { name: "Home", href: "/" },
+          { name: "Solutions", href: "/solutions" },
+          { name: industry.name, href: `/solutions/${industry.slug}` },
+        ],
       }}
     />
   );

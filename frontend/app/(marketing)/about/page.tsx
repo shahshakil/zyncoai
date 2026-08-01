@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, MapPin, Phone, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, MapPin, Phone, ShieldCheck, Sparkles, Star } from "lucide-react";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { TESTIMONIALS } from "@/components/marketing/receptionist/data";
 
 export const metadata: Metadata = {
   title: "About | ZyncoAI",
   description: "ZyncoAI builds Ella, an AI receptionist for Australian practices — answering every call, booking every appointment, 24/7.",
+  alternates: { canonical: "/about", languages: { "en-AU": "/about", en: "/about" } },
 };
 
 const STATS = [
@@ -17,6 +20,7 @@ const STATS = [
 export default function AboutPage() {
   return (
     <div className="bg-[#f8fafc] pt-8">
+      <Breadcrumbs crumbs={[{ name: "Home", href: "/" }, { name: "About", href: "/about" }]} />
       <section className="mx-auto max-w-3xl px-6 py-16 text-center lg:px-8">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e2e8f0] bg-white px-3 py-1 text-xs font-medium text-[#475569] shadow-sm">
           <Sparkles className="h-3 w-3" /> About ZyncoAI
@@ -58,6 +62,48 @@ export default function AboutPage() {
             </p>
           </div>
         </div>
+      </section>
+
+      {/* Founder bio — initials avatar, not a fabricated photo (no real
+          headshot asset exists). Founding-story copy is deliberately
+          minimal and factual (year + location only) pending real story
+          details to expand it with. */}
+      <section className="mx-auto max-w-2xl px-6 pb-16 lg:px-8">
+        <div className="flex items-start gap-5 rounded-2xl border border-[#e2e8f0] bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)] text-xl font-bold text-white">
+            SS
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-[#0f172a]">Shah Shakil</h2>
+            <p className="text-sm text-[#94a3b8]">Founder, ZyncoAI</p>
+            <p className="mt-3 text-sm leading-relaxed text-[#475569]">
+              ZyncoAI was founded in 2026 in Newcastle, NSW, to give Australian medical, dental, legal, and trade businesses an AI receptionist that
+              actually answers every call — built and supported locally, not an offshore product wearing an Australian accent.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-4xl px-6 pb-16 lg:px-8">
+        <h2 className="text-center text-xl font-bold text-[#0f172a]">What clients say</h2>
+        <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">
+          {TESTIMONIALS.map((t) => (
+            <div key={t.name} className="rounded-2xl border border-[#e2e8f0] bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+              <div className="flex gap-0.5 text-[#f59e0b]">
+                {Array.from({ length: t.rating }).map((_, i) => (
+                  <Star key={i} className="h-3.5 w-3.5 fill-current" />
+                ))}
+              </div>
+              <p className="mt-3 text-sm leading-relaxed text-[#475569]">&ldquo;{t.quote}&rdquo;</p>
+              <p className="mt-4 text-sm font-semibold text-[#0f172a]">{t.name}</p>
+              <p className="text-xs text-[#94a3b8]">{t.role} · {t.location}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-2xl px-6 pb-16 text-center lg:px-8">
+        <p className="text-xs text-[#94a3b8]">ZyncoAI · ABN 38 138 129 187 · Newcastle, NSW, Australia</p>
       </section>
 
       <section className="mx-auto max-w-2xl px-6 pb-20 text-center lg:px-8">

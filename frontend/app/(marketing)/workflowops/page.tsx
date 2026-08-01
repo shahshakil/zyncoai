@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 
 export const metadata = {
   title: "WorkflowOps | ZyncoAI",
   description:
     "Developer and ops tooling for production workflows — a builder, a connector registry, versioning with rollback, and monitoring with run history and tracing.",
-  alternates: { canonical: "/workflowops" },
+  alternates: { canonical: "/workflowops", languages: { "en-AU": "/workflowops", en: "/workflowops" } },
 };
 
 const SECTIONS = [
@@ -29,6 +30,7 @@ const SECTIONS = [
 export default function WorkflowOpsPage() {
   return (
     <main className="mx-auto max-w-6xl px-6 py-16">
+      <Breadcrumbs crumbs={[{ name: "Home", href: "/" }, { name: "WorkflowOps", href: "/workflowops" }]} />
       <div className="mb-10 max-w-3xl">
         <p className="text-sm uppercase tracking-[0.2em] text-neutral-500">WorkflowOps</p>
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-neutral-950 md:text-5xl">

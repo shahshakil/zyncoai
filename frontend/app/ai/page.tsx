@@ -6,7 +6,7 @@ export const metadata = {
   title: "AI | ZyncoAI",
   description:
     "ZyncoAI's approach to AI: agents that call real tools inside real constraints, with approvals for anything that matters and an audit log of what actually happened.",
-  alternates: { canonical: "/ai" },
+  alternates: { canonical: "/ai", languages: { "en-AU": "/ai", en: "/ai" } },
 };
 
 const PRINCIPLES = [

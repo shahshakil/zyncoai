@@ -6,7 +6,8 @@ import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, ChevronDown } from "lucide-react";
 import { PricingSection } from "./PricingSection";
 import { FinalCtaSection } from "./FinalCtaSection";
-import { TESTIMONIALS, type IndustryFaq } from "./data";
+import { TESTIMONIALS, INDUSTRIES, type IndustryFaq } from "./data";
+import { Breadcrumbs, type Crumb } from "@/components/seo/Breadcrumbs";
 
 export interface SolutionContent {
   eyebrow: string;
@@ -20,11 +21,17 @@ export interface SolutionContent {
   // reuse this same template without them.
   overview?: string;
   faqs?: IndustryFaq[];
+  crumbs: Crumb[];
+  // Only set on real industry pages — drives the "other industries" cross-links.
+  currentIndustrySlug?: string;
 }
 
 export function SolutionTemplate({ content }: { content: SolutionContent }) {
   const testimonial = TESTIMONIALS[content.name.length % TESTIMONIALS.length];
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const otherIndustries = content.currentIndustrySlug
+    ? INDUSTRIES.filter((i) => i.slug !== content.currentIndustrySlug).slice(0, 4)
+    : [];
 
   useEffect(() => {
     posthog.capture("industry_page_viewed", { industry: content.name });
@@ -32,6 +39,7 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
 
   return (
     <div className="bg-[#f8fafc] pt-8">
+      <Breadcrumbs crumbs={content.crumbs} />
       <section className="relative mx-[calc(50%-50vw)] w-screen overflow-hidden pb-16 pt-16">
         <div className="pointer-events-none absolute left-1/2 top-0 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-[#6366f1]/10 blur-[120px]" />
         <div className="relative mx-auto max-w-3xl px-6 text-center">
@@ -156,6 +164,31 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
               }),
             }}
           />
+        </section>
+      )}
+
+      {otherIndustries.length > 0 && (
+        <section className="py-14">
+          <div className="mx-auto max-w-4xl px-6">
+            <h2 className="text-center text-xl font-bold text-[#0f172a]">Also built for</h2>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              {otherIndustries.map((i) => (
+                <Link
+                  key={i.slug}
+                  href={`/solutions/${i.slug}`}
+                  className="rounded-full border border-[#e2e8f0] bg-white px-4 py-2 text-sm font-medium text-[#475569] shadow-sm hover:border-[#c7d2fe] hover:text-[#0f172a]"
+                >
+                  {i.name}
+                </Link>
+              ))}
+              <Link
+                href="/blog"
+                className="rounded-full border border-[#e2e8f0] bg-white px-4 py-2 text-sm font-medium text-[#475569] shadow-sm hover:border-[#c7d2fe] hover:text-[#0f172a]"
+              >
+                Read the blog
+              </Link>
+            </div>
+          </div>
         </section>
       )}
 

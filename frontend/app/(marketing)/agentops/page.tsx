@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 
 export const metadata = {
   title: "AgentOps | ZyncoAI",
   description:
     "Run multi-agent automation safely: planning, execution, self-healing retries, and a business intelligence graph for decisions — with every action logged.",
-  alternates: { canonical: "/agentops" },
+  alternates: { canonical: "/agentops", languages: { "en-AU": "/agentops", en: "/agentops" } },
 };
 
 const CAPABILITIES = [
@@ -29,6 +30,7 @@ const CAPABILITIES = [
 export default function AgentOpsPage() {
   return (
     <main className="mx-auto max-w-6xl px-6 py-16">
+      <Breadcrumbs crumbs={[{ name: "Home", href: "/" }, { name: "AgentOps", href: "/agentops" }]} />
       <div className="mb-10 max-w-3xl">
         <p className="text-sm uppercase tracking-[0.2em] text-neutral-500">AgentOps</p>
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-neutral-950 md:text-5xl">

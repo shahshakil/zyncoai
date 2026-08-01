@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PricingSection } from "@/components/marketing/receptionist/PricingSection";
 import { FinalCtaSection } from "@/components/marketing/receptionist/FinalCtaSection";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 
 const TITLE = "ZyncoAI Pricing — AI Receptionist Plans from AUD $149/month";
 const DESCRIPTION =
@@ -24,12 +25,13 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     images: ["/opengraph-image"],
   },
-  alternates: { canonical: "/pricing" },
+  alternates: { canonical: "/pricing", languages: { "en-AU": "/pricing", en: "/pricing" } },
 };
 
 export default function PricingPage() {
   return (
     <div className="bg-[#f8fafc] pt-8">
+      <Breadcrumbs crumbs={[{ name: "Home", href: "/" }, { name: "Pricing", href: "/pricing" }]} />
       <PricingSection />
       <FinalCtaSection />
     </div>
