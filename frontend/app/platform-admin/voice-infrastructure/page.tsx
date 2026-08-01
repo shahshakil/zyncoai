@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { Server, Cpu, MemoryStick, HardDrive, Network, Database, Layers, RefreshCw } from "lucide-react";
+import { Server, Cpu, MemoryStick, HardDrive, Network, Database, Layers, RefreshCw, UserCheck } from "lucide-react";
 import { useApi, apiPost } from "@/lib/useApi";
 import { Card, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { Button } from "@/components/dashboard/ui/button";
@@ -31,6 +31,15 @@ interface VoiceInfraData {
   systemResources: { cpuPct: number; ramUsedGb: number; ramTotalGb: number; diskUsedGb: number | null; diskTotalGb: number | null; diskPct: number; network: { inMbps: number; outMbps: number } };
   transcriptQueue: { pending: number; processing: number; completed: number; failed: number };
   redis: { connected: boolean; memoryUsedMb: number | null; maxMemoryMb: number | null; keys: number | null; opsPerSec: number | null };
+  identification: {
+    cnamAttempted: number;
+    cnamSuccess: number;
+    cnamSuccessRatePct: number;
+    nameSource: { database: number; cnam: number; call: number; unknown: number };
+    lowConfidenceNameEvents: number;
+    sessionRecoveryEvents: number;
+    namesSavedToday: number;
+  };
   historical: { callsPerHour: { hour: string; count: number }[]; peakConcurrentCalls: number; concurrentCallsSeries: { timestamp: Date; value: number }[] };
 }
 
@@ -254,7 +263,34 @@ export default function VoiceInfrastructurePage() {
           </div>
         </Card>
 
-        {/* 10. Historical charts */}
+        {/* 10. Customer identification */}
+        <Card>
+          <CardHeader><CardTitle className="flex items-center gap-2"><UserCheck className="h-4 w-4 text-[#6B7280]" /> Customer Identification — Today</CardTitle></CardHeader>
+          <div className="grid grid-cols-2 gap-3 p-4 pt-0 sm:grid-cols-4">
+            <MetricTile label="CNAM lookup success rate" value={data ? `${data.identification.cnamSuccessRatePct}% (${data.identification.cnamSuccess}/${data.identification.cnamAttempted})` : undefined} />
+            <MetricTile label="Low confidence events" value={data?.identification.lowConfidenceNameEvents} />
+            <MetricTile label="Session recovery events" value={data?.identification.sessionRecoveryEvents} />
+            <MetricTile label="Names saved to contacts" value={data?.identification.namesSavedToday} />
+          </div>
+          {data && (() => {
+            const { database, cnam, call, unknown } = data.identification.nameSource;
+            const total = database + cnam + call + unknown;
+            const pct = (n: number) => (total > 0 ? Math.round((n / total) * 100) : 0);
+            return (
+              <div className="px-4 pb-4">
+                <p className="mb-2 text-xs font-medium text-[#6B7280]">Name source breakdown ({total} calls today)</p>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  <MetricTile label={`Database (${pct(database)}%)`} value={database} />
+                  <MetricTile label={`CNAM (${pct(cnam)}%)`} value={cnam} />
+                  <MetricTile label={`Captured on call (${pct(call)}%)`} value={call} />
+                  <MetricTile label={`Unknown (${pct(unknown)}%)`} value={unknown} />
+                </div>
+              </div>
+            );
+          })()}
+        </Card>
+
+        {/* 11. Historical charts */}
         <Card>
           <CardHeader><CardTitle>Calls Per Hour — Last 24h</CardTitle></CardHeader>
           <div className="p-4 pt-0">
