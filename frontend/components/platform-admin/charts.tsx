@@ -1,7 +1,7 @@
 "use client";
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, LineChart, Line,
-  ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid, Legend,
+  ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid, Legend, ReferenceLine,
 } from "recharts";
 import { formatNumber, outcomeLabel, OUTCOME_COLORS } from "./format";
 
@@ -152,6 +152,38 @@ export function RealtimeLineChart({ data, dataKey, color = "#6366F1", height = 1
         <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} unit={unit} />
         <Tooltip content={<TooltipCard />} />
         <Line type="monotone" dataKey={dataKey} stroke={color} strokeWidth={2} dot={false} isAnimationActive={false} />
+      </LineChart>
+    </ResponsiveContainer>
+  );
+}
+
+// Voice Infrastructure's response-time chart — two named series (LLM/TTS)
+// plus a fixed target reference line, points above target colored red via
+// a per-dot custom renderer rather than a second overlaid series (Recharts
+// doesn't support per-point stroke color any other way without one).
+function SpikeDot(target: number, color: string) {
+  return function Dot(props: any) {
+    const { cx, cy, value } = props;
+    if (cx == null || cy == null) return null;
+    const over = value > target;
+    return <circle cx={cx} cy={cy} r={over ? 3.5 : 2} fill={over ? "#EF4444" : color} stroke={over ? "#EF4444" : color} />;
+  };
+}
+
+export function ResponseTimeChart({
+  data, targetMs = 1000, height = 260,
+}: { data: { t: string; llm?: number; tts?: number }[]; targetMs?: number; height?: number }) {
+  return (
+    <ResponsiveContainer width="100%" height={height}>
+      <LineChart data={data} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke={GRID_STROKE} vertical={false} />
+        <XAxis dataKey="t" tick={AXIS_STYLE} axisLine={false} tickLine={false} minTickGap={32} />
+        <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} unit="ms" />
+        <Tooltip content={<TooltipCard />} />
+        <Legend wrapperStyle={{ fontSize: 11 }} />
+        <ReferenceLine y={targetMs} stroke="#9CA3AF" strokeDasharray="4 4" label={{ value: `target ${targetMs}ms`, fontSize: 10, fill: "#9CA3AF", position: "insideTopRight" }} />
+        <Line type="monotone" dataKey="llm" name="LLM" stroke="#6366F1" strokeWidth={2} dot={SpikeDot(targetMs, "#6366F1")} isAnimationActive={false} connectNulls />
+        <Line type="monotone" dataKey="tts" name="TTS" stroke="#10B981" strokeWidth={2} dot={SpikeDot(targetMs, "#10B981")} isAnimationActive={false} connectNulls />
       </LineChart>
     </ResponsiveContainer>
   );
