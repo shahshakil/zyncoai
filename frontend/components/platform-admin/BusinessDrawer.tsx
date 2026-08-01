@@ -32,11 +32,17 @@ interface RecentInvoice {
   id: string; invoiceNumber: string; totalCents: number; status: "ISSUED" | "PAID" | "VOID";
   paidVia: "BANK_TRANSFER" | "SQUARE" | null; autoChargeFailedAt: string | null; autoChargeError: string | null; issuedAt: string;
 }
+interface OrderStats {
+  ordersToday: number; ordersWeek: number; ordersMonth: number;
+  revenueTodayCents: number; revenueWeekCents: number; revenueMonthCents: number;
+  avgOrderValueCents: number;
+}
 interface DrawerData {
   business: BusinessDetail;
   recentCalls: { id: string; startedAt: string; outcome: string | null; status: string; contact: { name: string | null; phone: string } | null }[];
   upcomingAppointments: { id: string; startAt: string; status: string; contact: { name: string | null; phone: string } | null; provider: { name: string } | null }[];
   recentInvoices: RecentInvoice[];
+  orderStats: OrderStats | null;
 }
 
 export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId: string | null; onClose: () => void; onChanged: () => void }) {
@@ -257,6 +263,19 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
                         <StatBox label="Patients" value={data.business._count.contacts} />
                         <StatBox label="Staff" value={data.business.providers.length} />
                       </div>
+                      {data.orderStats && (
+                        <>
+                          <h3 className="mb-2 mt-5 text-xs font-semibold uppercase tracking-wide text-[#6B7280]">
+                            Phone Orders <span className="font-normal normal-case text-[#9CA3AF]">— diner-paid, not ZyncoAI revenue</span>
+                          </h3>
+                          <div className="grid grid-cols-4 gap-3">
+                            <StatBox label="Orders today" value={data.orderStats.ordersToday} />
+                            <StatBox label="Orders this week" value={data.orderStats.ordersWeek} />
+                            <StatBox label="Revenue this month" value={formatCents(data.orderStats.revenueMonthCents)} />
+                            <StatBox label="Avg order value" value={formatCents(data.orderStats.avgOrderValueCents)} />
+                          </div>
+                        </>
+                      )}
                       {data.business.thirdPartyApiKeys.length > 0 && (
                         <>
                           <h3 className="mb-2 mt-5 text-xs font-semibold uppercase tracking-wide text-[#6B7280]">Integrations</h3>
@@ -474,7 +493,7 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
   );
 }
 
-function StatBox({ label, value }: { label: string; value: number }) {
+function StatBox({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="rounded-xl border border-[#E5E7EB] bg-[#F8F9FA] p-3 text-center">
       <p className="text-lg font-bold text-[#1F2937]">{value}</p>

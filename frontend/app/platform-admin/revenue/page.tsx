@@ -32,6 +32,11 @@ interface RevenueData {
   addOnBreakdown: { key: string; name: string; activeCount: number; revenueCents: number }[];
   mostPopularAddOns: { key: string; name: string; activeCount: number; revenueCents: number }[];
   referralPerformance: { pendingCount: number; approvedCount: number; rejectedCount: number; totalSignupsFromReferral: number; totalCreditsGivenCents: number };
+  restaurantOrders: {
+    ordersThisMonth: number; volumeCentsThisMonth: number;
+    byBusiness: { businessId: string; businessName: string; orderCount: number; volumeCents: number }[];
+    note: string;
+  };
   monthlyRevenue: { month: string; amountCents: number }[];
   byVertical: { vertical: string; amountCents: number }[];
   businesses: { id: string; name: string; vertical: string; plan: string; planPriceCents: number; planIsManual: boolean; manualPlanKey: string | null; revenueThisMonthCents: number; totalRevenueCents: number; numberCostCents: number }[];
@@ -149,6 +154,34 @@ export default function RevenuePage() {
             </div>
           </Card>
         </div>
+
+        {data && data.restaurantOrders.ordersThisMonth > 0 && (
+          <Card className="border-amber-200 bg-amber-50/40">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                Restaurant Order Volume
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-700">Not ZyncoAI revenue</span>
+              </CardTitle>
+            </CardHeader>
+            <div className="p-4 pt-0">
+              <p className="mb-3 flex items-start gap-1.5 text-xs text-[#92400E]">
+                <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" /> {data.restaurantOrders.note}
+              </p>
+              <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <StatCard label="Orders this month" value={String(data.restaurantOrders.ordersThisMonth)} icon={DollarSign} gradient="linear-gradient(135deg,#F59E0B,#FBBF24)" />
+                <StatCard label="Order volume" value={formatCents(data.restaurantOrders.volumeCentsThisMonth)} icon={DollarSign} gradient="linear-gradient(135deg,#F59E0B,#FBBF24)" />
+              </div>
+              <Table>
+                <Thead><tr><Th>Restaurant</Th><Th>Orders</Th><Th>Volume</Th></tr></Thead>
+                <Tbody>
+                  {data.restaurantOrders.byBusiness.map((r) => (
+                    <Tr key={r.businessId}><Td>{r.businessName}</Td><Td>{r.orderCount}</Td><Td>{formatCents(r.volumeCents)}</Td></Tr>
+                  ))}
+                </Tbody>
+              </Table>
+            </div>
+          </Card>
+        )}
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <Card>

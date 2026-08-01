@@ -25,6 +25,7 @@ interface Business {
   plan: string; manualPlan: string | null; monthlyRevenueCents: number; callAllowance: number | null; callsUsedThisMonth: number; callsUsedPct: number | null;
   trialStatus: "none" | "active" | "expired"; trialEndsAt: string | null;
   twilioNumberSid: string | null; provisioningStatus: "PENDING" | "ACTIVE" | "FAILED"; provisioningError: string | null;
+  totalOrders: number;
 }
 
 const COLUMNS: ExportColumn[] = [
@@ -37,6 +38,7 @@ const COLUMNS: ExportColumn[] = [
   { key: "callsUsage", label: "Calls Used / Allowance", width: 16 },
   { key: "calls", label: "Calls", width: 10, align: "right", total: "sum" },
   { key: "bookings", label: "Bookings", width: 10, align: "right", total: "sum" },
+  { key: "orders", label: "Orders (RESTAURANT)", width: 12, align: "right" },
   { key: "lastCall", label: "Last Call", width: 16 },
   { key: "joined", label: "Joined", width: 14 },
 ];
@@ -154,6 +156,7 @@ export default function BusinessesPage() {
       status: b.status, plan: b.plan, monthlyRevenue: (b.monthlyRevenueCents / 100).toFixed(2),
       callsUsage: b.callAllowance ? `${b.callsUsedThisMonth}/${b.callAllowance}` : `${b.callsUsedThisMonth}/unlimited`,
       calls: b._count.calls, bookings: b._count.appointments,
+      orders: b.vertical === "RESTAURANT" ? b.totalOrders : "",
       lastCall: b.lastCallAt ? timeAgo(b.lastCallAt) : "Never",
       joined: new Date(b.createdAt).toLocaleDateString(),
     }));
@@ -166,6 +169,7 @@ export default function BusinessesPage() {
       status: b.status, plan: b.plan, monthlyRevenue: (b.monthlyRevenueCents / 100).toFixed(2),
       callsUsage: b.callAllowance ? `${b.callsUsedThisMonth}/${b.callAllowance}` : `${b.callsUsedThisMonth}/unlimited`,
       calls: b._count.calls, bookings: b._count.appointments,
+      orders: b.vertical === "RESTAURANT" ? b.totalOrders : "",
       lastCall: b.lastCallAt ? timeAgo(b.lastCallAt) : "Never",
       joined: new Date(b.createdAt).toLocaleDateString(),
     }));
@@ -240,12 +244,12 @@ export default function BusinessesPage() {
                 </Th>
                 <Th>Business</Th><Th>Vertical</Th><Th>Owner</Th><Th>Status</Th>
                 <Th>Plan</Th><Th>Monthly Revenue</Th><Th>Calls Used</Th>
-                <Th>Calls</Th><Th>Bookings</Th><Th>Last Call</Th><Th>Joined</Th><Th></Th>
+                <Th>Calls</Th><Th>Bookings</Th><Th>Orders</Th><Th>Last Call</Th><Th>Joined</Th><Th></Th>
               </tr>
             </Thead>
             <Tbody>
               {isLoading ? (
-                Array.from({ length: 8 }).map((_, i) => <SkeletonRow key={i} cols={12} />)
+                Array.from({ length: 8 }).map((_, i) => <SkeletonRow key={i} cols={13} />)
               ) : data?.data.length ? (
                 data.data.map((b) => (
                   <Tr key={b.id}>
@@ -278,6 +282,7 @@ export default function BusinessesPage() {
                     </Td>
                     <Td>{b._count.calls}</Td>
                     <Td>{b._count.appointments}</Td>
+                    <Td>{b.vertical === "RESTAURANT" ? b.totalOrders : "—"}</Td>
                     <Td className="text-xs text-[#6B7280]">{b.lastCallAt ? timeAgo(b.lastCallAt) : "Never"}</Td>
                     <Td>{new Date(b.createdAt).toLocaleDateString()}</Td>
                     <Td>
