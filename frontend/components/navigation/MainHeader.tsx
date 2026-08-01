@@ -4,6 +4,7 @@ import { SITE_MAX_W, SITE_PX } from "@/components/ui/layout";
 import Link from "next/link";
 import { ArrowRight, Phone } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { NAV } from "./navData";
 import MegaMenu from "./MegaMenu";
 import MobileNav from "./MobileNav";
@@ -17,6 +18,7 @@ function ZLogo() {
 }
 
 export default function MainHeader() {
+  const router = useRouter();
   const nav = useMemo(() => NAV, []);
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -111,7 +113,11 @@ export default function MainHeader() {
           </nav>
 
           <div className="hidden items-center gap-2 md:flex">
-            <Link href="/login" className="rounded-xl border border-[#e2e8f0] px-3.5 py-2 text-sm font-semibold text-[#0f172a] transition hover:bg-slate-50">
+            <Link
+              href="/login"
+              className="rounded-xl border border-[#e2e8f0] px-3.5 py-2 text-sm font-semibold text-[#0f172a] transition hover:bg-slate-50"
+              onMouseEnter={() => router.prefetch("/login")}
+            >
               Sign in
             </Link>
             <Link

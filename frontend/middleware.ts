@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { jwtVerify, errors as joseErrors } from "jose";
 
 /**
  * Public marketing routes (NO login)
@@ -109,7 +110,35 @@ function getToken(req: NextRequest) {
   );
 }
 
-export function middleware(req: NextRequest) {
+// Edge-layer fast path: verify the access token's signature + expiry (via
+// jose, Edge-Runtime compatible — the backend's jsonwebtoken/HS256 signer
+// can't run here) so an obviously expired/forged token gets redirected to
+// /login immediately instead of rendering the dashboard shell first and
+// only failing once DashboardGate's client-side fetches 401. This is
+// strictly additive to the existing server-side auth chain (blacklist,
+// session-inactivity, tenant resolution) — it never grants access on its
+// own, and it fails OPEN (treats the token as "can't tell, let it through")
+// on any ambiguous outcome: no secret configured, malformed token, or an
+// unexpected verification error. Only a definite EXPIRED or BAD SIGNATURE
+// result short-circuits to /login.
+const accessSecretRaw = process.env.JWT_ACCESS_SECRET;
+const accessSecretKey = accessSecretRaw ? new TextEncoder().encode(accessSecretRaw) : null;
+
+async function isDefinitelyInvalid(token: string): Promise<boolean> {
+  if (!accessSecretKey) return false;
+  try {
+    await jwtVerify(token, accessSecretKey);
+    return false;
+  } catch (err) {
+    if (err instanceof joseErrors.JWTExpired) return true;
+    if (err instanceof joseErrors.JWSSignatureVerificationFailed) return true;
+    // Any other error (unexpected claims validation, transient issue,
+    // token minted with a different algorithm, etc.) — don't guess.
+    return false;
+  }
+}
+
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // legacy redirects
@@ -149,7 +178,7 @@ export function middleware(req: NextRequest) {
   // protect everything else
   const token = getToken(req);
 
-  if (!token) {
+  if (!token || (await isDefinitelyInvalid(token))) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", pathname);

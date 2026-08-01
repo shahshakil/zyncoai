@@ -25,14 +25,23 @@ export function DashboardGate({ children }: { children: React.ReactNode }) {
     let cancelled = false;
     (async () => {
       try {
-        const meRes = await fetch("/api/auth/me", { credentials: "include" });
+        // These three calls are independent of each other's response data,
+        // so they're fired concurrently instead of chained — the sequential
+        // await-chain here used to make every dashboard load pay full JWT
+        // verification (blacklist + session checks, several Redis round
+        // trips each) three times over, serially.
+        const [meRes, statusRes, businessMeRes] = await Promise.all([
+          fetch("/api/auth/me", { credentials: "include" }),
+          fetch("/api/business/onboarding/business/status", { credentials: "include" }),
+          fetch("/api/business/me", { credentials: "include" }),
+        ]);
+
         if (!meRes.ok) {
           router.replace("/login?next=/dashboard");
           return;
         }
         const me = await meRes.json();
 
-        const statusRes = await fetch("/api/business/onboarding/business/status", { credentials: "include" });
         const status = await statusRes.json().catch(() => ({ hasBusiness: false, businesses: [] }));
 
         if (!status.hasBusiness || !status.businesses?.length) {
@@ -40,7 +49,6 @@ export function DashboardGate({ children }: { children: React.ReactNode }) {
           return;
         }
 
-        const businessMeRes = await fetch("/api/business/me", { credentials: "include" });
         const businessMe = await businessMeRes.json().catch(() => null);
         const role: BusinessRole = businessMe?.role || "OWNER";
 

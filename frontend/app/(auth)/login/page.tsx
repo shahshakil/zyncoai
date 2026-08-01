@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -20,6 +20,19 @@ function LoginForm() {
     if (params.get("verified") === "1") toast.success("Email verified — you can now sign in.");
     if (params.get("reason") === "inactivity") toast.error("You were logged out for security. Please log in again.");
   }, [params]);
+
+  // Hover-intent prefetch: the moment someone starts filling in the form,
+  // warm the /dashboard route's JS chunk (Next.js router.prefetch) so it's
+  // already cached by the time redirectAfterAuth() navigates there post-
+  // login — the actual dashboard data fetches still need the session
+  // cookie from a successful login, so only the route chunk can be
+  // pre-warmed here, not the API calls themselves.
+  const prefetchedDashboard = useRef(false);
+  function prefetchDashboard() {
+    if (prefetchedDashboard.current) return;
+    prefetchedDashboard.current = true;
+    router.prefetch("/dashboard");
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -95,13 +108,22 @@ function LoginForm() {
         <form onSubmit={onSubmit} className="rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-6 space-y-4">
           <div>
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@business.com" />
+            <Input
+              id="email"
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onFocus={prefetchDashboard}
+              placeholder="you@business.com"
+            />
           </div>
           <div>
             <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
           </div>
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full" disabled={loading} onMouseEnter={prefetchDashboard}>
             {loading ? "Signing in…" : "Sign in"}
           </Button>
 
