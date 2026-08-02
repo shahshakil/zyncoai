@@ -30,6 +30,28 @@ export default function OnboardingPageClient() {
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
 
+  // Guards direct navigation to /onboarding (typed URL, bookmark, back
+  // button) — the normal post-login redirect already skips this page for
+  // anyone with a business (owner or invited staff/doctor/admin alike), but
+  // that only runs once, right after login. Never render the "tell us
+  // about your business" form to someone who already has a business.
+  const [checkingAccess, setCheckingAccess] = useState(true);
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/business/onboarding/business/status", { credentials: "include" })
+      .then((r) => r.json())
+      .then((status) => {
+        if (cancelled) return;
+        if (status?.hasBusiness) {
+          router.replace("/dashboard");
+        } else {
+          setCheckingAccess(false);
+        }
+      })
+      .catch(() => { if (!cancelled) setCheckingAccess(false); });
+    return () => { cancelled = true; };
+  }, [router]);
+
   // Step 1
   const [name, setName] = useState("");
   const [vertical, setVertical] = useState("MEDICAL");
@@ -146,6 +168,10 @@ export default function OnboardingPageClient() {
     } finally {
       setSaving(false);
     }
+  }
+
+  if (checkingAccess) {
+    return <div className="min-h-screen bg-neutral-950" />;
   }
 
   return (
