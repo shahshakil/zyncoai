@@ -99,7 +99,13 @@ export default function RootLayout({
         <GoogleAnalytics />
         <PostHogProvider>
           {children}
-          <Toaster theme="dark" position="top-right" toastOptions={{ style: { background: "#0a0a0a", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" } }} />
+          <Toaster
+            theme="dark"
+            position="bottom-right"
+            closeButton
+            duration={4000}
+            toastOptions={{ style: { background: "#0a0a0a", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" } }}
+          />
         </PostHogProvider>
       </body>
     </html>

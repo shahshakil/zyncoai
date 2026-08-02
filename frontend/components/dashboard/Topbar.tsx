@@ -1,12 +1,14 @@
 "use client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Menu, LogOut, ChevronDown, Search, Maximize, Minimize, Bell, Settings as SettingsIcon, Loader2 } from "lucide-react";
+import { Menu, LogOut, ChevronDown, Search, Maximize, Minimize, Bell, Settings as SettingsIcon, Loader2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useDashboard } from "./BusinessContext";
 import { Badge } from "./ui/badge";
 import { getVerticalTheme } from "./verticalTheme";
+import { useApi, apiPost } from "@/lib/useApi";
+import { cn } from "@/lib/utils";
 
 interface SearchResults {
   contacts: { id: string; name: string | null; phone: string }[];
@@ -30,7 +32,9 @@ function GlobalSearch() {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
@@ -38,6 +42,21 @@ function GlobalSearch() {
     }
     document.addEventListener("mousedown", onClickOutside);
     return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
+  // "/" keyboard shortcut — global, but ignored while typing in any field so
+  // it doesn't hijack a literal "/" character in another input.
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey) return;
+      const target = e.target as HTMLElement;
+      if (["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) || target.isContentEditable) return;
+      e.preventDefault();
+      setMobileOpen(true);
+      requestAnimationFrame(() => inputRef.current?.focus());
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
   }, []);
 
   useEffect(() => {
@@ -63,17 +82,52 @@ function GlobalSearch() {
 
   const hasResults = results && (results.contacts.length || results.appointments.length || results.calls.length);
 
+  useEffect(() => {
+    function onClickOutsideMobile(e: MouseEvent) {
+      if (boxRef.current && !boxRef.current.contains(e.target as Node)) setMobileOpen(false);
+    }
+    if (mobileOpen) document.addEventListener("mousedown", onClickOutsideMobile);
+    return () => document.removeEventListener("mousedown", onClickOutsideMobile);
+  }, [mobileOpen]);
+
   return (
-    <div ref={boxRef} className="relative hidden w-full max-w-sm sm:block">
-      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-      <input
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        onFocus={() => q.length >= 2 && setOpen(true)}
-        placeholder="Search patients, bookings, calls…"
-        className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-8 text-sm text-slate-900 outline-none transition focus:border-[var(--accent,#4f46e5)]/50 focus:bg-white focus:ring-2 focus:ring-[var(--accent,#4f46e5)]/20"
-      />
-      {loading && <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-slate-400" />}
+    <>
+      {/* Global search was previously `hidden sm:block` — unreachable below
+          the sm breakpoint with no alternative. This icon opens the same
+          search as a full-width overlay on mobile instead. */}
+      <button
+        onClick={() => setMobileOpen(true)}
+        className="rounded-lg p-2.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 sm:hidden"
+        title="Search"
+      >
+        <Search className="h-4 w-4" />
+      </button>
+
+      <div
+        ref={boxRef}
+        className={cn(
+          "relative w-full max-w-sm",
+          mobileOpen
+            ? "fixed inset-x-0 top-14 z-50 border-b border-slate-200 bg-white p-3 shadow-lg sm:static sm:z-auto sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none"
+            : "hidden sm:block"
+        )}
+      >
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <input
+          ref={inputRef}
+          autoFocus={mobileOpen}
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          onFocus={() => q.length >= 2 && setOpen(true)}
+          placeholder="Search patients, bookings, calls…"
+          className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-8 text-sm text-slate-900 outline-none transition focus:border-[var(--accent,#4f46e5)]/50 focus:bg-white focus:ring-2 focus:ring-[var(--accent,#4f46e5)]/20"
+        />
+        {loading && <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-slate-400" />}
+        {mobileOpen && !loading && (
+          <button onClick={() => setMobileOpen(false)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700" title="Close search">
+            <X className="h-4 w-4" />
+          </button>
+        )}
 
       {open && q.trim().length >= 2 && (
         <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-96 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
@@ -133,6 +187,90 @@ function GlobalSearch() {
           )}
         </div>
       )}
+      </div>
+    </>
+  );
+}
+
+interface AnnouncementItem {
+  id: string;
+  title: string;
+  body: string;
+  channels: string[];
+  sentAt: string;
+  deliveredAt: string;
+  readAt: string | null;
+}
+
+// Backed by the real, already-built /api/business/announcements endpoint
+// (admin-authored platform notices — billing, maintenance, product updates)
+// with real read/unread tracking. Not per-event ("new booking", "missed
+// call") notifications — no backend event stream exists for those yet.
+function NotificationBell() {
+  const [open, setOpen] = useState(false);
+  const boxRef = useRef<HTMLDivElement>(null);
+  const { data, mutate } = useApi<{ ok: boolean; announcements: AnnouncementItem[] }>("/api/business/announcements", { refreshInterval: 60000 });
+  const announcements = data?.announcements || [];
+  const unreadCount = announcements.filter((a) => !a.readAt).length;
+
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (boxRef.current && !boxRef.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
+  async function markRead(id: string) {
+    try {
+      await apiPost(`/api/business/announcements/${id}/read`, {}, "POST");
+      mutate();
+    } catch {
+      // silent — read state is a convenience affordance, not critical path
+    }
+  }
+
+  return (
+    <div ref={boxRef} className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="relative rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+        title="Notifications"
+      >
+        <Bell className="h-4 w-4" />
+        {unreadCount > 0 && (
+          <span className="absolute right-1 top-1 flex h-2 w-2 rounded-full bg-rose-500">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75" />
+          </span>
+        )}
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full z-50 mt-2 max-h-96 w-80 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
+          <p className="px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">Notifications</p>
+          {announcements.length === 0 ? (
+            <p className="px-2 py-6 text-center text-sm text-slate-400">No notifications yet</p>
+          ) : (
+            announcements.map((a) => (
+              <button
+                key={a.id}
+                onClick={() => markRead(a.id)}
+                className={cn(
+                  "flex w-full flex-col gap-0.5 rounded-lg px-2 py-2 text-left text-sm hover:bg-slate-50",
+                  !a.readAt && "bg-[var(--accent-light,#eef2ff)]"
+                )}
+              >
+                <span className="flex items-center gap-1.5 font-medium text-slate-800">
+                  {!a.readAt && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--accent,#4f46e5)]" />}
+                  {a.title}
+                </span>
+                <span className="line-clamp-2 text-xs text-slate-500">{a.body}</span>
+                <span className="text-[11px] text-slate-400">{new Date(a.sentAt).toLocaleDateString("en-AU")}</span>
+              </button>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -182,9 +320,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
         <button onClick={toggleFullscreen} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700" title="Toggle fullscreen">
           {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
         </button>
-        <button className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700" title="Notifications">
-          <Bell className="h-4 w-4" />
-        </button>
+        <NotificationBell />
         {canManageBusiness && (
           <Link href="/dashboard/settings" className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700" title="Settings">
             <SettingsIcon className="h-4 w-4" />

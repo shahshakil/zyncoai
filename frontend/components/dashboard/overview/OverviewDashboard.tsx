@@ -173,6 +173,9 @@ export default function OverviewDashboard() {
           <Link href="/dashboard/bookings">
             <Button variant="outline" size="sm"><Search className="h-4 w-4" /> Find Appointment</Button>
           </Link>
+          <Link href="/dashboard/calls">
+            <Button variant="outline" size="sm"><PhoneCall className="h-4 w-4" /> View Calls</Button>
+          </Link>
           {canSeeFinancials && (
             <Link href="/dashboard/finance">
               <Button size="sm" className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white hover:opacity-90">

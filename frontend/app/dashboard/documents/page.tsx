@@ -13,6 +13,7 @@ import { getVerticalOps } from "@/lib/verticalOps";
 import { Card } from "@/components/dashboard/ui/card";
 import { Button } from "@/components/dashboard/ui/button";
 import { Input, Select, Label } from "@/components/dashboard/ui/input";
+import { Skeleton } from "@/components/dashboard/ui/skeleton";
 import { Table, Thead, Th, Tbody, Tr, Td, EmptyState } from "@/components/dashboard/ui/table";
 import { Badge } from "@/components/dashboard/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog";
@@ -44,7 +45,7 @@ export default function DocumentsPage() {
     ...(docType ? { docType } : {}), ...(resultStatus ? { resultStatus } : {}),
     ...(from ? { from } : {}), ...(to ? { to } : {}),
   }).toString();
-  const { data, mutate } = useApi<{ ok: boolean; documents: DocRow[] }>(ops ? `/api/business/documents?${qs}` : null);
+  const { data, isLoading, mutate } = useApi<{ ok: boolean; documents: DocRow[] }>(ops ? `/api/business/documents?${qs}` : null);
   const { data: expiring } = useApi<{ ok: boolean; documents: DocRow[] }>(ops ? "/api/business/documents/expiring-soon?days=14" : null);
   const rows = isMedical || !labelFilter ? data?.documents : data?.documents.filter((d) => (d.scanType || d.docType).toLowerCase().includes(labelFilter.toLowerCase()));
 
@@ -122,24 +123,32 @@ export default function DocumentsPage() {
           <div><Label>To</Label><Input type="date" value={to} onChange={(e) => setTo(e.target.value)} /></div>
         </div>
 
-        <Table>
-          <Thead><tr><Th></Th><Th>{ops.contactLabel}</Th><Th>Type</Th><Th>Filename</Th><Th>Status</Th><Th>Uploaded</Th><Th>Expires</Th><Th></Th></tr></Thead>
-          <Tbody>
-            {rows?.map((d) => (
-              <Tr key={d.id}>
-                <Td><input type="checkbox" checked={selected.has(d.id)} onChange={() => toggleSelected(d.id)} /></Td>
-                <Td className="font-medium text-slate-700">{d.contact?.name || d.contact?.phone || "—"}</Td>
-                <Td>{d.scanType || d.docType.replace(/_/g, " ")}</Td>
-                <Td className="max-w-[220px] truncate">{d.filename}</Td>
-                <Td>{d.resultStatus ? <Badge tone={STATUS_TONE[d.resultStatus] || "default"}>{d.resultStatus}</Badge> : "—"}</Td>
-                <Td className="text-xs text-slate-400">{new Date(d.createdAt).toLocaleDateString("en-AU")}</Td>
-                <Td className="text-xs text-slate-400">{d.expiresAt ? new Date(d.expiresAt).toLocaleDateString("en-AU") : "—"}</Td>
-                <Td><button title="Download" onClick={() => download(d)} className="text-slate-400 hover:text-slate-900"><Download className="h-4 w-4" /></button></Td>
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
-        {rows && !rows.length && <EmptyState icon={FolderOpen} title="No documents match these filters" />}
+        {isLoading ? (
+          <div className="space-y-2 p-4">
+            {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
+          </div>
+        ) : (
+          <>
+            <Table>
+              <Thead><tr><Th></Th><Th>{ops.contactLabel}</Th><Th>Type</Th><Th>Filename</Th><Th>Status</Th><Th>Uploaded</Th><Th>Expires</Th><Th></Th></tr></Thead>
+              <Tbody>
+                {rows?.map((d) => (
+                  <Tr key={d.id}>
+                    <Td><input type="checkbox" checked={selected.has(d.id)} onChange={() => toggleSelected(d.id)} /></Td>
+                    <Td className="font-medium text-slate-700">{d.contact?.name || d.contact?.phone || "—"}</Td>
+                    <Td>{d.scanType || d.docType.replace(/_/g, " ")}</Td>
+                    <Td className="max-w-[220px] truncate">{d.filename}</Td>
+                    <Td>{d.resultStatus ? <Badge tone={STATUS_TONE[d.resultStatus] || "default"}>{d.resultStatus}</Badge> : "—"}</Td>
+                    <Td className="text-xs text-slate-400">{new Date(d.createdAt).toLocaleDateString("en-AU")}</Td>
+                    <Td className="text-xs text-slate-400">{d.expiresAt ? new Date(d.expiresAt).toLocaleDateString("en-AU") : "—"}</Td>
+                    <Td><button title="Download" onClick={() => download(d)} className="text-slate-400 hover:text-slate-900"><Download className="h-4 w-4" /></button></Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+            {rows && !rows.length && <EmptyState icon={FolderOpen} title="No documents match these filters" />}
+          </>
+        )}
       </Card>
 
       <BulkSendDialog open={bulkSendOpen} documentIds={Array.from(selected)} onClose={() => setBulkSendOpen(false)} onSent={() => { setSelected(new Set()); mutate(); }} />

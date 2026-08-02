@@ -5,7 +5,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import NProgress from "nprogress";
 import { Button } from "@/components/dashboard/ui/button";
-import { Input, Label } from "@/components/dashboard/ui/input";
+import { Input, Label, FieldMessage } from "@/components/dashboard/ui/input";
 import { redirectAfterAuth } from "@/lib/postAuthRedirect";
 
 function LoginForm() {
@@ -16,6 +16,7 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [needsVerification, setNeedsVerification] = useState(false);
   const [resending, setResending] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
     if (params.get("verified") === "1") toast.success("Email verified — you can now sign in.");
@@ -26,6 +27,7 @@ function LoginForm() {
     e.preventDefault();
     NProgress.start();
     setLoading(true);
+    setFormError(null);
     try {
       const r = await fetch("/api/auth/login", {
         method: "POST",
@@ -37,13 +39,19 @@ function LoginForm() {
         NProgress.done();
         if (data.error === "email_not_verified") {
           setNeedsVerification(true);
-          toast.error("Please verify your email before logging in — check your inbox for the link, or resend it below.");
+          const msg = "Please verify your email before logging in — check your inbox for the link, or resend it below.";
+          setFormError(msg);
+          toast.error(msg);
         } else if (data.error === "account_locked") {
           setNeedsVerification(false);
-          toast.error("Account temporarily locked. Try again in 15 minutes.");
+          const msg = "Account temporarily locked. Try again in 15 minutes.";
+          setFormError(msg);
+          toast.error(msg);
         } else {
           setNeedsVerification(false);
-          toast.error(data.message || "Invalid email or password");
+          const msg = data.message || "Invalid email or password";
+          setFormError(msg);
+          toast.error(msg);
         }
         setPassword("");
         setLoading(false);
@@ -70,6 +78,7 @@ function LoginForm() {
       await redirectAfterAuth(next);
     } catch {
       NProgress.done();
+      setFormError("Something went wrong. Try again.");
       toast.error("Something went wrong. Try again.");
       setPassword("");
       setLoading(false);
@@ -111,14 +120,25 @@ function LoginForm() {
               type="email"
               required
               autoComplete="email"
+              state={formError ? "error" : "default"}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); setFormError(null); }}
               placeholder="you@business.com"
             />
           </div>
           <div>
             <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+            <Input
+              id="password"
+              type="password"
+              required
+              autoComplete="current-password"
+              state={formError ? "error" : "default"}
+              value={password}
+              onChange={(e) => { setPassword(e.target.value); setFormError(null); }}
+              placeholder="••••••••"
+            />
+            {formError && <FieldMessage state="error">{formError}</FieldMessage>}
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading && (

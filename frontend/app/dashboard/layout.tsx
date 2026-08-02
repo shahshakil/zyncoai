@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { DashboardGate } from "@/components/dashboard/DashboardGate";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { SessionTimeoutGuard } from "@/components/dashboard/SessionTimeoutGuard";
+import { KeyboardShortcuts } from "@/components/dashboard/KeyboardShortcuts";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Topbar } from "@/components/dashboard/Topbar";
 import { TrialBanner } from "@/components/dashboard/TrialBanner";
@@ -68,6 +69,7 @@ function ThemedShell({ children, sidebarOpen, onCloseSidebar, onOpenSidebar }: {
   return (
     <div className="flex h-screen overflow-hidden bg-[var(--bg-canvas)]" style={themeVars}>
       <SessionTimeoutGuard />
+      <KeyboardShortcuts />
       <Sidebar open={sidebarOpen} onClose={onCloseSidebar} />
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <TrialBanner business={business} />

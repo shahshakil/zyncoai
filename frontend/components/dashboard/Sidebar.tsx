@@ -142,7 +142,7 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
                   {hasChildren && !collapsed && (
                     <button
                       onClick={() => setExpanded(isExpanded ? null : item.href)}
-                      className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-50 hover:text-slate-900"
+                      className="rounded-lg p-2.5 text-slate-400 hover:bg-slate-50 hover:text-slate-900"
                     >
                       <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", isExpanded && "rotate-180")} />
                     </button>

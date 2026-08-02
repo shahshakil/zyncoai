@@ -203,7 +203,7 @@ function OrderCard({ order, onAdvance, printing }: { order: Order; onAdvance: (i
 export default function KitchenDisplayPage() {
   const { business, role } = useDashboard();
   const router = useRouter();
-  const { data, mutate } = useApi<{ orders: Order[] }>("/api/business/orders", { refreshInterval: 5000 });
+  const { data, isLoading, mutate } = useApi<{ orders: Order[] }>("/api/business/orders", { refreshInterval: 5000 });
   const { data: printerConfig } = useApi<{ epsonPrinterIp: string | null }>("/api/business/orders/printer-config");
   const seenOrderIds = useRef<Set<string>>(new Set());
   const [initialized, setInitialized] = useState(false);
@@ -271,7 +271,14 @@ export default function KitchenDisplayPage() {
         <span style={{ color: "#94a3b8", fontSize: 16 }}>{active.length} active order{active.length === 1 ? "" : "s"}</span>
       </div>
 
-      {!active.length ? (
+      {isLoading ? (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 20 }}>
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} style={{ height: 220, borderRadius: 16, background: "#1e293b", animation: "kitchen-pulse 1.5s ease-in-out infinite" }} />
+          ))}
+          <style>{`@keyframes kitchen-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }`}</style>
+        </div>
+      ) : !active.length ? (
         <p style={{ color: "#64748b", fontSize: 20, textAlign: "center", marginTop: 80 }}>No active orders. New orders will chime and appear here automatically.</p>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 20 }}>
