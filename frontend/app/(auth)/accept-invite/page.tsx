@@ -1,11 +1,12 @@
 "use client";
 import { Suspense, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 import { Button } from "@/components/dashboard/ui/button";
 import { Input, Label } from "@/components/dashboard/ui/input";
 import { Mail, ShieldCheck } from "lucide-react";
+import { redirectAfterAuth } from "@/lib/postAuthRedirect";
 
 const ROLE_LABEL: Record<string, string> = { OWNER: "Owner", ADMIN: "Admin", STAFF: "Staff", DOCTOR: "Doctor" };
 
@@ -16,7 +17,6 @@ interface InviteInfo {
 }
 
 function AcceptInviteForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") || "";
 
@@ -33,7 +33,7 @@ function AcceptInviteForm() {
     }
     (async () => {
       try {
-        const r = await fetch(`/api/business/staff/invitations/public/${token}`);
+        const r = await fetch(`/api/auth/accept-invite?token=${encodeURIComponent(token)}`);
         const data = await r.json();
         if (!r.ok || !data.ok) {
           setInvalid(true);
@@ -50,10 +50,9 @@ function AcceptInviteForm() {
     e.preventDefault();
     setLoading(true);
     try {
-      const r = await fetch(`/api/business/staff/invitations/public/${token}/accept`, {
+      const r = await fetch("/api/auth/accept-invite", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ token, password, name: name || undefined }),
       });
       const data = await r.json();
@@ -63,8 +62,10 @@ function AcceptInviteForm() {
         return;
       }
       toast.success("Welcome to ZyncoAI");
-      router.push("/dashboard");
-      router.refresh();
+      // Hard navigation (window.location.href inside redirectAfterAuth), not
+      // router.push — same reasoning as the login page fix: avoids the
+      // client router cache serving a stale pre-auth response for /dashboard.
+      await redirectAfterAuth(null);
     } catch {
       toast.error("Something went wrong. Try again.");
       setLoading(false);
