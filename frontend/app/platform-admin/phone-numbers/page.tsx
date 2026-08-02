@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Phone, DollarSign, Loader2, AlertTriangle, RefreshCw, PhoneOff, Repeat, PhoneCall, RotateCw, PlusCircle } from "lucide-react";
+import { Phone, DollarSign, Loader2, AlertTriangle, RefreshCw, PhoneOff, Repeat, PhoneCall, RotateCw, PlusCircle, ShieldCheck } from "lucide-react";
 import { useApi, apiPost } from "@/lib/useApi";
 import { Card, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { Button } from "@/components/dashboard/ui/button";
@@ -60,6 +60,7 @@ export default function PhoneNumbersPage() {
   const [purchaseOpen, setPurchaseOpen] = useState(false);
   const [purchaseTarget, setPurchaseTarget] = useState("");
   const [purchasing, setPurchasing] = useState(false);
+  const [verifyingAll, setVerifyingAll] = useState(false);
   const { data: purchasableData } = useApi<{ businesses: PurchasableBusiness[] }>(
     purchaseOpen ? "/api/admin/platform/phone-numbers/purchasable-businesses" : null
   );
@@ -165,6 +166,21 @@ export default function PhoneNumbersPage() {
     }
   }
 
+  async function verifyAll() {
+    setVerifyingAll(true);
+    try {
+      const res = await apiPost<{ checked: number; fixed: number; errors: number }>("/api/admin/platform/phone-numbers/verify-all");
+      if (res.fixed > 0) toast.success(`${res.checked} numbers verified — ${res.fixed} fixed`);
+      else toast.success(`${res.checked} numbers verified — all correctly configured`);
+      if (res.errors > 0) toast.error(`${res.errors} number(s) could not be checked (Twilio errors)`);
+      mutate();
+    } catch (err: any) {
+      toast.error(err?.message || "Verify failed");
+    } finally {
+      setVerifyingAll(false);
+    }
+  }
+
   async function fixOrphan(sid: string) {
     if (!confirm("Release this orphaned Twilio number? It has no business owner in our database and is costing $1.50/mo for nothing.")) return;
     setBusy(sid);
@@ -229,6 +245,9 @@ export default function PhoneNumbersPage() {
           <div className="flex items-center justify-between p-4 pb-0">
             <CardTitle>Purchased Numbers</CardTitle>
             <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline" disabled={verifyingAll} onClick={verifyAll}>
+                <ShieldCheck className="h-3.5 w-3.5" /> {verifyingAll ? "Verifying…" : "Verify All Numbers"}
+              </Button>
               <Button size="sm" variant="outline" onClick={() => { setPurchaseOpen(true); setPurchaseTarget(""); }}>
                 <PlusCircle className="h-3.5 w-3.5" /> Purchase for business
               </Button>
