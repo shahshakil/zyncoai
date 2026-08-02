@@ -1,5 +1,5 @@
 "use client";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { toast } from "sonner";
@@ -27,15 +27,28 @@ const DangerZoneTab = dynamic(() => import("@/components/dashboard/settings/Dang
 function SettingsTabs() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialTab = searchParams.get("tab") || "profile";
+  const urlTab = searchParams.get("tab") || "profile";
   const { business } = useDashboard();
   const ops = getVerticalOps(business.vertical);
+  const [activeTab, setActiveTab] = useState(urlTab);
 
   // Billing moved to its own page — old ?tab=billing links/bookmarks land
   // here instead of a blank tab.
   useEffect(() => {
-    if (initialTab === "billing") router.replace("/dashboard/billing");
-  }, [initialTab, router]);
+    if (urlTab === "billing") router.replace("/dashboard/billing");
+  }, [urlTab, router]);
+
+  // Tabs.Root's defaultValue is read once on mount and then ignored — but
+  // every ?tab= link on this page (Sidebar, TrialBanner, OnboardingChecklist,
+  // "Connect in Staff tab", etc.) points at this same /dashboard/settings
+  // route, so clicking one while already on Settings is a same-route
+  // client-side transition that never remounts this component. Without this
+  // sync, the URL would update but the visibly active tab wouldn't. Guarded
+  // against "billing" so it doesn't flash that tab active for the instant
+  // before the redirect above fires.
+  useEffect(() => {
+    if (urlTab !== "billing") setActiveTab(urlTab);
+  }, [urlTab]);
 
   useEffect(() => {
     const connected = searchParams.get("calendar_connected");
@@ -49,13 +62,18 @@ function SettingsTabs() {
     else if (squareError) toast.error(squareError === "invalid_state" ? "That connection link expired — please try again" : "Could not connect Square");
   }, [searchParams]);
 
-  const trackTab = (tab: string) => {
+  // Clicking a TabsTrigger directly (not a ?tab= link elsewhere) also keeps
+  // the URL in sync, via replace (not push) so tabbing around doesn't stack
+  // up back-button history entries.
+  function onTabChange(tab: string) {
+    setActiveTab(tab);
+    router.replace(`/dashboard/settings?tab=${tab}`, { scroll: false });
     posthog.capture("dashboard_tab_viewed", { tab });
     if (tab === "integrations") posthog.capture("integration_page_viewed", {});
-  };
+  }
 
   return (
-    <Tabs defaultValue={initialTab} onValueChange={trackTab}>
+    <Tabs value={activeTab} onValueChange={onTabChange}>
       <TabsList>
         <TabsTrigger value="profile">Business</TabsTrigger>
         <TabsTrigger value="staff">Staff</TabsTrigger>
