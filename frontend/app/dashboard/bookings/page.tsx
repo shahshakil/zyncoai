@@ -415,6 +415,7 @@ interface BookingSuccess {
   staffName: string;
   startAt: string;
   calendarSynced: boolean;
+  confirmationEmail: string | null;
 }
 
 export function CreateBookingDialog({
@@ -441,6 +442,7 @@ export function CreateBookingDialog({
   const [providerId, setProviderId] = useState(initialProviderId || "");
   const [contactName, setContactName] = useState("");
   const [contactPhone, setContactPhone] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
   const [date, setDate] = useState(initialDate || "");
   const [time, setTime] = useState(initialTime || "");
   const [notes, setNotes] = useState("");
@@ -462,7 +464,7 @@ export function CreateBookingDialog({
   }, [open, initialProviderId, initialDate, initialTime]);
 
   function resetForm() {
-    setContactName(""); setContactPhone(""); setDate(""); setTime(""); setNotes("");
+    setContactName(""); setContactPhone(""); setContactEmail(""); setDate(""); setTime(""); setNotes("");
   }
 
   async function submit(e: React.FormEvent) {
@@ -474,7 +476,7 @@ export function CreateBookingDialog({
       const endAt = new Date(startAt.getTime() + 30 * 60000);
       const res = await apiPost<{ ok: boolean; appointment: Appointment; calendarSynced: boolean }>("/api/business/appointments", {
         providerId,
-        contact: { name: contactName || undefined, phone: contactPhone },
+        contact: { name: contactName || undefined, phone: contactPhone, email: contactEmail || undefined },
         startAt: startAt.toISOString(),
         endAt: endAt.toISOString(),
         notes: notes || undefined,
@@ -487,6 +489,7 @@ export function CreateBookingDialog({
         staffName: res.appointment.provider.name,
         startAt: res.appointment.startAt,
         calendarSynced: res.calendarSynced,
+        confirmationEmail: contactEmail.trim() || null,
       });
     } catch (err: any) {
       toast.error(err.status === 409 ? "That slot is no longer available" : `Could not create ${copy.noun.toLowerCase()}`);
@@ -514,6 +517,11 @@ export function CreateBookingDialog({
               {success.calendarSynced
                 ? `Event added to ${success.staffName}'s Google Calendar ✅`
                 : `Not synced to Google Calendar — ${success.staffName} hasn't connected one, or the sync failed.`}
+            </p>
+            <p className="text-xs">
+              {success.confirmationEmail
+                ? `Confirmation email will be sent to ${success.confirmationEmail} ✅`
+                : "No email on file — confirmation sent by SMS/call only."}
             </p>
           </div>
           <div className="flex gap-2 pt-1">
@@ -559,6 +567,10 @@ export function CreateBookingDialog({
               <Label>Phone</Label>
               <Input value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} required />
             </div>
+          </div>
+          <div>
+            <Label>Patient email (for confirmation)</Label>
+            <Input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="patient@email.com" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
