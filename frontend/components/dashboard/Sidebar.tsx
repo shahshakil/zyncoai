@@ -61,6 +61,8 @@ function buildNav(role: string, vertical: string): NavItem[] {
 
   if (role === "DOCTOR" && ops) {
     base.push({ href: "/dashboard/calendar", label: "My Calendar", icon: CalendarDays });
+  } else {
+    base.push({ href: "/dashboard/calendar", label: "Calendar", icon: CalendarDays });
   }
 
   if (vertical === "RESTAURANT" && role !== "DOCTOR") {

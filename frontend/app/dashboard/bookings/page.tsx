@@ -26,11 +26,11 @@ import { Card } from "@/components/dashboard/ui/card";
 import { Button } from "@/components/dashboard/ui/button";
 import { Input, Label, Select } from "@/components/dashboard/ui/input";
 import { Table, Thead, Th, Tbody, Tr, Td, EmptyState } from "@/components/dashboard/ui/table";
-import { SkeletonRow } from "@/components/dashboard/ui/skeleton";
-import { StatusBadge } from "@/components/dashboard/ui/badge";
+import { Skeleton, SkeletonRow } from "@/components/dashboard/ui/skeleton";
+import { Badge, StatusBadge } from "@/components/dashboard/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog";
 
-const VERTICAL_COPY: Record<string, { noun: string; recordType: string; metaLabel: string; metaPlaceholder: string }> = {
+export const VERTICAL_COPY: Record<string, { noun: string; recordType: string; metaLabel: string; metaPlaceholder: string }> = {
   MEDICAL: { noun: "Appointment", recordType: "appointment", metaLabel: "Reason for visit", metaPlaceholder: "Annual checkup" },
   DENTAL: { noun: "Appointment", recordType: "appointment", metaLabel: "Reason for visit", metaPlaceholder: "Cleaning, filling…" },
   LAW: { noun: "Consultation", recordType: "consultation", metaLabel: "Matter type", metaPlaceholder: "Family law, contracts…" },
@@ -70,20 +70,22 @@ interface AppointmentExportRow {
   notes: string;
 }
 
-interface Appointment {
+export interface Appointment {
   id: string;
   startAt: string;
   endAt: string;
   status: string;
   recordType: string | null;
   notes: string | null;
+  googleEventId: string | null;
   provider: { id: string; name: string };
   contact: { id: string; name: string | null; phone: string } | null;
 }
 
-interface Provider {
+export interface Provider {
   id: string;
   name: string;
+  googleCalendarConnected?: boolean;
 }
 
 // Row color-coding, matching the check-in board's scheme: yellow = waiting,
@@ -182,7 +184,7 @@ export default function BookingsPage() {
 
   const query = new URLSearchParams(status ? { status } : {}).toString();
   const { data, isLoading, mutate } = useApi<{ data: Appointment[] }>(`/api/business/appointments?${query}`, { refreshInterval: 8000 });
-  const { data: providersData } = useApi<{ providers: Provider[] }>("/api/business/providers");
+  const { data: providersData, isLoading: providersLoading, mutate: mutateProviders } = useApi<{ providers: Provider[] }>("/api/business/providers");
 
   // ARRIVED is the canonical "checked in" status (also used by the
   // Clinical & Billing pipeline and the hybrid check-in system's SMS/QR/IVR
@@ -244,7 +246,7 @@ export default function BookingsPage() {
               onPrintReady={(providers, weekStart) => { setScheduleData({ providers, weekStart }); setPrintMode("schedule"); }}
             />
           )}
-          <Button size="sm" onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" /> New {copy.noun.toLowerCase()}</Button>
+          <Button size="sm" onClick={() => { mutateProviders(); setCreateOpen(true); }}><Plus className="h-4 w-4" /> New {copy.noun.toLowerCase()}</Button>
         </div>
       </div>
 
@@ -275,15 +277,18 @@ export default function BookingsPage() {
               <Th>Staff</Th>
               <Th>When</Th>
               <Th>Status</Th>
+              <Th>Calendar</Th>
               <Th>Notes</Th>
               <Th></Th>
             </tr>
           </Thead>
           <Tbody>
             {isLoading ? (
-              Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} cols={7} />)
+              Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} cols={8} />)
             ) : data?.data.length ? (
-              data.data.map((a) => (
+              data.data.map((a) => {
+                const providerConnected = providersData?.providers.find((p) => p.id === a.provider.id)?.googleCalendarConnected;
+                return (
                 <Tr key={a.id} className={`border-l-4 ${ROW_STATUS_BORDER[a.status] || "border-l-transparent"}`}>
                   <Td><input type="checkbox" checked={selected.has(a.id)} onChange={() => toggleSelected(a.id)} /></Td>
                   <Td className="font-medium text-slate-900">
@@ -296,6 +301,15 @@ export default function BookingsPage() {
                   <Td>{a.provider.name}</Td>
                   <Td className="text-slate-500">{new Date(a.startAt).toLocaleString()}</Td>
                   <Td><StatusBadge status={a.status} /></Td>
+                  <Td>
+                    {a.googleEventId ? (
+                      <Badge tone="success" title="Synced to Google Calendar">Synced</Badge>
+                    ) : providerConnected ? (
+                      <Badge tone="warning" title="This staff member's Google Calendar is connected, but this booking wasn't synced">Not synced</Badge>
+                    ) : (
+                      <Badge tone="default" title="This staff member hasn't connected Google Calendar">Not connected</Badge>
+                    )}
+                  </Td>
                   <Td className="max-w-[200px] truncate text-slate-500">{a.notes || "—"}</Td>
                   <Td className="text-right">
                     <div className="flex flex-wrap justify-end gap-1.5">
@@ -322,14 +336,29 @@ export default function BookingsPage() {
                     </div>
                   </Td>
                 </Tr>
-              ))
+              );
+              })
             ) : null}
           </Tbody>
         </Table>
-        {!isLoading && !data?.data.length && <EmptyState icon={CalendarX2} title={`No ${copy.noun.toLowerCase()}s yet`} description="Bookings made over the phone or created here will show up in this list." />}
+        {!isLoading && !data?.data.length && (
+          <EmptyState
+            icon={CalendarX2}
+            title={`No ${copy.noun.toLowerCase()}s yet`}
+            description={`${copy.noun}s booked by Ella or created here will appear.`}
+            action={<Button size="sm" onClick={() => { mutateProviders(); setCreateOpen(true); }}><Plus className="h-4 w-4" /> Book first {copy.noun.toLowerCase()}</Button>}
+          />
+        )}
       </Card>
 
-      <CreateBookingDialog open={createOpen} onClose={() => setCreateOpen(false)} providers={providersData?.providers || []} copy={copy} onCreated={() => mutate()} />
+      <CreateBookingDialog
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        providers={providersData?.providers || []}
+        providersLoading={providersLoading}
+        copy={copy}
+        onCreated={() => mutate()}
+      />
 
       {printMode === "list" && (
         <div className="print-only">
@@ -381,30 +410,60 @@ export default function BookingsPage() {
   );
 }
 
-function CreateBookingDialog({
+interface BookingSuccess {
+  patientName: string;
+  staffName: string;
+  startAt: string;
+  calendarSynced: boolean;
+}
+
+export function CreateBookingDialog({
   open,
   onClose,
   providers,
+  providersLoading,
   copy,
   onCreated,
+  initialProviderId,
+  initialDate,
+  initialTime,
 }: {
   open: boolean;
   onClose: () => void;
   providers: Provider[];
+  providersLoading: boolean;
   copy: (typeof VERTICAL_COPY)[string];
   onCreated: () => void;
+  initialProviderId?: string;
+  initialDate?: string;
+  initialTime?: string;
 }) {
-  const [providerId, setProviderId] = useState("");
+  const [providerId, setProviderId] = useState(initialProviderId || "");
   const [contactName, setContactName] = useState("");
   const [contactPhone, setContactPhone] = useState("");
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
+  const [date, setDate] = useState(initialDate || "");
+  const [time, setTime] = useState(initialTime || "");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState<BookingSuccess | null>(null);
 
   useEffect(() => {
-    if (providers.length && !providerId) setProviderId(providers[0].id);
-  }, [providers, providerId]);
+    if (providers.length && !providerId) setProviderId(initialProviderId || providers[0].id);
+  }, [providers, providerId, initialProviderId]);
+
+  // Re-sync prefill values whenever the dialog is (re)opened from a
+  // different quick-book context (e.g. clicking a different slot on the
+  // weekly calendar) rather than only on first mount.
+  useEffect(() => {
+    if (!open) return;
+    if (initialProviderId) setProviderId(initialProviderId);
+    if (initialDate) setDate(initialDate);
+    if (initialTime) setTime(initialTime);
+  }, [open, initialProviderId, initialDate, initialTime]);
+
+  function resetForm() {
+    setContactName(""); setContactPhone(""); setDate(""); setTime(""); setNotes("");
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -413,7 +472,7 @@ function CreateBookingDialog({
     try {
       const startAt = new Date(`${date}T${time}:00`);
       const endAt = new Date(startAt.getTime() + 30 * 60000);
-      await apiPost("/api/business/appointments", {
+      const res = await apiPost<{ ok: boolean; appointment: Appointment; calendarSynced: boolean }>("/api/business/appointments", {
         providerId,
         contact: { name: contactName || undefined, phone: contactPhone },
         startAt: startAt.toISOString(),
@@ -421,10 +480,14 @@ function CreateBookingDialog({
         notes: notes || undefined,
         recordType: copy.recordType,
       });
-      toast.success(`${copy.noun} created`);
-      onClose();
       onCreated();
-      setContactName(""); setContactPhone(""); setDate(""); setTime(""); setNotes("");
+      resetForm();
+      setSuccess({
+        patientName: res.appointment.contact?.name || res.appointment.contact?.phone || contactPhone,
+        staffName: res.appointment.provider.name,
+        startAt: res.appointment.startAt,
+        calendarSynced: res.calendarSynced,
+      });
     } catch (err: any) {
       toast.error(err.status === 409 ? "That slot is no longer available" : `Could not create ${copy.noun.toLowerCase()}`);
     } finally {
@@ -432,16 +495,60 @@ function CreateBookingDialog({
     }
   }
 
+  function close() {
+    setSuccess(null);
+    onClose();
+  }
+
+  if (success) {
+    return (
+      <Dialog open={open} onOpenChange={(v) => !v && close()}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>✅ {copy.noun} booked successfully!</DialogTitle></DialogHeader>
+          <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm">
+            <p><span className="text-slate-500">Patient:</span> <span className="font-medium text-slate-900">{success.patientName}</span></p>
+            <p><span className="text-slate-500">Staff:</span> <span className="font-medium text-slate-900">{success.staffName}</span></p>
+            <p><span className="text-slate-500">Date:</span> <span className="font-medium text-slate-900">{new Date(success.startAt).toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</span></p>
+            <p><span className="text-slate-500">Time:</span> <span className="font-medium text-slate-900">{new Date(success.startAt).toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit" })}</span></p>
+            <p className="pt-1 text-xs">
+              {success.calendarSynced
+                ? `Event added to ${success.staffName}'s Google Calendar ✅`
+                : `Not synced to Google Calendar — ${success.staffName} hasn't connected one, or the sync failed.`}
+            </p>
+          </div>
+          <div className="flex gap-2 pt-1">
+            <Button variant="outline" className="flex-1" onClick={() => setSuccess(null)}>Book another</Button>
+            <Link href="/dashboard/bookings" className="flex-1" onClick={close}>
+              <Button className="w-full">View appointments</Button>
+            </Link>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+    <Dialog open={open} onOpenChange={(v) => !v && close()}>
       <DialogContent>
         <DialogHeader><DialogTitle>New {copy.noun.toLowerCase()}</DialogTitle></DialogHeader>
         <form onSubmit={submit} className="space-y-3">
           <div>
             <Label>Staff</Label>
-            <Select value={providerId} onChange={(e) => setProviderId(e.target.value)}>
-              {providers.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </Select>
+            {providersLoading ? (
+              <Skeleton className="h-9 w-full" />
+            ) : providers.length ? (
+              <Select value={providerId} onChange={(e) => setProviderId(e.target.value)} required>
+                <option value="">Select staff member</option>
+                {providers.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </Select>
+            ) : (
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                No staff added yet.{" "}
+                <Link href="/dashboard/settings?tab=staff" onClick={close} className="font-medium underline hover:text-amber-900">
+                  Add staff in Settings → Staff
+                </Link>
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -467,7 +574,7 @@ function CreateBookingDialog({
             <Label>{copy.metaLabel}</Label>
             <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={copy.metaPlaceholder} />
           </div>
-          <Button type="submit" className="w-full" disabled={saving}>{saving ? "Creating…" : `Create ${copy.noun.toLowerCase()}`}</Button>
+          <Button type="submit" className="w-full" disabled={saving || !providers.length}>{saving ? "Creating…" : `Create ${copy.noun.toLowerCase()}`}</Button>
         </form>
       </DialogContent>
     </Dialog>
