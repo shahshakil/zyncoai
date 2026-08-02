@@ -51,15 +51,31 @@ function SettingsTabs() {
   }, [urlTab]);
 
   useEffect(() => {
+    // Google's (and Square's) standard OAuth error code for "user clicked
+    // Cancel on the consent screen" — worth a distinct, friendlier message
+    // from a genuine exchange failure, same reasoning as EmailSendingSection.
+    function oauthErrorToast(error: string, connectionLabel: string) {
+      if (error === "access_denied" || error === "cancelled" || error === "user_denied") {
+        toast.error("Connection cancelled. Click Connect to try again.");
+      } else if (error === "invalid_state") {
+        toast.error("That connection link expired — please try again");
+      } else {
+        toast.error(`Could not connect ${connectionLabel}. Please try again or contact support.`);
+      }
+    }
+
     const connected = searchParams.get("calendar_connected");
     const error = searchParams.get("calendar_error");
-    if (connected === "1") toast.success("Google Calendar connected successfully!");
-    else if (error) toast.error(error === "invalid_state" ? "That connection link expired — please try again" : "Could not connect Google Calendar");
+    if (connected === "1") toast.success("✅ Google Calendar connected successfully!", { duration: 5000 });
+    else if (error) oauthErrorToast(error, "Google Calendar");
 
     const squareConnected = searchParams.get("square_connected");
     const squareError = searchParams.get("square_error");
-    if (squareConnected === "1") toast.success("Square connected successfully!");
-    else if (squareError) toast.error(squareError === "invalid_state" ? "That connection link expired — please try again" : "Could not connect Square");
+    if (squareConnected === "1") {
+      toast.success("✅ Square connected!", { description: "Your menu will sync automatically.", duration: 5000 });
+    } else if (squareError) {
+      oauthErrorToast(squareError, "Square");
+    }
   }, [searchParams]);
 
   // Clicking a TabsTrigger directly (not a ?tab= link elsewhere) also keeps

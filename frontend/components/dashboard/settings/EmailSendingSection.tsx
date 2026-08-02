@@ -34,8 +34,8 @@ function StatusBadgeRow({ state, sendingFrom }: { state: "not_connected" | "pend
   if (state === "connected") {
     return (
       <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-600">
-        <span className="h-2 w-2 rounded-full bg-emerald-500" />
-        {sendingFrom ? `Sending from ${sendingFrom}` : "Connected"}
+        <CheckCircle2 className="h-3.5 w-3.5" />
+        {sendingFrom ? `Connected — sending as ${sendingFrom}` : "Connected"}
       </div>
     );
   }
@@ -68,7 +68,9 @@ function ProviderRow({
   configured,
   onConnect,
   onDisconnect,
+  onSendTest,
   connecting,
+  sendingTest,
 }: {
   icon: React.ReactNode;
   name: string;
@@ -77,7 +79,9 @@ function ProviderRow({
   configured: boolean;
   onConnect: () => void;
   onDisconnect: () => void;
+  onSendTest: () => void;
   connecting: boolean;
+  sendingTest: boolean;
 }) {
   return (
     <div className="flex items-center justify-between rounded-lg border border-slate-200 p-3">
@@ -89,7 +93,12 @@ function ProviderRow({
         </div>
       </div>
       {connected ? (
-        <Button variant="outline" size="sm" onClick={onDisconnect}>Disconnect</Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" disabled={sendingTest} onClick={onSendTest}>
+            {sendingTest ? "Sending…" : "Send test email"}
+          </Button>
+          <Button variant="ghost" size="sm" onClick={onDisconnect}>Disconnect</Button>
+        </div>
       ) : (
         <Button
           variant="outline"
@@ -103,6 +112,7 @@ function ProviderRow({
             onConnect();
           }}
         >
+          {connecting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           {connecting ? "Connecting…" : "Connect"}
         </Button>
       )}
@@ -110,10 +120,13 @@ function ProviderRow({
   );
 }
 
+const PROVIDER_LABEL: Record<string, string> = { google: "Gmail", microsoft: "Outlook", yahoo: "Yahoo Mail" };
+
 export function EmailSendingSection() {
   const searchParams = useSearchParams();
   const { data, isLoading, mutate } = useApi<StatusResponse>("/api/business/email-sending/status");
   const [connectingProvider, setConnectingProvider] = useState<string | null>(null);
+  const [sendingTestProvider, setSendingTestProvider] = useState<string | null>(null);
 
   const [customOpen, setCustomOpen] = useState(false);
   const [customEmail, setCustomEmail] = useState("");
@@ -126,13 +139,51 @@ export function EmailSendingSection() {
   useEffect(() => {
     const connected = searchParams.get("email_sender_connected");
     const error = searchParams.get("email_sender_error");
-    if (error) toast.error("Could not connect — please try again");
+
+    if (error) {
+      // Google/Microsoft/Yahoo all use the standard OAuth error code for "user
+      // clicked Cancel on the consent screen" — worth a distinct, friendlier
+      // message from a genuine exchange failure.
+      if (error === "access_denied" || error === "cancelled") {
+        toast.error("Connection cancelled. Click Connect to try again.");
+      } else {
+        toast.error("Connection failed. Please try again or contact support.");
+      }
+      return;
+    }
+
     if (connected) {
-      toast.success(`${connected[0].toUpperCase()}${connected.slice(1)} connected`);
-      mutate();
+      const label = PROVIDER_LABEL[connected] || connected;
+      // The OAuth exchange itself already finished server-side before this
+      // redirect happened — the one genuinely async step left on this end is
+      // confirming it by refetching status, so this loading toast reflects
+      // real work, not a fake delay.
+      const toastId = toast.loading("Setting up your connection…");
+      mutate().finally(() => {
+        toast.success(`✅ ${label} connected successfully!`, {
+          id: toastId,
+          description:
+            connected === "google" || connected === "microsoft" || connected === "yahoo"
+              ? `Booking confirmations will show your business name, with replies going to your ${label} inbox.`
+              : undefined,
+          duration: 5000,
+        });
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
+
+  async function sendTestEmail(provider: string) {
+    setSendingTestProvider(provider);
+    try {
+      const res = await apiPost<{ sentTo: string }>("/api/business/email-sending/test");
+      toast.success(`Test email sent to ${res.sentTo} ✅`);
+    } catch {
+      toast.error("Could not send test email");
+    } finally {
+      setSendingTestProvider(null);
+    }
+  }
 
   useEffect(() => {
     if (data?.senderEmail) setCustomEmail((prev) => prev || (data.emailProvider === "custom" ? data.senderEmail! : prev));
@@ -240,8 +291,10 @@ export function EmailSendingSection() {
           sendingFrom={data?.senderEmail}
           configured={Boolean(data?.providersConfigured.google)}
           connecting={connectingProvider === "google"}
+          sendingTest={sendingTestProvider === "google"}
           onConnect={() => startOAuth("google")}
           onDisconnect={disconnect}
+          onSendTest={() => sendTestEmail("google")}
         />
         <ProviderRow
           icon={<MicrosoftLogo />}
@@ -250,8 +303,10 @@ export function EmailSendingSection() {
           sendingFrom={data?.senderEmail}
           configured={Boolean(data?.providersConfigured.microsoft)}
           connecting={connectingProvider === "microsoft"}
+          sendingTest={sendingTestProvider === "microsoft"}
           onConnect={() => startOAuth("microsoft")}
           onDisconnect={disconnect}
+          onSendTest={() => sendTestEmail("microsoft")}
         />
         <ProviderRow
           icon={<YahooLogo />}
@@ -260,8 +315,10 @@ export function EmailSendingSection() {
           sendingFrom={data?.senderEmail}
           configured={Boolean(data?.providersConfigured.yahoo)}
           connecting={connectingProvider === "yahoo"}
+          sendingTest={sendingTestProvider === "yahoo"}
           onConnect={() => startOAuth("yahoo")}
           onDisconnect={disconnect}
+          onSendTest={() => sendTestEmail("yahoo")}
         />
 
         {/* Other / custom domain */}
