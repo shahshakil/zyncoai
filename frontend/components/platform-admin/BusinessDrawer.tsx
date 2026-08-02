@@ -19,6 +19,7 @@ interface BusinessDetail {
   id: string; name: string; phoneNumber: string; vertical: string; status: string; createdAt: string;
   manualPlan: string | null; abn: string | null; trialEndsAt: string | null;
   planOverridePriceCents: number | null; planOverrideCallAllowance: number | null;
+  preferredPaymentMethod: "SQUARE" | "BANK_TRANSFER" | "PAYPAL" | "BPAY" | null;
   smsConfirmationsEnabled: boolean; smsConfirmationsPaid: boolean;
   twilioNumberSid: string | null; provisioningStatus: "PENDING" | "ACTIVE" | "FAILED"; provisioningError: string | null;
   squareCardId: string | null; squareCardBrand: string | null; squareCardLast4: string | null; squareCardExpMonth: number | null; squareCardExpYear: number | null;
@@ -58,6 +59,8 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
   const [overridePrice, setOverridePrice] = useState("");
   const [overrideAllowance, setOverrideAllowance] = useState("");
   const [savingPlan, setSavingPlan] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [savingPaymentMethod, setSavingPaymentMethod] = useState(false);
 
   useEffect(() => {
     if (!data) return;
@@ -65,7 +68,22 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
     setAbn(data.business.abn || "");
     setOverridePrice(data.business.planOverridePriceCents !== null ? (data.business.planOverridePriceCents / 100).toString() : "");
     setOverrideAllowance(data.business.planOverrideCallAllowance !== null ? data.business.planOverrideCallAllowance.toString() : "");
+    setPaymentMethod(data.business.preferredPaymentMethod || "");
   }, [data]);
+
+  async function savePaymentMethod() {
+    setSavingPaymentMethod(true);
+    try {
+      await apiPost(`/api/admin/platform/businesses/${businessId}/payment-method`, { method: paymentMethod || null });
+      toast.success("Payment method saved");
+      mutate();
+      onChanged();
+    } catch {
+      toast.error("Failed to save payment method");
+    } finally {
+      setSavingPaymentMethod(false);
+    }
+  }
 
   async function savePlan() {
     setSavingPlan(true);
@@ -380,6 +398,19 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
                                 <option value="">No plan</option>
                                 {settingsData?.settings.pricingPlans.map((p) => <option key={p.key} value={p.key}>{p.name} ({formatCents(p.priceCents)}/mo)</option>)}
                               </Select>
+                            </div>
+                            <div className="flex items-end gap-2">
+                              <div className="flex-1">
+                                <Label>Payment method</Label>
+                                <Select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+                                  <option value="">Not set</option>
+                                  <option value="SQUARE">Card</option>
+                                  <option value="BANK_TRANSFER">Bank Transfer</option>
+                                  <option value="PAYPAL">PayPal</option>
+                                  <option value="BPAY">BPAY</option>
+                                </Select>
+                              </div>
+                              <Button size="sm" variant="outline" onClick={savePaymentMethod} disabled={savingPaymentMethod}>{savingPaymentMethod ? "Saving…" : "Save"}</Button>
                             </div>
                             <div>
                               <Label>ABN</Label>

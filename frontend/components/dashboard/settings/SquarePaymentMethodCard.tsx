@@ -46,7 +46,22 @@ function loadSquareSdk(environment: "sandbox" | "production"): Promise<void> {
   return promise;
 }
 
-export function SquarePaymentMethodCard({
+export function SquarePaymentMethodCard(props: { configured: boolean; clientConfig: SquareClientConfig | null; card: SavedCard | null; onChanged: () => void }) {
+  return (
+    <Card>
+      <CardHeader><CardTitle>Payment method</CardTitle></CardHeader>
+      <CardContent>
+        <SquareCardForm {...props} />
+      </CardContent>
+    </Card>
+  );
+}
+
+// Bare card-add/view/remove UI with no Card/CardHeader wrapper of its own —
+// used both by SquarePaymentMethodCard above (standalone, e.g. during plan
+// change) and directly by PaymentMethodSelector.tsx (already inside its own
+// "Payment method" card, one per selected method).
+export function SquareCardForm({
   configured,
   clientConfig,
   card,
@@ -134,38 +149,38 @@ export function SquarePaymentMethodCard({
     }
   }
 
+  if (!configured) {
+    return <p className="text-sm text-slate-400">Card payments aren&apos;t set up on this account yet — invoices are payable by bank transfer in the meantime.</p>;
+  }
+  if (card) {
+    return (
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <CreditCard className="h-5 w-5 text-slate-400" />
+          <div>
+            <p className="text-sm font-medium text-slate-900">{card.brand} •••• {card.last4}</p>
+            <p className="text-xs text-slate-500">Expires {card.expMonth}/{card.expYear} · charged automatically each billing period</p>
+          </div>
+        </div>
+        <Button variant="ghost" size="sm" disabled={removing} onClick={removeCard}><Trash2 className="h-4 w-4" /></Button>
+      </div>
+    );
+  }
+  if (adding) {
+    return (
+      <div className="space-y-3">
+        <div ref={containerRef} className="rounded-lg border border-slate-200 p-3" />
+        <div className="flex gap-2">
+          <Button size="sm" disabled={!sdkReady || saving} onClick={submitCard}>{saving ? "Saving…" : "Save card"}</Button>
+          <Button size="sm" variant="outline" onClick={() => setAdding(false)}>Cancel</Button>
+        </div>
+      </div>
+    );
+  }
   return (
-    <Card>
-      <CardHeader><CardTitle>Payment method</CardTitle></CardHeader>
-      <CardContent>
-        {!configured ? (
-          <p className="text-sm text-slate-400">Card payments aren&apos;t set up on this account yet — invoices are payable by bank transfer in the meantime.</p>
-        ) : card ? (
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <CreditCard className="h-5 w-5 text-slate-400" />
-              <div>
-                <p className="text-sm font-medium text-slate-900">{card.brand} •••• {card.last4}</p>
-                <p className="text-xs text-slate-500">Expires {card.expMonth}/{card.expYear} · charged automatically each billing period</p>
-              </div>
-            </div>
-            <Button variant="ghost" size="sm" disabled={removing} onClick={removeCard}><Trash2 className="h-4 w-4" /></Button>
-          </div>
-        ) : adding ? (
-          <div className="space-y-3">
-            <div ref={containerRef} className="rounded-lg border border-slate-200 p-3" />
-            <div className="flex gap-2">
-              <Button size="sm" disabled={!sdkReady || saving} onClick={submitCard}>{saving ? "Saving…" : "Save card"}</Button>
-              <Button size="sm" variant="outline" onClick={() => setAdding(false)}>Cancel</Button>
-            </div>
-          </div>
-        ) : (
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-slate-500">No payment method on file — invoices are payable by bank transfer, or add a card to have them charged automatically.</p>
-            <Button variant="outline" size="sm" onClick={() => setAdding(true)}>Add payment method</Button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+    <div className="flex items-center justify-between">
+      <p className="text-sm text-slate-500">No payment method on file — invoices are payable by bank transfer, or add a card to have them charged automatically.</p>
+      <Button variant="outline" size="sm" onClick={() => setAdding(true)}>Add payment method</Button>
+    </div>
   );
 }

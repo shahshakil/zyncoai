@@ -8,7 +8,7 @@ import { Card, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { Button } from "@/components/dashboard/ui/button";
 import { Table, Thead, Th, Tbody, Tr, Td } from "@/components/dashboard/ui/table";
 import { Badge } from "@/components/dashboard/ui/badge";
-import { Input, Label } from "@/components/dashboard/ui/input";
+import { Input, Label, Select } from "@/components/dashboard/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog";
 import { Topbar } from "@/components/platform-admin/Topbar";
 import { formatCents } from "@/components/platform-admin/format";
@@ -175,6 +175,8 @@ export default function InvoiceDetailPage() {
 function MarkPaidDialog({ open, onClose, invoice, onSaved }: { open: boolean; onClose: () => void; invoice: InvoiceDetail; onSaved: () => void }) {
   const [amount, setAmount] = useState((invoice.totalCents / 100).toFixed(2));
   const [reference, setReference] = useState("");
+  const [paidVia, setPaidVia] = useState("BANK_TRANSFER");
+  const [paidAt, setPaidAt] = useState(new Date().toISOString().slice(0, 10));
   const [saving, setSaving] = useState(false);
 
   async function save() {
@@ -183,6 +185,8 @@ function MarkPaidDialog({ open, onClose, invoice, onSaved }: { open: boolean; on
       await apiPost(`/api/admin/platform/invoices/${invoice.id}/paid`, {
         paidAmountCents: Math.round(parseFloat(amount || "0") * 100),
         paidReference: reference.trim() || undefined,
+        paidVia,
+        paidAt,
       }, "PUT");
       toast.success("Marked as paid");
       onSaved();
@@ -200,12 +204,25 @@ function MarkPaidDialog({ open, onClose, invoice, onSaved }: { open: boolean; on
         <DialogHeader><DialogTitle>Mark {invoice.invoiceNumber} as Paid</DialogTitle></DialogHeader>
         <div className="space-y-4">
           <div>
+            <Label>Payment method</Label>
+            <Select value={paidVia} onChange={(e) => setPaidVia(e.target.value)}>
+              <option value="BANK_TRANSFER">Bank Transfer</option>
+              <option value="SQUARE">Card</option>
+              <option value="PAYPAL">PayPal</option>
+              <option value="BPAY">BPAY</option>
+            </Select>
+          </div>
+          <div>
             <Label>Amount received ($)</Label>
             <Input type="number" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} />
           </div>
           <div>
+            <Label>Date received</Label>
+            <Input type="date" value={paidAt} onChange={(e) => setPaidAt(e.target.value)} />
+          </div>
+          <div>
             <Label>Payment reference (optional)</Label>
-            <Input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Bank transfer reference" />
+            <Input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Bank transfer / BPAY / PayPal reference" />
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="secondary" onClick={onClose}>Cancel</Button>

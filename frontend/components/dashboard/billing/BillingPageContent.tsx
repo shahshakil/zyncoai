@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { ToggleRow } from "../ui/toggle";
 import { Table, Thead, Tbody, Tr, Th, Td, EmptyState } from "../ui/table";
 import { SquarePaymentMethodCard } from "../settings/SquarePaymentMethodCard";
+import { PaymentMethodSelector } from "./PaymentMethodSelector";
 import { formatAUD as money } from "@/lib/money";
 
 interface BillingPlan {
@@ -39,7 +40,7 @@ interface BillingDiscount {
 }
 interface BillingInvoice {
   id: string; invoiceNumber: string; planName: string; periodStart: string; periodEnd: string; totalCents: number; status: string; issuedAt: string; dueDate: string;
-  paidVia: "BANK_TRANSFER" | "SQUARE" | null; autoChargeError: string | null;
+  paidVia: "BANK_TRANSFER" | "SQUARE" | "PAYPAL" | "BPAY" | null; autoChargeError: string | null;
 }
 interface BillingData {
   plan: BillingPlan | null;
@@ -50,11 +51,15 @@ interface BillingData {
   discounts: BillingDiscount[];
   referral: { link: string; wasReferredBy: boolean; pendingCount: number; approvedCount: number; creditsEarnedCents: number };
   invoices: BillingInvoice[];
+  preferredPaymentMethod: "SQUARE" | "BANK_TRANSFER" | "PAYPAL" | "BPAY" | null;
   square: {
     configured: boolean;
     clientConfig: { applicationId: string; locationId: string; environment: "sandbox" | "production" } | null;
     card: { brand: string | null; last4: string | null; expMonth: number | null; expYear: number | null } | null;
   };
+  bankTransfer: { bankName: string | null; bankAccountName: string | null; bankBsb: string | null; bankAccountNumber: string | null; configured: boolean };
+  bpay: { billerCode: string | null; reference: string; configured: boolean };
+  paypal: { configured: boolean; clientId: string | null; environment: "sandbox" | "production" | null; subscriptionActive: boolean; payerEmail: string | null };
 }
 
 function discountLabel(d: BillingDiscount): string {
@@ -273,7 +278,15 @@ export function BillingPageContent() {
       )}
 
       {/* Section 3 — Payment method */}
-      <SquarePaymentMethodCard configured={data.square.configured} clientConfig={data.square.clientConfig} card={data.square.card} onChanged={mutate} />
+      <PaymentMethodSelector
+        preferredPaymentMethod={data.preferredPaymentMethod}
+        square={data.square}
+        bankTransfer={data.bankTransfer}
+        bpay={data.bpay}
+        paypal={data.paypal}
+        hasPlan={Boolean(data.plan)}
+        onChanged={mutate}
+      />
 
       {/* Section 4 — Add-ons */}
       <Card>

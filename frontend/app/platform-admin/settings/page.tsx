@@ -22,6 +22,7 @@ interface Settings {
   bankBsb?: string | null;
   bankAccountNumber?: string | null;
   bankName?: string | null;
+  bpayBillerCode?: string | null;
   stripeSecretKey?: string | null;
   openAiCostPerMinuteMicros?: number;
   twilioCostPerCallMicros?: number;
@@ -53,6 +54,7 @@ export default function PlatformSettingsPage() {
   const [bankBsb, setBankBsb] = useState("");
   const [bankAccountNumber, setBankAccountNumber] = useState("");
   const [bankName, setBankName] = useState("");
+  const [bpayBillerCode, setBpayBillerCode] = useState("");
   const [stripeSecretKey, setStripeSecretKey] = useState("");
   const [openAiCostPerMinute, setOpenAiCostPerMinute] = useState("0.30");
   const [twilioCostPerCall, setTwilioCostPerCall] = useState("0.01");
@@ -76,6 +78,7 @@ export default function PlatformSettingsPage() {
     setBankBsb(data.settings.bankBsb || "");
     setBankAccountNumber(data.settings.bankAccountNumber || "");
     setBankName(data.settings.bankName || "");
+    setBpayBillerCode(data.settings.bpayBillerCode || "");
     setStripeSecretKey(data.settings.stripeSecretKey || "");
     if (typeof data.settings.openAiCostPerMinuteMicros === "number") setOpenAiCostPerMinute((data.settings.openAiCostPerMinuteMicros / 1_000_000).toString());
     if (typeof data.settings.twilioCostPerCallMicros === "number") setTwilioCostPerCall((data.settings.twilioCostPerCallMicros / 1_000_000).toString());
@@ -115,6 +118,7 @@ export default function PlatformSettingsPage() {
         bankBsb: bankBsb || null,
         bankAccountNumber: bankAccountNumber || null,
         bankName: bankName || null,
+        bpayBillerCode: bpayBillerCode || null,
         stripeSecretKey: stripeSecretKey || null,
         openAiCostPerMinute: Number(openAiCostPerMinute || 0),
         twilioCostPerCall: Number(twilioCostPerCall || 0),
@@ -277,7 +281,7 @@ export default function PlatformSettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Billing Details</CardTitle>
-            <p className="mt-0.5 text-xs text-[#9CA3AF]">Printed on every invoice. Payments are manual/bank-transfer only — Stripe key is a placeholder, not wired up yet.</p>
+            <p className="mt-0.5 text-xs text-[#9CA3AF]">Printed on every invoice. Bank transfer + BPAY details shown here; PayPal client id/secret are set via backend env vars. Stripe key is a placeholder, not wired up.</p>
           </CardHeader>
           <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2">
             <div>
@@ -301,6 +305,11 @@ export default function PlatformSettingsPage() {
                 <Label>Account number</Label>
                 <Input value={bankAccountNumber} onChange={(e) => setBankAccountNumber(e.target.value)} placeholder="12345678" />
               </div>
+            </div>
+            <div>
+              <Label>BPAY biller code</Label>
+              <Input value={bpayBillerCode} onChange={(e) => setBpayBillerCode(e.target.value)} placeholder="123456" />
+              <p className="mt-0.5 text-xs text-[#9CA3AF]">Reference is per-business (their account id) — shown automatically on their invoices and billing page.</p>
             </div>
             <div>
               <Label>Invoice due (days)</Label>
