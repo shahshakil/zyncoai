@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { AlertTriangle, Clock } from "lucide-react";
+import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import { DashboardBusiness } from "./BusinessContext";
 
 // Only shown for a business still on its free trial and never converted to
@@ -46,12 +46,12 @@ export function TrialBanner({ business }: { business: DashboardBusiness }) {
   }
 
   return (
-    <div className="flex items-center justify-between gap-3 bg-slate-900 px-4 py-2 text-sm text-white">
+    <div className="flex items-center justify-between gap-3 bg-emerald-600 px-4 py-2 text-sm text-white">
       <div className="flex items-center gap-2">
-        <Clock className="h-4 w-4 shrink-0 text-slate-300" />
-        <span>Free Trial — {daysLeft} days remaining</span>
+        <CheckCircle2 className="h-4 w-4 shrink-0" />
+        <span>{daysLeft} days remaining in your free trial</span>
       </div>
-      <Link href="/dashboard/settings?tab=billing" className="shrink-0 text-slate-300 underline-offset-2 hover:text-white hover:underline">
+      <Link href="/dashboard/settings?tab=billing" className="shrink-0 text-white/80 underline-offset-2 hover:text-white hover:underline">
         Add card early
       </Link>
     </div>

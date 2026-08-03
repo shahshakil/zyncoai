@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
-import { X, Ban, PlayCircle, Mail, ExternalLink, Phone, PhoneOff, RefreshCw, Plug, CreditCard, KeyRound } from "lucide-react";
+import { X, Ban, PlayCircle, Mail, ExternalLink, Phone, PhoneOff, RefreshCw, Plug, CreditCard, KeyRound, RotateCw, Gift, HandCoins, XCircle } from "lucide-react";
 import { useApi, apiPost } from "@/lib/useApi";
 import { Button } from "@/components/dashboard/ui/button";
 import { Badge, StatusBadge } from "@/components/dashboard/ui/badge";
@@ -38,12 +38,14 @@ interface OrderStats {
   revenueTodayCents: number; revenueWeekCents: number; revenueMonthCents: number;
   avgOrderValueCents: number;
 }
+interface PaymentRetryStatus { failedInvoiceId: string; failedCount: number; nextActionAt: string | null; nextAction: string }
 interface DrawerData {
   business: BusinessDetail;
   recentCalls: { id: string; startedAt: string; outcome: string | null; status: string; contact: { name: string | null; phone: string } | null }[];
   upcomingAppointments: { id: string; startAt: string; status: string; contact: { name: string | null; phone: string } | null; provider: { name: string } | null }[];
   recentInvoices: RecentInvoice[];
   orderStats: OrderStats | null;
+  paymentRetryStatus: PaymentRetryStatus | null;
 }
 
 export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId: string | null; onClose: () => void; onChanged: () => void }) {
@@ -136,9 +138,70 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
     }
   }
 
+  const [payBusy, setPayBusy] = useState(false);
+
+  async function forceRetryPayment() {
+    setPayBusy(true);
+    try {
+      await apiPost(`/api/admin/platform/businesses/${businessId}/force-retry`);
+      toast.success("Payment retried successfully");
+      mutate();
+      onChanged();
+    } catch (err: any) {
+      toast.error(err?.message || "Retry failed — card still declined");
+    } finally {
+      setPayBusy(false);
+    }
+  }
+
+  async function waivePayment() {
+    if (!confirm("Waive this failed invoice? It will be marked paid ($0) and the business reactivated.")) return;
+    setPayBusy(true);
+    try {
+      await apiPost(`/api/admin/platform/businesses/${businessId}/waive-payment`);
+      toast.success("Invoice waived");
+      mutate();
+      onChanged();
+    } catch {
+      toast.error("Failed to waive payment");
+    } finally {
+      setPayBusy(false);
+    }
+  }
+
+  async function giveFreeMonth() {
+    if (!confirm(`Give ${data?.business.name} a free month (100% off their next invoice)?`)) return;
+    setPayBusy(true);
+    try {
+      await apiPost(`/api/admin/platform/businesses/${businessId}/free-month`);
+      toast.success("Free month granted");
+      mutate();
+      onChanged();
+    } catch {
+      toast.error("Failed to grant free month");
+    } finally {
+      setPayBusy(false);
+    }
+  }
+
+  async function closeAccount() {
+    if (!confirm(`Close ${data?.business.name}'s account? Calling stops immediately and the dashboard becomes fully inaccessible. This does not release their phone number or delete data yet.`)) return;
+    setPayBusy(true);
+    try {
+      await apiPost(`/api/admin/platform/businesses/${businessId}/close-account`);
+      toast.success("Account closed");
+      mutate();
+      onChanged();
+    } catch {
+      toast.error("Failed to close account");
+    } finally {
+      setPayBusy(false);
+    }
+  }
+
   async function toggleStatus() {
     if (!data) return;
-    const action = data.business.status === "SUSPENDED" ? "activate" : "suspend";
+    const action = data.business.status === "SUSPENDED" || data.business.status === "HOLD" ? "activate" : "suspend";
     if (action === "suspend" && !confirm(`Suspend ${data.business.name}? Their AI receptionist will stop taking calls.`)) return;
     setBusy(true);
     try {
@@ -392,6 +455,22 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
                                 {extendingTrial ? "Extending…" : "+7 days"}
                               </Button>
                             </div>
+                            {data.paymentRetryStatus && (
+                              <div className="rounded-lg bg-[#FEF2F2] px-3 py-2">
+                                <p className="text-xs font-medium text-[#B91C1C]">
+                                  Payment failed ({data.paymentRetryStatus.failedCount}/3 attempts) — {data.paymentRetryStatus.nextAction}
+                                  {data.paymentRetryStatus.nextActionAt && ` ${new Date(data.paymentRetryStatus.nextActionAt).toLocaleDateString()}`}
+                                </p>
+                                <div className="mt-2 flex gap-2">
+                                  <Button size="sm" variant="outline" onClick={forceRetryPayment} disabled={payBusy}>
+                                    <RotateCw className="h-3.5 w-3.5" /> Force retry now
+                                  </Button>
+                                  <Button size="sm" variant="outline" onClick={waivePayment} disabled={payBusy}>
+                                    <HandCoins className="h-3.5 w-3.5" /> Waive failed payment
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
                             <div>
                               <Label>Plan</Label>
                               <Select value={planKey} onChange={(e) => setPlanKey(e.target.value)}>
@@ -502,15 +581,23 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
                             <Button size="sm" onClick={sendEmail} disabled={busy}>Send</Button>
                           </div>
                         )}
-                        <Button
-                          variant={data.business.status === "SUSPENDED" ? "secondary" : "danger"}
-                          className="w-full justify-start"
-                          onClick={toggleStatus}
-                          disabled={busy}
-                        >
-                          {data.business.status === "SUSPENDED" ? <PlayCircle className="h-4 w-4" /> : <Ban className="h-4 w-4" />}
-                          {data.business.status === "SUSPENDED" ? "Activate business" : "Suspend business"}
+                        <Button variant="outline" className="w-full justify-start" onClick={giveFreeMonth} disabled={payBusy}>
+                          <Gift className="h-4 w-4" /> Give free month
                         </Button>
+                        {(data.business.status === "SUSPENDED" || data.business.status === "HOLD") ? (
+                          <Button variant="secondary" className="w-full justify-start" onClick={toggleStatus} disabled={busy}>
+                            <PlayCircle className="h-4 w-4" /> Reactivate account
+                          </Button>
+                        ) : (
+                          <Button variant="danger" className="w-full justify-start" onClick={toggleStatus} disabled={busy}>
+                            <Ban className="h-4 w-4" /> Suspend business
+                          </Button>
+                        )}
+                        {data.business.status !== "CLOSED" && (
+                          <Button variant="danger" className="w-full justify-start" onClick={closeAccount} disabled={payBusy}>
+                            <XCircle className="h-4 w-4" /> Close account
+                          </Button>
+                        )}
                       </div>
                     </TabsContent>
                   </Tabs>

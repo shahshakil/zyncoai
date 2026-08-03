@@ -56,6 +56,8 @@ const STATUS_TONE: Record<string, Tone> = {
   NO_SHOW: "danger",
   ACTIVE: "success",
   SUSPENDED: "danger",
+  HOLD: "warning",
+  CLOSED: "default",
 };
 
 export function StatusBadge({ status }: { status: string }) {

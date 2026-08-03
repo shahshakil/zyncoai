@@ -110,6 +110,21 @@ export function DashboardGate({ children }: { children: React.ReactNode }) {
     );
   }
 
+  // HOLD is deliberately NOT gated here — unlike SUSPENDED/CLOSED below, a
+  // business on HOLD (Square auto-charge retries exhausted) keeps full
+  // dashboard access; only calling is blocked (twilioInbound.ts). It falls
+  // through to the normal dashboard render, with HoldBanner (rendered in
+  // app/dashboard/layout.tsx alongside TrialBanner) as the visible signal.
+  if (state.business.status === "CLOSED") {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
+        <p className="max-w-sm text-center text-sm text-slate-500">
+          This account has been closed. Please contact support to discuss reactivating it.
+        </p>
+      </div>
+    );
+  }
+
   if (state.business.status === "SUSPENDED") {
     // Billing routes are OWNER/ADMIN-only server-side (requireBusinessRole in
     // billing.ts), so STAFF/DOCTOR can't drive the card-entry gate — they'd
