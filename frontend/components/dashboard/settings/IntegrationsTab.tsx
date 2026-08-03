@@ -19,13 +19,29 @@ import { IntegrationsCatalogSection } from "./IntegrationsCatalogSection";
 // codebase has always been upfront about that (see StaffSyncPanel.tsx's
 // "export a staff CSV from your software and upload it above") rather than
 // faking a sync that can't work; they stay credential-storage/webhook-only.
+// Pabau joins that same honest-partial category as of 2026-08-03: Pabau's
+// API is confirmed real and self-service (Bearer-token auth verified live),
+// but its exact staff/employee-listing endpoint path couldn't be confirmed
+// against live docs (the docs site blocks automated verification and
+// returns an identical 401 for every path, so a wrong guess can't even be
+// caught by probing) — credentials can be stored now, direct sync is
+// pending a live Pabau account to confirm the real endpoint.
+//
+// Halaxy (added 2026-08-03) is confirmed self-service and live-verified —
+// but its auth is OAuth2 client_credentials (Client ID + Client Secret, not
+// a single API key), so it uses the two credentialFields below instead of
+// the generic "API key" input; the two values are combined client-side into
+// one JSON string before being sent as apiKey (see connect()) so no backend
+// schema change was needed.
 const PROVIDERS = [
   { key: "cliniko", label: "Cliniko", needsSubdomain: true, hasDirectSync: true },
   { key: "nookal", label: "Nookal", needsSubdomain: true, hasDirectSync: true },
+  { key: "halaxy", label: "Halaxy", needsSubdomain: false, hasDirectSync: true, credentialFields: ["Client ID", "Client Secret"] as [string, string] },
   { key: "zanda", label: "Zanda (Power Diary)", needsSubdomain: false, hasDirectSync: true },
   { key: "power_diary", label: "Power Diary", needsSubdomain: false, hasDirectSync: true },
   { key: "janeapp", label: "Jane App", needsSubdomain: false, hasDirectSync: true },
   { key: "coreplus", label: "Core Plus", needsSubdomain: false, hasDirectSync: true },
+  { key: "pabau", label: "Pabau", needsSubdomain: false, hasDirectSync: false },
   { key: "best_practice", label: "Best Practice", needsSubdomain: false, hasDirectSync: false },
   { key: "medical_director", label: "Medical Director", needsSubdomain: false, hasDirectSync: false },
   { key: "generic_webhook", label: "Generic Webhook", needsSubdomain: false, isWebhook: true, hasDirectSync: false },
@@ -43,6 +59,7 @@ function PracticeManagementIntegrations() {
   const { data, isLoading, mutate } = useApi<{ integrations: Record<string, IntegrationState> }>("/api/business/integrations");
   const [active, setActive] = useState<(typeof PROVIDERS)[number] | null>(null);
   const [apiKey, setApiKey] = useState("");
+  const [secondCredential, setSecondCredential] = useState("");
   const [subdomain, setSubdomain] = useState("");
   const [webhookUrl, setWebhookUrl] = useState("");
   const [consentAccepted, setConsentAccepted] = useState(false);
@@ -58,11 +75,14 @@ function PracticeManagementIntegrations() {
     }
     setSaving(true);
     try {
+      const credential = active.credentialFields
+        ? JSON.stringify({ clientId: apiKey, clientSecret: secondCredential })
+        : apiKey;
       const res = await apiPost<{ staffSync?: { imported: number; updated: number } | { error: string } | null }>(
         `/api/business/integrations/${active.key}`,
         active.isWebhook
           ? { webhookUrl, enabled: true, consentAccepted: true }
-          : { apiKey, subdomain: subdomain || undefined, enabled: true, consentAccepted: true }
+          : { apiKey: credential, subdomain: subdomain || undefined, enabled: true, consentAccepted: true }
       );
       const sync = res.staffSync;
       if (sync && "imported" in sync) {
@@ -74,6 +94,7 @@ function PracticeManagementIntegrations() {
       }
       setActive(null);
       setApiKey("");
+      setSecondCredential("");
       setSubdomain("");
       setWebhookUrl("");
       setConsentAccepted(false);
@@ -157,6 +178,17 @@ function PracticeManagementIntegrations() {
                 <Label>Webhook URL</Label>
                 <Input value={webhookUrl} onChange={(e) => setWebhookUrl(e.target.value)} placeholder="https://your-system.com/hook" required />
               </div>
+            ) : active?.credentialFields ? (
+              <>
+                <div>
+                  <Label>{active.credentialFields[0]}</Label>
+                  <Input value={apiKey} onChange={(e) => setApiKey(e.target.value)} required />
+                </div>
+                <div>
+                  <Label>{active.credentialFields[1]}</Label>
+                  <Input value={secondCredential} onChange={(e) => setSecondCredential(e.target.value)} required />
+                </div>
+              </>
             ) : (
               <>
                 <div>
