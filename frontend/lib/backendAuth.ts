@@ -8,7 +8,22 @@
 // token value server-side and re-issue it as our own httpOnly cookie scoped
 // to this frontend's domain, then send it back to the backend as an
 // explicit `Cookie: refresh_token=...` header on every refresh call.
-export const BACKEND_BASE = (process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.zyncoai.com").replace(/\/$/, "");
+//
+// INTERNAL_API_BASE_URL (plain env var, deliberately NOT NEXT_PUBLIC_-
+// prefixed so it's never inlined into client bundles) lets this
+// server-to-server call go straight to the api process's local port
+// instead of round-tripping through the public domain. That round-trip is
+// a real, confirmed-live outage on this host: api.zyncoai.com resolves to
+// this same box's own public IP, and the box cannot connect back to its
+// own public IP (ECONNREFUSED — no hairpin NAT), so every server-side
+// backendFetch() call here was failing outright. NEXT_PUBLIC_API_BASE_URL
+// stays the fallback for any client-side callers elsewhere, which don't
+// hit this self-connect problem since real browsers aren't on this box.
+export const BACKEND_BASE = (
+  process.env.INTERNAL_API_BASE_URL ||
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "https://api.zyncoai.com"
+).replace(/\/$/, "");
 
 export const ACCESS_COOKIE = "zyn_access";
 export const REFRESH_COOKIE = "zyn_refresh";
