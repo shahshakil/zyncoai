@@ -33,6 +33,9 @@ interface AvailablePlan extends BillingPlan {
 interface BillingAddOn {
   key: string; name: string; description: string; frequency: "MONTHLY" | "ONE_TIME"; priceCents: number;
   active?: boolean; purchased?: boolean; awaitingBillingConfirmation?: boolean;
+  // Real catalog entry, no working feature behind it yet — never rendered
+  // as purchasable (see addOnCatalog.ts's header comment on this flag).
+  comingSoon?: boolean;
 }
 interface BillingDiscount {
   id: string; type: "PERCENTAGE" | "FIXED_AMOUNT" | "CREDIT"; valuePercent: number | null; valueCents: number | null;
@@ -295,7 +298,7 @@ export function BillingPageContent() {
           <p className="text-xs text-slate-500">Add features tailored for {theme.label} businesses.</p>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {data.addOns.map((a) => (
+          {data.addOns.filter((a) => !a.comingSoon).map((a) => (
             <div key={a.key} className="flex flex-col justify-between rounded-xl border border-slate-200 p-4">
               <div className="flex items-start gap-2.5">
                 {a.frequency === "MONTHLY" ? (

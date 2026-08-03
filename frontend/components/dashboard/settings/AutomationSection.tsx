@@ -6,13 +6,19 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { PhoneOutgoing } from "lucide-react";
-import { useApi, apiPost } from "@/lib/useApi";
+import Link from "next/link";
+import { useApi, apiPost, ApiError } from "@/lib/useApi";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { Skeleton } from "../ui/skeleton";
 import { ToggleRow } from "../ui/toggle";
 
 interface BusinessSettingsResponse {
   business: { ghostCallAutoRescueEnabled: boolean; patientRecallAutoCallEnabled: boolean };
+  // Real outbound-call logic backs this toggle, but it's billed as the
+  // "Automated Patient Recalls" add-on — settings.ts's PATCH route rejects
+  // enabling patientRecallAutoCallEnabled unless this is true, so the UI
+  // disables/hides the control instead of letting a click fail silently.
+  patientRecallsAddOnActive: boolean;
 }
 
 export function AutomationSection() {
@@ -25,8 +31,12 @@ export function AutomationSection() {
       await apiPost("/api/business/settings", { [field]: value }, "PATCH");
       toast.success(value ? "Enabled" : "Disabled");
       mutate();
-    } catch {
-      toast.error("Could not update this setting");
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 402) {
+        toast.error("Purchase the Automated Patient Recalls add-on in Billing to enable this");
+      } else {
+        toast.error("Could not update this setting");
+      }
     } finally {
       setSaving(null);
     }
@@ -54,11 +64,22 @@ export function AutomationSection() {
             />
             <ToggleRow
               label="Patient Recall Auto-Call"
-              description="Automatically call patients overdue for a checkup (6+ months), during business hours, up to 2 attempts."
+              description={
+                data.patientRecallsAddOnActive
+                  ? "Automatically call patients overdue for a checkup (6+ months), during business hours, up to 2 attempts."
+                  : "Purchase the Automated Patient Recalls add-on in Billing to enable this."
+              }
               checked={data.business.patientRecallAutoCallEnabled}
-              disabled={saving === "patientRecallAutoCallEnabled"}
+              disabled={!data.patientRecallsAddOnActive || saving === "patientRecallAutoCallEnabled"}
               onChange={(v) => toggle("patientRecallAutoCallEnabled", v)}
             />
+            {!data.patientRecallsAddOnActive && (
+              <p className="pb-3 text-xs">
+                <Link href="/dashboard/settings?tab=billing" className="text-[var(--accent,#4f46e5)] underline-offset-2 hover:underline">
+                  Go to Billing to purchase this add-on
+                </Link>
+              </p>
+            )}
           </div>
         )}
       </CardContent>
