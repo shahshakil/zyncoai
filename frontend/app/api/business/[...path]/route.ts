@@ -36,7 +36,18 @@ async function proxy(req: NextRequest, params: { path: string[] }) {
   const targetPath = "/api/business/" + params.path.join("/") + req.nextUrl.search;
   const method = req.method;
   const hasBody = method !== "GET" && method !== "HEAD" && method !== "DELETE";
-  const body = hasBody ? await req.text() : undefined;
+  // File uploads (restaurant-menu photo/PDF import, any future multipart
+  // route) send multipart/form-data with binary content — req.text() UTF-8
+  // decodes the body, which corrupts arbitrary binary bytes (JPEG/PDF/HEIC
+  // are not valid UTF-8), and the old hardcoded "content-type:
+  // application/json" also stripped the boundary= parameter multer needs
+  // to parse the form at all. Every multipart upload silently failed
+  // before this fix, regardless of file size. arrayBuffer() + forwarding
+  // the real content-type (boundary included) fixes both; every other
+  // route keeps going through .text() as JSON, unchanged.
+  const requestContentType = req.headers.get("content-type") || "";
+  const isMultipart = requestContentType.startsWith("multipart/form-data");
+  const body = hasBody ? (isMultipart ? await req.arrayBuffer() : await req.text()) : undefined;
 
   // Forwarded as-is when present — the sensitive-action reauth flow
   // (components/auth/ConfirmPasswordModal.tsx) attaches this so
@@ -49,7 +60,7 @@ async function proxy(req: NextRequest, params: { path: string[] }) {
       method,
       headers: {
         authorization: `Bearer ${token}`,
-        ...(hasBody ? { "content-type": "application/json" } : {}),
+        ...(hasBody ? { "content-type": isMultipart ? requestContentType : "application/json" } : {}),
         ...(reauthToken ? { "x-reauth-token": reauthToken } : {}),
       },
       body: body || undefined,

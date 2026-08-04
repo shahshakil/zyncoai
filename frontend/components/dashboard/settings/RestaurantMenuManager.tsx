@@ -60,7 +60,20 @@ export function RestaurantMenuManager() {
     setExtracting(true);
     try {
       const res = await apiPost<{ items: DraftItem[] }>("/api/business/restaurant-menu/import/website", { url: websiteUrl.trim() });
-      if (!res.items.length) toast.error("No menu items found on that page");
+      // A zero-item result isn't a broken extraction — the AI reads
+      // whatever static HTML the page actually sends, and plenty of real
+      // restaurant sites (FoodHub, Wix, and similar ordering-platform
+      // widgets) render their menu client-side via JavaScript, which never
+      // appears in that HTML at all. Vertical-agnostic guidance to the
+      // alternatives that don't have this limitation, rather than a silent
+      // empty result — applies to any restaurant hitting this, not
+      // specific to any one business's site.
+      if (!res.items.length) {
+        toast.error(
+          "We couldn't find menu items on this website automatically - this usually happens when a site loads its menu dynamically (common with FoodHub, Wix, and similar platforms). Please try Manual entry, PDF menu upload, or Photo of menu instead.",
+          { duration: 10000 }
+        );
+      }
       setDraft(res.items);
       setDraftSource("website");
     } catch (err: any) {
