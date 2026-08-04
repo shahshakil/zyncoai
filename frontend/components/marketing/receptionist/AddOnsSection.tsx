@@ -49,6 +49,8 @@ export function AddOnsSection({ showTitle = true }: { showTitle?: boolean }) {
           const Icon = ICONS[a.key];
           const locked = !selectedPlan;
           const isAdded = added.has(a.key);
+          const disabled = locked || isAdded || a.comingSoon;
+          const title = a.comingSoon ? "Coming soon" : locked ? "Select a plan first to unlock add-ons" : undefined;
           return (
             <motion.div
               key={a.key}
@@ -56,12 +58,18 @@ export function AddOnsSection({ showTitle = true }: { showTitle?: boolean }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
               transition={{ delay: i * 0.05 }}
-              className={`relative rounded-2xl border border-[#e2e8f0] bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)] ${locked ? "opacity-70" : ""}`}
+              className={`relative rounded-2xl border border-[#e2e8f0] bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)] ${locked || a.comingSoon ? "opacity-70" : ""}`}
             >
-              {locked && (
-                <span title="Select a plan first to unlock add-ons" className="absolute right-4 top-4 text-[#94a3b8]">
-                  <Lock className="h-4 w-4" />
+              {a.comingSoon ? (
+                <span className="absolute right-4 top-4 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#64748b]">
+                  Coming soon
                 </span>
+              ) : (
+                locked && (
+                  <span title="Select a plan first to unlock add-ons" className="absolute right-4 top-4 text-[#94a3b8]">
+                    <Lock className="h-4 w-4" />
+                  </span>
+                )
               )}
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#06b6d4]/15">
                 <Icon className="h-5 w-5 text-[#0e7490]" />
@@ -70,12 +78,12 @@ export function AddOnsSection({ showTitle = true }: { showTitle?: boolean }) {
               <p className="mt-1.5 text-xs leading-relaxed text-[#475569]">{a.description}</p>
               <p className="mt-3 text-lg font-bold text-[#0f172a]">AUD ${a.priceMonthly}<span className="text-xs font-normal text-[#94a3b8]">/month</span></p>
               <button
-                disabled={locked || isAdded}
+                disabled={disabled}
                 onClick={() => addToPlan(a.key)}
-                title={locked ? "Select a plan first to unlock add-ons" : undefined}
+                title={title}
                 className="mt-4 w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-2 text-sm font-semibold text-[#0f172a] transition enabled:hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isAdded ? "Added ✓" : "Add to plan"}
+                {a.comingSoon ? "Coming soon" : isAdded ? "Added ✓" : "Add to plan"}
               </button>
             </motion.div>
           );

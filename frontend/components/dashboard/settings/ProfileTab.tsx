@@ -17,7 +17,7 @@ export function ProfileTab() {
 
   useEffect(() => {
     if (data?.business && !form) {
-      setForm({ name: data.business.name, vertical: data.business.vertical, address: data.business.address || "", timezone: data.business.timezone });
+      setForm({ name: data.business.name, vertical: data.business.vertical, address: data.business.address || "", timezone: data.business.timezone, googleReviewUrl: data.business.googleReviewUrl || "" });
     }
   }, [data, form]);
 
@@ -79,6 +79,17 @@ export function ProfileTab() {
         <div>
           <Label>Address</Label>
           <Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+        </div>
+        <div>
+          <Label>Google review link</Label>
+          <Input
+            value={form.googleReviewUrl}
+            onChange={(e) => setForm({ ...form, googleReviewUrl: e.target.value })}
+            placeholder="https://g.page/r/.../review"
+          />
+          <p className="mt-1 text-xs text-slate-400">
+            Your Google Business Profile review link. Required for the Google Reviews Autopilot add-on to send review requests — leave blank and it simply won&apos;t send.
+          </p>
         </div>
         {data?.mapEmbedUrl && (
           <div className="overflow-hidden rounded-lg border border-slate-200">

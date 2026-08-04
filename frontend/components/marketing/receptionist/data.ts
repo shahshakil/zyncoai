@@ -342,15 +342,22 @@ export interface AddOn {
   name: string;
   description: string;
   priceMonthly: number;
+  // Mirrors backend/src/lib/addOnCatalog.ts's comingSoon flag — this
+  // marketing page has its own separate hardcoded add-on list (prospects
+  // browsing pre-signup, not backed by the real per-vertical catalog/
+  // BusinessAddOn system), so the flag has to be kept in sync by hand.
+  // Audited 2026-08-04: telehealth/multilingual/comms-hub/multisite have no
+  // working implementation behind them yet. reviews and recalls are real.
+  comingSoon?: boolean;
 }
 
 export const ADD_ONS: AddOn[] = [
-  { key: "telehealth", name: "Telehealth Video Appointments", description: "Book and send video-consult links automatically.", priceMonthly: 59 },
+  { key: "telehealth", name: "Telehealth Video Appointments", description: "Book and send video-consult links automatically.", priceMonthly: 59, comingSoon: true },
   { key: "reviews", name: "Google Reviews Autopilot", description: "Requests a review automatically after every completed booking.", priceMonthly: 39 },
-  { key: "multilingual", name: "Custom Multilingual Support", description: "Priority-tuned voice and vocabulary for a specific language.", priceMonthly: 49 },
+  { key: "multilingual", name: "Custom Multilingual Support", description: "Priority-tuned voice and vocabulary for a specific language.", priceMonthly: 49, comingSoon: true },
   { key: "recalls", name: "Automated Patient Recalls", description: "Outbound calls to rebook overdue patients automatically.", priceMonthly: 79 },
-  { key: "comms-hub", name: "Patient Communication Hub", description: "SMS + Email + WhatsApp, all from one inbox.", priceMonthly: 179 },
-  { key: "multisite", name: "Multi-Site Command Centre", description: "Roll up call and booking data across every location.", priceMonthly: 299 },
+  { key: "comms-hub", name: "Patient Communication Hub", description: "SMS + Email + WhatsApp, all from one inbox.", priceMonthly: 179, comingSoon: true },
+  { key: "multisite", name: "Multi-Site Command Centre", description: "Roll up call and booking data across every location.", priceMonthly: 299, comingSoon: true },
 ];
 
 export interface Testimonial {
