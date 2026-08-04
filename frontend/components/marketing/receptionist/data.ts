@@ -249,11 +249,18 @@ export interface PricingPlan {
 }
 
 // Every plan gets the exact same full ZyncoAI platform. Plans only ever
-// differ on minutes included, number of locations, and support tier — never
-// on which features are unlocked. COMMON_FEATURES below is rendered
-// identically under every plan card (collapsed behind an "All features
-// included" toggle) rather than duplicated per-plan, since the list never
-// changes between plans.
+// differ on minutes included and price — never on which features are
+// unlocked. COMMON_FEATURES below is rendered identically under every plan
+// card (collapsed behind an "All features included" toggle) rather than
+// duplicated per-plan, since the list never changes between plans.
+//
+// Audited 2026-08-04: `support` used to read Email / Email+chat /
+// Email+chat+phone / Dedicated SLA per tier — zero code anywhere
+// distinguishes support by plan (no SLA/ticket-priority/routing field on
+// the plan model at all), so every tier now shows the one real, working
+// channel (support@zyncoai.com, see app/contact/page.tsx) instead of
+// implying a response-time tier that doesn't exist. `locations` was fixed
+// the same way earlier tonight — see that commit.
 //
 // These are the real Medical/Dental plan numbers from
 // backend/src/lib/platformSettings.ts's DEFAULT_MEDICAL_PLANS — shown here
@@ -262,7 +269,8 @@ export interface PricingPlan {
 // Real Estate, Bank, University, ...) is priced differently in the actual
 // product — see the "pricing varies by industry" note rendered above this
 // list in PricingSection.tsx. Setup fee is one-time, varies by tier (not a
-// flat rate across plans).
+// flat rate across plans) and is real — actually charged as a one-time
+// invoice line item when the plan is assigned (billing.ts).
 export const PRICING_PLANS: PricingPlan[] = [
   {
     key: "starter",
@@ -286,7 +294,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     minutesIncluded: "1,500 minutes/month",
     perMinute: "AUD $0.50 per extra minute · AUD $699 setup fee",
     locations: "1 location",
-    support: "Email + chat support",
+    support: "Email support",
     cta: "Start free trial",
   },
   {
@@ -298,7 +306,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     minutesIncluded: "2,000 minutes/month",
     perMinute: "AUD $0.50 per extra minute · AUD $899 setup fee",
     locations: "1 location",
-    support: "Email + chat + phone support",
+    support: "Email support",
     cta: "Start free trial",
   },
   {
@@ -310,7 +318,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     minutesIncluded: "Unlimited minutes",
     perMinute: "From AUD $1,499/month · AUD $1,999 setup fee",
     locations: "1 location",
-    support: "Dedicated SLA support",
+    support: "Email support",
     cta: "Contact sales",
   },
 ];
@@ -331,21 +339,45 @@ export const PRICING_PLANS: PricingPlan[] = [
 //    Lifeline/Beyond Blue mental-health-crisis detection does not exist —
 //    the only reference anywhere is dead-code systemPrompt.ts, never wired
 //    into the live call path. Dropped until actually built.
+//
+// Second pass, 2026-08-04 (full 15-line integrity check):
+//  - Calendar sync: confirmed Microsoft/Outlook calendar sync does not
+//    exist anywhere — microsoftGraph.ts only fetches the Azure AD staff
+//    directory, never touches /me/events or calendarView despite holding
+//    a Calendars.Read scope; the only "Outlook Calendar" code
+//    (connectors/calendar/index.ts) is dead, unused, and would throw at
+//    runtime (res.tson() typo). No real Microsoft email-sending
+//    integration exists to substitute in its place either, so the claim
+//    is now Google-only, not reworded to name a second unbuilt provider.
+//  - Insurance claims: reworded to "tracking dashboard" — real feature is
+//    manual dashboard entry (claims.ts); Ella's voice pipeline has no
+//    create_claim tool, so nothing from a phone call auto-populates this.
+//  - Australian compliance: reworded off a blanket "built in" claim — the
+//    platform's own compliance API self-reports dataResidency.compliant:
+//    false (DB is Singapore ap-southeast-1, required Sydney
+//    ap-southeast-2, migration still pending). What IS real and kept: call-
+//    recording disclosure (Privacy Act) + the compliance dashboard tools
+//    themselves (NDB Scheme consent surface, health-identifier rejection).
+//  - Patient files: description kept as-is — backend storage/upload route
+//    is genuinely real (multer + GCS/local disk, ClinicDocument model).
+//    Known follow-up (not urgent, tracked separately): the dashboard
+//    documents page has view/download/delete but no upload UI yet, so a
+//    business can't actually upload a file through the product today.
 export const COMMON_FEATURES: string[] = [
   "AI receptionist 24/7 — Ella voice",
   "Full practice manager dashboard",
   "Patient files and document management",
-  "Insurance claim tracking (Medicare, DVA, WorkCover, NDIS)",
+  "Insurance claim tracking dashboard (Medicare, DVA, WorkCover, NDIS)",
   "Financial and revenue dashboard",
   "Call history with full transcripts",
   "Appointment booking and management",
   "Email and SMS confirmations",
   "Cliniko integration, Best Practice CSV import",
-  "Google and Microsoft calendar sync",
+  "Google Calendar sync",
   "Staff management and roles",
   "Analytics (AI voice + clinical metrics)",
   "Export and print all data",
-  "Australian compliance built in",
+  "Privacy Act disclosure & compliance tools",
   "Emergency detection — instant 000 redirect",
 ];
 
@@ -391,5 +423,9 @@ export const TESTIMONIALS: Testimonial[] = [
 // code but was never part of the live-endpoint-verification pass, same
 // standard applied to every other claim on this page). Halaxy added (real
 // OAuth2 staff sync, built 2026-08-03). Best Practice is CSV import, not a
-// live sync, labelled accordingly.
-export const INTEGRATIONS = ["Cliniko", "Nookal", "Halaxy", "Best Practice (CSV)", "Google Calendar", "Microsoft 365"];
+// live sync, labelled accordingly. "Microsoft 365" dropped in the second
+// pass — confirmed no real Microsoft calendar sync or email-sending
+// integration exists (microsoftGraph.ts is staff-directory-only), so there
+// was nothing honest left for that entry to refer to next to Google
+// Calendar in a "works with your software" list.
+export const INTEGRATIONS = ["Cliniko", "Nookal", "Halaxy", "Best Practice (CSV)", "Google Calendar"];
