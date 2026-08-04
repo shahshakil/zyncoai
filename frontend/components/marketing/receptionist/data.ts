@@ -34,7 +34,7 @@ export const INDUSTRIES: Industry[] = [
     greeting: "Good morning, Riverside Medical, this is Ella — how can I help?",
     callerLine: "Hi, I need to book in with Dr Johnson for a check-up",
     callsHandledToday: 1204,
-    features: ["Books appointments against real provider calendars", "Understands Medicare, private health, DVA and WorkCover questions", "Flags emergency symptoms and escalates instantly", "Syncs with Cliniko, Best Practice and Medical Director"],
+    features: ["Books appointments against real provider calendars", "Understands Medicare, private health, DVA and WorkCover questions", "Flags emergency symptoms and escalates instantly", "Syncs with Cliniko, plus CSV import for Best Practice"],
     overview:
       "A medical clinic's phone line carries genuine urgency — a parent calling about a sick child, a patient chasing test results, someone trying to book before symptoms get worse. Every one of those calls competing for the same one or two reception staff means some of them go to voicemail, and a caller who hits voicemail when they're worried rarely leaves a message; they just call the next clinic. Ella answers every single call in under a second, day or night, and checks each provider's real calendar before offering a time, so there's no double-booking and no back-and-forth. Medicare, private health fund, DVA and WorkCover questions are handled in the same conversation, and anything that sounds like it needs urgent clinical attention is flagged and escalated immediately rather than quietly booked in for next Tuesday.",
     faqs: [
@@ -319,22 +319,34 @@ export const PRICING_PLANS: PricingPlan[] = [
 // call volume and locations, not with which parts of the product you get.
 // Multilingual AI is deliberately excluded — it's sold as an add-on, not a
 // base-plan feature (see ADD_ONS' "multilingual" entry).
+// Audited 2026-08-04 against real, verified code (same honesty pass as
+// backend/src/lib/addOnCatalog.ts) — three lines were overstated and fixed:
+//  - PMS integration: Medical Director claim dropped entirely (no live API,
+//    no CSV/webhook adapter confirmed working — see staffSync/scheduler.ts).
+//  - Insurance claims: real feature is status/amount TRACKING (claims.ts —
+//    LODGED/APPROVED/REJECTED/PENDING), never live submission to Medicare/a
+//    health fund/WorkCover/the NDIA.
+//  - Emergency detection: 000 physical-emergency redirect is real and
+//    verified (voice/pipecat/server.py's EmergencyTriageProcessor).
+//    Lifeline/Beyond Blue mental-health-crisis detection does not exist —
+//    the only reference anywhere is dead-code systemPrompt.ts, never wired
+//    into the live call path. Dropped until actually built.
 export const COMMON_FEATURES: string[] = [
   "AI receptionist 24/7 — Ella voice",
   "Full practice manager dashboard",
   "Patient files and document management",
-  "Insurance claims (Medicare, DVA, WorkCover, NDIS)",
+  "Insurance claim tracking (Medicare, DVA, WorkCover, NDIS)",
   "Financial and revenue dashboard",
   "Call history with full transcripts",
   "Appointment booking and management",
   "Email and SMS confirmations",
-  "Cliniko, Best Practice, Medical Director integration",
+  "Cliniko integration, Best Practice CSV import",
   "Google and Microsoft calendar sync",
   "Staff management and roles",
   "Analytics (AI voice + clinical metrics)",
   "Export and print all data",
   "Australian compliance built in",
-  "Emergency detection — 000, Lifeline, Beyond Blue",
+  "Emergency detection — instant 000 redirect",
 ];
 
 export interface AddOn {
@@ -374,4 +386,10 @@ export const TESTIMONIALS: Testimonial[] = [
   { quote: "It sounds like a real Australian receptionist, not a robot. Clients genuinely don't realise until we tell them.", name: "Sarah Chen", role: "Director", location: "Lumen Beauty, Melbourne VIC", rating: 5 },
 ];
 
-export const INTEGRATIONS = ["Cliniko", "Best Practice", "Medical Director", "Nookal", "Google Calendar", "Microsoft 365", "Zanda"];
+// Audited 2026-08-04: Medical Director and Zanda dropped — no live API for
+// either (Medical Director is unbuilt entirely; Zanda has an adapter in
+// code but was never part of the live-endpoint-verification pass, same
+// standard applied to every other claim on this page). Halaxy added (real
+// OAuth2 staff sync, built 2026-08-03). Best Practice is CSV import, not a
+// live sync, labelled accordingly.
+export const INTEGRATIONS = ["Cliniko", "Nookal", "Halaxy", "Best Practice (CSV)", "Google Calendar", "Microsoft 365"];
