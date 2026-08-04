@@ -209,8 +209,10 @@ export function RestaurantMenuManager() {
 
           {method.startsWith("unavailable:") && (
             <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">
-              {method.replace("unavailable:", "")} isn&apos;t connected yet.{" "}
-              <a href="/contact" className="font-medium underline">Contact support</a> to set up this integration.
+              {method.replace("unavailable:", "")} direct import isn&apos;t available yet - we&apos;re working on it. In
+              the meantime, try &quot;Own website (AI extract)&quot;, &quot;PDF menu upload&quot;, or &quot;Photo of
+              menu&quot; above to get your menu items in another way. Need something else?{" "}
+              <a href="/contact" className="font-medium underline">Contact support</a>.
             </p>
           )}
 
