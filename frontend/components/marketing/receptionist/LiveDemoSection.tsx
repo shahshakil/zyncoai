@@ -5,7 +5,12 @@ import posthog from "posthog-js";
 import { motion } from "framer-motion";
 import { Play, RotateCcw, ArrowRight, Phone } from "lucide-react";
 
-const DEMO_NUMBER = "+61 2 5747 4612";
+// Exported so other components (e.g. FaqSection's closing CTA) reuse this
+// exact, DB-verified number instead of duplicating the literal — there is
+// a second, unrelated "demo" number elsewhere on the site
+// (CallEllaButton.tsx) with no matching business record; this is the real
+// one.
+export const DEMO_NUMBER = "+61 2 5747 4612";
 
 type Turn = { speaker: "ella" | "caller"; text: string };
 
