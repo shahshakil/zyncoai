@@ -42,7 +42,9 @@ function SitewideHealthBanner() {
 export default function PlatformAdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const isLogin = pathname === "/platform-admin/login";
+  // 2026-08-05 — forgot/reset-password must be reachable without an
+  // existing admin session too, same reasoning as /login itself.
+  const isLogin = pathname === "/platform-admin/login" || pathname === "/platform-admin/forgot" || pathname === "/platform-admin/reset-password";
   const [checked, setChecked] = useState(isLogin);
   const [admin, setAdmin] = useState<{ email: string; name?: string | null } | null>(null);
   const [collapsed, setCollapsed] = useState(false);

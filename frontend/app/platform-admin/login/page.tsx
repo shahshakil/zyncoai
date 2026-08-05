@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "sonner";
 import { ShieldCheck } from "lucide-react";
 import { Button } from "@/components/dashboard/ui/button";
@@ -49,7 +50,12 @@ export default function PlatformAdminLoginPage() {
             <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div>
-            <Label htmlFor="password">Password</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Password</Label>
+              <Link href="/platform-admin/forgot" className="text-xs font-medium text-indigo-400 hover:text-indigo-300">
+                Forgot password?
+              </Link>
+            </div>
             <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
           </div>
           <Button type="submit" className="w-full" disabled={loading}>{loading ? "Signing in…" : "Sign in"}</Button>
