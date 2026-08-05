@@ -21,6 +21,7 @@ export default function MarketingMegaFooter() {
               <li><Link href="/pricing" className="hover:text-[#f8fafc]">Pricing</Link></li>
               <li><Link href="/addons" className="hover:text-[#f8fafc]">Add-ons</Link></li>
               <li><Link href="/demo" className="hover:text-[#f8fafc]">Demo</Link></li>
+              <li><Link href="/faq" className="hover:text-[#f8fafc]">FAQ</Link></li>
               <li><Link href="/whats-new/agents" className="hover:text-[#f8fafc]">Changelog</Link></li>
             </ul>
           </div>
@@ -40,8 +41,8 @@ export default function MarketingMegaFooter() {
             <div className="text-sm font-semibold text-[#f8fafc]">Resources</div>
             <ul className="mt-4 space-y-3 text-sm text-[#94a3b8]">
               <li><Link href="/resources" className="hover:text-[#f8fafc]">Blog</Link></li>
-              <li><Link href="/docs" className="hover:text-[#f8fafc]">Help Centre</Link></li>
-              <li><Link href="/docs" className="hover:text-[#f8fafc]">API Docs</Link></li>
+              <li><Link href="/resources/help" className="hover:text-[#f8fafc]">Help Centre</Link></li>
+              <li><Link href="/resources/api" className="hover:text-[#f8fafc]">API Docs</Link></li>
               <li><Link href="/resources/status" className="hover:text-[#f8fafc]">System Status</Link></li>
               <li><Link href="/privacy" className="hover:text-[#f8fafc]">Privacy Policy</Link></li>
               <li><Link href="/terms" className="hover:text-[#f8fafc]">Terms</Link></li>
@@ -52,7 +53,6 @@ export default function MarketingMegaFooter() {
             <div className="text-sm font-semibold text-[#f8fafc]">Company</div>
             <ul className="mt-4 space-y-3 text-sm text-[#94a3b8]">
               <li><Link href="/about" className="hover:text-[#f8fafc]">About</Link></li>
-              <li><Link href="/about" className="hover:text-[#f8fafc]">Careers</Link></li>
               <li><Link href="/contact" className="hover:text-[#f8fafc]">Contact</Link></li>
               <li><a href="mailto:support@zyncoai.com" className="hover:text-[#f8fafc]">support@zyncoai.com</a></li>
               <li className="text-[#94a3b8]">Newcastle, Australia</li>
@@ -75,7 +75,7 @@ export default function MarketingMegaFooter() {
             <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-2 text-xs text-[#94a3b8]">
               <li>✅ Privacy Act 1988</li>
               <li>✅ Spam Act 2003</li>
-              <li>✅ Australian Consumer Law 2026</li>
+              <li>✅ Australian Consumer Law (Competition and Consumer Act 2010)</li>
               <li>✅ My Health Records Act 2012</li>
               <li>
                 ✅ AI Transparency (

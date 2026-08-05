@@ -32,8 +32,15 @@ export function Badge({ className, tone = "default", ...props }: BadgeProps) {
 
 const CALL_OUTCOME_TONE: Record<string, Tone> = {
   booked: "success",
+  ordered: "success",
+  rescheduled: "info",
+  callback: "warning",
   callback_requested: "warning",
+  faq: "info",
   faq_answered: "info",
+  cancelled: "danger",
+  emergency: "danger",
+  abandoned: "default",
   guardrail_redirect: "danger",
 };
 

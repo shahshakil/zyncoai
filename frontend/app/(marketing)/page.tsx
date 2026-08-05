@@ -15,11 +15,11 @@ import { PricingSection } from "@/components/marketing/receptionist/PricingSecti
 import { AddOnsSection } from "@/components/marketing/receptionist/AddOnsSection";
 import { FinalCtaSection } from "@/components/marketing/receptionist/FinalCtaSection";
 import { FaqSection } from "@/components/marketing/receptionist/FaqSection";
-import { HomepageFaqJsonLd } from "@/components/seo/HomepageFaqJsonLd";
+import { FaqJsonLd } from "@/components/seo/FaqJsonLd";
+import { SITEWIDE_CHEAPEST_PLAN_PRICE } from "@/components/marketing/receptionist/data";
 
 const TITLE = "ZyncoAI — AI Receptionist for Australian Businesses | 24/7 Call Answering";
-const DESCRIPTION =
-  "ZyncoAI answers every call 24/7, books appointments automatically, and never misses a customer. AI receptionist for medical clinics, restaurants, mechanics and more. From AUD $149/month.";
+const DESCRIPTION = `ZyncoAI answers every call 24/7, books appointments automatically, and never misses a customer. AI receptionist for medical clinics, restaurants, mechanics and more. From AUD $${SITEWIDE_CHEAPEST_PLAN_PRICE}/month.`;
 const SHORT_DESCRIPTION = "Ella answers every call 24/7 and books appointments automatically.";
 
 export const metadata = {
@@ -53,7 +53,7 @@ export const metadata = {
 export default function Page() {
   return (
     <div className="bg-[#f8fafc]">
-      <HomepageFaqJsonLd />
+      <FaqJsonLd />
       <HeroSection />
       <VerticalsDiagramSection />
       <LiveDemoSection />

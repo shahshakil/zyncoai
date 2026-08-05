@@ -27,6 +27,7 @@ const PUBLIC_PATHS = [
   "/privacy",
   "/ai-transparency",
   "/product",
+  "/faq",
 
   "/agentops",
   "/workflowops",

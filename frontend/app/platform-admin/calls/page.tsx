@@ -51,10 +51,13 @@ interface CallsAnalytics {
 const VERTICAL_COLORS = ["#6366F1", "#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#F97316", "#14B8A6"];
 const STATE_COLORS = ["#6366F1", "#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#94A3B8"];
 
+interface AllCallsFilter { businessId: string; vertical: string; outcome: string; hasIssue: boolean }
+
 export default function CallsAnalyticsPage() {
   const { data } = useApi<CallsAnalytics>("/api/admin/platform/calls-analytics", { refreshInterval: 60000 });
   const { data: live } = useApi<CallsLive>("/api/admin/platform/calls-live", { refreshInterval: 30000 });
   const [transcriptCallId, setTranscriptCallId] = useState<string | null>(null);
+  const [allCallsFilter, setAllCallsFilter] = useState<AllCallsFilter>({ businessId: "", vertical: "", outcome: "", hasIssue: false });
 
   const answeredMissedTotal = data ? data.answeredVsMissed.answered + data.answeredVsMissed.missed + data.answeredVsMissed.ongoing : 0;
 
@@ -94,6 +97,9 @@ export default function CallsAnalyticsPage() {
             <StatCard label="OpenAI/Call Cost Today" value={formatMicros(live?.callCostTodayMicros || 0)} icon={DollarSign} gradient="linear-gradient(135deg,#F97316,#FB923C)" loading={!live} />
           </div>
         </Card>
+
+        <IssuesStrip onFilter={(next) => setAllCallsFilter((f) => ({ ...f, ...next }))} />
+        <AllCallsSection businesses={data?.businesses || []} filter={allCallsFilter} setFilter={setAllCallsFilter} />
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <StatCard label="Calls Today" value={formatNumber(data?.totalToday || 0)} icon={PhoneCall} gradient="linear-gradient(135deg,#10B981,#34D399)" loading={!data} />
@@ -241,6 +247,160 @@ export default function CallsAnalyticsPage() {
 
       <TranscriptModal callId={transcriptCallId} onClose={() => setTranscriptCallId(null)} />
     </div>
+  );
+}
+
+// 2026-08-05 call-transcript-monitoring build — "early-warning system":
+// today's issue counts, each clicking through to the filtered All Calls
+// list below rather than a separate page. Counts come from CallTurn rows
+// tagged by server.py (SYSTEM role for timeouts/nudges, TOOL role for
+// item_not_found) — see backend/src/lib/voice/callIssues.ts for the
+// shared "what counts as an issue" definition this and the tenant list
+// both use.
+interface IssuesToday {
+  counts: { timeouts: number; nudges: number; lowConfidence: number; abandoned: number; itemNotFound: number; truncatedFinals: number };
+}
+
+function IssuesStrip({ onFilter }: { onFilter: (next: Partial<AllCallsFilter>) => void }) {
+  const { data } = useApi<IssuesToday>("/api/admin/platform/calls/issues-today", { refreshInterval: 60000 });
+  const tiles = [
+    { key: "timeouts", label: "LLM Timeouts", value: data?.counts.timeouts, tone: "#EF4444" },
+    { key: "nudges", label: "Silence Nudges", value: data?.counts.nudges, tone: "#F59E0B" },
+    { key: "lowConfidence", label: "Low STT Confidence", value: data?.counts.lowConfidence, tone: "#F59E0B" },
+    { key: "abandoned", label: "Abandoned", value: data?.counts.abandoned, tone: "#94A3B8" },
+    { key: "itemNotFound", label: "Item Not Found", value: data?.counts.itemNotFound, tone: "#EF4444" },
+    // 2026-08-05 — detection only (see CA9a4e779... evidence report, fix
+    // #4 deferred) — visibility so we notice if this recurs, not yet an
+    // ISSUE_TURN_WHERE member, so the tile's click-through filter is
+    // approximate (hasIssue) rather than exact for this one.
+    { key: "truncatedFinals", label: "Possibly Truncated Finals", value: data?.counts.truncatedFinals, tone: "#9CA3AF" },
+  ];
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2"><Siren className="h-4 w-4 text-[#EF4444]" /> Issues — Last 24h</CardTitle>
+        <p className="mt-0.5 text-xs text-[#9CA3AF]">Click a tile to filter the call list below.</p>
+      </CardHeader>
+      <div className="grid grid-cols-2 gap-3 p-4 sm:grid-cols-6">
+        {tiles.map((t) => (
+          <button
+            key={t.key}
+            onClick={() => onFilter({ hasIssue: t.key !== "abandoned", outcome: t.key === "abandoned" ? "abandoned" : "" })}
+            className="rounded-xl border border-[#E5E7EB] p-3 text-left transition hover:-translate-y-px hover:shadow-md"
+          >
+            <p className="text-2xl font-bold" style={{ color: t.tone }}>{t.value ?? "—"}</p>
+            <p className="mt-0.5 text-xs text-[#6B7280]">{t.label}</p>
+          </button>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+interface AdminCallRow {
+  id: string;
+  startedAt: string;
+  endedAt: string | null;
+  isLive: boolean;
+  durationSec: number | null;
+  status: string;
+  outcome: string | null;
+  vertical: string | null;
+  businessId?: string;
+  businessName?: string;
+  fromNumber: string;
+  contactName: string | null;
+  hasIssue: boolean;
+}
+
+function AllCallsSection({
+  businesses,
+  filter,
+  setFilter,
+}: {
+  businesses: { id: string; name: string }[];
+  filter: AllCallsFilter;
+  setFilter: (f: AllCallsFilter | ((prev: AllCallsFilter) => AllCallsFilter)) => void;
+}) {
+  const query = new URLSearchParams({
+    pageSize: "20",
+    ...(filter.businessId ? { businessId: filter.businessId } : {}),
+    ...(filter.vertical ? { vertical: filter.vertical } : {}),
+    ...(filter.outcome ? { outcome: filter.outcome } : {}),
+    ...(filter.hasIssue ? { hasIssue: "true" } : {}),
+  }).toString();
+  const { data, isLoading } = useApi<{ data: AdminCallRow[] }>(`/api/admin/platform/calls?${query}`, { refreshInterval: 15000 });
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>All Calls</CardTitle>
+      </CardHeader>
+      <div className="flex flex-wrap items-center gap-3 border-b border-[#E5E7EB] p-4">
+        <select
+          value={filter.businessId}
+          onChange={(e) => setFilter((f) => ({ ...f, businessId: e.target.value }))}
+          className="h-9 rounded-lg border border-[#E5E7EB] px-3 text-sm"
+        >
+          <option value="">All businesses</option>
+          {businesses.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+        </select>
+        <select
+          value={filter.vertical}
+          onChange={(e) => setFilter((f) => ({ ...f, vertical: e.target.value }))}
+          className="h-9 rounded-lg border border-[#E5E7EB] px-3 text-sm"
+        >
+          <option value="">All verticals</option>
+          {Object.entries(VERTICAL_LABELS).map(([k, label]) => <option key={k} value={k}>{label}</option>)}
+        </select>
+        <select
+          value={filter.outcome}
+          onChange={(e) => setFilter((f) => ({ ...f, outcome: e.target.value }))}
+          className="h-9 rounded-lg border border-[#E5E7EB] px-3 text-sm"
+        >
+          <option value="">All outcomes</option>
+          {["booked", "ordered", "rescheduled", "cancelled", "callback", "faq", "emergency", "abandoned"].map((o) => <option key={o} value={o}>{o.replace(/_/g, " ")}</option>)}
+        </select>
+        <label className="flex items-center gap-1.5 text-sm text-[#374151]">
+          <input type="checkbox" checked={filter.hasIssue} onChange={(e) => setFilter((f) => ({ ...f, hasIssue: e.target.checked }))} className="h-4 w-4 rounded border-[#D1D5DB]" />
+          Has issue
+        </label>
+      </div>
+      <Table>
+        <Thead>
+          <tr><Th>Business</Th><Th>Caller</Th><Th>Vertical</Th><Th>Status</Th><Th>Outcome</Th><Th>Duration</Th><Th>Started</Th><Th></Th></tr>
+        </Thead>
+        <Tbody>
+          {isLoading ? (
+            <Tr><Td colSpan={8} className="text-center text-[#9CA3AF]">Loading…</Td></Tr>
+          ) : data?.data.length ? (
+            data.data.map((c) => (
+              <Tr key={c.id}>
+                <Td className="font-medium text-[#1F2937]">{c.businessName}</Td>
+                <Td>
+                  <div className="flex items-center gap-1.5">
+                    {c.isLive && <span className="flex items-center gap-1 rounded-full bg-rose-50 px-1.5 py-0.5 text-[10px] font-semibold text-rose-600"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-rose-500" /> LIVE</span>}
+                    {c.contactName || c.fromNumber}
+                    {c.hasIssue && <span title="Issue flagged" className="text-amber-500">⚠</span>}
+                  </div>
+                </Td>
+                <Td>{c.vertical ? VERTICAL_LABELS[c.vertical] || c.vertical : "—"}</Td>
+                <Td><Badge tone={c.status === "COMPLETED" ? "success" : c.status === "FAILED" ? "danger" : "warning"}>{c.status.toLowerCase()}</Badge></Td>
+                <Td><Badge tone="default">{c.outcome?.replace(/_/g, " ") || "—"}</Badge></Td>
+                <Td>{c.isLive ? "in progress" : c.durationSec != null ? formatDuration(c.durationSec) : "—"}</Td>
+                <Td className="text-xs text-[#6B7280]">{timeAgo(c.startedAt)}</Td>
+                <Td>
+                  <a href={`/platform-admin/calls/${c.id}`} className="flex items-center gap-1 text-xs text-[#6366F1] hover:underline">
+                    <FileText className="h-3 w-3" /> View
+                  </a>
+                </Td>
+              </Tr>
+            ))
+          ) : null}
+        </Tbody>
+      </Table>
+      {!isLoading && !data?.data.length && <EmptyState title="No calls match these filters" />}
+    </Card>
   );
 }
 

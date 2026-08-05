@@ -1,9 +1,8 @@
 "use client";
-import { useEffect, useState } from "react";
-import { Search, PhoneCall } from "lucide-react";
-import posthog from "posthog-js";
-import { toast } from "sonner";
-import { useApi, apiPost } from "@/lib/useApi";
+import { useState } from "react";
+import { Search, PhoneCall, AlertTriangle } from "lucide-react";
+import Link from "next/link";
+import { useApi } from "@/lib/useApi";
 import { useDashboard } from "@/components/dashboard/BusinessContext";
 import { ExportMenu } from "@/components/dashboard/ExportMenu";
 import { PrintLetterhead, PrintFooter } from "@/components/dashboard/PrintLetterhead";
@@ -13,29 +12,29 @@ import { Button } from "@/components/dashboard/ui/button";
 import { Input, Select } from "@/components/dashboard/ui/input";
 import { Table, Thead, Th, Tbody, Tr, Td, EmptyState } from "@/components/dashboard/ui/table";
 import { SkeletonRow } from "@/components/dashboard/ui/skeleton";
-import { StatusBadge, OutcomeBadge } from "@/components/dashboard/ui/badge";
+import { StatusBadge, OutcomeBadge, Badge } from "@/components/dashboard/ui/badge";
 import { Pagination } from "@/components/dashboard/ui/pagination";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog";
 
 interface Call {
   id: string;
   status: string;
   outcome: string | null;
   direction: string;
+  isLive: boolean;
+  durationSec: number | null;
+  vertical: string | null;
   fromNumber: string;
-  toNumber: string;
-  startedAt: string;
-  endedAt: string | null;
-  contact: { name: string | null; phone: string } | null;
+  contactName: string | null;
   provider: { name: string } | null;
+  hasIssue: boolean;
+  startedAt: string;
 }
 
-interface Turn {
-  seq: number;
-  role: string;
-  text: string;
-  toolName: string | null;
-  guardrailTriggered: boolean;
+function formatDuration(sec: number | null): string {
+  if (sec === null) return "—";
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m}:${String(s).padStart(2, "0")}`;
 }
 
 const CALL_COLUMNS: ExportColumn[] = [
@@ -48,153 +47,31 @@ const CALL_COLUMNS: ExportColumn[] = [
   { key: "followUpRequired", label: "Follow-up Required" },
 ];
 
-// OWNER/ADMIN only (stricter than transcript access, which every
-// BusinessMember role can read) — recordings can carry more identifying
-// detail than transcript text. Lazy-loaded on click rather than eagerly with
-// the transcript, since the signed URL is short-TTL (5 min) and most calls
-// were never recorded (the toggle + spoken disclosure gate is new).
-function RecordingSection({ callId }: { callId: string }) {
-  const [expanded, setExpanded] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const { data, error, mutate } = useApi<{ ok: boolean; url: string; durationSec: number | null }>(
-    expanded ? `/api/business/calls/${callId}/recording` : null
-  );
-
-  async function handleDelete() {
-    if (!confirm("Delete this call recording? This cannot be undone.")) return;
-    setDeleting(true);
-    try {
-      await apiPost(`/api/business/calls/${callId}/recording`, undefined, "DELETE");
-      toast.success("Recording deleted");
-      setExpanded(false);
-      mutate(undefined, { revalidate: false });
-    } catch {
-      toast.error("Could not delete recording");
-    } finally {
-      setDeleting(false);
-    }
-  }
-
-  return (
-    <div className="mt-4 border-t border-slate-100 pt-4">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-medium uppercase tracking-wide text-slate-400">Call recording</span>
-        {!expanded && (
-          <Button variant="ghost" size="sm" onClick={() => setExpanded(true)}>
-            Load recording
-          </Button>
-        )}
-      </div>
-      {expanded && (
-        <div className="mt-2">
-          {!data && !error ? (
-            <p className="text-sm text-slate-400">Loading…</p>
-          ) : error ? (
-            <p className="text-sm text-slate-400">No recording available for this call.</p>
-          ) : (
-            <div className="flex items-center gap-3">
-              {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-              <audio controls src={data!.url} className="h-9 flex-1" />
-              <Button variant="danger" size="sm" disabled={deleting} onClick={handleDelete}>
-                Delete
-              </Button>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function TranscriptDialog({ call, onClose, businessName }: { call: Call | null; onClose: () => void; businessName: string }) {
-  const { data } = useApi<{ turns: Turn[] }>(call ? `/api/business/calls/${call.id}/transcript` : null);
-  const { role } = useDashboard();
-  const [printReady, setPrintReady] = useState(false);
-
-  useEffect(() => {
-    if (call) posthog.capture("call_transcript_viewed", { outcome: call.outcome });
-  }, [call]);
-
-  async function loadTranscriptSheets(): Promise<ExportSheet[]> {
-    if (!data) return [];
-    setPrintReady(true);
-    return [
-      {
-        name: "Transcript",
-        columns: [
-          { key: "role", label: "Speaker" },
-          { key: "text", label: "Text" },
-        ],
-        rows: data.turns.map((t) => ({ role: t.role, text: t.text })),
-      },
-    ];
-  }
-
-  return (
-    <Dialog open={!!call} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-xl">
-        <DialogHeader>
-          <div className="flex w-full items-center justify-between pr-6">
-            <DialogTitle>Call transcript</DialogTitle>
-            {call && (role === "OWNER" || role === "ADMIN") && (
-              <ExportMenu
-                section="call-transcript"
-                filename={slugFilename(businessName, "CallTranscript")}
-                meta={{ businessName, reportTitle: "AI Call Transcript" }}
-                loadSheets={loadTranscriptSheets}
-                onRowsReady={() => setPrintReady(true)}
-                formats={["pdf", "print"]}
-              />
-            )}
-          </div>
-        </DialogHeader>
-        <div className="max-h-[60vh] space-y-3 overflow-y-auto pr-1">
-          {!data ? (
-            <p className="text-sm text-slate-400">Loading…</p>
-          ) : data.turns.length === 0 ? (
-            <p className="text-sm text-slate-400">No transcript captured for this call.</p>
-          ) : (
-            data.turns.map((t) => (
-              <div key={t.seq} className={`rounded-lg p-3 text-sm ${t.role === "assistant" ? "bg-[var(--accent-soft,#eef2ff)] text-slate-800" : t.role === "user" ? "bg-slate-50 text-slate-700" : "bg-amber-50 text-amber-800"}`}>
-                <div className="mb-1 text-xs font-medium uppercase tracking-wide opacity-50">{t.role}{t.toolName ? ` · ${t.toolName}` : ""}</div>
-                {t.text}
-                {t.guardrailTriggered && <div className="mt-1 text-xs text-red-500">⚠ guardrail triggered</div>}
-              </div>
-            ))
-          )}
-        </div>
-        {call && (role === "OWNER" || role === "ADMIN") && <RecordingSection key={call.id} callId={call.id} />}
-      </DialogContent>
-
-      {call && printReady && data && (
-        <div className="print-only">
-          <PrintLetterhead reportTitle="AI Call Transcript" dateRangeLabel={new Date(call.startedAt).toLocaleString("en-AU")} />
-          <p style={{ marginBottom: 12, fontSize: 12 }}>
-            <strong>Outcome:</strong> {call.outcome?.replace(/_/g, " ") || "—"} &nbsp; <strong>Caller:</strong> {call.contact?.name || call.fromNumber}
-          </p>
-          {data.turns.map((t) => (
-            <div key={t.seq} className={t.role === "assistant" ? "print-chat-turn-assistant" : "print-chat-turn-caller"}>
-              <div style={{ fontSize: 9, opacity: 0.6, marginBottom: 2, textTransform: "uppercase" }}>{t.role}</div>
-              {t.text}
-            </div>
-          ))}
-          <PrintFooter />
-        </div>
-      )}
-    </Dialog>
-  );
-}
-
 export default function CallsPage() {
   const { business, role } = useDashboard();
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("");
   const [outcome, setOutcome] = useState("");
+  const [hasIssue, setHasIssue] = useState(false);
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
   const [page, setPage] = useState(1);
-  const [transcriptFor, setTranscriptFor] = useState<Call | null>(null);
   const [printRows, setPrintRows] = useState<any[]>([]);
 
-  const query = new URLSearchParams({ page: String(page), pageSize: "20", ...(q ? { q } : {}), ...(status ? { status } : {}), ...(outcome ? { outcome } : {}) }).toString();
+  const query = new URLSearchParams({
+    page: String(page),
+    pageSize: "20",
+    ...(q ? { q } : {}),
+    ...(status ? { status } : {}),
+    ...(outcome ? { outcome } : {}),
+    ...(hasIssue ? { hasIssue: "true" } : {}),
+    ...(from ? { from } : {}),
+    ...(to ? { to } : {}),
+  }).toString();
+  // Live calls float to the top server-side (endedAt nulls-first ordering)
+  // and re-poll every 10s — no separate SSE/WS needed for "is anything
+  // live right now" at list-view granularity; the detail page's own
+  // 2s poll is where true live-mode (streaming transcript) lives.
   const { data, isLoading } = useApi<{ data: Call[]; pagination: { totalPages: number } }>(`/api/business/calls?${query}`, { refreshInterval: 10000 });
 
   const canExportCalls = role === "OWNER" || role === "ADMIN";
@@ -233,8 +110,14 @@ export default function CallsPage() {
           </Select>
           <Select value={outcome} onChange={(e) => { setOutcome(e.target.value); setPage(1); }} className="w-44">
             <option value="">All outcomes</option>
-            {["booked", "callback_requested", "faq_answered", "guardrail_redirect"].map((o) => <option key={o} value={o}>{o.replace(/_/g, " ")}</option>)}
+            {["booked", "ordered", "rescheduled", "cancelled", "callback", "faq", "emergency", "abandoned"].map((o) => <option key={o} value={o}>{o.replace(/_/g, " ")}</option>)}
           </Select>
+          <Input type="date" value={from} onChange={(e) => { setFrom(e.target.value); setPage(1); }} className="w-40" title="From date" />
+          <Input type="date" value={to} onChange={(e) => { setTo(e.target.value); setPage(1); }} className="w-40" title="To date" />
+          <label className="flex items-center gap-1.5 text-sm text-slate-600">
+            <input type="checkbox" checked={hasIssue} onChange={(e) => { setHasIssue(e.target.checked); setPage(1); }} className="h-4 w-4 rounded border-slate-300" />
+            Has issue
+          </label>
         </div>
 
         <Table>
@@ -243,6 +126,7 @@ export default function CallsPage() {
               <Th>Caller</Th>
               <Th>Status</Th>
               <Th>Outcome</Th>
+              <Th>Duration</Th>
               <Th>Staff</Th>
               <Th>Started</Th>
               <Th></Th>
@@ -250,25 +134,33 @@ export default function CallsPage() {
           </Thead>
           <Tbody>
             {isLoading ? (
-              Array.from({ length: 6 }).map((_, i) => <SkeletonRow key={i} cols={6} />)
+              Array.from({ length: 6 }).map((_, i) => <SkeletonRow key={i} cols={7} />)
             ) : data?.data.length ? (
               data.data.map((c) => (
                 <Tr key={c.id}>
                   <Td>
                     <div className="flex items-center gap-2">
-                      {(c.status === "RINGING" || c.status === "IN_PROGRESS") && <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />}
+                      {c.isLive && (
+                        <span className="flex items-center gap-1 rounded-full bg-rose-50 px-1.5 py-0.5 text-[10px] font-semibold text-rose-600">
+                          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-rose-500" /> LIVE
+                        </span>
+                      )}
                       <div>
-                        <p className="font-medium text-slate-900">{c.contact?.name || c.fromNumber}</p>
+                        <p className="font-medium text-slate-900">{c.contactName || c.fromNumber}</p>
                         <p className="text-xs text-slate-400">{c.direction.toLowerCase()}</p>
                       </div>
+                      {c.hasIssue && <AlertTriangle className="h-3.5 w-3.5 text-amber-500" aria-label="Issue flagged" />}
                     </div>
                   </Td>
                   <Td><StatusBadge status={c.status} /></Td>
                   <Td><OutcomeBadge outcome={c.outcome} /></Td>
+                  <Td className="text-slate-500">{c.isLive ? "in progress" : formatDuration(c.durationSec)}</Td>
                   <Td>{c.provider?.name || "—"}</Td>
                   <Td className="text-slate-500">{new Date(c.startedAt).toLocaleString()}</Td>
                   <Td className="text-right">
-                    <Button variant="outline" size="sm" onClick={() => setTranscriptFor(c)}>Transcript</Button>
+                    <Link href={`/dashboard/calls/${c.id}`}>
+                      <Button variant="outline" size="sm">View</Button>
+                    </Link>
                   </Td>
                 </Tr>
               ))
@@ -278,8 +170,6 @@ export default function CallsPage() {
         {!isLoading && !data?.data.length && <EmptyState icon={PhoneCall} title="No calls yet" description="Calls will show up here as your AI receptionist takes them." />}
         {data && <Pagination page={page} totalPages={data.pagination.totalPages} onPageChange={setPage} />}
       </Card>
-
-      <TranscriptDialog call={transcriptFor} onClose={() => setTranscriptFor(null)} businessName={business.name} />
 
       {canExportCalls && (
         <div className="print-only">
