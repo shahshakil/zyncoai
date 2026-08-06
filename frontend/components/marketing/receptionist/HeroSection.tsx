@@ -39,7 +39,7 @@ export function HeroSection() {
           transition={{ delay: 0.3, duration: 0.6 }}
           className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-[#475569]"
         >
-          Ella answers every call in under a second, completes the booking, and automates the follow-up that comes next — one AI receptionist built to
+          Ella answers every call instantly, 24/7, completes the booking, and automates the follow-up that comes next — one AI receptionist built to
           run across every industry, day or night.
         </motion.p>
 

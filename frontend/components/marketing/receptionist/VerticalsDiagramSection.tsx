@@ -10,7 +10,7 @@ import {
   UtensilsCrossed,
   Scale,
   Landmark,
-  Headset,
+  Scissors,
 } from "lucide-react";
 
 const CHANNELS = [
@@ -25,7 +25,7 @@ const VERTICALS = [
   { label: "Restaurants", icon: UtensilsCrossed, accent: "#f59e0b", top: 211, href: "/solutions/restaurant" },
   { label: "Law Firms", icon: Scale, accent: "#7c3aed", top: 291, href: "/solutions/legal" },
   { label: "Financial Services", icon: Landmark, accent: "#4f46e5", top: 371, href: "/solutions/bank" },
-  { label: "Customer Care", icon: Headset, accent: "#10b981", top: 451, href: "/demo" },
+  { label: "Salon & Retail", icon: Scissors, accent: "#10b981", top: 451, href: "/solutions/salon" },
 ];
 
 const CHANNEL_EDGE_X = 220;
@@ -152,7 +152,7 @@ export function VerticalsDiagramSection() {
             </Link>
           ))}
           <Link
-            href="/pricing"
+            href="/solutions"
             className="absolute left-[900px] flex w-[220px] items-center justify-center rounded-2xl bg-[image:linear-gradient(90deg,#4f46e5,#7c3aed)] px-3.5 shadow-[0_2px_8px_rgba(15,23,42,0.05)] transition duration-150 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(79,70,229,0.25)]"
             style={{ top: 531, height: VERTICAL_NODE_H }}
           >

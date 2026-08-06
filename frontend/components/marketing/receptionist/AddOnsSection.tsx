@@ -83,7 +83,7 @@ export function AddOnsSection({ showTitle = true }: { showTitle?: boolean }) {
                 title={title}
                 className="mt-4 w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-2 text-sm font-semibold text-[#0f172a] transition enabled:hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {a.comingSoon ? "Coming soon" : isAdded ? "Added ✓" : "Add to plan"}
+                {isAdded ? "Added ✓" : "Add to plan"}
               </button>
             </motion.div>
           );
