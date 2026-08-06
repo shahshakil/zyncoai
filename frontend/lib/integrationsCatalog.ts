@@ -26,9 +26,21 @@ const GOOGLE_CALENDAR: CatalogIntegration = {
 };
 
 const CATALOG: Record<string, CatalogIntegration[]> = {
+  // 2026-08-06 — "Own Website" (website_scrape) and "Square for
+  // Restaurants" (square) used to be listed here too. Both wrote into
+  // Business.settings.menu, which nothing in the RESTAURANT product reads
+  // — Ella's check_menu tool and the live phone menu read exclusively from
+  // the MenuItem/MenuCategory tables (see restaurantMenu.ts), populated
+  // only through Settings > Menu & Pricing's own review-gated PDF/photo/
+  // website import. Connecting either card looked successful (real OAuth
+  // grant for Square, a real GPT-4o extraction for the website scraper)
+  // but was functionally inert for the phone AI — a real connection with
+  // orphaned, never-read output, which is exactly the kind of honesty
+  // violation the integrations catalog needs to avoid. Removed rather than
+  // rewired: Settings > Menu & Pricing already covers "import from
+  // website" for RESTAURANT correctly, with the mandatory owner-review
+  // step this shortcut skipped.
   RESTAURANT: [
-    { key: "own_website", name: "Own Website", description: "Paste your restaurant's website URL — GPT-4o automatically extracts and syncs your menu, updated weekly.", kind: "website_scrape" },
-    { key: "square_restaurant", name: "Square for Restaurants", description: "Popular Australian POS — syncs your menu and pushes orders automatically.", kind: "square", docsUrl: "https://developer.squareup.com" },
     GOOGLE_CALENDAR,
     { key: "foodhub", name: "FoodHub", description: "Flat monthly fee phone/online ordering platform.", kind: "coming_soon", docsUrl: "https://developer.foodhub.com" },
     { key: "posapt", name: "POSApt", description: "Australian built POS with online ordering.", kind: "coming_soon", docsUrl: "https://posaptapi.com.au" },
@@ -61,7 +73,11 @@ const CATALOG: Record<string, CatalogIntegration[]> = {
     { key: "actionstep", name: "ActionStep", description: "Matter management.", kind: "coming_soon" },
   ],
   SALON: [
-    { key: "square_appointments", name: "Square Appointments", description: "Syncs your service menu and booking availability automatically.", kind: "square", docsUrl: "https://developer.squareup.com" },
+    // 2026-08-06 — description used to also claim "booking availability"
+    // sync; only the service/price catalog is actually synced (the
+    // APPOINTMENTS_READ scope is deliberately not requested — see
+    // backend/src/lib/square.ts).
+    { key: "square_appointments", name: "Square Appointments", description: "Syncs your service menu and pricing automatically.", kind: "square", docsUrl: "https://developer.squareup.com" },
     GOOGLE_CALENDAR,
     { key: "timely", name: "Timely", description: "Popular NZ/AU salon software.", kind: "coming_soon" },
     { key: "shortcuts", name: "Shortcuts", description: "Australian salon software.", kind: "coming_soon" },

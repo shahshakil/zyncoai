@@ -137,7 +137,11 @@ function PracticeManagementIntegrations() {
         <CardTitle>Practice management integrations</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        <p className="mb-2 text-sm text-slate-400">Sync bookings with your existing practice management software.</p>
+        {/* 2026-08-06 fix — this said "Sync bookings"; every adapter here (Cliniko/
+            Nookal/Halaxy/Zanda/Power Diary/Jane App/Core Plus) syncs staff/
+            practitioners only, never appointments/bookings — see backend/src/lib/
+            staffSync/providers/*, none of which call a booking endpoint. */}
+        <p className="mb-2 text-sm text-slate-400">Sync staff/practitioners with your existing practice management software.</p>
         {PROVIDERS.map((p) => {
           const state = data?.integrations[p.key];
           return (
@@ -152,7 +156,22 @@ function PracticeManagementIntegrations() {
               <div className="flex items-center gap-2">
                 {state?.connected ? (
                   <>
-                    <Badge tone="success">connected</Badge>
+                    {/* 2026-08-06 fix — "connected" used to always render a green
+                        badge purely because a credential row existed, with no
+                        re-checkable validity signal. Now reflects the real,
+                        most-recent StaffSyncLog result for providers that have a
+                        live fetch adapter at all; providers that don't
+                        (Pabau/Best Practice/Medical Director/Generic Webhook)
+                        never show a false "connected" checkmark. */}
+                    {!p.hasDirectSync ? (
+                      <Badge tone="default" title="No live sync exists for this provider — use CSV import below">Saved, no live sync</Badge>
+                    ) : state.lastSyncStatus === "success" ? (
+                      <Badge tone="success" title={state.lastSyncedAt ? `Last synced ${new Date(state.lastSyncedAt).toLocaleString("en-AU")}` : undefined}>connected</Badge>
+                    ) : state.lastSyncStatus === "error" ? (
+                      <Badge tone="warning" title={state.lastSyncError || "Last sync failed"}>sync failing</Badge>
+                    ) : (
+                      <Badge tone="warning" title="Saved but not synced yet">pending first sync</Badge>
+                    )}
                     {p.hasDirectSync && (
                       <Button variant="ghost" size="sm" disabled={syncingKey === p.key} onClick={() => syncNow(p.key, p.label)} title="Sync now">
                         <RefreshCw className={`h-4 w-4 ${syncingKey === p.key ? "animate-spin" : ""}`} />
