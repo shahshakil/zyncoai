@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
-import { Building2, PhoneCall, CalendarCheck, DollarSign, PhoneMissed, UserPlus, Bell, BellOff, FileText, TrendingDown, Activity, AlertTriangle, Phone } from "lucide-react";
+import { Building2, PhoneCall, CalendarCheck, DollarSign, PhoneMissed, UserPlus, Bell, BellOff, FileText, TrendingDown, Activity, AlertTriangle, Phone, Clock } from "lucide-react";
 import { useApi } from "@/lib/useApi";
 import { Card, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { Topbar } from "@/components/platform-admin/Topbar";
@@ -21,12 +21,23 @@ interface Stats {
   totalBusinesses: number; activeBusinesses: number; suspendedBusinesses: number;
   totalCalls: number;
   callsToday: number; callsYesterday: number; callsThisWeek: number; callsThisMonth: number;
+  minutesToday: number; minutesThisWeek: number;
   bookingsToday: number; bookingsYesterday: number; bookingsThisWeek: number; bookingsThisMonth: number;
   newBusinessesToday: number; newBusinessesThisWeek: number; newBusinessesPriorWeek: number;
   churnRatePct: number; churnedThisMonth: number;
   uptimePct30d: number; uptimeHealthyNow: boolean;
   platformRevenueThisMonthCents: number; billingConfigured: boolean;
   twilioNumbersActive: number; twilioNumberMonthlyCostCents: number;
+}
+interface VerticalAnalyticsRow {
+  vertical: string;
+  businesses: number;
+  calls30d: number;
+  minutes30d: number;
+  bookings30d: number;
+  orders30d: number;
+  issueRatePct: number;
+  topOutcomes: { outcome: string; count: number }[];
 }
 interface ActivityItem {
   type: "call" | "booking" | "signup" | "callback" | "emergency" | "abandoned";
@@ -73,6 +84,7 @@ function playBookingChime() {
 export default function CommandCentrePage() {
   const { data: stats, isLoading: statsLoading } = useApi<Stats & { stale?: boolean }>("/api/admin/platform/stats", { refreshInterval: 30000 });
   const { data: cc } = useApi<CommandCentre & { stale?: boolean }>("/api/admin/platform/command-centre", { refreshInterval: 30000 });
+  const { data: verticalAnalytics } = useApi<{ rows: VerticalAnalyticsRow[]; stale?: boolean }>("/api/admin/platform/vertical-analytics", { refreshInterval: 60000 });
 
   const [soundOn, setSoundOn] = useState(false);
   const [hovering, setHovering] = useState(false);
@@ -154,6 +166,7 @@ export default function CommandCentrePage() {
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
           <StatCard label="New Signups Today" loading={statsLoading} value={formatNumber(stats?.newBusinessesToday || 0)} icon={UserPlus} gradient="linear-gradient(135deg,#F59E0B,#FBBF24)" />
+          <StatCard label="Minutes Today / Week" loading={statsLoading} value={`${formatNumber(stats?.minutesToday || 0)} / ${formatNumber(stats?.minutesThisWeek || 0)}`} icon={Clock} gradient="linear-gradient(135deg,#8B5CF6,#A78BFA)" />
           <StatCard label="Calls This Week / Month" loading={statsLoading} value={`${formatNumber(stats?.callsThisWeek || 0)} / ${formatNumber(stats?.callsThisMonth || 0)}`} icon={PhoneCall} gradient="linear-gradient(135deg,#10B981,#34D399)" />
           <StatCard label="Bookings This Week / Month" loading={statsLoading} value={`${formatNumber(stats?.bookingsThisWeek || 0)} / ${formatNumber(stats?.bookingsThisMonth || 0)}`} icon={CalendarCheck} gradient="linear-gradient(135deg,#3B82F6,#60A5FA)" />
           <StatCard
@@ -192,6 +205,53 @@ export default function CommandCentrePage() {
             </div>
           </Card>
         </div>
+
+        <Card>
+          <CardHeader><CardTitle>Per-Vertical Performance — Last 30 Days</CardTitle></CardHeader>
+          <div className="overflow-x-auto p-4">
+            {!verticalAnalytics ? (
+              <ChartSkeleton height={200} />
+            ) : !verticalAnalytics.rows.length ? (
+              <p className="text-sm text-[#9CA3AF]">No calls yet.</p>
+            ) : (
+              <table className="w-full min-w-[720px] text-sm">
+                <thead>
+                  <tr className="border-b border-[#E5E7EB] text-left text-xs font-medium text-[#9CA3AF]">
+                    <th className="pb-2 pr-3">Vertical</th>
+                    <th className="pb-2 pr-3">Businesses</th>
+                    <th className="pb-2 pr-3">Calls</th>
+                    <th className="pb-2 pr-3">Minutes</th>
+                    <th className="pb-2 pr-3">Bookings</th>
+                    <th className="pb-2 pr-3">Orders</th>
+                    <th className="pb-2 pr-3">Issue Rate</th>
+                    <th className="pb-2">Top Outcome</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {verticalAnalytics.rows.map((r) => {
+                    const VIcon = VERTICAL_ICONS[r.vertical] || Building2;
+                    return (
+                      <tr key={r.vertical} className="border-b border-[#F1F5F9] last:border-0">
+                        <td className="py-2 pr-3 font-medium text-[#1F2937]">
+                          <span className="flex items-center gap-1.5"><VIcon className="h-3.5 w-3.5 text-[#9CA3AF]" /> {r.vertical}</span>
+                        </td>
+                        <td className="py-2 pr-3 text-[#1F2937]">{formatNumber(r.businesses)}</td>
+                        <td className="py-2 pr-3 text-[#1F2937]">{formatNumber(r.calls30d)}</td>
+                        <td className="py-2 pr-3 text-[#1F2937]">{formatNumber(r.minutes30d)}</td>
+                        <td className="py-2 pr-3 text-[#1F2937]">{formatNumber(r.bookings30d)}</td>
+                        <td className="py-2 pr-3 text-[#1F2937]">{formatNumber(r.orders30d)}</td>
+                        <td className="py-2 pr-3">
+                          <span className={r.issueRatePct > 10 ? "font-medium text-[#DC2626]" : "text-[#1F2937]"}>{r.issueRatePct}%</span>
+                        </td>
+                        <td className="py-2 text-[#6B7280]">{r.topOutcomes[0] ? `${r.topOutcomes[0].outcome.replace(/_/g, " ")} (${r.topOutcomes[0].count})` : "—"}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </Card>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2fr_1.2fr_1.2fr]">
           <Card>

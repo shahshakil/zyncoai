@@ -39,6 +39,21 @@ interface OrderStats {
   avgOrderValueCents: number;
 }
 interface PaymentRetryStatus { failedInvoiceId: string; failedCount: number; nextActionAt: string | null; nextAction: string }
+// 2026-08-06 — Round 2 mission-control additions: usage-vs-plan-cap, real
+// cost-vs-price margin (from CallCost/UsageCostEvent, the platform's own
+// real cost tracking — not a heuristic), integration health, last
+// activity, flagged issues. Previously an admin had to cross-reference the
+// separate Costs dashboard and Phone Numbers page by hand for any of this.
+interface UsageAndMargin {
+  minutesUsedThisMonth: number; minuteAllowance: number | null; minutesOverCap: number;
+  planPriceCents: number | null; estimatedCostCentsThisMonth: number; marginCents: number | null;
+}
+interface IntegrationHealth {
+  square: { connected: boolean; healthy?: boolean; connectedAt?: string };
+  microsoftCalendar: { connected: boolean; connectedAt?: string };
+  practiceManagement: { provider: string; enabled: boolean; connectedAt: string }[];
+}
+interface FlaggedIssues { issueCallsThisMonth: number; paymentRetryActive: boolean }
 interface DrawerData {
   business: BusinessDetail;
   recentCalls: { id: string; startedAt: string; outcome: string | null; status: string; contact: { name: string | null; phone: string } | null }[];
@@ -46,6 +61,10 @@ interface DrawerData {
   recentInvoices: RecentInvoice[];
   orderStats: OrderStats | null;
   paymentRetryStatus: PaymentRetryStatus | null;
+  usageAndMargin: UsageAndMargin;
+  integrationHealth: IntegrationHealth;
+  lastActivityAt: string | null;
+  flaggedIssues: FlaggedIssues;
 }
 
 export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId: string | null; onClose: () => void; onChanged: () => void }) {
@@ -344,6 +363,46 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
                         <StatBox label="Patients" value={data.business._count.contacts} />
                         <StatBox label="Staff" value={data.business.providers.length} />
                       </div>
+
+                      <h3 className="mb-2 mt-5 text-xs font-semibold uppercase tracking-wide text-[#6B7280]">
+                        Usage vs Plan <span className="font-normal normal-case text-[#9CA3AF]">— real cost from CallCost/UsageCostEvent, not an estimate</span>
+                      </h3>
+                      <div className="grid grid-cols-4 gap-3">
+                        <StatBox
+                          label="Minutes used / cap"
+                          value={`${data.usageAndMargin.minutesUsedThisMonth}${data.usageAndMargin.minuteAllowance != null ? ` / ${data.usageAndMargin.minuteAllowance}` : " / ∞"}`}
+                        />
+                        <StatBox label="Minutes over cap" value={data.usageAndMargin.minutesOverCap} />
+                        <StatBox label="Real cost (month)" value={formatCents(data.usageAndMargin.estimatedCostCentsThisMonth)} />
+                        <StatBox
+                          label="Margin (month)"
+                          value={data.usageAndMargin.marginCents != null ? formatCents(data.usageAndMargin.marginCents) : "No plan set"}
+                        />
+                      </div>
+
+                      <h3 className="mb-2 mt-5 text-xs font-semibold uppercase tracking-wide text-[#6B7280]">Activity & Flags</h3>
+                      <div className="grid grid-cols-3 gap-3">
+                        <StatBox label="Last activity" value={data.lastActivityAt ? new Date(data.lastActivityAt).toLocaleDateString() : "Never"} />
+                        <StatBox label="Issue calls (month)" value={data.flaggedIssues.issueCallsThisMonth} />
+                        <StatBox label="Payment retry" value={data.flaggedIssues.paymentRetryActive ? "Active" : "None"} />
+                      </div>
+
+                      <h3 className="mb-2 mt-5 text-xs font-semibold uppercase tracking-wide text-[#6B7280]">Integration Health</h3>
+                      <ul className="space-y-1.5 text-xs">
+                        <li className="flex items-center justify-between rounded-lg border border-[#E5E7EB] px-3 py-1.5">
+                          <span className="text-[#1F2937]">Square</span>
+                          <span className={data.integrationHealth.square.connected ? (data.integrationHealth.square.healthy === false ? "text-[#D97706]" : "text-[#059669]") : "text-[#9CA3AF]"}>
+                            {data.integrationHealth.square.connected ? (data.integrationHealth.square.healthy === false ? "connected, sync failing" : "connected") : "not connected"}
+                          </span>
+                        </li>
+                        <li className="flex items-center justify-between rounded-lg border border-[#E5E7EB] px-3 py-1.5">
+                          <span className="text-[#1F2937]">Microsoft Outlook Calendar</span>
+                          <span className={data.integrationHealth.microsoftCalendar.connected ? "text-[#059669]" : "text-[#9CA3AF]"}>
+                            {data.integrationHealth.microsoftCalendar.connected ? "connected" : "not connected"}
+                          </span>
+                        </li>
+                      </ul>
+
                       {data.orderStats && (
                         <>
                           <h3 className="mb-2 mt-5 text-xs font-semibold uppercase tracking-wide text-[#6B7280]">
