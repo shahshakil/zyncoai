@@ -1,3 +1,5 @@
+import { INDUSTRY_PRICING } from "@/components/marketing/receptionist/data";
+
 // llms.txt — the emerging convention for AI crawlers (ChatGPT, Perplexity,
 // Claude) to read a concise, structured summary of a site instead of
 // scraping rendered HTML. A plain route handler (there's no Next.js
@@ -7,6 +9,32 @@
 // spec — real ABN/address (welcomeEmail.ts), real Starter-tier pricing
 // (platformSettings.ts), the real 11-vertical list this product actually
 // supports, not a hypothetical shorter list.
+
+// 2026-08-06 — pricing lines used to be a hand-typed block that conflated
+// Real Estate with University and Restaurant with Mechanic under one
+// shared price each ("From $299", "From $149") — accurate only for as
+// long as those pairs happened to cost the same. They no longer do (a
+// per-vertical pricing update split them), so this is now generated
+// straight from INDUSTRY_PRICING, one line per real pricing group,
+// instead of a second hand-maintained copy of the same numbers.
+const PRICING_LABELS: Record<string, string> = {
+  medical: "Medical/Dental",
+  law: "Law",
+  bank: "Bank/Financial Services",
+  realestate: "Real Estate",
+  university: "University",
+  restaurant: "Restaurant",
+  mechanic: "Mechanic",
+  salon: "Salon/Retail",
+};
+const PRICING_LINES = INDUSTRY_PRICING.map((g) => {
+  const entry = g.plans[0]?.priceMonthly;
+  const label = PRICING_LABELS[g.slug] || g.label;
+  return entry ? `- ${label}: From AUD $${entry}/month` : null;
+})
+  .filter(Boolean)
+  .join("\n");
+
 const CONTENT = `# ZyncoAI
 > AI-powered receptionist platform for Australian businesses
 
@@ -19,12 +47,7 @@ and handles customer inquiries using natural Australian voice AI.
 - Voice AI: Natural Australian voice powered by Cartesia (TTS) and Deepgram (STT), built on the Pipecat voice AI framework, running over Twilio Media Streams
 
 ## Pricing
-- Medical/Dental: From AUD $399/month
-- Law: From AUD $499/month
-- Bank/Financial Services: From AUD $599/month
-- Real Estate/University: From AUD $299/month
-- Restaurant/Mechanic: From AUD $149/month
-- Salon/Retail: From AUD $99/month
+${PRICING_LINES}
 - 7-day free trial on every plan, no contracts
 
 ## Compliance

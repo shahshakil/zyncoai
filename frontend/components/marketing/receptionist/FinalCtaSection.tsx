@@ -3,8 +3,15 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { SITEWIDE_CHEAPEST_PLAN_PRICE } from "./data";
 
-export function FinalCtaSection() {
+// price: pass a vertical's own entry price when this is rendered inside
+// that vertical's /solutions page (via SolutionTemplate) — defaults to the
+// real sitewide-cheapest (Salon $99) everywhere else (homepage, /demo,
+// /faq, /pricing), replacing the old CHEAPEST_PLAN_PRICE import, which was
+// Medical/Dental-only ($399) and rendered the same wrong figure regardless
+// of which page or vertical this was on.
+export function FinalCtaSection({ price = SITEWIDE_CHEAPEST_PLAN_PRICE }: { price?: number }) {
   const [email, setEmail] = useState("");
   const router = useRouter();
 
@@ -26,7 +33,7 @@ export function FinalCtaSection() {
 
           <div className="relative">
             <h2 className="text-3xl font-bold text-white sm:text-4xl">Start your 7-day free trial</h2>
-            <p className="mt-3 text-white/85">Plans from AUD $299/month · AUD $499 one-time setup · no credit card required to start</p>
+            <p className="mt-3 text-white/85">Plans from AUD ${price}/month · one-time setup fee (varies by plan) · no credit card required to start</p>
 
             <form onSubmit={onSubmit} className="mx-auto mt-8 flex max-w-md flex-col gap-2.5 sm:flex-row">
               <input

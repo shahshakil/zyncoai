@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, ChevronDown } from "lucide-react";
 import { PricingSection } from "./PricingSection";
 import { FinalCtaSection } from "./FinalCtaSection";
-import { TESTIMONIALS, INDUSTRIES, type IndustryFaq } from "./data";
+import { TESTIMONIALS, INDUSTRIES, INDUSTRY_PRICING, INDUSTRY_PRICING_SLUG_MAP, type IndustryFaq } from "./data";
 import { Breadcrumbs, type Crumb } from "@/components/seo/Breadcrumbs";
 
 export interface SolutionContent {
@@ -32,6 +32,17 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
   const otherIndustries = content.currentIndustrySlug
     ? INDUSTRIES.filter((i) => i.slug !== content.currentIndustrySlug).slice(0, 4)
     : [];
+
+  // The actual bug this page used to have: PricingSection/FinalCtaSection
+  // below always showed Medical & Dental's $399 (or the sitewide-cheapest
+  // $99) regardless of which vertical page this was — /solutions/mechanic
+  // and /solutions/salon both silently showed the wrong tier. Resolve this
+  // page's own vertical through INDUSTRY_PRICING_SLUG_MAP so each
+  // /solutions/<vertical> page opens on and quotes its own real entry
+  // price. Undefined (falls back to each component's own default) for the
+  // use-case/size template pages, which don't have a single vertical.
+  const pricingSlug = content.currentIndustrySlug ? INDUSTRY_PRICING_SLUG_MAP[content.currentIndustrySlug] : undefined;
+  const entryPrice = pricingSlug ? INDUSTRY_PRICING.find((g) => g.slug === pricingSlug)?.plans[0]?.priceMonthly : undefined;
 
   useEffect(() => {
     posthog.capture("industry_page_viewed", { industry: content.name });
@@ -192,8 +203,8 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
         </section>
       )}
 
-      <PricingSection showTitle={false} />
-      <FinalCtaSection />
+      <PricingSection showTitle={false} defaultIndustry={pricingSlug} />
+      <FinalCtaSection price={entryPrice} />
     </div>
   );
 }

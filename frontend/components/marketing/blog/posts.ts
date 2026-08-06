@@ -3,6 +3,14 @@
 // cross-checked against the real plan data and product rules elsewhere in
 // this codebase. No invented statistics or fabricated citations.
 
+import { SITEWIDE_CHEAPEST_PLAN_PRICE, INDUSTRY_PRICING } from "@/components/marketing/receptionist/data";
+
+// Real min/max entry price across every vertical — used below instead of
+// a hand-typed "$149–$399" range that went stale the moment per-vertical
+// pricing changed (Salon is actually the $99 floor, University's Starter
+// is now the $499 ceiling, not Medical's $399).
+const MAX_ENTRY_PRICE = Math.max(...INDUSTRY_PRICING.flatMap((g) => g.plans.filter((p) => p.priceMonthly > 0).map((p) => p.priceMonthly)));
+
 export type BlogBlock = { type: "p"; text: string } | { type: "h2"; text: string } | { type: "ul"; items: string[] };
 
 export interface BlogAuthor {
@@ -174,7 +182,7 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: "h2", text: "The real comparison" },
       {
         type: "p",
-        text: "A full-time receptionist covers roughly 38 hours a week, once. ZyncoAI's plans start from AUD $149–$399/month depending on the vertical, with a 7-day free trial, and cover all 168 hours. For most businesses the realistic outcome isn't \"AI instead of a human\" — it's the AI catching everything the current team physically can't be on the phone for, while the team keeps doing the parts of the job that actually need a person.",
+        text: `A full-time receptionist covers roughly 38 hours a week, once. ZyncoAI's plans start from AUD $${SITEWIDE_CHEAPEST_PLAN_PRICE}–$${MAX_ENTRY_PRICE}/month depending on the vertical, with a 7-day free trial, and cover all 168 hours. For most businesses the realistic outcome isn't "AI instead of a human" — it's the AI catching everything the current team physically can't be on the phone for, while the team keeps doing the parts of the job that actually need a person.`,
       },
     ],
   },

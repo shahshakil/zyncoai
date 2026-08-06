@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { SITEWIDE_CHEAPEST_PLAN_PRICE } from "./data";
 
 type Mode = "traditional" | "zynco";
 
@@ -107,7 +108,7 @@ export function RoiSection() {
             </span>
 
             <div className="mt-4">
-              <SlotPrice value={isTrad ? 5400 : 299} />
+              <SlotPrice value={isTrad ? 5400 : SITEWIDE_CHEAPEST_PLAN_PRICE} />
               <p className="text-sm text-[#94a3b8]">AUD/month</p>
             </div>
             <p className="mt-2 text-xs text-[#94a3b8]">

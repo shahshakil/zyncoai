@@ -5,12 +5,23 @@ import { usePathname } from "next/navigation";
 import posthog from "posthog-js";
 import { motion } from "framer-motion";
 import { Check, ChevronDown, ShieldCheck } from "lucide-react";
-import { PRICING_PLANS, COMMON_FEATURES } from "./data";
+import { COMMON_FEATURES, INDUSTRY_PRICING } from "./data";
 
-export function PricingSection({ showTitle = true }: { showTitle?: boolean }) {
+export function PricingSection({ showTitle = true, defaultIndustry }: { showTitle?: boolean; defaultIndustry?: string }) {
   const [annual, setAnnual] = useState(false);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  // Falls back to INDUSTRY_PRICING[0] ("medical") only when no valid slug is
+  // passed — SolutionTemplate passes the page's own vertical (via
+  // INDUSTRY_PRICING_SLUG_MAP) so /solutions/mechanic opens on Mechanic's
+  // own tab instead of always defaulting to Medical & Dental regardless of
+  // which vertical page it's rendered on.
+  const [industry, setIndustry] = useState(
+    (defaultIndustry && INDUSTRY_PRICING.some((g) => g.slug === defaultIndustry) ? defaultIndustry : INDUSTRY_PRICING[0].slug)
+  );
   const pathname = usePathname();
+
+  const activeGroup = INDUSTRY_PRICING.find((g) => g.slug === industry) || INDUSTRY_PRICING[0];
+  const activePlans = activeGroup.plans;
 
   useEffect(() => {
     if (pathname === "/pricing") posthog.capture("pricing_viewed", {});
@@ -37,15 +48,31 @@ export function PricingSection({ showTitle = true }: { showTitle?: boolean }) {
       <div className="mx-auto mt-6 flex max-w-2xl items-start gap-3 rounded-2xl border border-[#c7d2fe] bg-[#eef2ff] p-4">
         <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-[#6366f1]" />
         <p className="text-sm text-[#0f172a]">
-          Every plan includes the complete ZyncoAI platform — all features, all dashboards, all integrations. Plans differ only by minutes included and
-          number of locations.
+          Every plan includes the complete ZyncoAI platform — all features, all dashboards, all integrations. Plans differ only by minutes included.
         </p>
       </div>
 
       <div className="mx-auto mt-4 flex max-w-2xl flex-wrap items-center justify-center gap-2 text-center text-sm text-[#64748b]">
-        <span>Pricing shown is for Medical &amp; Dental practices — pricing varies by industry.</span>
+        <span>Pricing varies by industry — select yours below.</span>
+      </div>
+
+      <div className="mx-auto mt-4 flex max-w-3xl flex-wrap items-center justify-center gap-2">
+        {INDUSTRY_PRICING.map((g) => (
+          <button
+            key={g.slug}
+            onClick={() => setIndustry(g.slug)}
+            className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
+              g.slug === industry ? "border-[#6366f1] bg-[#eef2ff] text-[#4f46e5]" : "border-[#e2e8f0] bg-white text-[#64748b] hover:bg-slate-50"
+            }`}
+          >
+            {g.label}
+          </button>
+        ))}
+      </div>
+      <div className="mx-auto mt-2 flex max-w-2xl flex-wrap items-center justify-center gap-2 text-center text-xs text-[#94a3b8]">
+        <span>Don&rsquo;t see your industry?</span>
         <Link href="/contact" className="font-semibold text-[#6366f1] hover:underline">
-          Contact us for your industry&rsquo;s pricing →
+          Contact us →
         </Link>
       </div>
 
@@ -59,7 +86,7 @@ export function PricingSection({ showTitle = true }: { showTitle?: boolean }) {
       </div>
 
       <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {PRICING_PLANS.map((plan, i) => {
+        {activePlans.map((plan, i) => {
           const price = annual ? plan.priceAnnualMonthly : plan.priceMonthly;
           const isOpen = expanded.has(plan.key);
           return (
@@ -117,9 +144,9 @@ export function PricingSection({ showTitle = true }: { showTitle?: boolean }) {
               )}
 
               <Link
-                href={plan.key === "enterprise" ? "/contact" : `/signup?plan=${plan.key}`}
+                href={plan.priceMonthly === 0 ? "/contact" : `/signup?plan=${plan.key}`}
                 onClick={() => {
-                  if (plan.key !== "enterprise" && typeof window !== "undefined") sessionStorage.setItem("zynco_selected_plan", plan.key);
+                  if (plan.priceMonthly !== 0 && typeof window !== "undefined") sessionStorage.setItem("zynco_selected_plan", plan.key);
                   posthog.capture("plan_selected", { plan: plan.key });
                 }}
                 className={`mt-6 block rounded-xl px-4 py-2.5 text-center text-sm font-semibold transition ${
@@ -136,7 +163,7 @@ export function PricingSection({ showTitle = true }: { showTitle?: boolean }) {
       </div>
 
       <p className="mt-8 text-center text-xs text-[#94a3b8]">
-        One-time setup fee (Medical/Dental): Starter AUD $499 · Growth AUD $699 · Max AUD $899 · Enterprise AUD $1,999
+        One-time setup fee ({activeGroup.label}): {activePlans.map((p) => `${p.name} ${p.perMinute.match(/AUD \$[\d,]+ setup fee/)?.[0] || ""}`).join(" · ")}
       </p>
     </section>
   );

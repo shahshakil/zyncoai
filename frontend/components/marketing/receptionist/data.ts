@@ -36,7 +36,7 @@ export const INDUSTRIES: Industry[] = [
     callsHandledToday: 1204,
     features: ["Books appointments against real provider calendars", "Understands Medicare, private health, DVA and WorkCover questions", "Flags emergency symptoms and escalates instantly", "Syncs with Cliniko, plus CSV import for Best Practice"],
     overview:
-      "A medical clinic's phone line carries genuine urgency — a parent calling about a sick child, a patient chasing test results, someone trying to book before symptoms get worse. Every one of those calls competing for the same one or two reception staff means some of them go to voicemail, and a caller who hits voicemail when they're worried rarely leaves a message; they just call the next clinic. Ella answers every single call in under a second, day or night, and checks each provider's real calendar before offering a time, so there's no double-booking and no back-and-forth. Medicare, private health fund, DVA and WorkCover questions are handled in the same conversation, and anything that sounds like it needs urgent clinical attention is flagged and escalated immediately rather than quietly booked in for next Tuesday.",
+      "A medical clinic's phone line carries genuine urgency — a parent calling about a sick child, a patient chasing test results, someone trying to book before symptoms get worse. Every one of those calls competing for the same one or two reception staff means some of them go to voicemail, and a caller who hits voicemail when they're worried rarely leaves a message; they just call the next clinic. Ella answers every single call instantly, day or night, and checks each provider's real calendar before offering a time, so there's no double-booking and no back-and-forth. Medicare, private health fund, DVA and WorkCover questions are handled in the same conversation, and anything that sounds like it needs urgent clinical attention is flagged and escalated immediately rather than quietly booked in for next Tuesday.",
     faqs: [
       { question: "Is ZyncoAI compliant with Australian healthcare privacy law?", answer: "Yes. ZyncoAI is built with the Australian Privacy Act 1988 and My Health Records Act 2012 in mind — sensitive patient fields are encrypted at rest, and ZyncoAI never submits claims to Medicare or a health fund on your behalf." },
       { question: "How much does ZyncoAI cost for a medical clinic?", answer: "Medical clinic plans start from AUD $399/month, with a 7-day free trial on every plan." },
@@ -207,7 +207,7 @@ export interface UseCase {
 }
 
 export const USE_CASES: UseCase[] = [
-  { slug: "inbound-answering", name: "Inbound Call Answering", navLabel: "Inbound Call Answering", tagline: "Every call answered in under a second", description: "Ella answers every inbound call instantly — no hold music, no voicemail, no missed calls." },
+  { slug: "inbound-answering", name: "Inbound Call Answering", navLabel: "Inbound Call Answering", tagline: "Every call answered instantly, 24/7", description: "Ella answers every inbound call instantly — no hold music, no voicemail, no missed calls." },
   { slug: "after-hours", name: "After-Hours & Overflow", navLabel: "After-Hours & Overflow", tagline: "Coverage when your team can't", description: "Nights, weekends, lunch breaks and call spikes — Ella picks up every call your team can't." },
   { slug: "appointment-scheduling", name: "Appointment Scheduling", navLabel: "Appointment Scheduling", tagline: "Bookings made without lifting a finger", description: "Ella checks real availability and books directly into your calendar — no back-and-forth." },
   { slug: "intake", name: "Patient & Client Intake", navLabel: "Patient & Client Intake", tagline: "Capture the details right, every time", description: "New patient or client details are captured accurately and pushed straight into your system." },
@@ -323,8 +323,190 @@ export const PRICING_PLANS: PricingPlan[] = [
   },
 ];
 
+// Derived, not hardcoded a second time — the exact bug this fixes (2026-08-05):
+// marketing copy elsewhere on the site (final CTA, ROI comparison) had its own
+// separate "$299/month" literal that drifted out of sync with PRICING_PLANS
+// after Starter was repriced to $399. Enterprise's priceMonthly is 0 (custom/
+// "Contact sales", not literally free) so it's excluded from the min.
+export const CHEAPEST_PLAN_PRICE = Math.min(...PRICING_PLANS.filter((p) => p.priceMonthly > 0).map((p) => p.priceMonthly));
+
+export interface IndustryPricingGroup {
+  slug: string;
+  label: string;
+  plans: PricingPlan[];
+}
+
+const TIER_STYLE: { key: string; borderColor: string; popular?: boolean; cta: string }[] = [
+  { key: "starter", borderColor: "#16a34a", cta: "Start free trial" },
+  { key: "growth", borderColor: "#6366f1", popular: true, cta: "Start free trial" },
+  { key: "max", borderColor: "#06b6d4", cta: "Start free trial" },
+  { key: "enterprise", borderColor: "#f59e0b", cta: "Contact sales" },
+];
+
+// 2026-08-05 — the pricing page used to only ever show Medical & Dental
+// (PRICING_PLANS above), while the page's own <title>/meta claimed a
+// $149/month price that belongs to Restaurant — a real number, just never
+// surfaced anywhere a visitor could actually see it. These mirror
+// backend/src/lib/platformSettings.ts's DEFAULT_*_PLANS tuples exactly
+// ([tierName, priceCents, setupFeeCents, minuteAllowance]) — the same real
+// numbers actually used to bill a business on that vertical, not invented
+// for marketing. Manual mirror, not a live fetch, same approach the
+// pre-existing Medical/Dental PRICING_PLANS above already used — if the
+// backend defaults ever change, this needs a matching update here.
+function buildIndustryPlans(prefix: string, overageCentsPerMinute: number, tiers: [string, number, number, number | null][]): PricingPlan[] {
+  return tiers.map(([name, priceCents, setupFeeCents, minuteAllowance], i) => {
+    const style = TIER_STYLE[i];
+    const priceMonthly = minuteAllowance === null ? 0 : Math.round(priceCents / 100);
+    return {
+      // Matches backend/src/lib/platformSettings.ts's planGroup() key format
+      // EXACTLY (`${prefix}_${name.toLowerCase()}`, using the tier's own
+      // name) — not the fixed tier-position label from TIER_STYLE, which
+      // would silently mismatch for a vertical whose 3rd tier isn't named
+      // "Max" (Restaurant's is "Busy"). This key flows into /signup?plan=
+      // and eventually business.manualPlan, which the backend looks up by
+      // exact key match — a mismatched key here would silently fail to
+      // resolve to a real plan.
+      key: `${prefix}_${name.toLowerCase()}`,
+      name,
+      priceMonthly,
+      priceAnnualMonthly: priceMonthly ? Math.floor(priceMonthly * 0.8) : 0,
+      borderColor: style.borderColor,
+      popular: style.popular,
+      minutesIncluded: minuteAllowance === null ? "Unlimited minutes" : `${minuteAllowance.toLocaleString()} minutes/month`,
+      perMinute:
+        minuteAllowance === null
+          ? `From AUD $${Math.round(priceCents / 100).toLocaleString()}/month · AUD $${Math.round(setupFeeCents / 100).toLocaleString()} setup fee`
+          : `AUD $${(overageCentsPerMinute / 100).toFixed(2)} per extra minute · AUD $${Math.round(setupFeeCents / 100)} setup fee`,
+      locations: "1 location",
+      support: "Email support",
+      cta: style.cta,
+    };
+  });
+}
+
+export const INDUSTRY_PRICING: IndustryPricingGroup[] = [
+  { slug: "medical", label: "Medical & Dental", plans: PRICING_PLANS },
+  {
+    slug: "restaurant",
+    label: "Restaurant",
+    plans: buildIndustryPlans("restaurant", 30, [
+      ["Starter", 14900, 19900, 400],
+      ["Growth", 24900, 29900, 600],
+      ["Busy", 39900, 49900, 900],
+      ["Enterprise", 69900, 99900, null],
+    ]),
+  },
+  {
+    slug: "mechanic",
+    label: "Mechanic & Auto Shop",
+    plans: buildIndustryPlans("mechanic", 30, [
+      ["Starter", 19900, 19900, 400],
+      ["Growth", 32900, 29900, 600],
+      ["Max", 52900, 49900, 900],
+      ["Enterprise", 92900, 99900, null],
+    ]),
+  },
+  {
+    slug: "salon",
+    label: "Salon & Retail",
+    plans: buildIndustryPlans("salon", 25, [
+      ["Starter", 9900, 14900, 300],
+      ["Growth", 19900, 19900, 600],
+      ["Max", 29900, 29900, 900],
+      ["Enterprise", 49900, 69900, null],
+    ]),
+  },
+  {
+    slug: "law",
+    label: "Law",
+    plans: buildIndustryPlans("law", 60, [
+      ["Starter", 34900, 59900, 800],
+      ["Growth", 48900, 79900, 1500],
+      ["Max", 69900, 99900, 2000],
+      ["Enterprise", 139900, 249900, null],
+    ]),
+  },
+  {
+    slug: "bank",
+    label: "Banking & Finance",
+    plans: buildIndustryPlans("bank", 60, [
+      ["Starter", 39900, 69900, 800],
+      ["Growth", 59900, 89900, 1500],
+      ["Max", 86900, 129900, 2000],
+      ["Enterprise", 166900, 299900, null],
+    ]),
+  },
+  {
+    slug: "realestate",
+    label: "Real Estate",
+    plans: buildIndustryPlans("realestate", 40, [
+      ["Starter", 24900, 39900, 600],
+      ["Growth", 41900, 49900, 1000],
+      ["Max", 57900, 69900, 1500],
+      ["Enterprise", 107900, 149900, null],
+    ]),
+  },
+  {
+    slug: "university",
+    label: "University",
+    plans: buildIndustryPlans("university", 40, [
+      ["Starter", 49900, 39900, 600],
+      ["Growth", 82900, 49900, 1000],
+      ["Max", 116900, 69900, 1500],
+      ["Enterprise", 166900, 99900, null],
+    ]),
+  },
+];
+
+// The real, true sitewide "from" price — Salon at $99/month, not Medical's
+// $399 (the previous default tab) or the old stale $299 literal. Used by
+// the pricing page's own <title>/meta so that claim can never drift from
+// what a visitor can actually select and see again.
+export const SITEWIDE_CHEAPEST_PLAN_PRICE = Math.min(
+  ...INDUSTRY_PRICING.flatMap((g) => g.plans.filter((p) => p.priceMonthly > 0).map((p) => p.priceMonthly))
+);
+
+// 2026-08-06 — INDUSTRIES.slug doesn't map 1:1 to INDUSTRY_PRICING.slug
+// (dental/healthcare share MEDICAL's pricing, legal is named "law" in
+// pricing, financial-services/home-services have no dedicated pricing
+// group at all and are explicitly written as reusing another vertical's
+// tier — "same compliance-focused plan tier as banks" / "standard plan
+// tier" in their own overview copy below). This is that mapping, single
+// source of truth for both SolutionTemplate's pricing-tab default and the
+// FAQ-answer patch right below it.
+export const INDUSTRY_PRICING_SLUG_MAP: Record<string, string> = {
+  healthcare: "medical",
+  dental: "medical",
+  legal: "law",
+  mechanic: "mechanic",
+  restaurant: "restaurant",
+  bank: "bank",
+  university: "university",
+  salon: "salon",
+  "financial-services": "bank",
+  "home-services": "mechanic",
+};
+
+// Rewrites each industry's "how much does it cost" FAQ answer in place to
+// the real INDUSTRY_PRICING entry price, instead of the hand-typed prose
+// this used to be — four of ten had already drifted wrong (legal $499 vs
+// real $349, mechanic $149 vs real $199, bank $599 vs real $399,
+// university $299 vs real $499) and were silently contradicting both
+// /pricing and this same page's own PricingSection tab, including in the
+// FAQPage JSON-LD served to search engines. Only the "AUD $X/month"
+// fragment is replaced — the surrounding sentence (e.g. financial-services'
+// "same tier as banks" framing) stays intact.
+for (const industry of INDUSTRIES) {
+  const pricingSlug = INDUSTRY_PRICING_SLUG_MAP[industry.slug];
+  const group = INDUSTRY_PRICING.find((g) => g.slug === pricingSlug);
+  const price = group?.plans[0]?.priceMonthly;
+  if (!price) continue;
+  const costFaq = industry.faqs.find((f) => /how much does zyncoai cost/i.test(f.question));
+  if (costFaq) costFaq.answer = costFaq.answer.replace(/AUD \$[\d,]+(\.\d+)?\/month/i, `AUD $${price}/month`);
+}
+
 // Identical on every plan — the whole point being that pricing scales with
-// call volume and locations, not with which parts of the product you get.
+// call volume, not with which parts of the product you get.
 // Multilingual AI is deliberately excluded — it's sold as an add-on, not a
 // base-plan feature (see ADD_ONS' "multilingual" entry).
 // Audited 2026-08-04 against real, verified code (same honesty pass as

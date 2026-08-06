@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { SITEWIDE_CHEAPEST_PLAN_PRICE } from "@/components/marketing/receptionist/data";
 
 // Site-wide default OG/Twitter card, generated at request time — no
 // og-image.png ever existed in public/ (verified), so every og:image
@@ -12,6 +13,7 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default async function Image() {
+  const description = `Answers every call 24/7. Books appointments automatically. From AUD $${SITEWIDE_CHEAPEST_PLAN_PRICE}/month.`;
   return new ImageResponse(
     (
       <div
@@ -47,7 +49,7 @@ export default async function Image() {
           AI Receptionist for Australian Businesses
         </div>
         <div style={{ marginTop: 28, fontSize: 30, color: "#94a3b8", maxWidth: 850 }}>
-          Answers every call 24/7. Books appointments automatically. From AUD $149/month.
+          {description}
         </div>
       </div>
     ),

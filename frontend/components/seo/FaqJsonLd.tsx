@@ -19,6 +19,8 @@
 // FaqJsonLd's mapper only ever reads question/answer, so adding it here
 // doesn't change the emitted schema at all. Content of every question/
 // answer is unchanged from the fact-check pass — see the comment above.
+import { SITEWIDE_CHEAPEST_PLAN_PRICE } from "@/components/marketing/receptionist/data";
+
 export const FAQ_CATEGORIES = ["Getting started", "Reliability", "Pricing & plans", "Privacy & data"] as const;
 export type FaqCategory = (typeof FAQ_CATEGORIES)[number];
 
@@ -32,7 +34,7 @@ const FAQS: { question: string; answer: string; category: FaqCategory }[] = [
   {
     question: "How much does it cost?",
     answer:
-      "Plans start from AUD $99/month, and pricing varies by industry — visit our pricing page and select your industry to see exact plans. A one-time setup fee applies (the amount depends on your plan). No lock-in contracts.",
+      `Plans start from AUD $${SITEWIDE_CHEAPEST_PLAN_PRICE}/month, and pricing varies by industry — visit our pricing page and select your industry to see exact plans. A one-time setup fee applies (the amount depends on your plan). No lock-in contracts.`,
     category: "Pricing & plans",
   },
   {

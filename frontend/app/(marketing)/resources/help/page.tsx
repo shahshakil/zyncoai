@@ -14,7 +14,7 @@ const FAQS = [
   { q: "How do I add staff members?", a: "Settings → Staff → Invite. Enter their email, choose a role, and they'll get a secure link to join." },
   { q: "What languages does Ella speak?", a: "15+ languages, detected automatically, including Mandarin, Hindi, Arabic, and Vietnamese." },
   { q: "Can I cancel anytime?", a: "Yes — see the full Cancellation & Refunds policy on our Terms page for the exact notice period and what happens to your data." },
-  { q: "What is the setup fee?", a: "AUD $499 one-time, across every plan." },
+  { q: "What is the setup fee?", a: "A one-time fee that varies by plan and vertical — see your industry's pricing tab on the Pricing page for the exact amount." },
 ];
 
 export default function HelpPage() {
