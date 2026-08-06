@@ -29,15 +29,30 @@ export default function PlatformAdminForgotPage() {
       // Same neutral-response contract as /api/admin-auth/forgot — no
       // enumeration signal in the response either way, mirrors the
       // consumer (auth)/forgot page's own approach.
-      await fetch(`${apiUrl}/api/admin-auth/forgot`, {
+      const res = await fetch(`${apiUrl}/api/admin-auth/forgot`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: value }),
       });
+
+      // 2026-08-05 bug fix — this used to not check the response at all,
+      // so a rate-limit hit (or any other failure) silently rendered the
+      // same "sent" success screen with nothing actually sent. Rate-limit
+      // messaging doesn't leak account existence — fine to be specific.
+      const data = await res.json().catch(() => null);
+      if (res.status === 429) {
+        const seconds = Number(data?.retryAfterSeconds) || 3600;
+        const minutes = Math.max(1, Math.ceil(seconds / 60));
+        throw new Error(`Too many requests — try again in ${minutes} minute${minutes === 1 ? "" : "s"}.`);
+      }
+      if (!res.ok) {
+        throw new Error(data?.message || "We couldn't process that request. Please try again.");
+      }
+
       setStage("sent");
-    } catch {
+    } catch (err: any) {
       setStage("error");
-      setError("Something went wrong. Please try again.");
+      setError(err?.message || "Something went wrong. Please try again.");
     }
   }
 

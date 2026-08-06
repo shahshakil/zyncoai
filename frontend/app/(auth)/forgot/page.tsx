@@ -40,19 +40,34 @@ export default function ForgotPage() {
       // nginx block (`location ^~ /auth/`, upstream port 7600, nothing
       // listens there anymore) that 502s bare /auth/* paths before they
       // reach the real backend. See verify-email/page.tsx for the same fix.
+      //
+      // 2026-08-05 bug fix — this used to send credentials:"include", but
+      // this endpoint needs no cookie/session (it's public, pre-auth) and
+      // the backend's CORS middleware answers every origin with a bare
+      // "*" (no Access-Control-Allow-Credentials: true). Per the Fetch/CORS
+      // spec a browser hard-rejects that combination client-side — the
+      // request never reached the server at all, fetch() just threw, and
+      // every submission fell into the catch block below regardless of
+      // what the backend would have done. Confirmed live: this page never
+      // worked in a real browser, only in tooling that doesn't enforce
+      // CORS (curl, Node's fetch, this repo's own Phase-3 API test scripts).
       const res = await fetch(`${apiUrl}/api/auth/forgot`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // include if you use cookies/session
-        credentials: "include",
         body: JSON.stringify({ email: value }),
       });
 
-      // If server returns an error, show generic message (still safe)
+      const data = await res.json().catch(() => null);
+
+      if (res.status === 429) {
+        // Rate-limit messaging doesn't leak account existence — it's fine
+        // to be specific here, unlike the neutral "sent" message below.
+        const seconds = Number(data?.retryAfterSeconds) || 3600;
+        const minutes = Math.max(1, Math.ceil(seconds / 60));
+        throw new Error(`Too many requests — try again in ${minutes} minute${minutes === 1 ? "" : "s"}.`);
+      }
       if (!res.ok) {
-        const msg = await res.text().catch(() => "");
-        // keep it generic for security, but still helpful
-        throw new Error(msg || "We couldn't process that request. Please try again.");
+        throw new Error(data?.message || "We couldn't process that request. Please try again.");
       }
 
       setStage("sent");
