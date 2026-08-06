@@ -13,6 +13,18 @@
 // - WebSite.potentialAction (SearchAction): there's no /search route on
 //   this site; a SearchAction pointing at a 404 would actively mislead
 //   Google's sitelinks search box feature.
+//
+// 2026-08-05: offers.price was hardcoded "149" (Restaurant's Starter,
+// real, but no longer the true sitewide cheapest — Salon undercuts it at
+// $99) — derived from SITEWIDE_CHEAPEST_PLAN_PRICE now so this can't drift
+// from the visible /pricing page again. priceRange's upper bound ($2,499,
+// Bank's Enterprise tier — see platformSettings.ts's DEFAULT_BANK_PLANS)
+// stays a manual literal: Enterprise/custom tiers store priceMonthly as 0
+// (shown as "Contact us") in data.ts, so there's no queryable number to
+// derive this from the same way; update by hand if that real number ever
+// changes.
+import { SITEWIDE_CHEAPEST_PLAN_PRICE } from "../marketing/receptionist/data";
+
 export function SiteJsonLd() {
   const organization = {
     "@context": "https://schema.org",
@@ -61,7 +73,7 @@ export function SiteJsonLd() {
     operatingSystem: "Web",
     offers: {
       "@type": "Offer",
-      price: "149",
+      price: String(SITEWIDE_CHEAPEST_PLAN_PRICE),
       priceCurrency: "AUD",
     },
     description:
@@ -104,7 +116,7 @@ export function SiteJsonLd() {
       "@type": "Country",
       name: "Australia",
     },
-    priceRange: "AUD $149 - $2499/month",
+    priceRange: `AUD $${SITEWIDE_CHEAPEST_PLAN_PRICE} - $2499/month`,
   };
 
   const schemas = [organization, softwareApplication, website, localBusiness];
