@@ -1,9 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "sonner";
 import { useDashboard } from "@/components/dashboard/BusinessContext";
 import { useApi, apiPost } from "@/lib/useApi";
+import { getVerticalOps } from "@/lib/verticalOps";
+import { VerticalGate } from "@/components/dashboard/VerticalGate";
 
 interface OrderItem {
   id: string;
@@ -202,17 +204,13 @@ function OrderCard({ order, onAdvance, printing }: { order: Order; onAdvance: (i
 
 export default function KitchenDisplayPage() {
   const { business, role } = useDashboard();
-  const router = useRouter();
+  const kitchenEnabled = !!getVerticalOps(business.vertical)?.kitchenEnabled;
   const { data, isLoading, mutate } = useApi<{ orders: Order[] }>("/api/business/orders", { refreshInterval: 5000 });
   const { data: printerConfig } = useApi<{ epsonPrinterIp: string | null }>("/api/business/orders/printer-config");
   const seenOrderIds = useRef<Set<string>>(new Set());
   const [initialized, setInitialized] = useState(false);
   const [printingId, setPrintingId] = useState<string | null>(null);
   const [receiptOrder, setReceiptOrder] = useState<Order | null>(null);
-
-  useEffect(() => {
-    if (business.vertical !== "RESTAURANT") router.replace("/dashboard");
-  }, [business.vertical, router]);
 
   useEffect(() => {
     if (!data?.orders) return;
@@ -257,7 +255,6 @@ export default function KitchenDisplayPage() {
     }
   }
 
-  if (business.vertical !== "RESTAURANT") return null;
   if (role === "DOCTOR") return null; // no equivalent restaurant role — just a safety net, kitchen access isn't role-restricted beyond STAFF+
 
   const orders = data?.orders || [];
@@ -265,10 +262,14 @@ export default function KitchenDisplayPage() {
   const recent = orders.filter((o) => o.status === "COLLECTED" || o.status === "CANCELLED");
 
   return (
+    <VerticalGate enabled={kitchenEnabled}>
     <div className="no-print" style={{ minHeight: "100vh", background: "#0f172a", padding: 24, margin: -24 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
         <h1 style={{ color: "#f1f5f9", fontSize: 28, fontWeight: 800 }}>{business.name} — Kitchen</h1>
-        <span style={{ color: "#94a3b8", fontSize: 16 }}>{active.length} active order{active.length === 1 ? "" : "s"}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <span style={{ color: "#94a3b8", fontSize: 16 }}>{active.length} active order{active.length === 1 ? "" : "s"}</span>
+          <Link href="/dashboard/orders/history" style={{ color: "#94a3b8", fontSize: 14, textDecoration: "underline" }}>Order History</Link>
+        </div>
       </div>
 
       {isLoading ? (
@@ -318,5 +319,6 @@ export default function KitchenDisplayPage() {
         }
       `}</style>
     </div>
+    </VerticalGate>
   );
 }

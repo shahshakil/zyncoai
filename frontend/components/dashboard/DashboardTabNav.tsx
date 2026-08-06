@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useDashboard } from "@/components/dashboard/BusinessContext";
 import { useApi } from "@/lib/useApi";
+import { getVerticalOps } from "@/lib/verticalOps";
 
 interface Tab {
   href: string;
@@ -18,15 +19,13 @@ export function DashboardTabNav() {
   const pathname = usePathname();
   const { role, business } = useDashboard();
   const showAiOps = role !== "DOCTOR";
-  // Matches backend/src/lib/rbac.ts's requireClinicVertical exactly — the
-  // Clinical & Billing tab (triage queues, EHR sync, prescription/referral
-  // tracking) is MEDICAL/DENTAL only. This was previously hardcoded true
-  // for every vertical while the API behind it already 403'd
-  // (clinical_tab_not_enabled_for_this_vertical) for everyone else — a
-  // real, visible bug for RESTAURANT/MECHANIC/LAW/... businesses, who saw
-  // a tab that led straight to a broken page. STAFF sees it minus billing
-  // (server-enforced); DOCTOR sees it scoped to triage only.
-  const showClinical = business.vertical === "MEDICAL" || business.vertical === "DENTAL";
+  // Driven by lib/verticalOps.ts's clinicalEnabled flag (MEDICAL/DENTAL
+  // only) — matches backend/src/lib/rbac.ts's requireClinicVertical.
+  // STAFF sees it minus billing (server-enforced); DOCTOR sees it scoped
+  // to triage only. Hiding this link is necessary but not sufficient on
+  // its own — see VerticalGate.tsx for why /dashboard/clinical also needs
+  // its own route-level guard against direct navigation.
+  const showClinical = !!getVerticalOps(business.vertical)?.clinicalEnabled;
 
   const { data: live } = useApi<{ ok: boolean; calls: unknown[] }>(showAiOps ? "/api/business/ai-operations/live" : null, { refreshInterval: 15000 });
   const { data: triage } = useApi<{ ok: boolean; unreviewedCount: number }>(showClinical ? "/api/business/clinical/triage" : null, { refreshInterval: 30000 });

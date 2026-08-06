@@ -14,7 +14,7 @@
 // file only controls what renders, not what the API accepts.
 import { getVerticalTheme } from "@/components/dashboard/verticalTheme";
 
-export type PortalVertical = "MEDICAL" | "DENTAL" | "MECHANIC" | "RESTAURANT" | "LAW" | "BANK" | "UNIVERSITY" | "SALON";
+export type PortalVertical = "MEDICAL" | "DENTAL" | "MECHANIC" | "RESTAURANT" | "LAW" | "BANK" | "UNIVERSITY" | "SALON" | "RETAIL" | "REAL_ESTATE" | "OTHER";
 
 export interface ExtraFieldSpec {
   key: string; // Contact.metadata key
@@ -55,8 +55,17 @@ export interface VerticalOpsConfig {
   atRiskLabel: string | null;
   trustLedgerEnabled: boolean; // LAW only
   timeRecordingEnabled: boolean; // LAW only
-  menuEnabled: boolean; // RESTAURANT/SALON only
+  menuEnabled: boolean; // RESTAURANT/SALON/RETAIL only
   menuLabel: string;
+  // 2026-08-06 — the actual route-level feature flags for the two
+  // vertical-exclusive dashboard pages (/dashboard/clinical,
+  // /dashboard/kitchen). Previously each page hardcoded its own
+  // vertical === "X" check (or, for /dashboard/clinical, had none at
+  // all — see VerticalGate.tsx's comment for the bug this caused).
+  // Centralized here so there's exactly one place that decides which
+  // vertical gets which vertical-exclusive page.
+  clinicalEnabled: boolean; // MEDICAL/DENTAL only
+  kitchenEnabled: boolean; // RESTAURANT only
   complianceLogLabel: string;
   complianceLogPlaceholder: string;
   financeLabels: {
@@ -94,6 +103,8 @@ function base(vertical: PortalVertical, overrides: Partial<VerticalOpsConfig>): 
     timeRecordingEnabled: false,
     menuEnabled: false,
     menuLabel: "Menu & Pricing",
+    clinicalEnabled: false,
+    kitchenEnabled: false,
     complianceLogLabel: "Compliance Log",
     complianceLogPlaceholder: "e.g. Fridge temperature check — 3°C, within range",
     financeLabels: {
@@ -118,6 +129,7 @@ const MEDICAL_DENTAL = base("MEDICAL", {
   documentsLabel: "Documents",
   docLabelSuggestions: ["Referral", "Specialist report", "Imaging report", "Pathology report", "Insurance form", "Consent form", "Scan result"],
   providerNoteLabel: "Clinical note",
+  clinicalEnabled: true,
   vipLabel: "VIP patient", atRiskLabel: "At-risk flag (owner/admin only)",
   financeLabels: {
     byPayer: "Revenue by Payer Type", byPayerEnabled: true, byFundEnabled: true,
@@ -173,6 +185,7 @@ const RESTAURANT = base("RESTAURANT", {
   providerNoteLabel: "Manager's note",
   vipLabel: "VIP customer", atRiskLabel: "Flagged customer (owner/admin only)",
   menuEnabled: true, menuLabel: "Menu & Pricing",
+  kitchenEnabled: true,
   complianceLogLabel: "Food Safety Compliance Log",
   complianceLogPlaceholder: "e.g. Fridge temperature check — 3°C, within range",
   financeLabels: {
@@ -271,10 +284,66 @@ const SALON = base("SALON", {
   },
 });
 
+// 2026-08-06 — added to close a real gap: these three were previously
+// entirely absent from PortalVertical, so getVerticalOps() returned null
+// for them and every claims/documents/finance/menu page fell back to
+// generic labels (or, for claims/documents/finance, didn't render at all —
+// see Sidebar.tsx's ops-gated nav items). RETAIL reuses SALON's shape
+// (they already share pricing — platformSettings.ts's VERTICAL_PLAN_ALIAS)
+// since a retail shop's "menu" is genuinely a product/price catalog.
+// REAL_ESTATE and OTHER get honest, minimal configs — no invented
+// claims/compliance content where the product doesn't actually have a
+// verified feature backing it (LAW_REFERENCES stays empty for these three
+// in the backend copy for the same reason).
+const RETAIL = base("RETAIL", {
+  contactLabel: "Customer", contactLabelPlural: "Customers", providerLabel: "Staff",
+  insuranceTabLabel: "Customer Details",
+  claimsEnabled: true, claimsLabel: "Returns & Warranty",
+  claimTypes: [{ value: "WARRANTY", label: "Warranty claim" }, { value: "OTHER", label: "Return / refund" }],
+  claimFieldLabels: { insurerName: "Supplier", claimNumber: "Reference number", billedAmountCents: "Claimed amount", approvedAmountCents: "Approved", paidAmountCents: "Refunded" },
+  documentsLabel: "Documents",
+  docLabelSuggestions: ["Receipt", "Warranty card", "Supplier invoice"],
+  providerNoteLabel: "Staff note",
+  vipLabel: "VIP customer", atRiskLabel: "Flagged customer (owner/admin only)",
+  menuEnabled: true, menuLabel: "Product Catalog & Pricing",
+  financeLabels: {
+    byPayer: "Revenue by Claim Type", byPayerEnabled: false, byFundEnabled: false,
+    byProvider: "Revenue by Staff", byService: "Revenue by Category", productivity: "Staff Productivity",
+    rebateLabel: null, gapLabel: null, partsLabourEnabled: false,
+  },
+});
+
+const REAL_ESTATE = base("REAL_ESTATE", {
+  contactLabel: "Client", contactLabelPlural: "Clients", providerLabel: "Agent",
+  insuranceTabLabel: "Property Details",
+  extraFields: [
+    { key: "propertyAddress", label: "Property address", type: "text" },
+    { key: "listingType", label: "Listing type", type: "select", options: ["Sale", "Rental", "Property Management"] },
+  ],
+  claimsEnabled: false,
+  documentsLabel: "Documents",
+  docLabelSuggestions: ["Contract of sale", "Lease agreement", "Property report"],
+  providerNoteLabel: "Agent's note",
+  vipLabel: "VIP client", atRiskLabel: null,
+  financeLabels: {
+    byPayer: "Revenue by Listing Type", byPayerEnabled: false, byFundEnabled: false,
+    byProvider: "Revenue by Agent", byService: "Revenue by Listing Type", productivity: "Agent Productivity",
+    rebateLabel: null, gapLabel: null, partsLabourEnabled: false,
+  },
+});
+
+const OTHER = base("OTHER", {
+  // Deliberately generic — OTHER is the honest catch-all for a vertical
+  // this product doesn't have a dedicated portal for yet, not a place to
+  // invent industry-specific claims/document types with no real backing.
+  claimsEnabled: false,
+  vipLabel: "VIP", atRiskLabel: "Flagged (owner/admin only)",
+});
+
 export const VERTICAL_OPS: Record<PortalVertical, VerticalOpsConfig> = {
   MEDICAL: MEDICAL_DENTAL,
   DENTAL: { ...MEDICAL_DENTAL, vertical: "DENTAL" },
-  MECHANIC, RESTAURANT, LAW, BANK, UNIVERSITY, SALON,
+  MECHANIC, RESTAURANT, LAW, BANK, UNIVERSITY, SALON, RETAIL, REAL_ESTATE, OTHER,
 };
 
 export const PORTAL_VERTICALS = new Set(Object.keys(VERTICAL_OPS));
