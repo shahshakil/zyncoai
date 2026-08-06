@@ -46,7 +46,7 @@ export interface CallDetail {
   startedAt: string;
   endedAt: string | null;
   recordingKey?: string | null;
-  contact: { name: string | null; phone: string } | null;
+  contact: { id: string; name: string | null; phone: string } | null;
   provider: { name: string } | null;
   business?: { id: string; name: string; vertical: string } | null;
 }
@@ -188,6 +188,11 @@ export function CallDetailView({
   showBusinessName?: boolean;
 }) {
   const { data: detail } = useApi<{ ok: boolean; call: CallDetail; order: any; appointment: any }>(apiBase);
+  // Only the tenant dashboard has real destinations to link to (order
+  // history, a contact's timeline) — platform-admin's equivalent surfaces
+  // aren't verified to exist, so this stays plain text there rather than
+  // risk a dead link.
+  const isDashboard = apiBase.startsWith("/api/business/");
   const [turns, setTurns] = useState<CallTurn[]>([]);
   const lastSeqRef = useRef<number>(-1);
   const [initialLoaded, setInitialLoaded] = useState(false);
@@ -294,12 +299,26 @@ export function CallDetailView({
               <CardContent>
                 {detail.order && (
                   <p className="text-sm text-slate-700">
-                    Order #{detail.order.orderNumber} — AUD ${(detail.order.totalCents / 100).toFixed(2)} — <StatusBadge status={detail.order.status} />
+                    {isDashboard ? (
+                      <Link href={`/dashboard/orders/history?q=${detail.order.orderNumber}`} className="font-medium text-[#6366f1] hover:underline">
+                        Order #{detail.order.orderNumber}
+                      </Link>
+                    ) : (
+                      <>Order #{detail.order.orderNumber}</>
+                    )}
+                    {" "}— AUD ${(detail.order.totalCents / 100).toFixed(2)} — <StatusBadge status={detail.order.status} />
                   </p>
                 )}
                 {detail.appointment && (
                   <p className="text-sm text-slate-700">
-                    {new Date(detail.appointment.startAt).toLocaleString()} with {detail.appointment.provider?.name || "—"} — <StatusBadge status={detail.appointment.status} />
+                    {isDashboard && detail.call.contact ? (
+                      <Link href={`/dashboard/contacts/${detail.call.contact.id}`} className="font-medium text-[#6366f1] hover:underline">
+                        {new Date(detail.appointment.startAt).toLocaleString()} with {detail.appointment.provider?.name || "—"}
+                      </Link>
+                    ) : (
+                      <>{new Date(detail.appointment.startAt).toLocaleString()} with {detail.appointment.provider?.name || "—"}</>
+                    )}
+                    {" "}— <StatusBadge status={detail.appointment.status} />
                   </p>
                 )}
               </CardContent>
