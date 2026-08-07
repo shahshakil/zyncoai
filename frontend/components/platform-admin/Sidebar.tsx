@@ -7,7 +7,7 @@ import { useApi } from "@/lib/useApi";
 import {
   LayoutDashboard, Building2, PhoneCall, DollarSign, HeartPulse, ScrollText,
   Settings, LogOut, ChevronsLeft, ChevronsRight, ShieldCheck, Megaphone,
-  Wallet, Receipt, Calculator, Server, Brain, ShieldAlert, LockKeyhole, Bell, Users, Globe, FileWarning, Phone, Gift, Activity,
+  Wallet, Receipt, Calculator, Server, Brain, ShieldAlert, LockKeyhole, Bell, Users, Globe, FileWarning, Phone, Gift, Activity, Eye,
 } from "lucide-react";
 
 const NAV = [
@@ -25,6 +25,7 @@ const NAV = [
   { href: "/platform-admin/health", label: "System Health", icon: HeartPulse, color: "#EF4444" },
   { href: "/platform-admin/voice-infrastructure", label: "Voice Infrastructure", icon: Activity, color: "#10B981" },
   { href: "/platform-admin/audit", label: "Audit Log", icon: ScrollText, color: "#6B7280" },
+  { href: "/platform-admin/impersonation", label: "Impersonation History", icon: Eye, color: "#6366F1" },
   { href: "/platform-admin/notifications", label: "Notifications", icon: Megaphone, color: "#8B5CF6" },
   { href: "/platform-admin/infrastructure", label: "Infrastructure", icon: Server, color: "#0EA5E9" },
   { href: "/platform-admin/ai-engine", label: "AI Engine", icon: Brain, color: "#8B5CF6" },

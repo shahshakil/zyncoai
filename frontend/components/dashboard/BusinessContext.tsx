@@ -23,6 +23,11 @@ export interface DashboardBusiness {
   manualPlan?: string | null;
 }
 
+export interface ImpersonationState {
+  sessionId: string;
+  mode: "read" | "edit";
+}
+
 interface DashboardCtx {
   user: DashboardUser;
   business: DashboardBusiness;
@@ -31,6 +36,7 @@ interface DashboardCtx {
   providerName: string | null;
   canSeeFinancials: boolean;
   canManageBusiness: boolean;
+  impersonation: ImpersonationState | null;
 }
 
 export const DashboardContext = createContext<DashboardCtx | null>(null);

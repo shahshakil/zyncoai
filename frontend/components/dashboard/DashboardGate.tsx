@@ -2,9 +2,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import posthog from "posthog-js";
-import { DashboardContext, DashboardBusiness, DashboardUser, BusinessRole } from "./BusinessContext";
+import { DashboardContext, DashboardBusiness, DashboardUser, BusinessRole, ImpersonationState } from "./BusinessContext";
 import { Skeleton } from "./ui/skeleton";
 import { SuspendedAccountGate } from "./SuspendedAccountGate";
+import { ImpersonationBanner } from "./ImpersonationBanner";
 
 type GateState = {
   user: DashboardUser;
@@ -14,6 +15,7 @@ type GateState = {
   providerName: string | null;
   canSeeFinancials: boolean;
   canManageBusiness: boolean;
+  impersonation: ImpersonationState | null;
 };
 
 export function DashboardGate({ children }: { children: React.ReactNode }) {
@@ -42,18 +44,37 @@ export function DashboardGate({ children }: { children: React.ReactNode }) {
         }
         const me = await meRes.json();
 
-        const status = await statusRes.json().catch(() => ({ hasBusiness: false, businesses: [] }));
-
-        if (!status.hasBusiness || !status.businesses?.length) {
-          router.replace("/onboarding");
-          return;
-        }
-
         const businessMe = await businessMeRes.json().catch(() => null);
-        const role: BusinessRole = businessMe?.role || "OWNER";
 
-        if (!cancelled) {
-          const business = {
+        // Admin "view as business" sessions have no real User/Membership/
+        // onboarding-status row behind them (see requireJwt's impersonation
+        // branch) — /api/auth/me already flags this via `me.impersonation`,
+        // set only for impersonation tokens. Skip the onboarding-status gate
+        // entirely for these; /api/business/me alone (already resolved via
+        // tenantMiddleware's impersonation short-circuit) has everything
+        // needed to render the real owner's dashboard.
+        const impersonating = Boolean(me.impersonation);
+
+        let business: DashboardBusiness;
+        let role: BusinessRole;
+
+        if (impersonating) {
+          if (!businessMe?.ok) {
+            setError(true);
+            return;
+          }
+          business = businessMe.business;
+          role = businessMe.role || "OWNER";
+        } else {
+          const status = await statusRes.json().catch(() => ({ hasBusiness: false, businesses: [] }));
+
+          if (!status.hasBusiness || !status.businesses?.length) {
+            router.replace("/onboarding");
+            return;
+          }
+
+          role = businessMe?.role || "OWNER";
+          business = {
             ...status.businesses[0],
             capacityCount: businessMe?.business?.capacityCount,
             address: businessMe?.business?.address ?? null,
@@ -61,6 +82,9 @@ export function DashboardGate({ children }: { children: React.ReactNode }) {
             provisioningStatus: businessMe?.business?.provisioningStatus ?? null,
             twilioNumberSid: businessMe?.business?.twilioNumberSid ?? null,
           };
+        }
+
+        if (!cancelled) {
           setState({
             user: me.user,
             business,
@@ -69,9 +93,14 @@ export function DashboardGate({ children }: { children: React.ReactNode }) {
             providerName: businessMe?.provider?.name ?? null,
             canSeeFinancials: role === "OWNER" || role === "ADMIN",
             canManageBusiness: role === "OWNER" || role === "ADMIN",
+            impersonation: impersonating ? { sessionId: me.impersonation.sessionId, mode: me.impersonation.mode } : null,
           });
 
-          if (process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+          // Impersonated sessions never identify/group in PostHog — an
+          // admin's clicks would otherwise be attributed as real product
+          // usage for the business being viewed, polluting that company's
+          // analytics with activity its own users never generated.
+          if (process.env.NEXT_PUBLIC_POSTHOG_KEY && !impersonating) {
             posthog.identify(me.user.id, { email: me.user.email, name: me.user.name, role });
             posthog.group("company", business.id, {
               name: business.name,
@@ -110,6 +139,14 @@ export function DashboardGate({ children }: { children: React.ReactNode }) {
     );
   }
 
+  // The banner is rendered ahead of EVERY branch below, including the
+  // suspended/closed messages — "persistent, unmissable" per spec means an
+  // admin never sees any part of this business's dashboard state without it,
+  // not just the normal happy-path render.
+  const banner = state.impersonation ? (
+    <ImpersonationBanner sessionId={state.impersonation.sessionId} initialMode={state.impersonation.mode} businessName={state.business.name} />
+  ) : null;
+
   // HOLD is deliberately NOT gated here — unlike SUSPENDED/CLOSED below, a
   // business on HOLD (Square auto-charge retries exhausted) keeps full
   // dashboard access; only calling is blocked (twilioInbound.ts). It falls
@@ -117,11 +154,14 @@ export function DashboardGate({ children }: { children: React.ReactNode }) {
   // app/dashboard/layout.tsx alongside TrialBanner) as the visible signal.
   if (state.business.status === "CLOSED") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
-        <p className="max-w-sm text-center text-sm text-slate-500">
-          This account has been closed. Please contact support to discuss reactivating it.
-        </p>
-      </div>
+      <>
+        {banner}
+        <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
+          <p className="max-w-sm text-center text-sm text-slate-500">
+            This account has been closed. Please contact support to discuss reactivating it.
+          </p>
+        </div>
+      </>
     );
   }
 
@@ -132,15 +172,28 @@ export function DashboardGate({ children }: { children: React.ReactNode }) {
     // owner/admin reactivate.
     if (!state.canManageBusiness) {
       return (
-        <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
-          <p className="max-w-sm text-center text-sm text-slate-500">
-            This account is currently suspended. Please contact your business owner or admin to reactivate it.
-          </p>
-        </div>
+        <>
+          {banner}
+          <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
+            <p className="max-w-sm text-center text-sm text-slate-500">
+              This account is currently suspended. Please contact your business owner or admin to reactivate it.
+            </p>
+          </div>
+        </>
       );
     }
-    return <SuspendedAccountGate />;
+    return (
+      <>
+        {banner}
+        <SuspendedAccountGate />
+      </>
+    );
   }
 
-  return <DashboardContext.Provider value={state}>{children}</DashboardContext.Provider>;
+  return (
+    <DashboardContext.Provider value={state}>
+      {banner}
+      {children}
+    </DashboardContext.Provider>
+  );
 }

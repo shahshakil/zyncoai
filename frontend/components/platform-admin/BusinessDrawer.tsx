@@ -8,7 +8,9 @@ import { Button } from "@/components/dashboard/ui/button";
 import { Badge, StatusBadge } from "@/components/dashboard/ui/badge";
 import { Input, Label, Select } from "@/components/dashboard/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/dashboard/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/dashboard/ui/dialog";
 import { VerticalBadge } from "./VerticalBadge";
+import { getVerticalOps } from "@/lib/verticalOps";
 import { formatCents, timeAgo } from "./format";
 import { DiscountsPanel } from "./DiscountsPanel";
 import { SquareBillingPanel } from "./SquareBillingPanel";
@@ -294,20 +296,35 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
     }
   }
 
-  async function viewAsOwner() {
-    setBusy(true);
+  // "View dashboard as this business" — Stripe-style access discipline: a
+  // one-line reason is required before minting and lands in the audit
+  // record (see startImpersonationSchema on the backend), so this always
+  // goes through a dialog rather than firing immediately on click the way
+  // the other drawer actions do.
+  const [viewAsOpen, setViewAsOpen] = useState(false);
+  const [viewAsReason, setViewAsReason] = useState("");
+  const [viewAsBusy, setViewAsBusy] = useState(false);
+
+  async function startViewAsBusiness() {
+    if (!viewAsReason.trim()) return;
+    setViewAsBusy(true);
     try {
-      const res = await apiPost<{ token: string; owner: { email: string } }>(`/api/admin/platform/businesses/${businessId}/impersonate`);
+      const res = await apiPost<{ token: string; business: { id: string; name: string } }>(
+        `/api/admin/platform/businesses/${businessId}/impersonate`,
+        { reason: viewAsReason.trim() }
+      );
       // Sets the tenant access-token cookie same-origin (never puts the
       // token in a URL/new-tab query string, which would leak into browser
       // history and any third-party referrer headers on the dashboard).
       await apiPost("/api/admin-auth/impersonate", { token: res.token });
       window.open("/dashboard", "_blank");
-      toast.success(`Opening dashboard as ${res.owner.email}`);
-    } catch {
-      toast.error("Could not start impersonation session");
+      toast.success(`Opening dashboard as ${res.business.name}`);
+      setViewAsOpen(false);
+      setViewAsReason("");
+    } catch (err: any) {
+      toast.error(err?.message || "Could not start impersonation session");
     } finally {
-      setBusy(false);
+      setViewAsBusy(false);
     }
   }
 
@@ -357,11 +374,15 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
                     </TabsList>
 
                     <TabsContent value="overview">
+                      {/* 2026-08-06 fix — this hardcoded "Patients"/"Staff" regardless
+                          of vertical (e.g. showed "8 Patients" for The Blue Shop, a
+                          RESTAURANT). Same per-vertical labels the tenant dashboard's
+                          own Sidebar already uses (lib/verticalOps.ts). */}
                       <div className="grid grid-cols-4 gap-3">
                         <StatBox label="Calls" value={data.business._count.calls} />
                         <StatBox label="Bookings" value={data.business._count.appointments} />
-                        <StatBox label="Patients" value={data.business._count.contacts} />
-                        <StatBox label="Staff" value={data.business.providers.length} />
+                        <StatBox label={getVerticalOps(data.business.vertical)?.contactLabelPlural || "Contacts"} value={data.business._count.contacts} />
+                        <StatBox label={getVerticalOps(data.business.vertical)?.providerLabel || "Staff"} value={data.business.providers.length} />
                       </div>
 
                       <h3 className="mb-2 mt-5 text-xs font-semibold uppercase tracking-wide text-[#6B7280]">
@@ -624,8 +645,8 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
                             <PhoneOff className="h-4 w-4" /> Release number ($1.50/mo)
                           </Button>
                         )}
-                        <Button variant="outline" className="w-full justify-start" onClick={viewAsOwner} disabled={busy}>
-                          <ExternalLink className="h-4 w-4" /> View as Owner
+                        <Button variant="outline" className="w-full justify-start" onClick={() => setViewAsOpen(true)}>
+                          <ExternalLink className="h-4 w-4" /> View dashboard as this business
                         </Button>
                         <Button variant="outline" className="w-full justify-start" onClick={resetOwnerPassword} disabled={busy}>
                           <KeyRound className="h-4 w-4" /> Reset owner password
@@ -664,6 +685,32 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
               </div>
             )}
           </motion.div>
+
+          <Dialog open={viewAsOpen} onOpenChange={setViewAsOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>View dashboard as {data?.business.name}</DialogTitle>
+                <DialogDescription>
+                  Opens their real dashboard in read-only mode, with a persistent banner so it&apos;s always clear you&apos;re
+                  impersonating. Requires a reason — this is logged to the audit trail.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-3">
+                <div>
+                  <Label>Reason</Label>
+                  <Input
+                    value={viewAsReason}
+                    onChange={(e) => setViewAsReason(e.target.value)}
+                    placeholder="e.g. investigating support ticket #4821"
+                    autoFocus
+                  />
+                </div>
+                <Button className="w-full" onClick={startViewAsBusiness} disabled={viewAsBusy || !viewAsReason.trim()}>
+                  {viewAsBusy ? "Starting…" : "Start viewing"}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </>
       )}
     </AnimatePresence>

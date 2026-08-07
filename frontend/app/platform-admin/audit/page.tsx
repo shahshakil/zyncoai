@@ -20,7 +20,9 @@ interface AuditEntry {
 
 const ACTIONS = [
   "admin.login", "admin.login_failed", "admin.business_viewed", "admin.business_suspended",
-  "admin.business_activated", "admin.business_emailed", "admin.impersonation_started", "admin.transcript_accessed",
+  "admin.business_activated", "admin.business_emailed", "admin.impersonation_started", "admin.impersonation_edit_mode_enabled",
+  "admin.impersonation_edit_mode_denied", "admin.impersonation_mutation", "admin.impersonation_recording_accessed",
+  "admin.impersonation_ended", "admin.impersonation_revoked", "admin.transcript_accessed",
   "admin.announcement_created", "admin.settings_updated", "admin.feature_flag_toggled", "admin.business_plan_assigned",
 ];
 
@@ -30,11 +32,13 @@ const QUICK_FILTERS: { label: string; match: (action: string) => boolean }[] = [
   { label: "Suspensions", match: (a) => a.includes("suspend") || a.includes("activated") },
   { label: "Exports", match: (a) => a.includes("export") || a.includes("transcript") },
   { label: "Views", match: (a) => a.includes("viewed") },
+  { label: "Impersonation", match: (a) => a.includes("impersonation") },
   { label: "Errors", match: (a) => a.includes("failed") },
 ];
 
 function actionTone(action: string): "danger" | "warning" | "info" | "success" | "purple" | "default" {
-  if (action.includes("failed")) return "danger";
+  if (action.includes("failed") || action.includes("denied")) return "danger";
+  if (action.includes("impersonation")) return "purple";
   if (action.includes("suspend")) return "warning";
   if (action.startsWith("admin.login")) return "info";
   if (action.includes("activated") || action.includes("created")) return "success";
