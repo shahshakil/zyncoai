@@ -29,7 +29,7 @@ const Bullet = ({ children }: { children: React.ReactNode }) => (
 );
 
 export default function DpaPage() {
-  const updated = "July 18, 2026";
+  const updated = "August 7, 2026";
 
   return (
     <main className="min-h-screen bg-[#f8fafc]">
@@ -76,6 +76,7 @@ export default function DpaPage() {
                   ["categories", "Categories of data processed"],
                   ["exclusions", "What is never processed"],
                   ["obligations", "Processor obligations"],
+                  ["support-access", "Support access"],
                   ["controller-obligations", "Controller obligations"],
                   ["subprocessors", "Subprocessors"],
                   ["residency", "Data residency"],
@@ -124,6 +125,25 @@ export default function DpaPage() {
                 <Bullet>Log consent and data-access events in an audit trail.</Bullet>
                 <Bullet>Notify the Controller without undue delay upon becoming aware of a data breach affecting personal information.</Bullet>
               </ul>
+            </Section>
+
+            <Section id="support-access" title="Support access">
+              <p>
+                Authorised Processor personnel may access the Controller&apos;s account and the personal information
+                it contains solely to provide support, diagnose and resolve technical issues, and operate the
+                service on the Controller&apos;s behalf — never for any other purpose. This is processing carried out
+                under the Controller&apos;s instructions per <a href="#scope">Scope &amp; roles</a> above, not an
+                independent use of the data.
+              </p>
+              <p>
+                All such access is logged in the audit trail described under Processor obligations — who accessed
+                the account, when, and why — including cases where call audio is reviewed to resolve a specific
+                issue, which is separately flagged in that log. Any change made on the Controller&apos;s behalf during
+                a support session requires additional authentication beyond a normal login and is recorded as
+                performed by ZyncoAI support, distinguishable from the Controller&apos;s own account activity. The
+                Controller may request a copy of this access history at any time by contacting{" "}
+                <a href="mailto:support@zyncoai.com" className="text-indigo-300 underline">support@zyncoai.com</a>.
+              </p>
             </Section>
 
             <Section id="controller-obligations" title="Controller obligations">
