@@ -1,20 +1,25 @@
-// Forwards the MFA-pending token as a Bearer header (never a cookie the
-// browser would auto-send on other requests) to the backend's
-// requireMfaPending-guarded /mfa/setup. No session cookies to set here —
-// setup only returns a QR code, it doesn't establish a real session.
+// Forwards a Bearer token to the backend's requireMfaSetupAuth-guarded
+// /mfa/setup. No session cookies to set here — setup only returns a QR
+// code, it doesn't establish a real session.
+//
+// 2026-08-07 — mfaPendingToken now optional, falling back to the caller's
+// own ACCESS_COOKIE (self-service enrollment from an existing session —
+// see the matching comment in ../verify/route.ts).
 import { NextResponse } from "next/server";
-import { backendFetch } from "@/lib/backendAuth";
+import { cookies } from "next/headers";
+import { backendFetch, ACCESS_COOKIE } from "@/lib/backendAuth";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const { mfaPendingToken } = body || {};
-  if (!mfaPendingToken) {
-    return NextResponse.json({ ok: false, error: "missing_mfa_pending_token" }, { status: 400 });
+  const bearer = mfaPendingToken || cookies().get(ACCESS_COOKIE)?.value;
+  if (!bearer) {
+    return NextResponse.json({ ok: false, error: "not_authenticated" }, { status: 401 });
   }
 
   const r = await backendFetch("/api/auth/mfa/setup", {
     method: "POST",
-    headers: { "content-type": "application/json", authorization: `Bearer ${mfaPendingToken}` },
+    headers: { "content-type": "application/json", authorization: `Bearer ${bearer}` },
   });
 
   const data = await r.json().catch(() => ({}));

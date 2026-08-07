@@ -3,6 +3,13 @@
 // zyn_access/zyn_refresh cookies via the same extraction pattern as
 // app/api/auth/login/route.ts. Also returns the one-time backup codes
 // (never persisted in plaintext, never shown again after this response).
+//
+// 2026-08-07 — mfaPendingToken now optional: the backend's
+// requireMfaSetupAuth accepts either a pending token (forced enrollment at
+// signup) or a normal access token (self-service enrollment from an
+// existing session — what an OAuth-created account, which never gets a
+// pending token, needs). Falls back to the caller's own ACCESS_COOKIE when
+// no pending token is supplied, same as the /api/business/* proxy does.
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { backendFetch, extractSetCookieValue, ACCESS_COOKIE, REFRESH_COOKIE, ACCESS_COOKIE_MAX_AGE, REFRESH_COOKIE_MAX_AGE } from "@/lib/backendAuth";
@@ -10,13 +17,17 @@ import { backendFetch, extractSetCookieValue, ACCESS_COOKIE, REFRESH_COOKIE, ACC
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const { mfaPendingToken, code } = body || {};
-  if (!mfaPendingToken || !code) {
+  if (!code) {
     return NextResponse.json({ ok: false, error: "missing_fields" }, { status: 400 });
+  }
+  const bearer = mfaPendingToken || cookies().get(ACCESS_COOKIE)?.value;
+  if (!bearer) {
+    return NextResponse.json({ ok: false, error: "not_authenticated" }, { status: 401 });
   }
 
   const r = await backendFetch("/api/auth/mfa/verify", {
     method: "POST",
-    headers: { "content-type": "application/json", authorization: `Bearer ${mfaPendingToken}` },
+    headers: { "content-type": "application/json", authorization: `Bearer ${bearer}` },
     body: JSON.stringify({ code }),
   });
 

@@ -23,6 +23,23 @@ function VerifyMfaForm() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    // Google OAuth's callback (backend auth/google.ts) redirects here with
+    // the pending token in the URL hash fragment, never a query string —
+    // same reasoning as the existing access_token hash on a normal OAuth
+    // login: a fragment is never sent to the server or logged, a query
+    // string would be. Picked up once, then stored the same way the
+    // password-login path already stores its own pending token, so the
+    // rest of this page doesn't need to know which path it came from.
+    if (typeof window !== "undefined" && window.location.hash) {
+      const hashParams = new URLSearchParams(window.location.hash.slice(1));
+      const hashToken = hashParams.get("mfa_pending_token");
+      if (hashToken) {
+        sessionStorage.setItem("zyn_mfa_pending_token", hashToken);
+        const next = hashParams.get("next");
+        window.history.replaceState(null, "", next ? `/verify-mfa?next=${encodeURIComponent(next)}` : "/verify-mfa");
+      }
+    }
+
     const token = sessionStorage.getItem("zyn_mfa_pending_token");
     if (!token) {
       router.replace("/login");
