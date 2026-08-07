@@ -54,6 +54,7 @@ interface BillingData {
   discounts: BillingDiscount[];
   referral: { link: string; wasReferredBy: boolean; pendingCount: number; approvedCount: number; creditsEarnedCents: number };
   invoices: BillingInvoice[];
+  cancelEffectiveAt: string | null;
   preferredPaymentMethod: "SQUARE" | "BANK_TRANSFER" | "PAYPAL" | "BPAY" | null;
   square: {
     configured: boolean;
@@ -142,11 +143,24 @@ export function BillingPageContent() {
     setCancelling(true);
     try {
       await apiPost("/api/business/billing/cancel-plan");
-      toast.success("Plan cancelled");
+      toast.success("Cancellation scheduled — your plan stays active until the end of this period");
       setConfirmCancel(false);
       mutate();
     } catch {
       toast.error("Could not cancel your plan — contact support");
+    } finally {
+      setCancelling(false);
+    }
+  }
+
+  async function undoCancel() {
+    setCancelling(true);
+    try {
+      await apiPost("/api/business/billing/cancel-plan/undo");
+      toast.success("Cancellation undone — your plan will continue as normal");
+      mutate();
+    } catch {
+      toast.error("Could not undo cancellation — contact support");
     } finally {
       setCancelling(false);
     }
@@ -239,15 +253,26 @@ export function BillingPageContent() {
                 </div>
                 <div className="flex items-center gap-4 sm:flex-col sm:items-end">
                   <Button size="lg" className="h-11 min-h-[44px]" onClick={() => { setSelectedPlan(data.plan?.key || ""); setChangingPlan(true); }}>Upgrade Plan</Button>
-                  <button
-                    type="button"
-                    className="text-xs font-medium text-slate-400 underline-offset-2 hover:text-slate-600 hover:underline"
-                    onClick={() => setConfirmCancel(true)}
-                  >
-                    Cancel Plan
-                  </button>
+                  {!data.cancelEffectiveAt && (
+                    <button
+                      type="button"
+                      className="text-xs font-medium text-slate-400 underline-offset-2 hover:text-slate-600 hover:underline"
+                      onClick={() => setConfirmCancel(true)}
+                    >
+                      Cancel Plan
+                    </button>
+                  )}
                 </div>
               </div>
+
+              {data.cancelEffectiveAt && (
+                <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-sm text-slate-600">
+                    Your plan ends on <span className="font-semibold text-slate-900">{new Date(data.cancelEffectiveAt).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })}</span> — no refund for the current period, but Ella keeps answering calls until then.
+                  </p>
+                  <Button variant="outline" size="lg" className="h-11 min-h-[44px] shrink-0" disabled={cancelling} onClick={undoCancel}>{cancelling ? "…" : "Undo cancellation"}</Button>
+                </div>
+              )}
 
               {data.plan.minuteAllowance != null && (
                 <MinutesProgressBar
@@ -447,8 +472,8 @@ export function BillingPageContent() {
           <DialogHeader><DialogTitle>Cancel your plan?</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <p className="text-sm text-slate-600">
-              This stops future invoices from being generated. Anything already issued still needs to be paid.
-              You can choose a new plan at any time to reactivate billing.
+              Your plan stays active through the end of your current billing period — Ella keeps answering calls and you won&apos;t be charged again after that.
+              We don&apos;t offer partial refunds for the current period. You can undo this at any time before then.
             </p>
             <div className="flex gap-2">
               <Button variant="danger" className="h-11 min-h-[44px]" disabled={cancelling} onClick={cancelPlan}>{cancelling ? "Cancelling…" : "Yes, cancel plan"}</Button>

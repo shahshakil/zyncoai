@@ -99,7 +99,7 @@ const FAQS: { question: string; answer: string; category: FaqCategory }[] = [
   {
     question: "Can I cancel anytime?",
     answer:
-      "Yes — you can cancel any time from your dashboard under Settings → Billing. Your plan stays active for a 30-day notice period after you cancel, and we don't offer partial-month refunds for the current billing cycle.",
+      "Yes — you can cancel any time from your dashboard under Settings → Billing. Your plan stays active until the end of your current billing period, and we don't offer partial-month refunds for the current billing cycle.",
     category: "Pricing & plans",
   },
 ];

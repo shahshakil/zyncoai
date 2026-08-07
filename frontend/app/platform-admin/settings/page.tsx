@@ -34,12 +34,17 @@ interface Settings {
   autoSuspendEnabled?: boolean;
 }
 interface FeatureFlag { id: string; key: string; enabled: boolean }
+interface PricingPlanDrift {
+  drift: { added: string[]; removed: string[]; changed: { key: string; fields: string[] }[] };
+  hasDrift: boolean;
+}
 
 const VOICE_OPTIONS = ["shimmer", "alloy", "echo", "fable", "onyx", "nova"];
 
 export default function PlatformSettingsPage() {
   const { data, mutate } = useApi<{ settings: Settings }>("/api/admin/platform/settings/");
   const { data: flagsData, mutate: mutateFlags } = useApi<{ flags: FeatureFlag[] }>("/api/admin/platform/settings/flags");
+  const { data: driftData } = useApi<PricingPlanDrift>("/api/admin/platform/settings/pricing-plans/drift");
 
   const [plans, setPlans] = useState<PricingPlan[]>([]);
   const [model, setModel] = useState("");
@@ -151,10 +156,24 @@ export default function PlatformSettingsPage() {
     <div className="-m-6">
       <Topbar title="Platform Settings" />
       <div className="space-y-6 p-6">
+        {driftData?.hasDrift && (
+          <Card className="border-[#FCA5A5]">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-[#991B1B]"><AlertTriangle className="h-4 w-4" /> Pricing plan drift detected</CardTitle>
+              <p className="mt-0.5 text-xs text-[#9CA3AF]">The live plans below (saved in the database) differ from the defaults defined in code (platformSettings.ts). This is informational only — an intentional price edit here is expected drift.</p>
+            </CardHeader>
+            <div className="space-y-1 p-4 text-xs text-[#7F1D1D]">
+              {driftData.drift.changed.map((c) => <p key={c.key}>Changed: <strong>{c.key}</strong> ({c.fields.join(", ")})</p>)}
+              {driftData.drift.removed.map((key) => <p key={key}>In code but not in the database: <strong>{key}</strong></p>)}
+              {driftData.drift.added.map((key) => <p key={key}>In the database but not in code: <strong>{key}</strong></p>)}
+            </div>
+          </Card>
+        )}
+
         <Card>
           <CardHeader>
             <CardTitle>Pricing Plans</CardTitle>
-            <p className="mt-0.5 text-xs text-[#9CA3AF]">Manual plan tiers shown on the Revenue page — not wired to real billing yet.</p>
+            <p className="mt-0.5 text-xs text-[#9CA3AF]">Manual plan tiers shown on the Revenue page — billed via ZyncoAI&apos;s own Square account (src/lib/squareBilling.ts), not Stripe.</p>
           </CardHeader>
           <div className="space-y-3 p-4">
             {plans.map((p, i) => (

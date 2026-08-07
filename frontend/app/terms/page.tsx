@@ -298,11 +298,11 @@ export default function TermsPage() {
             <Section id="cancellation" title="Cancellation & refunds">
               <ul className="mt-2 space-y-2">
                 <Bullet>Every plan starts with a <strong>7-day free trial</strong> — you&apos;re not charged anything during this period.</Bullet>
-                <Bullet>You can <strong>cancel at any time</strong> from Settings → Billing.</Bullet>
-                <Bullet><strong>30 days&apos; notice is required</strong> to cancel a paid subscription — your plan remains active and billable through that notice period.</Bullet>
+                <Bullet>You can <strong>cancel at any time</strong> from Settings → Billing — cancellation takes effect at the <strong>end of your current paid billing period</strong>, not immediately, and your plan stays active and billable through that period.</Bullet>
                 <Bullet>We don&apos;t offer <strong>partial-month refunds</strong> for the current billing period once it&apos;s begun.</Bullet>
+                <Bullet>After your current period ends, your account moves to no plan — you can choose a new plan at any time to reactivate billing, and you can undo a pending cancellation before the period ends.</Bullet>
                 <Bullet>
-                  <strong>You can export your data at any time</strong>, including during your notice period — patients/contacts, appointments, call
+                  <strong>You can export your data at any time</strong>, including after cancellation — patients/contacts, appointments, call
                   history, revenue records, staff, and claims are all available as CSV/Excel exports from their respective dashboard pages, on demand,
                   with no separate request required.
                 </Bullet>

@@ -81,6 +81,7 @@ export function DashboardGate({ children }: { children: React.ReactNode }) {
             phoneNumber: businessMe?.business?.phoneNumber ?? null,
             provisioningStatus: businessMe?.business?.provisioningStatus ?? null,
             twilioNumberSid: businessMe?.business?.twilioNumberSid ?? null,
+            billingPastDue: businessMe?.business?.billingPastDue ?? false,
           };
         }
 

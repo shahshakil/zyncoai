@@ -21,6 +21,7 @@ export interface DashboardBusiness {
   twilioNumberSid?: string | null;
   trialEndsAt?: string | null;
   manualPlan?: string | null;
+  billingPastDue?: boolean;
 }
 
 export interface ImpersonationState {

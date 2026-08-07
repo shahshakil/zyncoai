@@ -66,7 +66,7 @@ export default function HelpPage() {
           <Link href="/terms#cancellation" className="text-[#6366f1] underline underline-offset-4 hover:text-[#4f46e5]">
             Terms page
           </Link>{" "}
-          — that&apos;s the canonical source. Short version: cancel any time from Settings → Billing, 30 days&apos; notice required, no partial-month
+          — that&apos;s the canonical source. Short version: cancel any time from Settings → Billing, it takes effect at the end of your current billing period, no partial-month
           refunds, and your 7-day free trial means nothing&apos;s charged until you&apos;re sure.
         </p>
       </ResourceSection>

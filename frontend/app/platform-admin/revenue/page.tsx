@@ -1,6 +1,7 @@
 "use client";
+import { useState } from "react";
 import dynamic from "next/dynamic";
-import { DollarSign, TrendingDown, TrendingUp, Percent, Download, Repeat, Users, Info } from "lucide-react";
+import { DollarSign, TrendingDown, TrendingUp, Percent, Download, Repeat, Users, Info, Siren } from "lucide-react";
 import { toast } from "sonner";
 import { useApi, apiPost } from "@/lib/useApi";
 import { Card, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
@@ -12,6 +13,40 @@ import { Topbar } from "@/components/platform-admin/Topbar";
 import { StatCard } from "@/components/platform-admin/StatCard";
 import { formatCents, VERTICAL_LABELS } from "@/components/platform-admin/format";
 import { exportToExcel, type ExportColumn } from "@/lib/exportUtils";
+
+interface BillingIssues {
+  counts: { pastDueCount: number; holdCount: number; autoChargeFailedTodayCount: number };
+}
+
+function BillingIssuesStrip({ onFilterStatus }: { onFilterStatus: (status: string) => void }) {
+  const { data } = useApi<BillingIssues>("/api/admin/platform/billing-issues-today", { refreshInterval: 60000 });
+  const tiles = [
+    { key: "pastDue", label: "Past Due (retrying)", value: data?.counts.pastDueCount, tone: "#F59E0B", status: "ACTIVE" },
+    { key: "hold", label: "On Hold (calling blocked)", value: data?.counts.holdCount, tone: "#EF4444", status: "HOLD" },
+    { key: "failedToday", label: "New Failures (24h)", value: data?.counts.autoChargeFailedTodayCount, tone: "#EF4444", status: "" },
+  ];
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2"><Siren className="h-4 w-4 text-[#EF4444]" /> Billing Issues</CardTitle>
+        <p className="mt-0.5 text-xs text-[#9CA3AF]">Click a tile to filter the Business Revenue table below by status.</p>
+      </CardHeader>
+      <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-3">
+        {tiles.map((t) => (
+          <button
+            key={t.key}
+            onClick={() => t.status && onFilterStatus(t.status)}
+            disabled={!t.status}
+            className="rounded-xl border border-[#E5E7EB] p-3 text-left transition hover:-translate-y-px hover:shadow-md disabled:hover:translate-y-0 disabled:hover:shadow-none"
+          >
+            <p className="text-2xl font-bold" style={{ color: t.tone }}>{t.value ?? "—"}</p>
+            <p className="mt-0.5 text-xs text-[#6B7280]">{t.label}</p>
+          </button>
+        ))}
+      </div>
+    </Card>
+  );
+}
 
 const ChartSkeleton = () => <div className="h-56 animate-pulse rounded-xl bg-slate-100" />;
 const GradientBarChart = dynamic(() => import("@/components/platform-admin/charts").then((m) => ({ default: m.GradientBarChart })), { loading: ChartSkeleton, ssr: false });
@@ -39,7 +74,7 @@ interface RevenueData {
   };
   monthlyRevenue: { month: string; amountCents: number }[];
   byVertical: { vertical: string; amountCents: number }[];
-  businesses: { id: string; name: string; vertical: string; plan: string; planPriceCents: number; planIsManual: boolean; manualPlanKey: string | null; revenueThisMonthCents: number; totalRevenueCents: number; numberCostCents: number }[];
+  businesses: { id: string; name: string; vertical: string; status: string; plan: string; planPriceCents: number; planIsManual: boolean; manualPlanKey: string | null; revenueThisMonthCents: number; totalRevenueCents: number; numberCostCents: number }[];
   pricingPlans: PricingPlan[];
   stale?: boolean;
 }
@@ -57,8 +92,10 @@ const VERTICAL_COLORS = ["#6366F1", "#3B82F6", "#10B981", "#F59E0B", "#EF4444", 
 
 export default function RevenuePage() {
   const { data, mutate } = useApi<RevenueData>("/api/admin/platform/revenue", { refreshInterval: 60000 });
+  const [statusFilter, setStatusFilter] = useState("");
 
   const hasAnyRevenue = data ? data.totalIncomeCents > 0 || data.businesses.some((b) => b.totalRevenueCents > 0) : true;
+  const filteredBusinesses = (data?.businesses || []).filter((b) => !statusFilter || b.status === statusFilter);
 
   async function assignPlan(businessId: string, planKey: string) {
     try {
@@ -127,6 +164,8 @@ export default function RevenuePage() {
             </div>
           </div>
         )}
+
+        <BillingIssuesStrip onFilterStatus={setStatusFilter} />
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <Card>
@@ -248,7 +287,14 @@ export default function RevenuePage() {
 
         <Card>
           <div className="flex items-center justify-between border-b border-[#E5E7EB] p-4">
-            <CardTitle>Business Revenue</CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle>Business Revenue</CardTitle>
+              {statusFilter && (
+                <button onClick={() => setStatusFilter("")} className="text-xs font-medium text-[#6366F1] hover:underline">
+                  Filtered: {statusFilter} — clear
+                </button>
+              )}
+            </div>
             <Button
               size="sm"
               onClick={() => exportToExcel(
@@ -262,32 +308,29 @@ export default function RevenuePage() {
           </div>
           <Table>
             <Thead>
-              <tr><Th>Rank</Th><Th>Business</Th><Th>Vertical</Th><Th>Revenue (Month)</Th><Th>Total Revenue</Th><Th>Number Cost</Th><Th>Plan</Th></tr>
+              <tr><Th>Rank</Th><Th>Business</Th><Th>Vertical</Th><Th>Status</Th><Th>Revenue (Month)</Th><Th>Total Revenue</Th><Th>Number Cost</Th><Th>Plan</Th></tr>
             </Thead>
             <Tbody>
-              {data?.businesses.map((b, i) => (
+              {filteredBusinesses.map((b, i) => (
                 <Tr key={b.id}>
                   <Td>{i + 1}</Td>
                   <Td className="font-medium text-[#1F2937]">{b.name}</Td>
                   <Td><Badge tone="purple">{VERTICAL_LABELS[b.vertical] || b.vertical}</Badge></Td>
+                  <Td><Badge tone={b.status === "ACTIVE" ? "success" : b.status === "HOLD" ? "danger" : "default"}>{b.status}</Badge></Td>
                   <Td>{formatCents(b.revenueThisMonthCents)}</Td>
                   <Td>{formatCents(b.totalRevenueCents)}</Td>
                   <Td className="text-xs text-[#6B7280]">{b.numberCostCents ? `${formatCents(b.numberCostCents)}/mo` : "—"}</Td>
                   <Td>
-                    {b.plan === "No plan" || b.planIsManual ? (
-                      <Select value={b.manualPlanKey || ""} onChange={(e) => assignPlan(b.id, e.target.value)} className="h-8 w-36 text-xs">
-                        <option value="">No plan</option>
-                        {data?.pricingPlans.map((p) => <option key={p.key} value={p.key}>{p.name}</option>)}
-                      </Select>
-                    ) : (
-                      <Badge tone="success">{b.plan} (Stripe)</Badge>
-                    )}
+                    <Select value={b.manualPlanKey || ""} onChange={(e) => assignPlan(b.id, e.target.value)} className="h-8 w-36 text-xs">
+                      <option value="">No plan</option>
+                      {data?.pricingPlans.map((p) => <option key={p.key} value={p.key}>{p.name}</option>)}
+                    </Select>
                   </Td>
                 </Tr>
               ))}
             </Tbody>
           </Table>
-          {data && !data.businesses.length && <EmptyState title="No businesses yet" />}
+          {data && !filteredBusinesses.length && <EmptyState title={statusFilter ? `No ${statusFilter.toLowerCase()} businesses` : "No businesses yet"} />}
         </Card>
       </div>
     </div>
