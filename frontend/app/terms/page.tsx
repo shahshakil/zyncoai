@@ -29,7 +29,7 @@ const Bullet = ({ children }: { children: React.ReactNode }) => (
 );
 
 export default function TermsPage() {
-  const updated = "July 30, 2026";
+  const updated = "August 7, 2026";
 
   return (
     <main className="min-h-screen bg-[#f8fafc]">
@@ -117,6 +117,7 @@ export default function TermsPage() {
                   ["billing", "Billing & plans"],
                   ["cancellation", "Cancellation & refunds"],
                   ["security", "Security & incidents"],
+                  ["support-access", "Support access"],
                   ["incident-reporting", "Incident reporting obligations"],
                   ["nsw-workplace", "NSW workplace digital systems"],
                   ["ip", "Intellectual property"],
@@ -331,6 +332,18 @@ export default function TermsPage() {
                   docs
                 </Link>
                 .
+              </p>
+            </Section>
+
+            <Section id="support-access" title="Support access">
+              <p>
+                Authorised ZyncoAI personnel may access your account and the data it contains solely to provide
+                support, troubleshoot issues, and operate the service — never for any other purpose. All such
+                access is logged and auditable. See{" "}
+                <Link href="/privacy#support-access" className="text-[#6366f1] underline underline-offset-4 hover:text-[#4f46e5]">
+                  Support access
+                </Link>{" "}
+                in our Privacy Policy for the full detail on how this works and how to request your access history.
               </p>
             </Section>
 

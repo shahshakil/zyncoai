@@ -29,7 +29,7 @@ const Bullet = ({ children }: { children: React.ReactNode }) => (
 );
 
 export default function PrivacyPage() {
-  const updated = "July 30, 2026";
+  const updated = "August 7, 2026";
 
   return (
     <main className="min-h-screen bg-[#f8fafc]">
@@ -82,6 +82,7 @@ export default function PrivacyPage() {
                   ["access-correction", "Access & correction"],
                   ["storage", "Data storage & sovereignty"],
                   ["sharing", "Disclosure to third parties"],
+                  ["support-access", "Support access"],
                   ["breach", "Data breach notification"],
                   ["cyber-security", "Security practices"],
                   ["marketing", "Marketing & unsubscribe"],
@@ -178,6 +179,24 @@ export default function PrivacyPage() {
                 We only share personal information with third parties you explicitly connect (e.g. Google Calendar,
                 or a practice-management system you configure) and with service providers who help us operate the
                 platform (e.g. hosting, email delivery), under contractual confidentiality obligations.
+              </p>
+            </Section>
+
+            <Section id="support-access" title="Support access">
+              <p>
+                Authorised ZyncoAI personnel may access a business&apos;s account and the personal information it
+                holds where necessary to provide customer support, diagnose and resolve technical issues, and
+                operate the platform — for example, investigating a support request you raise, restoring service
+                after an incident, or verifying a reported bug. This access is never used for any other purpose.
+              </p>
+              <p>
+                All such access is logged in an internal, auditable trail — who accessed the account, when, and why
+                — including cases where a call recording is reviewed to resolve a specific issue, which is
+                separately flagged in that log. Any change made on your behalf during a support session requires
+                additional authentication beyond a normal login and is recorded as performed by ZyncoAI support,
+                distinguishable from your own account activity. You can request a copy of this access history for
+                your account at any time by contacting{" "}
+                <a href="mailto:support@zyncoai.com" className="text-indigo-300 underline">support@zyncoai.com</a>.
               </p>
             </Section>
 
