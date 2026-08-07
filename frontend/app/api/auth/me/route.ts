@@ -35,5 +35,11 @@ export async function GET() {
   const data = await r.json().catch(() => ({}));
   if (!r.ok) return NextResponse.json({ ok: false, error: data?.error || "me_failed" }, { status: r.status });
 
-  return NextResponse.json({ ok: true, user: data.user });
+  // impersonation (set only for admin "view as business" sessions — see
+  // backend auth/index.ts's /me handler) was previously dropped here since
+  // this route hand-picked just `user` off the backend response. DashboardGate
+  // gates its entire impersonation branch on this field being present, so
+  // losing it silently made every impersonated dashboard load behave as a
+  // normal session — wrong onboarding-status call, no banner, ever.
+  return NextResponse.json({ ok: true, user: data.user, impersonation: data.impersonation ?? null });
 }
