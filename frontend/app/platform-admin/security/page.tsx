@@ -1,10 +1,12 @@
 "use client";
+import { useState } from "react";
 import { toast } from "sonner";
-import { LockKeyhole, Activity, ShieldOff, AlertTriangle } from "lucide-react";
+import { LockKeyhole, Activity, ShieldOff, AlertTriangle, ShieldCheck, Copy } from "lucide-react";
 import { useApi, apiPost } from "@/lib/useApi";
 import { Card, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { Badge } from "@/components/dashboard/ui/badge";
 import { Button } from "@/components/dashboard/ui/button";
+import { Input } from "@/components/dashboard/ui/input";
 import { Table, Thead, Th, Tbody, Tr, Td, EmptyState } from "@/components/dashboard/ui/table";
 import { Topbar } from "@/components/platform-admin/Topbar";
 
@@ -14,6 +16,156 @@ interface Overview {
   rps: { current: number; level: "ok" | "warning" | "critical" };
   emergencyModeActive: boolean;
   injectionEventsToday: number;
+}
+
+interface AdminMe {
+  id: string;
+  email: string;
+  name: string | null;
+  mfaEnabled: boolean;
+}
+
+type EnrollStep = "idle" | "scanning" | "backupCodes";
+
+function MfaEnrollmentCard() {
+  const { data: me, mutate: mutateMe } = useApi<{ admin: AdminMe }>("/api/admin-auth/me");
+  const [step, setStep] = useState<EnrollStep>("idle");
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+  const [secret, setSecret] = useState<string | null>(null);
+  const [confirmCode, setConfirmCode] = useState("");
+  const [backupCodes, setBackupCodes] = useState<string[]>([]);
+  const [disabling, setDisabling] = useState(false);
+  const [disableCode, setDisableCode] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function startEnrollment() {
+    setBusy(true);
+    try {
+      const res = await apiPost<{ qrDataUrl: string; secret: string }>("/api/admin-auth/mfa/setup");
+      setQrDataUrl(res.qrDataUrl);
+      setSecret(res.secret);
+      setStep("scanning");
+    } catch {
+      toast.error("Could not start 2FA setup");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function confirmEnrollment(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      const res = await apiPost<{ backupCodes: string[] }>("/api/admin-auth/mfa/verify", { code: confirmCode });
+      setBackupCodes(res.backupCodes);
+      setStep("backupCodes");
+    } catch {
+      toast.error("Invalid code — check your authenticator app and try again");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function finishEnrollment() {
+    setStep("idle");
+    setQrDataUrl(null);
+    setSecret(null);
+    setConfirmCode("");
+    setBackupCodes([]);
+    mutateMe();
+  }
+
+  async function disable(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      await apiPost("/api/admin-auth/mfa/disable", { code: disableCode });
+      toast.success("Two-factor authentication disabled");
+      setDisabling(false);
+      setDisableCode("");
+      mutateMe();
+    } catch {
+      toast.error("Invalid code");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function copyBackupCodes() {
+    navigator.clipboard.writeText(backupCodes.join("\n"));
+    toast.success("Backup codes copied");
+  }
+
+  return (
+    <Card>
+      <CardHeader><CardTitle className="flex items-center gap-2"><ShieldCheck className="h-4 w-4" /> Your account — Two-factor authentication</CardTitle></CardHeader>
+      <div className="space-y-4 p-4">
+        {step === "idle" && (
+          <>
+            <div className="flex items-center justify-between">
+              <div>
+                <Badge tone={me?.admin.mfaEnabled ? "success" : "default"}>{me?.admin.mfaEnabled ? "Enabled" : "Not enabled"}</Badge>
+                <p className="mt-1 text-xs text-[#6B7280]">{me?.admin.email}</p>
+              </div>
+              {me?.admin.mfaEnabled ? (
+                <Button size="sm" variant="outline" onClick={() => setDisabling((v) => !v)}>Disable</Button>
+              ) : (
+                <Button size="sm" onClick={startEnrollment} disabled={busy}>{busy ? "Starting…" : "Enable 2FA"}</Button>
+              )}
+            </div>
+            {disabling && (
+              <form onSubmit={disable} className="flex items-end gap-2 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] p-3">
+                <div className="flex-1">
+                  <label className="text-xs font-medium text-[#6B7280]">Enter your current code to confirm</label>
+                  <Input value={disableCode} onChange={(e) => setDisableCode(e.target.value.trim())} autoFocus required />
+                </div>
+                <Button type="submit" size="sm" variant="outline" disabled={busy || !disableCode}>{busy ? "…" : "Confirm disable"}</Button>
+              </form>
+            )}
+          </>
+        )}
+
+        {step === "scanning" && qrDataUrl && (
+          <div className="space-y-4">
+            <p className="text-sm text-[#4B5563]">Scan this with an authenticator app (Google Authenticator, 1Password, Authy…), then enter the 6-digit code it shows to confirm.</p>
+            <img src={qrDataUrl} alt="TOTP QR code" className="h-48 w-48 rounded-lg border border-[#E5E7EB]" />
+            <div>
+              <label className="text-xs font-medium text-[#6B7280]">Can&apos;t scan? Enter this key manually:</label>
+              <div className="mt-1 flex items-center gap-2">
+                <code className="rounded bg-[#F3F4F6] px-2 py-1 font-mono text-xs">{secret}</code>
+                <button type="button" onClick={() => { navigator.clipboard.writeText(secret || ""); toast.success("Secret copied"); }}>
+                  <Copy className="h-3.5 w-3.5 text-[#9CA3AF]" />
+                </button>
+              </div>
+            </div>
+            <form onSubmit={confirmEnrollment} className="flex items-end gap-2">
+              <div className="flex-1">
+                <label className="text-xs font-medium text-[#6B7280]">6-digit code</label>
+                <Input value={confirmCode} onChange={(e) => setConfirmCode(e.target.value.trim())} autoFocus required autoComplete="one-time-code" />
+              </div>
+              <Button type="submit" size="sm" disabled={busy || !confirmCode}>{busy ? "Verifying…" : "Confirm"}</Button>
+              <Button type="button" size="sm" variant="outline" onClick={() => setStep("idle")}>Cancel</Button>
+            </form>
+          </div>
+        )}
+
+        {step === "backupCodes" && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 rounded-lg border border-[#FDE68A] bg-[#FFFBEB] px-3 py-2 text-sm font-medium text-[#92400E]">
+              <AlertTriangle className="h-4 w-4 shrink-0" /> Save these now — they&apos;re shown only once and each works one time if you lose access to your authenticator app.
+            </div>
+            <div className="grid grid-cols-2 gap-2 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] p-3 font-mono text-sm">
+              {backupCodes.map((c) => <div key={c}>{c}</div>)}
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" onClick={copyBackupCodes}><Copy className="mr-1.5 h-3.5 w-3.5" /> Copy all</Button>
+              <Button size="sm" onClick={finishEnrollment}>I&apos;ve saved these — done</Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </Card>
+  );
 }
 
 export default function SecurityPage() {
@@ -42,6 +194,8 @@ export default function SecurityPage() {
             <Button size="sm" variant="outline" onClick={disableEmergency}>Disable now</Button>
           </div>
         )}
+
+        <MfaEnrollmentCard />
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Card className="p-4">
