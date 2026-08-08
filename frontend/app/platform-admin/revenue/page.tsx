@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import dynamic from "next/dynamic";
 import { DollarSign, TrendingDown, TrendingUp, Percent, Download, Repeat, Users, Info, Siren } from "lucide-react";
 import { toast } from "sonner";
@@ -15,7 +16,7 @@ import { formatCents, VERTICAL_LABELS } from "@/components/platform-admin/format
 import { exportToExcel, type ExportColumn } from "@/lib/exportUtils";
 
 interface BillingIssues {
-  counts: { pastDueCount: number; holdCount: number; autoChargeFailedTodayCount: number };
+  counts: { pastDueCount: number; holdCount: number; autoChargeFailedTodayCount: number; pendingActivationCount: number };
 }
 
 function BillingIssuesStrip({ onFilterStatus }: { onFilterStatus: (status: string) => void }) {
@@ -31,7 +32,7 @@ function BillingIssuesStrip({ onFilterStatus }: { onFilterStatus: (status: strin
         <CardTitle className="flex items-center gap-2"><Siren className="h-4 w-4 text-[#EF4444]" /> Billing Issues</CardTitle>
         <p className="mt-0.5 text-xs text-[#9CA3AF]">Click a tile to filter the Business Revenue table below by status.</p>
       </CardHeader>
-      <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-4">
         {tiles.map((t) => (
           <button
             key={t.key}
@@ -43,6 +44,17 @@ function BillingIssuesStrip({ onFilterStatus }: { onFilterStatus: (status: strin
             <p className="mt-0.5 text-xs text-[#6B7280]">{t.label}</p>
           </button>
         ))}
+        {/* Not a business-status filter like the tiles above — a plan pick
+            awaiting bank-transfer reconciliation lives on the Invoice, not
+            the Business, so this one links straight to the invoices list
+            pre-filtered instead. */}
+        <Link
+          href="/platform-admin/invoices?status=PENDING_ACTIVATION"
+          className="rounded-xl border border-[#E5E7EB] p-3 text-left transition hover:-translate-y-px hover:shadow-md"
+        >
+          <p className="text-2xl font-bold" style={{ color: "#F59E0B" }}>{data?.counts.pendingActivationCount ?? "—"}</p>
+          <p className="mt-0.5 text-xs text-[#6B7280]">Pending Activation</p>
+        </Link>
       </div>
     </Card>
   );

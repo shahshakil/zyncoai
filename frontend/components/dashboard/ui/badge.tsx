@@ -64,6 +64,7 @@ const STATUS_TONE: Record<string, Tone> = {
   ACTIVE: "success",
   SUSPENDED: "danger",
   HOLD: "warning",
+  TRIAL_ENDED: "warning",
   CLOSED: "default",
 };
 

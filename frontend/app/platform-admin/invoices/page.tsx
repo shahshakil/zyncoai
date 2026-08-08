@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Plus, FileText, FileArchive, Download, Printer, Users } from "lucide-react";
 import { useApi, apiPost } from "@/lib/useApi";
@@ -19,6 +20,7 @@ interface InvoiceRow {
   id: string; invoiceNumber: string; status: string; overdue: boolean;
   totalCents: number; issuedAt: string; dueDate: string;
   periodStart: string; periodEnd: string;
+  isPendingActivation: boolean;
   business: { id: string; name: string };
 }
 interface InvoiceListResponse { ok: boolean; data: InvoiceRow[]; pagination: { page: number; totalPages: number; total: number } }
@@ -27,12 +29,14 @@ interface BusinessOption { id: string; name: string }
 function statusBadge(row: InvoiceRow) {
   if (row.status === "PAID") return <Badge tone="success">Paid</Badge>;
   if (row.status === "VOID") return <Badge tone="default">Void</Badge>;
+  if (row.isPendingActivation) return <Badge tone="warning">Pending Activation</Badge>;
   if (row.overdue) return <Badge tone="danger">Overdue</Badge>;
   return <Badge tone="warning">Issued</Badge>;
 }
 
 export default function InvoicesPage() {
-  const [status, setStatus] = useState("");
+  const searchParams = useSearchParams();
+  const [status, setStatus] = useState(() => searchParams.get("status") || "");
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
   const [generateOpen, setGenerateOpen] = useState(false);
@@ -134,6 +138,7 @@ export default function InvoicesPage() {
               <option value="">All statuses</option>
               <option value="ISSUED">Issued</option>
               <option value="OVERDUE">Overdue</option>
+              <option value="PENDING_ACTIVATION">Pending activation</option>
               <option value="AWAITING_TRANSFER">Awaiting bank transfer</option>
               <option value="PAID">Paid</option>
               <option value="VOID">Void</option>

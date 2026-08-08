@@ -83,6 +83,10 @@ export function DashboardGate({ children }: { children: React.ReactNode }) {
             twilioNumberSid: businessMe?.business?.twilioNumberSid ?? null,
             billingPastDue: businessMe?.business?.billingPastDue ?? false,
             squareCardId: businessMe?.business?.squareCardId ?? null,
+            legacyBillingGraceGranted: businessMe?.business?.legacyBillingGraceGranted ?? false,
+            pendingPlanKey: businessMe?.business?.pendingPlanKey ?? null,
+            pendingActivationInvoiceId: businessMe?.business?.pendingActivationInvoiceId ?? null,
+            pendingActivation: businessMe?.business?.pendingActivation ?? null,
           };
         }
 
@@ -149,11 +153,13 @@ export function DashboardGate({ children }: { children: React.ReactNode }) {
     <ImpersonationBanner sessionId={state.impersonation.sessionId} initialMode={state.impersonation.mode} businessName={state.business.name} />
   ) : null;
 
-  // HOLD is deliberately NOT gated here — unlike SUSPENDED/CLOSED below, a
-  // business on HOLD (Square auto-charge retries exhausted) keeps full
-  // dashboard access; only calling is blocked (twilioInbound.ts). It falls
-  // through to the normal dashboard render, with HoldBanner (rendered in
-  // app/dashboard/layout.tsx alongside TrialBanner) as the visible signal.
+  // HOLD and TRIAL_ENDED are deliberately NOT gated here — unlike
+  // SUSPENDED/CLOSED below, a business on HOLD (Square auto-charge retries
+  // exhausted) or TRIAL_ENDED (trial lapsed, no plan ever chosen) keeps
+  // full dashboard access; only calling is blocked (twilioInbound.ts). Both
+  // fall through to the normal dashboard render, with HoldBanner/
+  // TrialEndedBanner (rendered in app/dashboard/layout.tsx alongside
+  // TrialBanner) as the visible signal.
   if (state.business.status === "CLOSED") {
     return (
       <>

@@ -20,6 +20,7 @@ interface PricingPlan { key: string; name: string; priceCents: number; callAllow
 interface BusinessDetail {
   id: string; name: string; phoneNumber: string; vertical: string; status: string; createdAt: string;
   manualPlan: string | null; abn: string | null; trialEndsAt: string | null;
+  legacyBillingGraceGranted: boolean; pendingPlanKey: string | null;
   planOverridePriceCents: number | null; planOverrideCallAllowance: number | null;
   preferredPaymentMethod: "SQUARE" | "BANK_TRANSFER" | "PAYPAL" | "BPAY" | null;
   smsConfirmationsEnabled: boolean; smsConfirmationsPaid: boolean;
@@ -63,6 +64,7 @@ interface DrawerData {
   recentInvoices: RecentInvoice[];
   orderStats: OrderStats | null;
   paymentRetryStatus: PaymentRetryStatus | null;
+  pendingActivationInvoice: { invoiceNumber: string; totalCents: number; planName: string; issuedAt: string } | null;
   usageAndMargin: UsageAndMargin;
   integrationHealth: IntegrationHealth;
   lastActivityAt: string | null;
@@ -524,11 +526,15 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
                               <div>
                                 <p className="text-xs font-medium text-[#6B7280]">Trial status</p>
                                 <p className="text-sm text-[#1F2937]">
-                                  {!data.business.trialEndsAt
+                                  {data.business.status === "TRIAL_ENDED"
+                                    ? data.business.legacyBillingGraceGranted ? "Grace period ended" : "Trial ended"
+                                    : data.pendingActivationInvoice
+                                    ? `Pending activation — ${data.pendingActivationInvoice.planName}, ${formatCents(data.pendingActivationInvoice.totalCents)}, ref ${data.pendingActivationInvoice.invoiceNumber}`
+                                    : !data.business.trialEndsAt
                                     ? "No trial (existing business)"
                                     : new Date(data.business.trialEndsAt) > new Date()
-                                    ? `Ends ${new Date(data.business.trialEndsAt).toLocaleDateString()}`
-                                    : "Trial expired"}
+                                    ? `${data.business.legacyBillingGraceGranted ? "Grace period" : "Trial"} — ${Math.ceil((new Date(data.business.trialEndsAt).getTime() - Date.now()) / 86400000)}d left, ends ${new Date(data.business.trialEndsAt).toLocaleDateString()}`
+                                    : "Expired (sweep pending)"}
                                 </p>
                               </div>
                               <Button size="sm" variant="outline" onClick={() => extendTrial(7)} disabled={extendingTrial}>

@@ -212,7 +212,10 @@ export default function BusinessesPage() {
             <Select value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }} className="w-40">
               <option value="">All statuses</option>
               <option value="ACTIVE">Active</option>
+              <option value="TRIAL_ENDED">Trial ended</option>
+              <option value="HOLD">Hold</option>
               <option value="SUSPENDED">Suspended</option>
+              <option value="CLOSED">Closed</option>
             </Select>
             <div className="ml-auto flex gap-2">
               <Button size="sm" onClick={() => setCreateOpen(true)}>

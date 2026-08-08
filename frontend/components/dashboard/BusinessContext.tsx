@@ -26,6 +26,16 @@ export interface DashboardBusiness {
   // means no card on file, so those banners point at bank transfer instead
   // of "update your card".
   squareCardId?: string | null;
+  // True for the one-time pre-existing-business grace cohort — TrialBanner
+  // uses this to avoid calling a real, already-live business's runway a
+  // "free trial". See Business.legacyBillingGraceGranted's schema comment.
+  legacyBillingGraceGranted?: boolean;
+  // Payment-first activation (PATCH /plan's bank-transfer path) — set
+  // together when a plan choice is awaiting a bank transfer, cleared
+  // together once admin marks the linked invoice paid.
+  pendingPlanKey?: string | null;
+  pendingActivationInvoiceId?: string | null;
+  pendingActivation?: { invoiceNumber: string; totalCents: number; planName: string } | null;
 }
 
 export interface ImpersonationState {

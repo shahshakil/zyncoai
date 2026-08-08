@@ -10,6 +10,8 @@ import { KeyboardShortcuts } from "@/components/dashboard/KeyboardShortcuts";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Topbar } from "@/components/dashboard/Topbar";
 import { TrialBanner } from "@/components/dashboard/TrialBanner";
+import { TrialEndedBanner } from "@/components/dashboard/TrialEndedBanner";
+import { PendingActivationBanner } from "@/components/dashboard/PendingActivationBanner";
 import { HoldBanner } from "@/components/dashboard/HoldBanner";
 import { PastDueBanner } from "@/components/dashboard/PastDueBanner";
 import { useDashboard } from "@/components/dashboard/BusinessContext";
@@ -75,6 +77,8 @@ function ThemedShell({ children, sidebarOpen, onCloseSidebar, onOpenSidebar }: {
       <Sidebar open={sidebarOpen} onClose={onCloseSidebar} />
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <TrialBanner business={business} />
+        <TrialEndedBanner business={business} />
+        <PendingActivationBanner business={business} />
         <HoldBanner business={business} />
         <PastDueBanner business={business} />
         <Topbar onMenuClick={onOpenSidebar} />

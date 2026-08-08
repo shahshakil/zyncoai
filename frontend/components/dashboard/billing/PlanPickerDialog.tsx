@@ -63,12 +63,22 @@ export function PlanPickerDialog({
     if (!selected) return;
     setSaving(true);
     try {
-      await apiPost("/api/business/billing/plan", { planKey: selected.key, ...(paymentMethod ? { paymentMethod } : {}) }, "PATCH");
-      toast.success(paymentMethod === "BANK_TRANSFER" ? "Plan activated — invoice issued with our bank details" : "Plan updated");
+      const result = await apiPost<{ ok: boolean; pending?: boolean }>(
+        "/api/business/billing/plan",
+        { planKey: selected.key, ...(paymentMethod ? { paymentMethod } : {}) },
+        "PATCH"
+      );
+      // Payment-first: a card charge activates instantly, but a
+      // bank-transfer pick never does — the plan only goes live once an
+      // admin confirms the transfer arrived (result.pending distinguishes
+      // the two; both are 200s, this isn't an error path).
+      toast.success(result.pending ? "Invoice issued — your plan activates once we receive your transfer" : "Plan activated");
       close();
       onSaved();
     } catch (e) {
-      if (e instanceof ApiError && e.status === 402) {
+      if (e instanceof ApiError && e.message === "charge_failed") {
+        toast.error("That card was declined — try a different card, or pay by bank transfer instead");
+      } else if (e instanceof ApiError && e.status === 402) {
         toast.error("Add a payment method to activate this plan");
         onSaved();
       } else {
@@ -225,7 +235,7 @@ function CheckoutSummary({
               <Landmark className="h-4 w-4 shrink-0 text-slate-400" />
               <span>
                 <span className="font-medium text-slate-900">Pay by bank transfer</span>
-                <span className="block text-xs text-slate-400">We&apos;ll issue an invoice with our bank details and a payment reference — no card needed.</span>
+                <span className="block text-xs text-slate-400">We&apos;ll issue an invoice with our bank details and a payment reference — no card needed. Your plan activates as soon as we confirm the transfer.</span>
               </span>
             </button>
           </div>

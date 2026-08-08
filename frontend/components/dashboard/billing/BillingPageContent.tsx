@@ -54,6 +54,8 @@ interface BillingData {
   referral: { link: string; wasReferredBy: boolean; pendingCount: number; approvedCount: number; creditsEarnedCents: number };
   invoices: BillingInvoice[];
   cancelEffectiveAt: string | null;
+  pendingPlanKey: string | null;
+  pendingActivation: { invoiceNumber: string; totalCents: number; planName: string } | null;
   preferredPaymentMethod: "SQUARE" | "BANK_TRANSFER" | "PAYPAL" | "BPAY" | null;
   square: {
     configured: boolean;
@@ -109,7 +111,21 @@ export function BillingPageContent() {
   const [changingPlan, setChangingPlan] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
+  const [cancellingPending, setCancellingPending] = useState(false);
   const [busyKey, setBusyKey] = useState<string | null>(null);
+
+  async function cancelPendingPlan() {
+    setCancellingPending(true);
+    try {
+      await apiPost("/api/business/billing/cancel-pending-plan");
+      toast.success("Pending plan cancelled");
+      mutate();
+    } catch {
+      toast.error("Could not cancel — contact support");
+    } finally {
+      setCancellingPending(false);
+    }
+  }
 
   async function cancelPlan() {
     setCancelling(true);
@@ -258,6 +274,15 @@ export function BillingPageContent() {
                     Your plan ends on <span className="font-semibold text-slate-900">{new Date(data.cancelEffectiveAt).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })}</span> — no refund for the current period, but Ella keeps answering calls until then.
                   </p>
                   <Button variant="outline" size="lg" className="h-11 min-h-[44px] shrink-0" disabled={cancelling} onClick={undoCancel}>{cancelling ? "…" : "Undo cancellation"}</Button>
+                </div>
+              )}
+
+              {data.pendingActivation && (
+                <div className="flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-sm text-amber-800">
+                    Awaiting your bank transfer for the <span className="font-semibold">{data.pendingActivation.planName}</span> plan — {money(data.pendingActivation.totalCents)}, ref {data.pendingActivation.invoiceNumber}. It activates automatically once we confirm payment.
+                  </p>
+                  <Button variant="outline" size="lg" className="h-11 min-h-[44px] shrink-0" disabled={cancellingPending} onClick={cancelPendingPlan}>{cancellingPending ? "…" : "Cancel pending plan"}</Button>
                 </div>
               )}
 
