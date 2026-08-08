@@ -22,6 +22,10 @@ export interface DashboardBusiness {
   trialEndsAt?: string | null;
   manualPlan?: string | null;
   billingPastDue?: boolean;
+  // Card-vs-transfer copy branch for PastDueBanner/HoldBanner — null/absent
+  // means no card on file, so those banners point at bank transfer instead
+  // of "update your card".
+  squareCardId?: string | null;
 }
 
 export interface ImpersonationState {

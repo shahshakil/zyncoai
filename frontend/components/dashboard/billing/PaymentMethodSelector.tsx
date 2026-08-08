@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { CreditCard, Landmark, Wallet, Receipt, Copy, CheckCircle2 } from "lucide-react";
+import { CreditCard, Landmark, Wallet, Receipt, Copy, CheckCircle2, Lock } from "lucide-react";
 import { apiPost, ApiError } from "@/lib/useApi";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
@@ -200,9 +200,16 @@ export function PaymentMethodSelector({
   hasPlan: boolean;
   onChanged: () => void;
 }) {
-  const [selected, setSelected] = useState<Method>(preferredPaymentMethod || "SQUARE");
+  // A method that isn't actually configured yet can never be a real
+  // preference — shown as a locked "Coming soon" tile instead of a
+  // selectable one (BPAY needs a real biller code from the bank; PayPal's
+  // integration is real but has no production credentials yet).
+  const availability: Record<Method, boolean> = { SQUARE: true, BANK_TRANSFER: true, PAYPAL: paypal.configured, BPAY: bpay.configured };
+  const initialSelected = preferredPaymentMethod && availability[preferredPaymentMethod] ? preferredPaymentMethod : "SQUARE";
+  const [selected, setSelected] = useState<Method>(initialSelected);
 
   async function choose(method: Method) {
+    if (!availability[method]) return;
     setSelected(method);
     try {
       await apiPost("/api/business/billing/payment-method-preference", { method }, "PUT");
@@ -219,6 +226,22 @@ export function PaymentMethodSelector({
           {METHODS.map((m) => {
             const Icon = m.icon;
             const active = selected === m.key;
+            const available = availability[m.key];
+            if (!available) {
+              return (
+                <div
+                  key={m.key}
+                  className="flex cursor-not-allowed items-center gap-2 rounded-lg border border-dashed border-slate-200 bg-slate-50 p-3 text-left text-sm text-slate-400"
+                  title="Coming soon"
+                >
+                  <Icon className="h-4 w-4 shrink-0" />
+                  <span className="font-medium">{m.label}</span>
+                  <span className="ml-auto flex items-center gap-1 rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                    <Lock className="h-2.5 w-2.5" /> Soon
+                  </span>
+                </div>
+              );
+            }
             return (
               <button
                 key={m.key}

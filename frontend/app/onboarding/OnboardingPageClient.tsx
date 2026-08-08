@@ -54,7 +54,12 @@ export default function OnboardingPageClient() {
 
   // Step 1
   const [name, setName] = useState("");
-  const [vertical, setVertical] = useState("MEDICAL");
+  // Deliberately no default — a silent MEDICAL default here was a real bug
+  // (a tyre shop, Jaxtyres, signed up and got the full medical dashboard
+  // experience because this used to be useState("MEDICAL") and nobody
+  // touched the dropdown). Empty forces an explicit choice; submitBusiness()
+  // below blocks on it too, not just the disabled Continue button.
+  const [vertical, setVertical] = useState("");
   const [ownerMobile, setOwnerMobile] = useState("");
   const [timezone, setTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC");
   const [address, setAddress] = useState("");
@@ -126,6 +131,10 @@ export default function OnboardingPageClient() {
   async function submitBusiness() {
     if (!name.trim()) {
       toast.error("Business name is required");
+      return;
+    }
+    if (!vertical) {
+      toast.error("Select your industry to continue");
       return;
     }
     if (!privacyAccepted || !dpaAccepted) {
@@ -213,6 +222,7 @@ export default function OnboardingPageClient() {
                       setDetectedVertical(null);
                     }}
                   >
+                    <option value="" disabled>Select your industry…</option>
                     {VERTICALS.map((v) => (
                       <option key={v.value} value={v.value}>
                         {v.label}
@@ -362,7 +372,7 @@ export default function OnboardingPageClient() {
                 </label>
               </div>
 
-              <Button className="mt-4 w-full" onClick={submitBusiness} disabled={saving || !privacyAccepted || !dpaAccepted}>
+              <Button className="mt-4 w-full" onClick={submitBusiness} disabled={saving || !vertical || !privacyAccepted || !dpaAccepted}>
                 {saving ? "Saving…" : "Continue"}
               </Button>
             </motion.div>

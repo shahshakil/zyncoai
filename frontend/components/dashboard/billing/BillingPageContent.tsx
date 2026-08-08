@@ -2,20 +2,19 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import posthog from "posthog-js";
-import { AlertTriangle, Bell, Copy, Download, Gift, Package } from "lucide-react";
+import { AlertTriangle, Bell, Calendar, Copy, Download, Gift, Package } from "lucide-react";
 import { useApi, apiPost, ApiError } from "@/lib/useApi";
 import { useDashboard } from "@/components/dashboard/BusinessContext";
 import { getVerticalTheme } from "@/components/dashboard/verticalTheme";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
-import { Select } from "../ui/input";
 import { Skeleton } from "../ui/skeleton";
 import { Badge } from "../ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { ToggleRow } from "../ui/toggle";
 import { Table, Thead, Tbody, Tr, Th, Td, EmptyState } from "../ui/table";
-import { SquarePaymentMethodCard } from "../settings/SquarePaymentMethodCard";
 import { PaymentMethodSelector } from "./PaymentMethodSelector";
+import { PlanPickerDialog } from "./PlanPickerDialog";
 import { formatAUD as money } from "@/lib/money";
 
 interface BillingPlan {
@@ -108,36 +107,9 @@ export function BillingPageContent() {
   const theme = getVerticalTheme(business.vertical);
   const { data, isLoading, mutate } = useApi<BillingData>("/api/business/billing");
   const [changingPlan, setChangingPlan] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState("");
-  const [savingPlan, setSavingPlan] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [busyKey, setBusyKey] = useState<string | null>(null);
-
-  async function savePlan() {
-    if (!selectedPlan) return;
-    setSavingPlan(true);
-    try {
-      await apiPost("/api/business/billing/plan", { planKey: selectedPlan }, "PATCH");
-      toast.success("Plan updated");
-      setChangingPlan(false);
-      mutate();
-    } catch (e) {
-      if (e instanceof ApiError && e.status === 402) {
-        toast.error("Add a payment method to activate this plan");
-        mutate();
-      } else {
-        toast.error(e instanceof ApiError && e.message === "custom_plan_requires_contacting_support" ? "Contact support to switch to this plan" : "Could not change plan");
-      }
-    } finally {
-      setSavingPlan(false);
-    }
-  }
-
-  async function handleCardSavedDuringPlanChange() {
-    await mutate();
-    await savePlan();
-  }
 
   async function cancelPlan() {
     setCancelling(true);
@@ -236,14 +208,13 @@ export function BillingPageContent() {
         <CardContent>
           {data.plan ? (
             <div className="space-y-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="text-lg font-semibold text-slate-900">{data.plan.name}</p>
                   <p className="text-sm text-slate-500">
                     {money(data.plan.priceCents)}/month
                     {data.plan.callAllowance != null && ` · ${data.plan.callAllowance} calls included`}
                   </p>
-                  <p className="mt-1 text-xs text-slate-400">Next billing date: {new Date(data.plan.nextBillingDate).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })}</p>
                   {data.billingCycle === "ANNUAL" && (
                     <p className="mt-1 text-xs text-emerald-600">Annual plan{data.annualPaidUntil ? ` — paid until ${new Date(data.annualPaidUntil).toLocaleDateString("en-AU")}` : ""}</p>
                   )}
@@ -251,8 +222,24 @@ export function BillingPageContent() {
                     <p className="mt-1 text-xs font-medium text-amber-600">Setup fee {money(data.plan.setupFeeCents)} — unpaid, will appear on your next invoice</p>
                   ) : null}
                 </div>
+
+                {/* Always-visible next-billing stat, Zapier-style — was a
+                    buried small-text line before, now the second most
+                    prominent thing on the page after the plan name. */}
+                {!data.cancelEffectiveAt && (
+                  <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 sm:shrink-0">
+                    <Calendar className="h-5 w-5 shrink-0 text-slate-400" />
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Next billing</p>
+                      <p className="text-sm font-semibold text-slate-900">
+                        {new Date(data.plan.nextBillingDate).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })} · {money(data.plan.priceCents)}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex items-center gap-4 sm:flex-col sm:items-end">
-                  <Button size="lg" className="h-11 min-h-[44px]" onClick={() => { setSelectedPlan(data.plan?.key || ""); setChangingPlan(true); }}>Upgrade Plan</Button>
+                  <Button size="lg" className="h-11 min-h-[44px]" onClick={() => setChangingPlan(true)}>Upgrade Plan</Button>
                   {!data.cancelEffectiveAt && (
                     <button
                       type="button"
@@ -291,17 +278,16 @@ export function BillingPageContent() {
         </CardContent>
       </Card>
 
-      {/* Section 2 — Usage alert banner */}
+      {/* Section 2 — Usage alert banner. Informational only, not its own
+          "Upgrade" CTA — the Plan Overview card above is the single upgrade
+          entry point; a second identical button here read as a duplicate. */}
       {overUsage && data.plan && (
-        <div className="flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-start gap-2.5">
-            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
-            <p className="text-sm text-amber-800">
-              You have used <span className="font-semibold">{data.plan.pctMinutesUsed}%</span> of your monthly minutes.
-              Extra minutes charged at {money(data.plan.overageCentsPerMinute)}/min. Consider upgrading your plan.
-            </p>
-          </div>
-          <Button size="lg" className="h-11 min-h-[44px] shrink-0" onClick={() => { setSelectedPlan(data.plan?.key || ""); setChangingPlan(true); }}>Upgrade Now</Button>
+        <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+          <p className="text-sm text-amber-800">
+            You have used <span className="font-semibold">{data.plan.pctMinutesUsed}%</span> of your monthly minutes.
+            Extra minutes charged at {money(data.plan.overageCentsPerMinute)}/min. Use the Upgrade Plan button above if you&apos;d like more included minutes.
+          </p>
         </div>
       )}
 
@@ -435,37 +421,15 @@ export function BillingPageContent() {
         </Card>
       )}
 
-      <Dialog open={changingPlan} onOpenChange={setChangingPlan}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Upgrade plan</DialogTitle></DialogHeader>
-          <div className="space-y-3">
-            <Select value={selectedPlan} onChange={(e) => setSelectedPlan(e.target.value)}>
-              <option value="" disabled>Select a plan…</option>
-              {data.availablePlans.map((p) => (
-                <option key={p.key} value={p.key} disabled={p.isCustom}>
-                  {p.name} — {p.isCustom ? "contact support" : `${money(p.priceCents)}/mo`}
-                </option>
-              ))}
-            </Select>
-            {selectedPlan && data.availablePlans.find((p) => p.key === selectedPlan)?.setupFeeCents ? (
-              <p className="text-xs text-amber-600">A one-time setup fee of {money(data.availablePlans.find((p) => p.key === selectedPlan)!.setupFeeCents)} applies the first time you switch to this plan.</p>
-            ) : null}
-            {selectedPlan && !data.square.card ? (
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-slate-700">To activate your plan, please add a payment method.</p>
-                <SquarePaymentMethodCard
-                  configured={data.square.configured}
-                  clientConfig={data.square.clientConfig}
-                  card={data.square.card}
-                  onChanged={handleCardSavedDuringPlanChange}
-                />
-              </div>
-            ) : (
-              <Button className="h-11 min-h-[44px] w-full" disabled={!selectedPlan || savingPlan} onClick={savePlan}>{savingPlan ? "Saving…" : "Confirm plan change"}</Button>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <PlanPickerDialog
+        open={changingPlan}
+        onClose={() => setChangingPlan(false)}
+        plans={data.availablePlans}
+        currentPlanKey={data.plan?.key ?? null}
+        hasExistingPlan={Boolean(data.plan)}
+        square={data.square}
+        onSaved={mutate}
+      />
 
       <Dialog open={confirmCancel} onOpenChange={setConfirmCancel}>
         <DialogContent>
