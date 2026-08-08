@@ -5,7 +5,7 @@
 // refresh_token cookie is re-issued rather than relayed verbatim.
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { backendFetch, extractSetCookieValue, ACCESS_COOKIE, REFRESH_COOKIE, ACCESS_COOKIE_MAX_AGE, REFRESH_COOKIE_MAX_AGE } from "@/lib/backendAuth";
+import { backendFetch, extractSetCookieValue, getClientIp, ACCESS_COOKIE, REFRESH_COOKIE, ACCESS_COOKIE_MAX_AGE, REFRESH_COOKIE_MAX_AGE } from "@/lib/backendAuth";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
@@ -19,6 +19,7 @@ export async function POST(req: Request) {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ email, password, captchaToken }),
+    clientIp: getClientIp(req),
   });
 
   const data = await r.json().catch(() => ({}));

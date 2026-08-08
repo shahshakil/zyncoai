@@ -12,13 +12,13 @@
 // left the new user logged out.
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { backendFetch, extractSetCookieValue, ACCESS_COOKIE, REFRESH_COOKIE, ACCESS_COOKIE_MAX_AGE, REFRESH_COOKIE_MAX_AGE } from "@/lib/backendAuth";
+import { backendFetch, extractSetCookieValue, getClientIp, ACCESS_COOKIE, REFRESH_COOKIE, ACCESS_COOKIE_MAX_AGE, REFRESH_COOKIE_MAX_AGE } from "@/lib/backendAuth";
 
 export async function GET(req: Request) {
   const token = new URL(req.url).searchParams.get("token");
   if (!token) return NextResponse.json({ ok: false, error: "token_required" }, { status: 400 });
 
-  const r = await backendFetch(`/api/business/staff/invitations/public/${encodeURIComponent(token)}`);
+  const r = await backendFetch(`/api/business/staff/invitations/public/${encodeURIComponent(token)}`, { clientIp: getClientIp(req) });
   const data = await r.json().catch(() => ({}));
   return NextResponse.json(data, { status: r.status });
 }
@@ -35,6 +35,7 @@ export async function POST(req: Request) {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ token, password, name }),
+    clientIp: getClientIp(req),
   });
 
   const data = await r.json().catch(() => ({}));

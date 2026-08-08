@@ -39,10 +39,32 @@ export function extractSetCookieValue(res: Response, cookieName: string): string
   return null;
 }
 
-export function backendFetch(path: string, init: RequestInit & { refreshToken?: string } = {}) {
-  const { refreshToken, ...rest } = init;
+// backendFetch() connects straight to INTERNAL_API_BASE_URL — a server-to-
+// server call that never touches nginx, so nginx's own X-Forwarded-For
+// setup (which IS correct on the incoming request to this Next.js server)
+// never reaches the backend. Without this, every proxied request looks
+// like it came from 127.0.0.1 (the loopback address both processes share
+// on this host) to the Express backend's `trust proxy: "loopback"` config
+// — which is itself correctly set up, it just never receives anything
+// real. getClientIp() reads the ALREADY-correct header nginx set on the
+// incoming request; every backendFetch() call site below forwards it.
+export function getClientIp(req: Request): string | null {
+  const xff = req.headers.get("x-forwarded-for");
+  if (xff) {
+    const first = xff.split(",")[0]?.trim();
+    if (first) return first;
+  }
+  return req.headers.get("x-real-ip");
+}
+
+export function backendFetch(path: string, init: RequestInit & { refreshToken?: string; clientIp?: string | null } = {}) {
+  const { refreshToken, clientIp, ...rest } = init;
   const headers = new Headers(rest.headers);
   if (refreshToken) headers.set("cookie", `refresh_token=${refreshToken}`);
+  if (clientIp) {
+    headers.set("x-forwarded-for", clientIp);
+    headers.set("x-real-ip", clientIp);
+  }
   return fetch(`${BACKEND_BASE}${path}`, { ...rest, headers, cache: "no-store" });
 }
 

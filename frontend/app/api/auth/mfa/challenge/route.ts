@@ -2,7 +2,7 @@
 // as mfa/verify/route.ts, minus the one-time backup-codes response.
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { backendFetch, extractSetCookieValue, ACCESS_COOKIE, REFRESH_COOKIE, ACCESS_COOKIE_MAX_AGE, REFRESH_COOKIE_MAX_AGE } from "@/lib/backendAuth";
+import { backendFetch, extractSetCookieValue, getClientIp, ACCESS_COOKIE, REFRESH_COOKIE, ACCESS_COOKIE_MAX_AGE, REFRESH_COOKIE_MAX_AGE } from "@/lib/backendAuth";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
@@ -15,6 +15,7 @@ export async function POST(req: Request) {
     method: "POST",
     headers: { "content-type": "application/json", authorization: `Bearer ${mfaPendingToken}` },
     body: JSON.stringify({ code }),
+    clientIp: getClientIp(req),
   });
 
   const data = await r.json().catch(() => ({}));

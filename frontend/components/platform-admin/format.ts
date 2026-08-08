@@ -13,6 +13,10 @@ export function formatNumber(n: number): string {
   return new Intl.NumberFormat("en-US").format(n || 0);
 }
 
+export function pluralize(n: number, singular: string, plural = `${singular}s`): string {
+  return `${n} ${n === 1 ? singular : plural}`;
+}
+
 export function formatDuration(seconds: number): string {
   if (!seconds) return "0s";
   const m = Math.floor(seconds / 60);

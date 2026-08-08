@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { backendFetch, extractSetCookieValue, ACCESS_COOKIE, REFRESH_COOKIE, ACCESS_COOKIE_MAX_AGE, REFRESH_COOKIE_MAX_AGE } from "@/lib/backendAuth";
+import { backendFetch, extractSetCookieValue, getClientIp, ACCESS_COOKIE, REFRESH_COOKIE, ACCESS_COOKIE_MAX_AGE, REFRESH_COOKIE_MAX_AGE } from "@/lib/backendAuth";
 
-async function tryRefresh(): Promise<string | null> {
+async function tryRefresh(clientIp: string | null): Promise<string | null> {
   const refresh = cookies().get(REFRESH_COOKIE)?.value;
   if (!refresh) return null;
 
-  const r = await backendFetch("/api/auth/refresh", { method: "POST", refreshToken: refresh });
+  const r = await backendFetch("/api/auth/refresh", { method: "POST", refreshToken: refresh, clientIp });
   const data = await r.json().catch(() => ({}));
   if (!r.ok || !data?.access_token) return null;
 
@@ -18,18 +18,19 @@ async function tryRefresh(): Promise<string | null> {
   return data.access_token as string;
 }
 
-export async function GET() {
+export async function GET(req: Request) {
+  const clientIp = getClientIp(req);
   let access = cookies().get(ACCESS_COOKIE)?.value;
   if (!access) {
-    access = (await tryRefresh()) || undefined;
+    access = (await tryRefresh(clientIp)) || undefined;
     if (!access) return NextResponse.json({ ok: false, error: "not_authenticated" }, { status: 401 });
   }
 
-  let r = await backendFetch("/api/auth/me", { headers: { authorization: `Bearer ${access}` } });
+  let r = await backendFetch("/api/auth/me", { headers: { authorization: `Bearer ${access}` }, clientIp });
   if (r.status === 401) {
-    access = (await tryRefresh()) || undefined;
+    access = (await tryRefresh(clientIp)) || undefined;
     if (!access) return NextResponse.json({ ok: false, error: "not_authenticated" }, { status: 401 });
-    r = await backendFetch("/api/auth/me", { headers: { authorization: `Bearer ${access}` } });
+    r = await backendFetch("/api/auth/me", { headers: { authorization: `Bearer ${access}` }, clientIp });
   }
 
   const data = await r.json().catch(() => ({}));

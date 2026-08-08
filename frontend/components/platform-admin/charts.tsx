@@ -112,7 +112,7 @@ export function DonutChart({ data, height = 240 }: { data: { outcome: string; co
   );
 }
 
-const COST_COLORS: Record<string, string> = { openai: "#6366F1", twilio: "#3B82F6", server: "#94A3B8", other: "#F59E0B" };
+const COST_COLORS: Record<string, string> = { calls: "#6366F1", usage: "#3B82F6", numbers: "#F59E0B", fixed: "#94A3B8", other: "#F59E0B" };
 
 export function CostPieChart({ data, height = 220 }: { data: { key: string; label: string; cents: number }[]; height?: number }) {
   const total = data.reduce((s, d) => s + d.cents, 0);

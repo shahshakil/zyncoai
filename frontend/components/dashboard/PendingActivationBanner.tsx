@@ -22,6 +22,7 @@ export function PendingActivationBanner({ business }: { business: DashboardBusin
 
   const { invoiceNumber, totalCents, planName } = business.pendingActivation;
   const callsPaused = business.status === "TRIAL_ENDED";
+  const currentPlanLabel = business.complimentaryPlan ? "complimentary plan" : "current plan";
 
   async function cancelPending() {
     setCancelling(true);
@@ -45,8 +46,8 @@ export function PendingActivationBanner({ business }: { business: DashboardBusin
           </span>
           <span className="block text-white/85">
             {callsPaused
-              ? "Calls stay paused until we receive it — the plan activates automatically the moment we confirm payment."
-              : "Your current plan stays active in the meantime — the new plan activates automatically the moment we confirm payment."}
+              ? `Calls stay paused until we receive it — you'll switch to ${planName} the moment we confirm payment.`
+              : `Your ${currentPlanLabel} stays active in the meantime — it switches to ${planName} the moment we confirm payment.`}
           </span>
         </div>
       </div>

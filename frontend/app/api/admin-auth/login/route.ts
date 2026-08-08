@@ -4,7 +4,7 @@
 // 30-minute admin JWT and expects re-login after that, by design.
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { backendFetch, ADMIN_ACCESS_COOKIE } from "@/lib/backendAuth";
+import { backendFetch, getClientIp, ADMIN_ACCESS_COOKIE } from "@/lib/backendAuth";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
@@ -17,6 +17,7 @@ export async function POST(req: Request) {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ email, password }),
+    clientIp: getClientIp(req),
   });
 
   const data = await r.json().catch(() => ({}));

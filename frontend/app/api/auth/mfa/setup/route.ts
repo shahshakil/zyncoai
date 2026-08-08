@@ -7,7 +7,7 @@
 // see the matching comment in ../verify/route.ts).
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { backendFetch, ACCESS_COOKIE } from "@/lib/backendAuth";
+import { backendFetch, getClientIp, ACCESS_COOKIE } from "@/lib/backendAuth";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
@@ -20,6 +20,7 @@ export async function POST(req: Request) {
   const r = await backendFetch("/api/auth/mfa/setup", {
     method: "POST",
     headers: { "content-type": "application/json", authorization: `Bearer ${bearer}` },
+    clientIp: getClientIp(req),
   });
 
   const data = await r.json().catch(() => ({}));

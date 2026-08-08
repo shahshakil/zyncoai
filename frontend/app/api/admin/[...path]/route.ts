@@ -4,7 +4,7 @@
 // dashboard layout).
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { backendFetch, ADMIN_ACCESS_COOKIE } from "@/lib/backendAuth";
+import { backendFetch, getClientIp, ADMIN_ACCESS_COOKIE } from "@/lib/backendAuth";
 
 async function proxy(req: NextRequest, params: { path: string[] }) {
   const token = cookies().get(ADMIN_ACCESS_COOKIE)?.value;
@@ -19,6 +19,7 @@ async function proxy(req: NextRequest, params: { path: string[] }) {
     method,
     headers: { authorization: `Bearer ${token}`, ...(hasBody ? { "content-type": "application/json" } : {}) },
     body: body || undefined,
+    clientIp: getClientIp(req),
   });
 
   const data = await r.json().catch(() => ({}));

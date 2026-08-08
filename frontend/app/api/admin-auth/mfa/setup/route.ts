@@ -3,15 +3,16 @@
 // enable MFA yet, just generates and returns the QR/secret; see ../verify.
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { backendFetch, ADMIN_ACCESS_COOKIE } from "@/lib/backendAuth";
+import { backendFetch, getClientIp, ADMIN_ACCESS_COOKIE } from "@/lib/backendAuth";
 
-export async function POST() {
+export async function POST(req: Request) {
   const token = cookies().get(ADMIN_ACCESS_COOKIE)?.value;
   if (!token) return NextResponse.json({ ok: false, error: "not_authenticated" }, { status: 401 });
 
   const r = await backendFetch("/api/admin-auth/mfa/setup", {
     method: "POST",
     headers: { authorization: `Bearer ${token}` },
+    clientIp: getClientIp(req),
   });
   const data = await r.json().catch(() => ({}));
   if (!r.ok) return NextResponse.json({ ok: false, error: data?.error || "mfa_setup_failed" }, { status: r.status });

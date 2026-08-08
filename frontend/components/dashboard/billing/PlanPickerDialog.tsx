@@ -18,6 +18,9 @@ interface SquareInfo {
   clientConfig: { applicationId: string; locationId: string; environment: "sandbox" | "production" } | null;
   card: { brand: string | null; last4: string | null; expMonth: number | null; expYear: number | null } | null;
 }
+interface BankTransferInfo {
+  configured: boolean;
+}
 
 type Step = "pick" | "checkout";
 
@@ -30,7 +33,7 @@ function gstBreakdown(totalCents: number) {
 }
 
 export function PlanPickerDialog({
-  open, onClose, plans, currentPlanKey, hasExistingPlan, square, onSaved,
+  open, onClose, plans, currentPlanKey, hasExistingPlan, square, bankTransfer, onSaved,
 }: {
   open: boolean;
   onClose: () => void;
@@ -38,6 +41,7 @@ export function PlanPickerDialog({
   currentPlanKey: string | null;
   hasExistingPlan: boolean;
   square: SquareInfo;
+  bankTransfer: BankTransferInfo;
   onSaved: () => void;
 }) {
   const [step, setStep] = useState<Step>("pick");
@@ -154,6 +158,7 @@ export function PlanPickerDialog({
             plan={selected}
             hasExistingPlan={hasExistingPlan}
             square={square}
+            bankTransfer={bankTransfer}
             saving={saving}
             onBack={() => setStep("pick")}
             onConfirm={() => confirm()}
@@ -167,11 +172,12 @@ export function PlanPickerDialog({
 }
 
 function CheckoutSummary({
-  plan, hasExistingPlan, square, saving, onBack, onConfirm, onConfirmBankTransfer, onCardSaved,
+  plan, hasExistingPlan, square, bankTransfer, saving, onBack, onConfirm, onConfirmBankTransfer, onCardSaved,
 }: {
   plan: Plan;
   hasExistingPlan: boolean;
   square: SquareInfo;
+  bankTransfer: BankTransferInfo;
   saving: boolean;
   onBack: () => void;
   onConfirm: () => void;
@@ -229,13 +235,17 @@ function CheckoutSummary({
             <button
               type="button"
               onClick={onConfirmBankTransfer}
-              disabled={saving}
-              className="flex w-full items-center gap-2 rounded-lg border border-slate-200 p-3 text-left text-sm text-slate-600 transition hover:border-slate-300 disabled:opacity-50"
+              disabled={saving || !bankTransfer.configured}
+              className="flex w-full items-center gap-2 rounded-lg border border-slate-200 p-3 text-left text-sm text-slate-600 transition hover:border-slate-300 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Landmark className="h-4 w-4 shrink-0 text-slate-400" />
               <span>
                 <span className="font-medium text-slate-900">Pay by bank transfer</span>
-                <span className="block text-xs text-slate-400">We&apos;ll issue an invoice with our bank details and a payment reference — no card needed. Your plan activates as soon as we confirm the transfer.</span>
+                {bankTransfer.configured ? (
+                  <span className="block text-xs text-slate-400">We&apos;ll issue an invoice with our bank details and a payment reference — no card needed. Your plan activates as soon as we confirm the transfer.</span>
+                ) : (
+                  <span className="block text-xs text-slate-400">Temporarily unavailable.</span>
+                )}
               </span>
             </button>
           </div>

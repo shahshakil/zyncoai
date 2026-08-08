@@ -12,7 +12,7 @@ import { Badge } from "@/components/dashboard/ui/badge";
 import { Select } from "@/components/dashboard/ui/input";
 import { Topbar } from "@/components/platform-admin/Topbar";
 import { StatCard } from "@/components/platform-admin/StatCard";
-import { formatCents, VERTICAL_LABELS } from "@/components/platform-admin/format";
+import { formatCents, VERTICAL_LABELS, pluralize } from "@/components/platform-admin/format";
 import { exportToExcel, type ExportColumn } from "@/lib/exportUtils";
 
 interface BillingIssues {
@@ -65,15 +65,15 @@ const GradientBarChart = dynamic(() => import("@/components/platform-admin/chart
 const HorizontalBarChart = dynamic(() => import("@/components/platform-admin/charts").then((m) => ({ default: m.HorizontalBarChart })), { loading: ChartSkeleton, ssr: false });
 const CostPieChart = dynamic(() => import("@/components/platform-admin/charts").then((m) => ({ default: m.CostPieChart })), { loading: ChartSkeleton, ssr: false });
 
-interface PricingPlan { key: string; name: string; priceCents: number }
+interface PricingPlan { key: string; name: string; priceCents: number; vertical: string | null }
 interface RevenueData {
   mrrCents: number; arrCents: number; arpuCents: number; revenueGrowthPct: number | null;
   totalIncomeCents: number; totalIncomeLastMonthCents: number; totalCostCents: number; netProfitCents: number; profitMarginPct: number;
-  revenueByPlan: { plan: string; amountCents: number }[];
-  churnRevenueLostCents: number | null; netRevenueRetentionPct: number | null; notAvailableReason: string;
-  costBreakdown: { openAiCostCents: number; twilioCostCents: number; serverCostCents: number; numberCostCents: number };
+  revenueByPlan: { planKey: string; amountCents: number }[];
+  churnRevenueLostCents: number; netRevenueRetentionPct: number | null; notAvailableReason: string;
+  costBreakdown: { callsCostCents: number; usageCostCents: number; serverCostCents: number; numberCostCents: number };
   costsAreEstimated: boolean;
-  openAiCostNote: string;
+  fixedCostsIncludeEstimates: boolean;
   grossRevenueCents: number; totalDiscountsCents: number; netRevenueCents: number; avgDiscountPerClientCents: number;
   addOnRevenueCents: number;
   addOnBreakdown: { key: string; name: string; activeCount: number; revenueCents: number }[];
@@ -86,7 +86,11 @@ interface RevenueData {
   };
   monthlyRevenue: { month: string; amountCents: number }[];
   byVertical: { vertical: string; amountCents: number }[];
-  businesses: { id: string; name: string; vertical: string; status: string; plan: string; planPriceCents: number; planIsManual: boolean; manualPlanKey: string | null; revenueThisMonthCents: number; totalRevenueCents: number; numberCostCents: number }[];
+  businesses: {
+    id: string; name: string; vertical: string; status: string; plan: string; planPriceCents: number; planIsManual: boolean;
+    manualPlanKey: string | null; revenueThisMonthCents: number; totalRevenueCents: number; numberCostCents: number;
+    complimentaryPlan: boolean; hasQualifyingPayment: boolean;
+  }[];
   pricingPlans: PricingPlan[];
   stale?: boolean;
 }
@@ -114,8 +118,17 @@ export default function RevenuePage() {
       await apiPost(`/api/admin/platform/businesses/${businessId}/plan`, { planKey: planKey || null });
       toast.success("Plan updated");
       mutate();
-    } catch {
-      toast.error("Failed to update plan");
+    } catch (err: any) {
+      // Paid-plan invariant: a plan can't be assigned here without a real
+      // qualifying payment already on record — this quick-select can't
+      // collect a complimentary reason, so route the admin to the one place
+      // that can (Businesses -> drill-down -> Billing panel) instead of a
+      // dead-end failure toast.
+      if (err?.message === "payment_or_complimentary_required") {
+        toast.error("This business has no qualifying payment — open it in Businesses to grant a complimentary plan with a reason.");
+      } else {
+        toast.error("Failed to update plan");
+      }
     }
   }
 
@@ -132,7 +145,7 @@ export default function RevenuePage() {
       <div className="space-y-6 p-6">
         {!hasAnyRevenue && data && (
           <div className="rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm text-[#6B7280]">
-            No billing plans are attached to any business yet, so revenue below is genuinely $0 — not a bug. Costs are still shown (estimated from real call volume) since they don&apos;t depend on billing being configured.
+            No business has a qualifying paid invoice yet, so revenue below is genuinely $0 — not a bug (a business can hold a plan without paying for it via an admin-granted complimentary plan; see the Payment column below). Costs are still shown — they&apos;re real usage data and don&apos;t depend on billing being configured.
           </div>
         )}
 
@@ -152,7 +165,7 @@ export default function RevenuePage() {
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard label="Platform Revenue (Month)" value={formatCents(data?.totalIncomeCents || 0)} icon={DollarSign} gradient="linear-gradient(135deg,#10B981,#34D399)" loading={!data} />
-          <StatCard label="Total Costs This Month (estimated)" value={formatCents(data?.totalCostCents || 0)} icon={TrendingDown} gradient="linear-gradient(135deg,#EF4444,#F87171)" loading={!data} sublabel="OpenAI + Twilio, estimated" />
+          <StatCard label="Total Costs This Month" value={formatCents(data?.totalCostCents || 0)} icon={TrendingDown} gradient="linear-gradient(135deg,#EF4444,#F87171)" loading={!data} sublabel="Real AI/call/SMS/email cost + numbers + fixed costs" />
           <StatCard
             label="Net Profit" value={formatCents(data?.netProfitCents || 0)} icon={TrendingUp}
             gradient={data && data.netProfitCents < 0 ? "linear-gradient(135deg,#EF4444,#F87171)" : "linear-gradient(135deg,#6366F1,#8B5CF6)"}
@@ -172,7 +185,8 @@ export default function RevenuePage() {
           <div className="flex items-start gap-2 rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm text-[#6B7280]">
             <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#9CA3AF]" />
             <div>
-              <p><span className="font-medium text-[#1F2937]">Churn revenue lost</span> and <span className="font-medium text-[#1F2937]">Net Revenue Retention</span> are not available: {data.notAvailableReason}</p>
+              <p><span className="font-medium text-[#1F2937]">Churn revenue lost (this month):</span> {formatCents(data.churnRevenueLostCents)} — real, computed from actual cancellations.</p>
+              <p className="mt-1"><span className="font-medium text-[#1F2937]">Net Revenue Retention</span> is not available: {data.notAvailableReason}</p>
             </div>
           </div>
         )}
@@ -256,21 +270,24 @@ export default function RevenuePage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Cost Breakdown — This Month {data?.costsAreEstimated && <span className="ml-2 text-xs font-normal text-[#9CA3AF]">(estimated — no real OpenAI/Twilio invoice is ingested)</span>}</CardTitle>
-            {data?.openAiCostNote && <p className="mt-0.5 text-xs text-[#9CA3AF]">{data.openAiCostNote}</p>}
+            <CardTitle>Cost Breakdown — This Month</CardTitle>
+            <p className="mt-0.5 text-xs text-[#9CA3AF]">
+              Real data — AI/telephony cost from actual calls (CallCost), SMS/email from actual sends (UsageCostEvent), numbers from active count, fixed costs from your itemized list.
+              {data?.fixedCostsIncludeEstimates && " Fixed costs include one or more unconfirmed estimates — see Cost Tracking → Fixed Costs."}
+            </p>
           </CardHeader>
           <div className="p-4">
             {data ? (
               <CostPieChart data={[
-                { key: "openai", label: "OpenAI (estimated)", cents: data.costBreakdown.openAiCostCents },
-                { key: "twilio", label: "Twilio calls (estimated)", cents: data.costBreakdown.twilioCostCents },
-                { key: "numbers", label: "Twilio numbers (real)", cents: data.costBreakdown.numberCostCents },
-                { key: "server", label: "Server & other", cents: data.costBreakdown.serverCostCents },
+                { key: "calls", label: "Calls (AI + telephony)", cents: data.costBreakdown.callsCostCents },
+                { key: "usage", label: "SMS + Email", cents: data.costBreakdown.usageCostCents },
+                { key: "numbers", label: "Twilio numbers", cents: data.costBreakdown.numberCostCents },
+                { key: "fixed", label: "Fixed costs", cents: data.costBreakdown.serverCostCents },
               ]} />
             ) : <Skel height={180} />}
             {data && (
               <p className="mt-3 text-xs text-[#6B7280]">
-                Twilio numbers: <a href="/platform-admin/phone-numbers" className="text-[#6366F1] hover:underline">{formatCents(data.costBreakdown.numberCostCents)}/mo</a> — real, not estimated ($1.50/mo per purchased number, see the Phone Numbers page).
+                Twilio numbers: <a href="/platform-admin/phone-numbers" className="text-[#6366F1] hover:underline">{formatCents(data.costBreakdown.numberCostCents)}/mo</a> — real, from active purchased numbers, see the Phone Numbers page. Fixed costs: <a href="/platform-admin/costs" className="text-[#6366F1] hover:underline">{formatCents(data.costBreakdown.serverCostCents)}/mo</a> — edit in Cost Tracking → Fixed Costs.
               </p>
             )}
           </div>
@@ -279,20 +296,38 @@ export default function RevenuePage() {
         <Card>
           <CardHeader>
             <CardTitle>Pricing Plans</CardTitle>
-            <p className="mt-0.5 text-xs text-[#9CA3AF]">Manual plan tiers — edit in Platform Settings. Businesses are assigned a plan manually until real Stripe billing exists.</p>
+            <p className="mt-0.5 text-xs text-[#9CA3AF]">
+              Businesses self-serve via card checkout or bank transfer (Settings → Billing); an admin can also grant a complimentary plan with a reason (Business Drawer). Edit tiers in Platform Settings.
+            </p>
           </CardHeader>
-          <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-3">
-            {data?.pricingPlans.map((p) => {
-              const revenueForPlan = data.revenueByPlan.find((r) => r.plan === p.name)?.amountCents || 0;
-              return (
-                <div key={p.key} className="rounded-xl border border-[#E5E7EB] p-4">
-                  <p className="text-sm font-semibold text-[#1F2937]">{p.name}</p>
-                  <p className="mt-1 text-2xl font-bold text-[#1F2937]">{formatCents(p.priceCents)}<span className="text-xs font-normal text-[#9CA3AF]">/mo</span></p>
-                  <p className="mt-1 text-xs text-[#9CA3AF]">{data.businesses.filter((b) => b.manualPlanKey === p.key).length} businesses on this plan</p>
-                  <p className="mt-0.5 text-xs font-medium text-[#10B981]">{formatCents(revenueForPlan)}/mo MRR from this plan</p>
+          <div className="space-y-5 p-4">
+            {data && Object.entries(
+              data.pricingPlans.reduce<Record<string, PricingPlan[]>>((groups, p) => {
+                const key = p.vertical || "__default__";
+                (groups[key] ||= []).push(p);
+                return groups;
+              }, {})
+            ).map(([verticalKey, plans]) => (
+              <div key={verticalKey}>
+                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#6B7280]">
+                  {verticalKey === "__default__" ? "Other / Default" : VERTICAL_LABELS[verticalKey] || verticalKey}
+                </h3>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  {plans.map((p) => {
+                    const businessesOnPlan = data.businesses.filter((b) => b.manualPlanKey === p.key).length;
+                    const revenueForPlan = data.revenueByPlan.find((r) => r.planKey === p.key)?.amountCents || 0;
+                    return (
+                      <div key={p.key} className="rounded-xl border border-[#E5E7EB] p-4">
+                        <p className="text-sm font-semibold text-[#1F2937]">{p.name}</p>
+                        <p className="mt-1 text-2xl font-bold text-[#1F2937]">{formatCents(p.priceCents)}<span className="text-xs font-normal text-[#9CA3AF]">/mo</span></p>
+                        <p className="mt-1 text-xs text-[#9CA3AF]">{pluralize(businessesOnPlan, "business", "businesses")} on this plan</p>
+                        <p className="mt-0.5 text-xs font-medium text-[#10B981]">{formatCents(revenueForPlan)}/mo MRR from this plan</p>
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
+              </div>
+            ))}
             {!data && <Skel height={100} />}
           </div>
         </Card>
@@ -320,7 +355,7 @@ export default function RevenuePage() {
           </div>
           <Table>
             <Thead>
-              <tr><Th>Rank</Th><Th>Business</Th><Th>Vertical</Th><Th>Status</Th><Th>Revenue (Month)</Th><Th>Total Revenue</Th><Th>Number Cost</Th><Th>Plan</Th></tr>
+              <tr><Th>Rank</Th><Th>Business</Th><Th>Vertical</Th><Th>Status</Th><Th>Payment</Th><Th>Revenue (Month)</Th><Th>Total Revenue</Th><Th>Number Cost</Th><Th>Plan</Th></tr>
             </Thead>
             <Tbody>
               {filteredBusinesses.map((b, i) => (
@@ -329,6 +364,17 @@ export default function RevenuePage() {
                   <Td className="font-medium text-[#1F2937]">{b.name}</Td>
                   <Td><Badge tone="purple">{VERTICAL_LABELS[b.vertical] || b.vertical}</Badge></Td>
                   <Td><Badge tone={b.status === "ACTIVE" ? "success" : b.status === "HOLD" ? "danger" : "default"}>{b.status}</Badge></Td>
+                  <Td>
+                    {!b.manualPlanKey ? (
+                      <Badge tone="default">No plan</Badge>
+                    ) : b.complimentaryPlan ? (
+                      <Badge tone="info">Complimentary</Badge>
+                    ) : b.hasQualifyingPayment ? (
+                      <Badge tone="success">Paid</Badge>
+                    ) : (
+                      <Badge tone="danger">Unpaid</Badge>
+                    )}
+                  </Td>
                   <Td>{formatCents(b.revenueThisMonthCents)}</Td>
                   <Td>{formatCents(b.totalRevenueCents)}</Td>
                   <Td className="text-xs text-[#6B7280]">{b.numberCostCents ? `${formatCents(b.numberCostCents)}/mo` : "—"}</Td>

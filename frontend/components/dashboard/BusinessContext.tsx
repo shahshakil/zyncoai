@@ -36,6 +36,9 @@ export interface DashboardBusiness {
   pendingPlanKey?: string | null;
   pendingActivationInvoiceId?: string | null;
   pendingActivation?: { invoiceNumber: string; totalCents: number; planName: string } | null;
+  // Paid-plan invariant — see Business.complimentaryPlan's schema comment.
+  // Real payment always clears this the moment it activates a plan.
+  complimentaryPlan?: boolean;
 }
 
 export interface ImpersonationState {

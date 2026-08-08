@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { backendFetch, ACCESS_COOKIE } from "@/lib/backendAuth";
+import { backendFetch, getClientIp, ACCESS_COOKIE } from "@/lib/backendAuth";
 
 export async function POST(req: Request) {
   const access = cookies().get(ACCESS_COOKIE)?.value;
@@ -14,6 +14,7 @@ export async function POST(req: Request) {
     method: "POST",
     headers: { authorization: `Bearer ${access}`, "content-type": "application/json" },
     body: JSON.stringify(body),
+    clientIp: getClientIp(req),
   });
 
   const data = await r.json().catch(() => ({}));

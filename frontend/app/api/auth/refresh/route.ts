@@ -7,15 +7,15 @@
 // browser's cookie for this domain is ours, not the backend's.
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { backendFetch, extractSetCookieValue, ACCESS_COOKIE, REFRESH_COOKIE, ACCESS_COOKIE_MAX_AGE, REFRESH_COOKIE_MAX_AGE } from "@/lib/backendAuth";
+import { backendFetch, extractSetCookieValue, getClientIp, ACCESS_COOKIE, REFRESH_COOKIE, ACCESS_COOKIE_MAX_AGE, REFRESH_COOKIE_MAX_AGE } from "@/lib/backendAuth";
 
-export async function POST() {
+export async function POST(req: Request) {
   const refresh = cookies().get(REFRESH_COOKIE)?.value;
   if (!refresh) {
     return NextResponse.json({ ok: false, error: "no_refresh" }, { status: 401 });
   }
 
-  const r = await backendFetch("/api/auth/refresh", { method: "POST", refreshToken: refresh });
+  const r = await backendFetch("/api/auth/refresh", { method: "POST", refreshToken: refresh, clientIp: getClientIp(req) });
   const data = await r.json().catch(() => ({}));
 
   if (!r.ok || !data?.access_token) {

@@ -25,6 +25,8 @@ interface BillingPlan {
   pctMinutesUsed: number | null;
   nextBillingDate: string;
   setupFeeCents: number | null;
+  // Paid-plan invariant — see Business.complimentaryPlan's schema comment.
+  complimentaryPlan: boolean;
 }
 interface AvailablePlan extends BillingPlan {
   setupFeeCents: number; isCustom: boolean;
@@ -62,7 +64,7 @@ interface BillingData {
     clientConfig: { applicationId: string; locationId: string; environment: "sandbox" | "production" } | null;
     card: { brand: string | null; last4: string | null; expMonth: number | null; expYear: number | null } | null;
   };
-  bankTransfer: { bankName: string | null; bankAccountName: string | null; bankBsb: string | null; bankAccountNumber: string | null; configured: boolean };
+  bankTransfer: { bankName: string | null; bankAccountName: string | null; bankBsb: string | null; bankAccountNumber: string | null; payId: string | null; configured: boolean };
   bpay: { billerCode: string | null; reference: string; configured: boolean };
   paypal: { configured: boolean; clientId: string | null; environment: "sandbox" | "production" | null; subscriptionActive: boolean; payerEmail: string | null };
 }
@@ -241,8 +243,18 @@ export function BillingPageContent() {
 
                 {/* Always-visible next-billing stat, Zapier-style — was a
                     buried small-text line before, now the second most
-                    prominent thing on the page after the plan name. */}
-                {!data.cancelEffectiveAt && (
+                    prominent thing on the page after the plan name.
+                    Complimentary plans get no next-billing line at all —
+                    nothing is ever charged, so a date here would be a lie. */}
+                {!data.cancelEffectiveAt && data.plan.complimentaryPlan ? (
+                  <div className="flex items-center gap-3 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 sm:shrink-0">
+                    <Gift className="h-5 w-5 shrink-0 text-indigo-500" />
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-indigo-400">Billing</p>
+                      <p className="text-sm font-semibold text-indigo-900">Complimentary plan — granted by ZyncoAI</p>
+                    </div>
+                  </div>
+                ) : !data.cancelEffectiveAt && (
                   <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 sm:shrink-0">
                     <Calendar className="h-5 w-5 shrink-0 text-slate-400" />
                     <div>
@@ -280,7 +292,8 @@ export function BillingPageContent() {
               {data.pendingActivation && (
                 <div className="flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-sm text-amber-800">
-                    Awaiting your bank transfer for the <span className="font-semibold">{data.pendingActivation.planName}</span> plan — {money(data.pendingActivation.totalCents)}, ref {data.pendingActivation.invoiceNumber}. It activates automatically once we confirm payment.
+                    Awaiting your bank transfer for the <span className="font-semibold">{data.pendingActivation.planName}</span> plan — {money(data.pendingActivation.totalCents)}, ref {data.pendingActivation.invoiceNumber}.
+                    Your {data.plan?.complimentaryPlan ? "complimentary plan" : "current plan"} switches to {data.pendingActivation.planName} once payment is confirmed.
                   </p>
                   <Button variant="outline" size="lg" className="h-11 min-h-[44px] shrink-0" disabled={cancellingPending} onClick={cancelPendingPlan}>{cancellingPending ? "…" : "Cancel pending plan"}</Button>
                 </div>
@@ -453,6 +466,7 @@ export function BillingPageContent() {
         currentPlanKey={data.plan?.key ?? null}
         hasExistingPlan={Boolean(data.plan)}
         square={data.square}
+        bankTransfer={{ configured: data.bankTransfer.configured }}
         onSaved={mutate}
       />
 

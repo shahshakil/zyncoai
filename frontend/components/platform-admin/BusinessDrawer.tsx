@@ -21,6 +21,7 @@ interface BusinessDetail {
   id: string; name: string; phoneNumber: string; vertical: string; status: string; createdAt: string;
   manualPlan: string | null; abn: string | null; trialEndsAt: string | null;
   legacyBillingGraceGranted: boolean; pendingPlanKey: string | null;
+  complimentaryPlan: boolean; complimentaryReason: string | null;
   planOverridePriceCents: number | null; planOverrideCallAllowance: number | null;
   preferredPaymentMethod: "SQUARE" | "BANK_TRANSFER" | "PAYPAL" | "BPAY" | null;
   smsConfirmationsEnabled: boolean; smsConfirmationsPaid: boolean;
@@ -65,6 +66,7 @@ interface DrawerData {
   orderStats: OrderStats | null;
   paymentRetryStatus: PaymentRetryStatus | null;
   pendingActivationInvoice: { invoiceNumber: string; totalCents: number; planName: string; issuedAt: string } | null;
+  paidInvoiceExists: boolean;
   usageAndMargin: UsageAndMargin;
   integrationHealth: IntegrationHealth;
   lastActivityAt: string | null;
@@ -83,6 +85,8 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
   const [abn, setAbn] = useState("");
   const [overridePrice, setOverridePrice] = useState("");
   const [overrideAllowance, setOverrideAllowance] = useState("");
+  const [complimentary, setComplimentary] = useState(false);
+  const [complimentaryReason, setComplimentaryReason] = useState("");
   const [savingPlan, setSavingPlan] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("");
   const [savingPaymentMethod, setSavingPaymentMethod] = useState(false);
@@ -94,6 +98,8 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
     setOverridePrice(data.business.planOverridePriceCents !== null ? (data.business.planOverridePriceCents / 100).toString() : "");
     setOverrideAllowance(data.business.planOverrideCallAllowance !== null ? data.business.planOverrideCallAllowance.toString() : "");
     setPaymentMethod(data.business.preferredPaymentMethod || "");
+    setComplimentary(data.business.complimentaryPlan);
+    setComplimentaryReason(data.business.complimentaryReason || "");
   }, [data]);
 
   async function savePaymentMethod() {
@@ -111,6 +117,10 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
   }
 
   async function savePlan() {
+    if (planKey && complimentary && !complimentaryReason.trim()) {
+      toast.error("Complimentary plans need a reason");
+      return;
+    }
     setSavingPlan(true);
     try {
       await apiPost(`/api/admin/platform/businesses/${businessId}/plan`, {
@@ -118,12 +128,20 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
         abn: abn.trim() || null,
         planOverridePriceCents: overridePrice.trim() === "" ? null : Math.round(Number(overridePrice) * 100),
         planOverrideCallAllowance: overrideAllowance.trim() === "" ? null : Math.round(Number(overrideAllowance)),
+        complimentary,
+        complimentaryReason: complimentaryReason.trim() || null,
       });
       toast.success("Billing details saved");
       mutate();
       onChanged();
-    } catch {
-      toast.error("Failed to save billing details");
+    } catch (err: any) {
+      const message =
+        err?.message === "payment_or_complimentary_required"
+          ? "This business has no qualifying paid invoice — tick Complimentary and give a reason, or ensure a real payment exists first."
+          : err?.message === "complimentary_reason_required"
+          ? "Complimentary plans need a reason."
+          : "Failed to save billing details";
+      toast.error(message);
     } finally {
       setSavingPlan(false);
     }
@@ -541,6 +559,22 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
                                 {extendingTrial ? "Extending…" : "+7 days"}
                               </Button>
                             </div>
+                            {data.business.manualPlan && (
+                              <div className="rounded-lg bg-[#F8F9FA] px-3 py-2">
+                                <p className="text-xs font-medium text-[#6B7280]">Payment status</p>
+                                <p className="text-sm text-[#1F2937]">
+                                  {data.business.complimentaryPlan ? (
+                                    <span className="inline-flex items-center gap-1 text-[#4338CA]">
+                                      <Gift className="h-3.5 w-3.5" /> Complimentary — {data.business.complimentaryReason}
+                                    </span>
+                                  ) : data.paidInvoiceExists ? (
+                                    <span className="text-[#15803D]">Paid</span>
+                                  ) : (
+                                    <span className="text-[#B91C1C]">No qualifying payment on record</span>
+                                  )}
+                                </p>
+                              </div>
+                            )}
                             {data.paymentRetryStatus && (
                               <div className="rounded-lg bg-[#FEF2F2] px-3 py-2">
                                 <p className="text-xs font-medium text-[#B91C1C]">
@@ -564,6 +598,25 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
                                 {settingsData?.settings.pricingPlans.map((p) => <option key={p.key} value={p.key}>{p.name} ({formatCents(p.priceCents)}/mo)</option>)}
                               </Select>
                             </div>
+                            {planKey && (
+                              <div className="rounded-lg border border-[#E5E7EB] p-2.5">
+                                <label className="flex items-center gap-2 text-sm text-[#1F2937]">
+                                  <input type="checkbox" checked={complimentary} onChange={(e) => setComplimentary(e.target.checked)} />
+                                  Complimentary (no payment required)
+                                </label>
+                                <p className="mt-1 text-[11px] text-[#9CA3AF]">
+                                  Without this, the plan can only be assigned if a real paid invoice already exists — see the paid-plan invariant.
+                                </p>
+                                {complimentary && (
+                                  <Input
+                                    className="mt-2"
+                                    value={complimentaryReason}
+                                    onChange={(e) => setComplimentaryReason(e.target.value)}
+                                    placeholder="Reason (required) — e.g. internal test, founder account"
+                                  />
+                                )}
+                              </div>
+                            )}
                             <div className="flex items-end gap-2">
                               <div className="flex-1">
                                 <Label>Payment method</Label>

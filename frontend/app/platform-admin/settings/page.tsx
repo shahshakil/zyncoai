@@ -23,6 +23,7 @@ interface Settings {
   bankAccountNumber?: string | null;
   bankName?: string | null;
   bpayBillerCode?: string | null;
+  payId?: string | null;
   stripeSecretKey?: string | null;
   openAiCostPerMinuteMicros?: number;
   twilioCostPerCallMicros?: number;
@@ -61,6 +62,7 @@ export default function PlatformSettingsPage() {
   const [bankAccountNumber, setBankAccountNumber] = useState("");
   const [bankName, setBankName] = useState("");
   const [bpayBillerCode, setBpayBillerCode] = useState("");
+  const [payId, setPayId] = useState("");
   const [stripeSecretKey, setStripeSecretKey] = useState("");
   const [openAiCostPerMinute, setOpenAiCostPerMinute] = useState("0.30");
   const [twilioCostPerCall, setTwilioCostPerCall] = useState("0.01");
@@ -86,6 +88,7 @@ export default function PlatformSettingsPage() {
     setBankAccountNumber(data.settings.bankAccountNumber || "");
     setBankName(data.settings.bankName || "");
     setBpayBillerCode(data.settings.bpayBillerCode || "");
+    setPayId(data.settings.payId || "");
     setStripeSecretKey(data.settings.stripeSecretKey || "");
     if (typeof data.settings.openAiCostPerMinuteMicros === "number") setOpenAiCostPerMinute((data.settings.openAiCostPerMinuteMicros / 1_000_000).toString());
     if (typeof data.settings.twilioCostPerCallMicros === "number") setTwilioCostPerCall((data.settings.twilioCostPerCallMicros / 1_000_000).toString());
@@ -127,6 +130,7 @@ export default function PlatformSettingsPage() {
         bankAccountNumber: bankAccountNumber || null,
         bankName: bankName || null,
         bpayBillerCode: bpayBillerCode || null,
+        payId: payId || null,
         stripeSecretKey: stripeSecretKey || null,
         openAiCostPerMinute: Number(openAiCostPerMinute || 0),
         twilioCostPerCall: Number(twilioCostPerCall || 0),
@@ -333,6 +337,11 @@ export default function PlatformSettingsPage() {
               <Label>BPAY biller code</Label>
               <Input value={bpayBillerCode} onChange={(e) => setBpayBillerCode(e.target.value)} placeholder="123456" />
               <p className="mt-0.5 text-xs text-[#9CA3AF]">Reference is per-business (their account id) — shown automatically on their invoices and billing page.</p>
+            </div>
+            <div>
+              <Label>PayID (optional)</Label>
+              <Input value={payId} onChange={(e) => setPayId(e.target.value)} placeholder="billing@zyncoai.com or ABN" />
+              <p className="mt-0.5 text-xs text-[#9CA3AF]">Shown alongside bank transfer details as an alternative to BSB + account number.</p>
             </div>
             <div>
               <Label>Invoice due (days)</Label>

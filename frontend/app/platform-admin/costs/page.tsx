@@ -25,24 +25,25 @@ interface CostsOverview {
   ytd: { totalMicros: number };
   costPerCallMicros: number; avgCostPerClientMicros: number;
   costPerClient: { businessId: string; name: string; costMicros: number }[];
-  activeBusinessCount: number; fixedCostsMonthlyCents: number; twilioNumberFeesMonthlyMicros: number;
+  activeBusinessCount: number; payingBusinessCount: number; avgVariableCostPerPayingClientMicros: number;
+  fixedCostsMonthlyCents: number; twilioNumberFeesMonthlyMicros: number;
   monthlyRecurringRevenueCents: number; monthlyRecurringCostCents: number; breakEvenGapCents: number;
   pricingPlans: PricingPlan[];
 }
 
 const CATEGORIES = [
-  "DIGITALOCEAN", "CLOUDFLARE", "TWILIO_NUMBERS", "UPSTASH", "RESEND", "ZOHO",
+  "DIGITALOCEAN", "CLOUDFLARE", "TWILIO_NUMBERS", "UPSTASH", "NEON", "RESEND", "ZOHO",
   "GCP", "OPENAI_OTHER", "DOMAIN", "VAPI", "ELEVENLABS", "MANUAL",
 ];
 const CATEGORY_LABELS: Record<string, string> = {
   DIGITALOCEAN: "DigitalOcean", CLOUDFLARE: "Cloudflare", TWILIO_NUMBERS: "Twilio (account fee)",
-  UPSTASH: "Upstash", RESEND: "Resend", ZOHO: "Zoho", GCP: "GCP", OPENAI_OTHER: "OpenAI (non-metered, e.g. seat)",
+  UPSTASH: "Upstash", NEON: "Neon (Postgres)", RESEND: "Resend", ZOHO: "Zoho", GCP: "GCP", OPENAI_OTHER: "OpenAI (non-metered, e.g. seat)",
   DOMAIN: "Domain", VAPI: "Vapi", ELEVENLABS: "ElevenLabs", MANUAL: "Manual / other",
 };
 
 interface FixedCostEntry {
   id: string; category: string; label: string; amountCents: number; billingCycle: string;
-  gstApplicable: boolean; taxDeductible: boolean; isActive: boolean; notes: string | null;
+  gstApplicable: boolean; taxDeductible: boolean; isActive: boolean; isEstimate: boolean; notes: string | null;
 }
 
 const FIXED_COST_COLUMNS: ExportColumn[] = [
@@ -62,10 +63,14 @@ export default function CostsPage() {
   const [editing, setEditing] = useState<FixedCostEntry | null>(null);
 
   const fixed = fixedData?.data || [];
-  const avgRevenuePerClientCents = data && data.activeBusinessCount > 0 ? Math.round(data.monthlyRecurringRevenueCents / data.activeBusinessCount) : 0;
-  const avgVariableCostPerClientMicros = data && data.activeBusinessCount > 0
-    ? data.avgCostPerClientMicros + Math.round(data.twilioNumberFeesMonthlyMicros / data.activeBusinessCount)
-    : 0;
+  // Break-Even Calculator answers "how many PAYING clients do we need" —
+  // seeded from the paying-client population, not every active business
+  // (which would mix free-riding complimentary/trial accounts into the
+  // per-client average). Server computes both figures once
+  // (admin/costs.ts) so this page never has two different "avg variable
+  // cost/client" numbers on screen again.
+  const avgRevenuePerClientCents = data && data.payingBusinessCount > 0 ? Math.round(data.monthlyRecurringRevenueCents / data.payingBusinessCount) : 0;
+  const avgVariableCostPerClientMicros = data?.avgVariableCostPerPayingClientMicros || 0;
 
   function exportCostReport() {
     if (!data) return;
@@ -138,7 +143,11 @@ export default function CostsPage() {
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <StatCard label="Avg Cost / Call" value={formatMicros(data?.costPerCallMicros || 0)} icon={PhoneCall} gradient="linear-gradient(135deg,#EF4444,#F87171)" loading={!data} />
-                <StatCard label="Avg Variable Cost / Client / mo" value={formatMicros(data?.avgCostPerClientMicros || 0)} icon={Percent} gradient="linear-gradient(135deg,#F59E0B,#FBBF24)" loading={!data} />
+                <StatCard
+                  label="Avg Variable Cost / Client / mo" value={formatMicros(data?.avgCostPerClientMicros || 0)} icon={Percent}
+                  gradient="linear-gradient(135deg,#F59E0B,#FBBF24)" loading={!data}
+                  sublabel="Real AI/call/SMS/email cost + Twilio number rental, per active business"
+                />
                 <StatCard label="Fixed Costs / mo" value={formatCents(data?.fixedCostsMonthlyCents || 0)} icon={Wallet} gradient="linear-gradient(135deg,#8B5CF6,#A78BFA)" loading={!data} />
                 <StatCard
                   label="Break-Even Gap / mo" value={formatCents(data?.breakEvenGapCents || 0)} icon={Wallet}
@@ -148,11 +157,15 @@ export default function CostsPage() {
               </div>
 
               <BreakEvenCalculator
-                activeBusinessCount={data?.activeBusinessCount || 0}
+                activeBusinessCount={data?.payingBusinessCount || 0}
                 avgRevenuePerClientCents={avgRevenuePerClientCents}
                 avgVariableCostPerClientMicros={avgVariableCostPerClientMicros}
                 fixedCostsMonthlyCents={data?.fixedCostsMonthlyCents || 0}
+                loading={!data}
               />
+              <p className="-mt-3 text-xs text-[#9CA3AF]">
+                Seeded from your {data?.payingBusinessCount ?? 0} paying client(s) — not the same population as &quot;Avg Variable Cost / Client / mo&quot; above, which spreads real cost across every active business, paying or not.
+              </p>
 
               <Card>
                 <CardHeader><CardTitle>Cost per Client — This Month</CardTitle></CardHeader>
@@ -211,7 +224,12 @@ export default function CostsPage() {
                       <Td className="capitalize">{f.billingCycle.toLowerCase().replace("_", " ")}</Td>
                       <Td>{f.gstApplicable ? <Badge tone="info">GST</Badge> : <Badge tone="default">No GST</Badge>}</Td>
                       <Td>{f.taxDeductible ? <Badge tone="success">Deductible</Badge> : <Badge tone="default">—</Badge>}</Td>
-                      <Td>{f.isActive ? <Badge tone="success">Active</Badge> : <Badge tone="danger">Inactive</Badge>}</Td>
+                      <Td>
+                        <div className="flex flex-wrap items-center gap-1">
+                          {f.isActive ? <Badge tone="success">Active</Badge> : <Badge tone="danger">Inactive</Badge>}
+                          {f.isEstimate && <Badge tone="warning">Estimate</Badge>}
+                        </div>
+                      </Td>
                       <Td>
                         <div className="flex items-center gap-2">
                           <button title="Edit" onClick={() => { setEditing(f); setDialogOpen(true); }} className="text-[#9CA3AF] hover:text-[#1F2937]">
@@ -248,6 +266,7 @@ function FixedCostDialog({
   const [billingCycle, setBillingCycle] = useState(editing?.billingCycle || "MONTHLY");
   const [gstApplicable, setGstApplicable] = useState(editing?.gstApplicable || false);
   const [taxDeductible, setTaxDeductible] = useState(editing ? editing.taxDeductible : true);
+  const [isEstimate, setIsEstimate] = useState(editing?.isEstimate || false);
   const [notes, setNotes] = useState(editing?.notes || "");
   const [saving, setSaving] = useState(false);
 
@@ -259,6 +278,7 @@ function FixedCostDialog({
     setBillingCycle(editing?.billingCycle || "MONTHLY");
     setGstApplicable(editing?.gstApplicable || false);
     setTaxDeductible(editing ? editing.taxDeductible : true);
+    setIsEstimate(editing?.isEstimate || false);
     setNotes(editing?.notes || "");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, editing]);
@@ -271,7 +291,7 @@ function FixedCostDialog({
     }
     setSaving(true);
     try {
-      const body = { category, label: label.trim(), amountCents, billingCycle, gstApplicable, taxDeductible, notes: notes.trim() || undefined };
+      const body = { category, label: label.trim(), amountCents, billingCycle, gstApplicable, taxDeductible, isEstimate, notes: notes.trim() || undefined };
       if (editing) {
         await apiPost(`/api/admin/platform/costs/fixed/${editing.id}`, body, "PUT");
       } else {
@@ -324,6 +344,10 @@ function FixedCostDialog({
             <label className="flex items-center gap-2 text-sm text-[#374151]">
               <input type="checkbox" checked={taxDeductible} onChange={(e) => setTaxDeductible(e.target.checked)} />
               Tax deductible
+            </label>
+            <label className="flex items-center gap-2 text-sm text-[#374151]">
+              <input type="checkbox" checked={isEstimate} onChange={(e) => setIsEstimate(e.target.checked)} />
+              This is an estimate
             </label>
           </div>
           <div>

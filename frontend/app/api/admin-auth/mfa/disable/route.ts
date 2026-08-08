@@ -2,7 +2,7 @@
 // session, so a hijacked session can't turn protection off on its own.
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { backendFetch, ADMIN_ACCESS_COOKIE } from "@/lib/backendAuth";
+import { backendFetch, getClientIp, ADMIN_ACCESS_COOKIE } from "@/lib/backendAuth";
 
 export async function POST(req: Request) {
   const token = cookies().get(ADMIN_ACCESS_COOKIE)?.value;
@@ -16,6 +16,7 @@ export async function POST(req: Request) {
     method: "POST",
     headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
     body: JSON.stringify({ code }),
+    clientIp: getClientIp(req),
   });
   const data = await r.json().catch(() => ({}));
   if (!r.ok) return NextResponse.json({ ok: false, error: data?.error || "mfa_disable_failed" }, { status: r.status });

@@ -2,7 +2,7 @@
 // route at all (only /register), so this 404'd unconditionally. Points at
 // the real hardened signup now.
 import { NextResponse } from "next/server";
-import { backendFetch } from "@/lib/backendAuth";
+import { backendFetch, getClientIp } from "@/lib/backendAuth";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
@@ -16,6 +16,7 @@ export async function POST(req: Request) {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ email, password, name, captchaToken }),
+    clientIp: getClientIp(req),
   });
 
   const data = await r.json().catch(() => ({}));

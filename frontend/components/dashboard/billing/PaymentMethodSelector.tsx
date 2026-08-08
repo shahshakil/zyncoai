@@ -11,7 +11,7 @@ type Method = "SQUARE" | "BANK_TRANSFER" | "PAYPAL" | "BPAY";
 
 interface SquareClientConfig { applicationId: string; locationId: string; environment: "sandbox" | "production" }
 interface SavedCard { brand: string | null; last4: string | null; expMonth: number | null; expYear: number | null }
-interface BankTransferInfo { bankName: string | null; bankAccountName: string | null; bankBsb: string | null; bankAccountNumber: string | null; configured: boolean }
+interface BankTransferInfo { bankName: string | null; bankAccountName: string | null; bankBsb: string | null; bankAccountNumber: string | null; payId: string | null; configured: boolean }
 interface BpayInfo { billerCode: string | null; reference: string; configured: boolean }
 interface PayPalInfo { configured: boolean; clientId: string | null; environment: "sandbox" | "production" | null; subscriptionActive: boolean; payerEmail: string | null }
 
@@ -29,7 +29,7 @@ function copyToClipboard(value: string, label: string) {
 
 function BankTransferPanel({ info }: { info: BankTransferInfo }) {
   if (!info.configured) {
-    return <p className="text-sm text-slate-500">Bank transfer details aren&apos;t set up on this account yet — contact support.</p>;
+    return <p className="text-sm text-slate-500">Bank transfer is temporarily unavailable.</p>;
   }
   return (
     <div className="space-y-2 text-sm">
@@ -49,6 +49,12 @@ function BankTransferPanel({ info }: { info: BankTransferInfo }) {
           <div className="flex items-center justify-between"><p className="font-medium text-slate-900">{info.bankAccountNumber}</p><button onClick={() => copyToClipboard(info.bankAccountNumber || "", "Account number")}><Copy className="h-3.5 w-3.5 text-slate-400" /></button></div>
         </div>
       </div>
+      {info.payId && (
+        <div className="rounded-lg border border-slate-200 p-3">
+          <p className="text-xs text-slate-400">PayID</p>
+          <div className="flex items-center justify-between"><p className="font-medium text-slate-900">{info.payId}</p><button onClick={() => copyToClipboard(info.payId || "", "PayID")}><Copy className="h-3.5 w-3.5 text-slate-400" /></button></div>
+        </div>
+      )}
       <p className="text-xs text-slate-500">{info.bankName} · Reference each payment with your invoice number (shown on every invoice) so it&apos;s matched automatically.</p>
     </div>
   );
@@ -56,7 +62,7 @@ function BankTransferPanel({ info }: { info: BankTransferInfo }) {
 
 function BpayPanel({ info }: { info: BpayInfo }) {
   if (!info.configured) {
-    return <p className="text-sm text-slate-500">BPAY isn&apos;t set up on this account yet — contact support.</p>;
+    return <p className="text-sm text-slate-500">BPAY is temporarily unavailable.</p>;
   }
   return (
     <div className="space-y-2 text-sm">
