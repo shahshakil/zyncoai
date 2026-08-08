@@ -32,6 +32,7 @@ interface Settings {
   invoiceDueDays?: number;
   suspensionGraceDays?: number;
   autoSuspendEnabled?: boolean;
+  trialDays?: number;
 }
 interface FeatureFlag { id: string; key: string; enabled: boolean }
 interface PricingPlanDrift {
@@ -69,6 +70,7 @@ export default function PlatformSettingsPage() {
   const [invoiceDueDays, setInvoiceDueDays] = useState("14");
   const [suspensionGraceDays, setSuspensionGraceDays] = useState("14");
   const [autoSuspendEnabled, setAutoSuspendEnabled] = useState(false);
+  const [trialDays, setTrialDays] = useState("7");
 
   useEffect(() => {
     if (!data) return;
@@ -93,6 +95,7 @@ export default function PlatformSettingsPage() {
     if (typeof data.settings.invoiceDueDays === "number") setInvoiceDueDays(data.settings.invoiceDueDays.toString());
     if (typeof data.settings.suspensionGraceDays === "number") setSuspensionGraceDays(data.settings.suspensionGraceDays.toString());
     setAutoSuspendEnabled(!!data.settings.autoSuspendEnabled);
+    if (typeof data.settings.trialDays === "number") setTrialDays(data.settings.trialDays.toString());
   }, [data]);
 
   function toggleVertical(v: string) {
@@ -133,6 +136,7 @@ export default function PlatformSettingsPage() {
         invoiceDueDays: Number(invoiceDueDays || 14),
         suspensionGraceDays: Number(suspensionGraceDays || 14),
         autoSuspendEnabled,
+        trialDays: Number(trialDays || 7),
       }, "PUT");
       toast.success("Settings saved");
       mutate();
@@ -367,6 +371,21 @@ export default function PlatformSettingsPage() {
               <Label>Email $/message</Label>
               <Input type="number" step="0.0001" value={emailCost} onChange={(e) => setEmailCost(e.target.value)} />
             </div>
+          </div>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Free Trial</CardTitle>
+            <p className="mt-0.5 text-xs text-[#9CA3AF]">
+              Single source of truth for trial length — set once at signup (onboarding.ts), read by the day-5/6/7 reminder emails and the
+              expiry sweep that moves an unconverted business to TRIAL_ENDED. Changing this only affects new signups going forward, not
+              trials already in progress.
+            </p>
+          </CardHeader>
+          <div className="w-40 p-4">
+            <Label>Trial length (days)</Label>
+            <Input type="number" min={1} value={trialDays} onChange={(e) => setTrialDays(e.target.value)} />
           </div>
         </Card>
 
