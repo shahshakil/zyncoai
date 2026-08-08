@@ -23,6 +23,7 @@ interface Business {
   team: { name: string };
   _count: { calls: number; appointments: number; providers: number; contacts: number };
   plan: string; manualPlan: string | null; monthlyRevenueCents: number; callAllowance: number | null; callsUsedThisMonth: number; callsUsedPct: number | null;
+  minuteAllowance: number | null; minutesUsedThisMonth: number; minutesUsedPct: number | null;
   trialStatus: "none" | "active" | "expired"; trialEndsAt: string | null;
   twilioNumberSid: string | null; provisioningStatus: "PENDING" | "ACTIVE" | "FAILED"; provisioningError: string | null;
   totalOrders: number;
@@ -35,7 +36,7 @@ const COLUMNS: ExportColumn[] = [
   { key: "status", label: "Status", width: 12 },
   { key: "plan", label: "Plan", width: 16 },
   { key: "monthlyRevenue", label: "Monthly Revenue", width: 14, align: "right" },
-  { key: "callsUsage", label: "Calls Used / Allowance", width: 16 },
+  { key: "minutesUsage", label: "Minutes Used / Allowance", width: 16 },
   { key: "calls", label: "Calls", width: 10, align: "right", total: "sum" },
   { key: "bookings", label: "Bookings", width: 10, align: "right", total: "sum" },
   { key: "orders", label: "Orders (RESTAURANT)", width: 12, align: "right" },
@@ -98,8 +99,16 @@ export default function BusinessesPage() {
       await apiPost(`/api/admin/platform/businesses/${businessId}/plan`, { planKey: planKey || null });
       toast.success("Plan updated");
       mutate();
-    } catch {
-      toast.error("Failed to update plan");
+    } catch (err: any) {
+      // Paid-plan invariant — a plan can't be assigned here without a real
+      // qualifying payment already on record; this quick-select can't
+      // collect a complimentary reason, so route the admin to the Business
+      // Drawer instead of a dead-end failure toast.
+      if (err?.message === "payment_or_complimentary_required") {
+        toast.error("This business has no qualifying payment — open it to grant a complimentary plan with a reason.");
+      } else {
+        toast.error("Failed to update plan");
+      }
     }
   }
 
@@ -154,7 +163,7 @@ export default function BusinessesPage() {
     return (data?.data || []).map((b) => ({
       name: b.name, vertical: VERTICAL_LABELS[b.vertical] || b.vertical, owner: b.team.name,
       status: b.status, plan: b.plan, monthlyRevenue: (b.monthlyRevenueCents / 100).toFixed(2),
-      callsUsage: b.callAllowance ? `${b.callsUsedThisMonth}/${b.callAllowance}` : `${b.callsUsedThisMonth}/unlimited`,
+      minutesUsage: b.minuteAllowance ? `${b.minutesUsedThisMonth}/${b.minuteAllowance}` : `${b.minutesUsedThisMonth}/unlimited`,
       calls: b._count.calls, bookings: b._count.appointments,
       orders: b.vertical === "RESTAURANT" ? b.totalOrders : "",
       lastCall: b.lastCallAt ? timeAgo(b.lastCallAt) : "Never",
@@ -167,7 +176,7 @@ export default function BusinessesPage() {
     return (data?.data || []).filter((b) => set.has(b.id)).map((b) => ({
       name: b.name, vertical: VERTICAL_LABELS[b.vertical] || b.vertical, owner: b.team.name,
       status: b.status, plan: b.plan, monthlyRevenue: (b.monthlyRevenueCents / 100).toFixed(2),
-      callsUsage: b.callAllowance ? `${b.callsUsedThisMonth}/${b.callAllowance}` : `${b.callsUsedThisMonth}/unlimited`,
+      minutesUsage: b.minuteAllowance ? `${b.minutesUsedThisMonth}/${b.minuteAllowance}` : `${b.minutesUsedThisMonth}/unlimited`,
       calls: b._count.calls, bookings: b._count.appointments,
       orders: b.vertical === "RESTAURANT" ? b.totalOrders : "",
       lastCall: b.lastCallAt ? timeAgo(b.lastCallAt) : "Never",
@@ -246,7 +255,7 @@ export default function BusinessesPage() {
                   </button>
                 </Th>
                 <Th>Business</Th><Th>Vertical</Th><Th>Owner</Th><Th>Status</Th>
-                <Th>Plan</Th><Th>Monthly Revenue</Th><Th>Calls Used</Th>
+                <Th>Plan</Th><Th>Monthly Revenue</Th><Th>Minutes Used</Th>
                 <Th>Calls</Th><Th>Bookings</Th><Th>Orders</Th><Th>Last Call</Th><Th>Joined</Th><Th></Th>
               </tr>
             </Thead>
@@ -280,8 +289,8 @@ export default function BusinessesPage() {
                       </Select>
                     </Td>
                     <Td>{formatCents(b.monthlyRevenueCents)}</Td>
-                    <Td className={b.callsUsedPct !== null && b.callsUsedPct >= 90 ? "font-medium text-[#EF4444]" : undefined}>
-                      {b.callAllowance ? `${b.callsUsedThisMonth}/${b.callAllowance}` : `${b.callsUsedThisMonth}/∞`}
+                    <Td className={b.minutesUsedPct !== null && b.minutesUsedPct >= 90 ? "font-medium text-[#EF4444]" : undefined}>
+                      {b.minuteAllowance ? `${b.minutesUsedThisMonth}/${b.minuteAllowance}` : `${b.minutesUsedThisMonth}/∞`}
                     </Td>
                     <Td>{b._count.calls}</Td>
                     <Td>{b._count.appointments}</Td>

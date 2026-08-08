@@ -640,7 +640,7 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
                                 <Input type="number" step="0.01" value={overridePrice} onChange={(e) => setOverridePrice(e.target.value)} placeholder="Inherit plan" />
                               </div>
                               <div>
-                                <Label>Call allowance override</Label>
+                                <Label>Minute allowance override</Label>
                                 <Input type="number" value={overrideAllowance} onChange={(e) => setOverrideAllowance(e.target.value)} placeholder="Inherit plan" />
                               </div>
                             </div>

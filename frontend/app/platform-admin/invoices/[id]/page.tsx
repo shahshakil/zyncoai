@@ -20,6 +20,7 @@ interface InvoiceDetail {
   periodStart: string; periodEnd: string; planName: string;
   subscriptionFeeCents: number; callAllowance: number | null; callsUsed: number;
   overageCalls: number; overageFeeCents: number; twilioNumberFeeCents: number;
+  minuteAllowance: number | null; minutesUsed: number | null; overageMinutes: number | null;
   totalCents: number; gstCents: number; exGstCents: number;
   issuedAt: string; dueDate: string; paidAt: string | null; paidAmountCents: number | null; paidReference: string | null;
   businessAbn: string | null; zyncoAbn: string | null;
@@ -139,7 +140,23 @@ export default function InvoiceDetailPage() {
               )}
             </Card>
 
-            {invoice.overageCalls > 0 && (
+            {/* minutesUsed is only populated on invoices generated after the
+                minute-snapshot migration — every real plan is minute-billed,
+                so this is the real allowance/usage/overage the invoice was
+                actually computed from. Older invoices fall back to the
+                legacy calls-based summary (only ever populated when a
+                call-allowance plan billed an overage, which no real plan
+                does today). */}
+            {invoice.minutesUsed !== null ? (
+              <Card>
+                <CardHeader><CardTitle>Usage this period</CardTitle></CardHeader>
+                <div className="grid grid-cols-3 gap-4 p-5 text-sm">
+                  <div><p className="text-xs text-[#9CA3AF]">Minute allowance</p><p className="font-semibold text-[#1F2937]">{invoice.minuteAllowance ?? "Unlimited"}</p></div>
+                  <div><p className="text-xs text-[#9CA3AF]">Minutes used</p><p className="font-semibold text-[#1F2937]">{invoice.minutesUsed}</p></div>
+                  <div><p className="text-xs text-[#9CA3AF]">Overage minutes</p><p className={(invoice.overageMinutes || 0) > 0 ? "font-semibold text-[#EF4444]" : "font-semibold text-[#1F2937]"}>{invoice.overageMinutes ?? 0}</p></div>
+                </div>
+              </Card>
+            ) : invoice.overageCalls > 0 ? (
               <Card>
                 <CardHeader><CardTitle>Usage this period</CardTitle></CardHeader>
                 <div className="grid grid-cols-3 gap-4 p-5 text-sm">
@@ -148,7 +165,7 @@ export default function InvoiceDetailPage() {
                   <div><p className="text-xs text-[#9CA3AF]">Overage calls</p><p className="font-semibold text-[#EF4444]">{invoice.overageCalls}</p></div>
                 </div>
               </Card>
-            )}
+            ) : null}
 
             {invoice.reminders.length > 0 && (
               <Card>

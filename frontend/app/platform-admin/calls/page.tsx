@@ -24,15 +24,15 @@ const PeakHoursHeatmap = dynamic(() => import("@/components/platform-admin/chart
 const USAGE_COLUMNS: ExportColumn[] = [
   { key: "name", label: "Business", width: 26 },
   { key: "planName", label: "Plan", width: 16 },
-  { key: "callsUsed", label: "Calls Used", width: 12, align: "right" },
-  { key: "callAllowance", label: "Allowance", width: 12, align: "right" },
+  { key: "minutesUsed", label: "Minutes Used", width: 12, align: "right" },
+  { key: "minuteAllowance", label: "Allowance", width: 12, align: "right" },
   { key: "pctUsed", label: "% Used", width: 10, align: "right" },
-  { key: "overageCalls", label: "Overage", width: 10, align: "right" },
+  { key: "overageMinutes", label: "Overage", width: 10, align: "right" },
 ];
 
 interface CallsLive { callsInProgress: number; callsLastHour: number; minutesToday: number; callCostTodayMicros: number; asOf: string }
 
-interface UsageRow { businessId: string; name: string; planName: string | null; callAllowance: number | null; callsUsed: number; pctUsed: number | null; overageCalls: number }
+interface UsageRow { businessId: string; name: string; planName: string | null; minuteAllowance: number | null; minutesUsed: number; pctUsed: number | null; overageMinutes: number }
 interface CallsAnalytics {
   totalToday: number; totalThisMonth: number; avgDurationSec: number; busiestHour: number | null; bookingRatePct: number;
   callsPerDay: { date: string; count: number }[];
@@ -69,7 +69,7 @@ export default function CallsAnalyticsPage() {
         { name: "By Vertical", columns: [{ key: "vertical", label: "Vertical", width: 18 }, { key: "count", label: "Calls", width: 10, align: "right", total: "sum" }], rows: data.byVertical.map((v) => ({ vertical: VERTICAL_LABELS[v.vertical] || v.vertical, count: v.count })), showTotals: true },
         { name: "Outcomes", columns: [{ key: "outcome", label: "Outcome", width: 18 }, { key: "count", label: "Count", width: 10, align: "right", total: "sum" }], rows: data.outcomeBreakdown, showTotals: true },
         { name: "By Business", columns: [{ key: "name", label: "Business", width: 26 }, { key: "today", label: "Today", width: 10, align: "right" }, { key: "week", label: "This Week", width: 12, align: "right" }, { key: "month", label: "This Month", width: 12, align: "right" }], rows: data.businesses, showTotals: false },
-        { name: "Usage", columns: USAGE_COLUMNS, rows: data.usageByBusiness.map((u) => ({ name: u.name, planName: u.planName, callsUsed: u.callsUsed, callAllowance: u.callAllowance ?? "Unlimited", pctUsed: u.pctUsed ?? "—", overageCalls: u.overageCalls })), showTotals: false },
+        { name: "Usage", columns: USAGE_COLUMNS, rows: data.usageByBusiness.map((u) => ({ name: u.name, planName: u.planName, minutesUsed: u.minutesUsed, minuteAllowance: u.minuteAllowance ?? "Unlimited", pctUsed: u.pctUsed ?? "—", overageMinutes: u.overageMinutes })), showTotals: false },
       ],
       { businessName: "ZyncoAI Platform", reportTitle: "Call Analytics", dateRangeLabel: `Generated ${new Date().toLocaleString("en-AU")}` },
       `ZyncoAI-Call-Analytics-${new Date().toISOString().slice(0, 10)}.xlsx`
@@ -197,33 +197,33 @@ export default function CallsAnalyticsPage() {
         <Card>
           <CardHeader>
             <div>
-              <CardTitle className="flex items-center gap-2"><Gauge className="h-4 w-4 text-[#F97316]" /> Call Allowance Usage — This Month</CardTitle>
-              <p className="mt-0.5 text-xs text-[#9CA3AF]">Counted from the same billable-call data invoices are generated from, so this always matches what a business is actually charged.</p>
+              <CardTitle className="flex items-center gap-2"><Gauge className="h-4 w-4 text-[#F97316]" /> Minute Allowance Usage — This Month</CardTitle>
+              <p className="mt-0.5 text-xs text-[#9CA3AF]">Counted from the same real call-duration data invoices are generated and usage alerts fire from, so this always matches what a business is actually charged.</p>
             </div>
             <Button
               variant="outline" size="sm"
               onClick={() => exportToExcel(
                 [{ name: "Usage", columns: USAGE_COLUMNS, rows: (data?.usageByBusiness || []).map((u) => ({
-                  name: u.name, planName: u.planName, callsUsed: u.callsUsed, callAllowance: u.callAllowance ?? "Unlimited", pctUsed: u.pctUsed ?? "—", overageCalls: u.overageCalls,
+                  name: u.name, planName: u.planName, minutesUsed: u.minutesUsed, minuteAllowance: u.minuteAllowance ?? "Unlimited", pctUsed: u.pctUsed ?? "—", overageMinutes: u.overageMinutes,
                 })), showTotals: false }],
-                { businessName: "ZyncoAI Platform", reportTitle: "Call Allowance Usage" },
-                `ZyncoAI-Call-Usage-${new Date().toISOString().slice(0, 10)}.xlsx`
+                { businessName: "ZyncoAI Platform", reportTitle: "Minute Allowance Usage" },
+                `ZyncoAI-Minute-Usage-${new Date().toISOString().slice(0, 10)}.xlsx`
               )}
             >
               <Download className="h-4 w-4" /> Excel
             </Button>
           </CardHeader>
           <Table>
-            <Thead><tr><Th>Business</Th><Th>Plan</Th><Th>Calls used</Th><Th>Allowance</Th><Th>Usage</Th><Th>Overage</Th></tr></Thead>
+            <Thead><tr><Th>Business</Th><Th>Plan</Th><Th>Minutes used</Th><Th>Allowance</Th><Th>Usage</Th><Th>Overage</Th></tr></Thead>
             <Tbody>
               {(data?.usageByBusiness || []).map((u) => (
                 <Tr key={u.businessId}>
                   <Td className="font-medium text-[#1F2937]">{u.name}</Td>
                   <Td>{u.planName}</Td>
-                  <Td>{u.callsUsed}</Td>
-                  <Td>{u.callAllowance ?? "Unlimited"}</Td>
+                  <Td>{u.minutesUsed}</Td>
+                  <Td>{u.minuteAllowance ?? "Unlimited"}</Td>
                   <Td className="w-40"><UsageProgressBar pctUsed={u.pctUsed} /></Td>
-                  <Td>{u.overageCalls > 0 ? <Badge tone="danger">{u.overageCalls} over</Badge> : <Badge tone="default">—</Badge>}</Td>
+                  <Td>{u.overageMinutes > 0 ? <Badge tone="danger">{u.overageMinutes} over</Badge> : <Badge tone="default">—</Badge>}</Td>
                 </Tr>
               ))}
             </Tbody>

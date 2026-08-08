@@ -9,7 +9,13 @@ import { Input, Label } from "@/components/dashboard/ui/input";
 import { VERTICAL_LABELS } from "@/components/platform-admin/format";
 import { Topbar } from "@/components/platform-admin/Topbar";
 
-interface PricingPlan { key: string; name: string; priceCents: number; callAllowance: number | null; overageCentsPerCall: number; isCustom: boolean }
+// callAllowance/overageCentsPerCall (legacy call-based fields) deliberately
+// omitted here — confirmed dead for every real/seeded plan (always null/0),
+// the fields the meter/alerts/overage billing actually read are
+// minuteAllowance/overageCentsPerMinute. Still present on the raw JSON this
+// page loads/saves (backend type keeps them for legacy/theoretical
+// call-based rows) — just not shown or edited here anymore.
+interface PricingPlan { key: string; name: string; priceCents: number; minuteAllowance: number | null; overageCentsPerMinute: number; vertical: string | null; isCustom: boolean }
 interface Settings {
   pricingPlans: PricingPlan[];
   defaultOpenAiModel: string | null;
@@ -108,13 +114,25 @@ export default function PlatformSettingsPage() {
     setPlans((prev) => prev.map((p, idx) => (idx === i ? { ...p, ...patch } : p)));
   }
   function addPlan() {
-    setPlans((prev) => [...prev, { key: `plan_${Date.now()}`, name: "New Plan", priceCents: 0, callAllowance: null, overageCentsPerCall: 0, isCustom: false }]);
+    // minuteAllowance: 0 (not null/"Unlimited") — forces the admin to
+    // explicitly fill in a real number or check Unlimited before saving;
+    // a genuinely blank/unset allowance must never silently mean unlimited.
+    // 40c/min matches the Other/Default group's fallback overage rate.
+    setPlans((prev) => [...prev, { key: `plan_${Date.now()}`, name: "New Plan", priceCents: 0, minuteAllowance: 0, overageCentsPerMinute: 40, vertical: null, isCustom: false }]);
   }
   function removePlan(i: number) {
     setPlans((prev) => prev.filter((_, idx) => idx !== i));
   }
 
   async function save() {
+    // No silent unlimited — a plan not explicitly marked Unlimited
+    // (minuteAllowance === null) must have a real positive number, never a
+    // blank field that would quietly save as unlimited.
+    const invalidPlan = plans.find((p) => p.minuteAllowance !== null && (Number.isNaN(p.minuteAllowance) || p.minuteAllowance <= 0));
+    if (invalidPlan) {
+      toast.error(`"${invalidPlan.name}" needs an included-minutes number, or check Unlimited.`);
+      return;
+    }
     setSaving(true);
     try {
       await apiPost("/api/admin/platform/settings/", {
@@ -181,50 +199,90 @@ export default function PlatformSettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Pricing Plans</CardTitle>
-            <p className="mt-0.5 text-xs text-[#9CA3AF]">Manual plan tiers shown on the Revenue page — billed via ZyncoAI&apos;s own Square account (src/lib/squareBilling.ts), not Stripe.</p>
+            <p className="mt-0.5 text-xs text-[#9CA3AF]">
+              Businesses self-serve via card checkout or bank transfer (Settings → Billing); an admin can also grant a complimentary plan with a reason (Business Drawer).
+              Included minutes and overage/min here are the REAL numbers the usage meter, 80%/100% alerts, and overage invoicing all read — not estimates.
+            </p>
           </CardHeader>
-          <div className="space-y-3 p-4">
-            {plans.map((p, i) => (
-              <div key={p.key} className="rounded-xl border border-[#E5E7EB] p-3">
-                <div className="flex items-center gap-3">
-                  <Input value={p.name} onChange={(e) => updatePlan(i, { name: e.target.value })} className="flex-1" placeholder="Plan name" />
-                  <div className="relative w-32">
-                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#9CA3AF]">$</span>
-                    <Input
-                      type="number" className="pl-6"
-                      value={(p.priceCents / 100).toString()}
-                      onChange={(e) => updatePlan(i, { priceCents: Math.round(Number(e.target.value || 0) * 100) })}
-                    />
-                  </div>
-                  <span className="text-xs text-[#9CA3AF]">/month</span>
-                  <button onClick={() => removePlan(i)} className="text-[#9CA3AF] hover:text-[#EF4444]"><Trash2 className="h-4 w-4" /></button>
-                </div>
-                <div className="mt-2 flex flex-wrap items-center gap-3 pl-1">
-                  <label className="flex items-center gap-1.5 text-xs text-[#6B7280]">
-                    Call allowance
-                    <Input
-                      type="number" className="w-24 h-8 text-xs" placeholder="Unlimited"
-                      value={p.callAllowance === null ? "" : p.callAllowance.toString()}
-                      onChange={(e) => updatePlan(i, { callAllowance: e.target.value === "" ? null : Math.round(Number(e.target.value)) })}
-                    />
-                    calls/mo
-                  </label>
-                  <label className="flex items-center gap-1.5 text-xs text-[#6B7280]">
-                    Overage
-                    <span className="relative">
-                      <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[#9CA3AF]">$</span>
-                      <Input
-                        type="number" step="0.01" className="w-20 h-8 pl-5 text-xs"
-                        value={(p.overageCentsPerCall / 100).toString()}
-                        onChange={(e) => updatePlan(i, { overageCentsPerCall: Math.round(Number(e.target.value || 0) * 100) })}
-                      />
-                    </span>
-                    /call over allowance
-                  </label>
-                  <label className="flex items-center gap-1.5 text-xs text-[#6B7280]">
-                    <input type="checkbox" checked={p.isCustom} onChange={(e) => updatePlan(i, { isCustom: e.target.checked })} />
-                    Custom / Enterprise (hidden from self-serve, override per business)
-                  </label>
+          <div className="space-y-5 p-4">
+            {Object.entries(
+              plans.reduce<Record<string, { p: PricingPlan; i: number }[]>>((groups, p, i) => {
+                const key = p.vertical || "__default__";
+                (groups[key] ||= []).push({ p, i });
+                return groups;
+              }, {})
+            ).map(([verticalKey, rows]) => (
+              <div key={verticalKey}>
+                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#6B7280]">
+                  {verticalKey === "__default__" ? "Other / Default" : VERTICAL_LABELS[verticalKey] || verticalKey}
+                </h3>
+                <div className="space-y-3">
+                  {rows.map(({ p, i }) => {
+                    const unlimited = p.minuteAllowance === null;
+                    const minutesInvalid = !unlimited && (Number.isNaN(p.minuteAllowance) || (p.minuteAllowance as number) <= 0);
+                    return (
+                      <div key={p.key} className="rounded-xl border border-[#E5E7EB] p-3">
+                        <div className="flex items-center gap-3">
+                          <Input value={p.name} onChange={(e) => updatePlan(i, { name: e.target.value })} className="flex-1" placeholder="Plan name" />
+                          <select
+                            value={p.vertical || ""}
+                            onChange={(e) => updatePlan(i, { vertical: e.target.value || null })}
+                            className="h-10 rounded-md border border-[#E5E7EB] px-2 text-xs"
+                          >
+                            <option value="">Other / Default</option>
+                            {Object.entries(VERTICAL_LABELS).map(([k, label]) => <option key={k} value={k}>{label}</option>)}
+                          </select>
+                          <div className="relative w-32">
+                            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#9CA3AF]">$</span>
+                            <Input
+                              type="number" className="pl-6"
+                              value={(p.priceCents / 100).toString()}
+                              onChange={(e) => updatePlan(i, { priceCents: Math.round(Number(e.target.value || 0) * 100) })}
+                            />
+                          </div>
+                          <span className="text-xs text-[#9CA3AF]">/month</span>
+                          <button onClick={() => removePlan(i)} className="text-[#9CA3AF] hover:text-[#EF4444]"><Trash2 className="h-4 w-4" /></button>
+                        </div>
+                        <div className="mt-2 flex flex-wrap items-center gap-3 pl-1">
+                          <label className="flex items-center gap-1.5 text-xs text-[#6B7280]">
+                            Included minutes
+                            <Input
+                              type="number" className={`w-24 h-8 text-xs ${minutesInvalid ? "border-[#EF4444]" : ""}`}
+                              disabled={unlimited}
+                              value={unlimited ? "" : Number.isNaN(p.minuteAllowance) ? "" : (p.minuteAllowance as number).toString()}
+                              onChange={(e) => updatePlan(i, { minuteAllowance: e.target.value === "" ? NaN : Math.round(Number(e.target.value)) })}
+                            />
+                            min/mo
+                          </label>
+                          <label className="flex items-center gap-1.5 text-xs text-[#6B7280]">
+                            Overage
+                            <span className="relative">
+                              <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[#9CA3AF]">$</span>
+                              <Input
+                                type="number" step="0.01" className="w-20 h-8 pl-5 text-xs"
+                                disabled={unlimited}
+                                value={(p.overageCentsPerMinute / 100).toString()}
+                                onChange={(e) => updatePlan(i, { overageCentsPerMinute: Math.round(Number(e.target.value || 0) * 100) })}
+                              />
+                            </span>
+                            /min over allowance
+                          </label>
+                          <label className="flex items-center gap-1.5 text-xs text-[#6B7280]">
+                            <input
+                              type="checkbox" checked={unlimited}
+                              onChange={(e) => updatePlan(i, e.target.checked ? { minuteAllowance: null, overageCentsPerMinute: 0 } : { minuteAllowance: 0 })}
+                            />
+                            Unlimited
+                          </label>
+                          <label className="flex items-center gap-1.5 text-xs text-[#6B7280]">
+                            <input type="checkbox" checked={p.isCustom} onChange={(e) => updatePlan(i, { isCustom: e.target.checked })} />
+                            Custom / Enterprise (hidden from self-serve, override per business)
+                          </label>
+                        </div>
+                        {minutesInvalid && <p className="mt-1.5 pl-1 text-xs text-[#EF4444]">Blank doesn&apos;t mean unlimited — enter a number or check Unlimited.</p>}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ))}
