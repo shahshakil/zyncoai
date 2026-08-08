@@ -42,6 +42,15 @@ interface OrderStats {
   revenueTodayCents: number; revenueWeekCents: number; revenueMonthCents: number;
   avgOrderValueCents: number;
 }
+interface BackfillStats {
+  slotsCreated: number;
+  slotsRecovered: number;
+  recoveryRatePct: number | null;
+  avgTimeToFillMinutes: number | null;
+  callsPerRecoveredSlot: number | null;
+  revenueRecoveredCents: number;
+  avgAppointmentValueSource: "business_override" | "real_average" | "platform_default" | "mixed" | "none";
+}
 interface PaymentRetryStatus { failedInvoiceId: string; failedCount: number; nextActionAt: string | null; nextAction: string }
 // 2026-08-06 — Round 2 mission-control additions: usage-vs-plan-cap, real
 // cost-vs-price margin (from CallCost/UsageCostEvent, the platform's own
@@ -64,6 +73,7 @@ interface DrawerData {
   upcomingAppointments: { id: string; startAt: string; status: string; contact: { name: string | null; phone: string } | null; provider: { name: string } | null }[];
   recentInvoices: RecentInvoice[];
   orderStats: OrderStats | null;
+  backfillStats: BackfillStats | null;
   paymentRetryStatus: PaymentRetryStatus | null;
   pendingActivationInvoice: { invoiceNumber: string; totalCents: number; planName: string; issuedAt: string } | null;
   paidInvoiceExists: boolean;
@@ -455,6 +465,26 @@ export function BusinessDrawer({ businessId, onClose, onChanged }: { businessId:
                             <StatBox label="Revenue this month" value={formatCents(data.orderStats.revenueMonthCents)} />
                             <StatBox label="Avg order value" value={formatCents(data.orderStats.avgOrderValueCents)} />
                           </div>
+                        </>
+                      )}
+                      {data.backfillStats && (
+                        <>
+                          <h3 className="mb-2 mt-5 text-xs font-semibold uppercase tracking-wide text-[#6B7280]">
+                            Cancellation Backfill Waitlist <span className="font-normal normal-case text-[#9CA3AF]">— all time</span>
+                          </h3>
+                          <div className="grid grid-cols-4 gap-3">
+                            <StatBox label="Slots cancelled" value={data.backfillStats.slotsCreated} />
+                            <StatBox label="Slots recovered" value={data.backfillStats.slotsRecovered} />
+                            <StatBox label="Recovery rate" value={data.backfillStats.recoveryRatePct != null ? `${data.backfillStats.recoveryRatePct}%` : "—"} />
+                            <StatBox label="Avg time to fill" value={data.backfillStats.avgTimeToFillMinutes != null ? `${data.backfillStats.avgTimeToFillMinutes} min` : "—"} />
+                            <StatBox label="Calls / recovered slot" value={data.backfillStats.callsPerRecoveredSlot ?? "—"} />
+                            <StatBox label="Revenue recovered (est.)" value={formatCents(data.backfillStats.revenueRecoveredCents)} />
+                          </div>
+                          {data.backfillStats.slotsRecovered > 0 && (
+                            <p className="mt-1 text-[11px] text-[#9CA3AF]">
+                              Revenue estimate source: {data.backfillStats.avgAppointmentValueSource.replace(/_/g, " ")}
+                            </p>
+                          )}
                         </>
                       )}
                       {data.business.thirdPartyApiKeys.length > 0 && (

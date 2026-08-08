@@ -29,10 +29,18 @@ export function DashboardTabNav() {
 
   const { data: live } = useApi<{ ok: boolean; calls: unknown[] }>(showAiOps ? "/api/business/ai-operations/live" : null, { refreshInterval: 15000 });
   const { data: triage } = useApi<{ ok: boolean; unreviewedCount: number }>(showClinical ? "/api/business/clinical/triage" : null, { refreshInterval: 30000 });
+  const { data: waitlist } = useApi<{ ok: boolean; entries: { status: string }[] }>(showClinical ? "/api/business/waitlist" : null, { refreshInterval: 30000 });
 
   const tabs: Tab[] = [{ href: "/dashboard", label: "Overview" }];
   if (showAiOps) tabs.push({ href: "/dashboard/ai-operations", label: "AI Voice Operations", badge: live?.calls?.length || undefined });
   if (showClinical) tabs.push({ href: "/dashboard/clinical", label: "Clinical & Billing", badge: triage?.unreviewedCount || undefined });
+  if (showClinical) {
+    tabs.push({
+      href: "/dashboard/waitlist",
+      label: "Waitlist",
+      badge: waitlist?.entries?.filter((e) => e.status === "WAITING").length || undefined,
+    });
+  }
 
   return (
     <div className="no-print flex items-center gap-1 border-b border-slate-200">

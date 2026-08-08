@@ -42,6 +42,10 @@ const CALL_OUTCOME_TONE: Record<string, Tone> = {
   emergency: "danger",
   abandoned: "default",
   guardrail_redirect: "danger",
+  waitlisted: "info",
+  backfill_booked: "success",
+  backfill_declined: "default",
+  backfill_opted_out: "danger",
 };
 
 export function OutcomeBadge({ outcome }: { outcome?: string | null }) {
@@ -66,6 +70,15 @@ const STATUS_TONE: Record<string, Tone> = {
   HOLD: "warning",
   TRIAL_ENDED: "warning",
   CLOSED: "default",
+  WAITING: "warning",
+  OFFERED: "info",
+  BOOKED: "success",
+  EXPIRED: "default",
+  OPTED_OUT: "danger",
+  OPEN: "warning",
+  CALLING: "info",
+  FILLED: "success",
+  EXHAUSTED: "danger",
 };
 
 export function StatusBadge({ status }: { status: string }) {

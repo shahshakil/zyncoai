@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
-import { Building2, PhoneCall, CalendarCheck, DollarSign, PhoneMissed, UserPlus, Bell, BellOff, FileText, TrendingDown, Activity, AlertTriangle, Phone, Clock } from "lucide-react";
+import { Building2, PhoneCall, CalendarCheck, DollarSign, PhoneMissed, UserPlus, Bell, BellOff, FileText, TrendingDown, Activity, AlertTriangle, Phone, Clock, Repeat } from "lucide-react";
 import { useApi } from "@/lib/useApi";
 import { Card, CardHeader, CardTitle } from "@/components/dashboard/ui/card";
 import { Topbar } from "@/components/platform-admin/Topbar";
@@ -17,6 +17,15 @@ const DonutChart = dynamic(() => import("@/components/platform-admin/charts").th
 import { formatNumber, formatCents, timeAgo, activityDotColor, VERTICAL_ICONS } from "@/components/platform-admin/format";
 import { TranscriptModal } from "@/components/platform-admin/TranscriptModal";
 
+interface BackfillStats {
+  slotsCreated: number;
+  slotsRecovered: number;
+  recoveryRatePct: number | null;
+  avgTimeToFillMinutes: number | null;
+  callsPerRecoveredSlot: number | null;
+  revenueRecoveredCents: number;
+  avgAppointmentValueSource: "business_override" | "real_average" | "platform_default" | "mixed" | "none";
+}
 interface Stats {
   totalBusinesses: number; activeBusinesses: number; suspendedBusinesses: number;
   totalCalls: number;
@@ -28,6 +37,7 @@ interface Stats {
   uptimePct30d: number; uptimeHealthyNow: boolean;
   platformRevenueThisMonthCents: number; billingConfigured: boolean;
   twilioNumbersActive: number; twilioNumberMonthlyCostCents: number;
+  backfillStatsThisMonth: BackfillStats;
 }
 interface VerticalAnalyticsRow {
   vertical: string;
@@ -38,6 +48,7 @@ interface VerticalAnalyticsRow {
   orders30d: number;
   issueRatePct: number;
   topOutcomes: { outcome: string; count: number }[];
+  backfillRecovery30d: BackfillStats | null;
 }
 interface ActivityItem {
   type: "call" | "booking" | "signup" | "callback" | "emergency" | "abandoned";
@@ -189,6 +200,16 @@ export default function CommandCentrePage() {
               sublabel={`${formatNumber(stats?.twilioNumbersActive || 0)} auto-provisioned numbers @ $1.50/mo`}
             />
           </Link>
+          <StatCard
+            label="Waitlist Slots Recovered (Month)" loading={statsLoading}
+            value={formatNumber(stats?.backfillStatsThisMonth?.slotsRecovered || 0)}
+            icon={Repeat} gradient="linear-gradient(135deg,#0EA5E9,#38BDF8)"
+            sublabel={
+              stats?.backfillStatsThisMonth?.slotsRecovered
+                ? `${formatCents(stats.backfillStatsThisMonth.revenueRecoveredCents)} recovered · MEDICAL/DENTAL`
+                : "MEDICAL/DENTAL cancellation backfill"
+            }
+          />
         </div>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -224,7 +245,8 @@ export default function CommandCentrePage() {
                     <th className="pb-2 pr-3">Bookings</th>
                     <th className="pb-2 pr-3">Orders</th>
                     <th className="pb-2 pr-3">Issue Rate</th>
-                    <th className="pb-2">Top Outcome</th>
+                    <th className="pb-2 pr-3">Top Outcome</th>
+                    <th className="pb-2">Waitlist Recovered</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -243,7 +265,19 @@ export default function CommandCentrePage() {
                         <td className="py-2 pr-3">
                           <span className={r.issueRatePct > 10 ? "font-medium text-[#DC2626]" : "text-[#1F2937]"}>{r.issueRatePct}%</span>
                         </td>
-                        <td className="py-2 text-[#6B7280]">{r.topOutcomes[0] ? `${r.topOutcomes[0].outcome.replace(/_/g, " ")} (${r.topOutcomes[0].count})` : "—"}</td>
+                        <td className="py-2 pr-3 text-[#6B7280]">{r.topOutcomes[0] ? `${r.topOutcomes[0].outcome.replace(/_/g, " ")} (${r.topOutcomes[0].count})` : "—"}</td>
+                        <td className="py-2 text-[#1F2937]">
+                          {r.backfillRecovery30d ? (
+                            <span title={`${formatCents(r.backfillRecovery30d.revenueRecoveredCents)} estimated (${r.backfillRecovery30d.avgAppointmentValueSource.replace(/_/g, " ")})`}>
+                              {r.backfillRecovery30d.slotsRecovered}/{r.backfillRecovery30d.slotsCreated}
+                              {r.backfillRecovery30d.slotsCreated > 0 && (
+                                <span className="text-[#6B7280]"> ({r.backfillRecovery30d.recoveryRatePct}%)</span>
+                              )}
+                            </span>
+                          ) : (
+                            <span className="text-[#D1D5DB]">—</span>
+                          )}
+                        </td>
                       </tr>
                     );
                   })}
