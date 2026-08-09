@@ -66,7 +66,14 @@ export function StaffSyncPanel({ onConfirmed }: { onConfirmed: (staff: { id: str
 
   async function startOAuth(provider: "google" | "microsoft") {
     try {
-      const r = await fetch(`/api/business/staff-sync/${provider}/connect?returnTo=/onboarding`, { credentials: "include" });
+      // 2026-08-09 — Microsoft's staff-directory connect is now a
+      // dedicated route requesting only Directory.Read.All/People.Read
+      // (never the Outlook-calendar scope IntegrationsCatalogSection.tsx's
+      // card requests) — see staffSync.ts's connect-calendar/
+      // connect-directory split. Google's directory connect is unaffected
+      // (its own /connect was never bundled with calendar scopes).
+      const connectPath = provider === "microsoft" ? "connect-directory" : "connect";
+      const r = await fetch(`/api/business/staff-sync/${provider}/${connectPath}?returnTo=/onboarding`, { credentials: "include" });
       const data = await r.json();
       if (!data.ok || !data.authUrl) {
         toast.error(`${provider === "google" ? "Google" : "Microsoft"} sign-in isn't set up yet — contact support to enable it`);

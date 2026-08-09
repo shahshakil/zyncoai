@@ -140,7 +140,10 @@ function MicrosoftCalendarCard({ item, status, mutate }: { item: CatalogIntegrat
   async function connect() {
     setConnecting(true);
     try {
-      const r = await fetch("/api/business/staff-sync/microsoft/connect", { credentials: "include" });
+      // 2026-08-09 — split from the old shared /connect (which also asked
+      // for staff-directory scopes this card never needed): this card
+      // requests ONLY Calendars.ReadWrite, never Directory.Read.All.
+      const r = await fetch("/api/business/staff-sync/microsoft/connect-calendar", { credentials: "include" });
       const data = await r.json().catch(() => ({}));
       if (!r.ok) throw new ApiError(data?.error || "request_failed", r.status);
       window.location.href = data.authUrl;

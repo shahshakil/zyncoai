@@ -75,6 +75,20 @@ async function proxy(req: NextRequest, params: { path: string[] }) {
     r = await doFetch(access);
   }
 
+  // 2026-08-09 OAuth trust audit fix — the OAuth-connect callbacks
+  // (Google Calendar, Google Workspace staff sync, Microsoft calendar/
+  // directory sync) all respond with a real HTTP redirect back to a
+  // dashboard page. backendFetch() now uses redirect:"manual" specifically
+  // so that redirect arrives here intact instead of being silently
+  // followed server-side (see backendFetch's own comment) — pass it
+  // through to the actual browser rather than trying to JSON-parse a 3xx
+  // with no body, which is what handed users a blank {} instead of
+  // landing back on Settings after connecting.
+  if (r.status >= 300 && r.status < 400) {
+    const location = r.headers.get("location");
+    if (location) return NextResponse.redirect(location, r.status);
+  }
+
   const contentType = r.headers.get("content-type") || "";
   if (contentType.includes("text/csv")) {
     const csv = await r.text();

@@ -65,7 +65,18 @@ export function backendFetch(path: string, init: RequestInit & { refreshToken?: 
     headers.set("x-forwarded-for", clientIp);
     headers.set("x-real-ip", clientIp);
   }
-  return fetch(`${BACKEND_BASE}${path}`, { ...rest, headers, cache: "no-store" });
+  // redirect: "manual" — 2026-08-09 OAuth trust audit found this defaulted
+  // to fetch's own "follow", which silently swallowed every OAuth-connect
+  // callback's res.redirect() (Google Calendar, Google Workspace staff
+  // sync, Microsoft calendar/directory sync all respond this way — see
+  // app/api/business/[...path]/route.ts's own redirect-passthrough fix)
+  // server-side: this function would follow it, land on the redirected-to
+  // page's own HTML, and hand the caller that HTML/a parse failure instead
+  // of ever surfacing the 3xx. Every OTHER backendFetch call site expects a
+  // real JSON/CSV response and has never intentionally relied on
+  // auto-follow, so this is safe to change globally rather than only for
+  // the OAuth callback routes.
+  return fetch(`${BACKEND_BASE}${path}`, { ...rest, headers, cache: "no-store", redirect: "manual" });
 }
 
 export const ACCESS_COOKIE_MAX_AGE = 14 * 60; // 15-min backend JWT, refreshed a minute early

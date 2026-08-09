@@ -52,14 +52,34 @@ export default function PlatformAdminLayout({ children }: { children: React.Reac
   useEffect(() => {
     if (isLogin) return;
     (async () => {
-      const r = await fetch("/api/admin-auth/me", { credentials: "include" });
-      if (!r.ok) {
-        router.replace("/platform-admin/login");
-        return;
+      // 2026-08-09 — a single failed check used to redirect straight to
+      // /login, so any one transient hiccup (a dropped request, a slow
+      // cold connection, a momentary nginx blip) looked identical to a
+      // real expired session and dumped the admin out mid-work. There is
+      // no refresh-token flow for admin sessions by design (see the login
+      // route's own comment — a flat 30-minute token that requires
+      // re-login is the accepted tradeoff for this internal tool), so the
+      // right defense here is tolerance, not silent refresh: retry a
+      // couple of times with a short backoff before concluding the
+      // session is actually gone. A genuinely expired/invalid token still
+      // fails all three attempts and redirects correctly, just ~1.6s later.
+      const delaysMs = [0, 400, 1200];
+      for (let attempt = 0; attempt < delaysMs.length; attempt++) {
+        if (delaysMs[attempt] > 0) await new Promise((resolve) => setTimeout(resolve, delaysMs[attempt]));
+        try {
+          const r = await fetch("/api/admin-auth/me", { credentials: "include" });
+          if (r.ok) {
+            const data = await r.json();
+            setAdmin(data.admin);
+            setChecked(true);
+            return;
+          }
+        } catch {
+          // network-level failure (e.g. connection reset) — treated the
+          // same as a non-OK response, retried the same way.
+        }
       }
-      const data = await r.json();
-      setAdmin(data.admin);
-      setChecked(true);
+      router.replace("/platform-admin/login");
     })();
   }, [isLogin, router]);
 
