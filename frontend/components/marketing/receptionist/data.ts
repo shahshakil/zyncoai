@@ -565,8 +565,12 @@ for (const industry of INDUSTRIES) {
 //    compliant: false, DB in Singapore) is now RESOLVED — the 2026-08-06
 //    Neon cutover moved the database to ap-southeast-2 (Sydney), and
 //    GET /api/business/compliance now reports compliant: true, verified
-//    live. "Sydney data residency" is a genuinely true claim as of this
-//    pass and is now named explicitly rather than only implied.
+//    live. Database/storage residency is genuinely true and named
+//    explicitly. Reworded 2026-08-10 (legal docs elite rebuild) to scope
+//    the claim to storage specifically — voice processing (OpenAI,
+//    Deepgram, Cartesia) and telephony (Twilio) are real-time overseas
+//    subprocessors disclosed at /privacy#subprocessors; a blanket "your
+//    data is hosted in Australia, not offshore" line would overclaim.
 export const COMMON_FEATURES: string[] = [
   "AI receptionist 24/7 — Ella voice",
   "Full practice manager dashboard",
@@ -581,7 +585,7 @@ export const COMMON_FEATURES: string[] = [
   "Staff management and roles",
   "Analytics (AI voice + clinical metrics)",
   "Export and print all data",
-  "Sydney data residency, Privacy Act disclosure & compliance tools",
+  "Sydney-hosted database, Privacy Act disclosure & compliance tools",
   "Emergency detection — instant 000 redirect",
 ];
 
@@ -631,7 +635,7 @@ export interface Differentiator {
 }
 
 export const REAL_DIFFERENTIATORS: Differentiator[] = [
-  { title: "Sydney data residency", detail: "Your data is hosted in Australia (ap-southeast-2), not offshore." },
+  { title: "Sydney-hosted database", detail: "Your business, appointment, and call records are stored in Australia (ap-southeast-2). Voice processing involves overseas AI providers, disclosed in full at /privacy#subprocessors." },
   { title: "AI disclosure by design", detail: "Every caller is told they're speaking with an AI, every time — not buried in fine print." },
   { title: "Privacy Act 1988 compliance", detail: "Real incident-response contact and consent tracking, not a badge we haven't earned." },
   { title: "Transparent support access", detail: "A real, monitored inbox — support@zyncoai.com — not a chatbot wall." },

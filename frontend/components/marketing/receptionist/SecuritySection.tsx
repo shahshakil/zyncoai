@@ -29,9 +29,12 @@ import {
 //    the newer business/* API routes, not the voice pipeline yet (that's a
 //    known, explicit follow-up in the code, not finished), so this is
 //    worded as "tenant-scoped" rather than claiming blanket isolation.
-//  - "Australian data residency" was proposed for this list and removed:
-//    the database is currently hosted in Singapore (ap-southeast-1), not
-//    Sydney. Do not add this claim back until that's actually true.
+//  - "Australian data residency" was proposed for this list and removed
+//    when the database was hosted in Singapore (ap-southeast-1). RESOLVED
+//    2026-08-06 — the database now lives in Sydney (ap-southeast-2), see
+//    REAL_DIFFERENTIATORS in ./data for where this claim now lives
+//    (scoped to storage specifically — voice processing is still overseas,
+//    disclosed at /privacy#subprocessors).
 //
 // Four more added after the "top-tier security" pass: session timeout
 // (components/dashboard/SessionTimeoutGuard.tsx), new-login email alerts

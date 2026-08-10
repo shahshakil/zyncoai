@@ -24,6 +24,7 @@ interface Settings {
   maintenanceMode: boolean;
   maintenanceMessage: string | null;
   zyncoAbn?: string | null;
+  legalEntityName?: string | null;
   bankAccountName?: string | null;
   bankBsb?: string | null;
   bankAccountNumber?: string | null;
@@ -63,6 +64,7 @@ export default function PlatformSettingsPage() {
   const [saving, setSaving] = useState(false);
 
   const [zyncoAbn, setZyncoAbn] = useState("");
+  const [legalEntityName, setLegalEntityName] = useState("");
   const [bankAccountName, setBankAccountName] = useState("");
   const [bankBsb, setBankBsb] = useState("");
   const [bankAccountNumber, setBankAccountNumber] = useState("");
@@ -89,6 +91,7 @@ export default function PlatformSettingsPage() {
     setMaintenanceMode(data.settings.maintenanceMode);
     setMaintenanceMessage(data.settings.maintenanceMessage || "");
     setZyncoAbn(data.settings.zyncoAbn || "");
+    setLegalEntityName(data.settings.legalEntityName || "");
     setBankAccountName(data.settings.bankAccountName || "");
     setBankBsb(data.settings.bankBsb || "");
     setBankAccountNumber(data.settings.bankAccountNumber || "");
@@ -143,6 +146,7 @@ export default function PlatformSettingsPage() {
         maintenanceMode,
         maintenanceMessage: maintenanceMessage || null,
         zyncoAbn: zyncoAbn || null,
+        legalEntityName: legalEntityName || null,
         bankAccountName: bankAccountName || null,
         bankBsb: bankBsb || null,
         bankAccountNumber: bankAccountNumber || null,
@@ -374,12 +378,17 @@ export default function PlatformSettingsPage() {
               <Input value={zyncoAbn} onChange={(e) => setZyncoAbn(e.target.value)} placeholder="12 345 678 901" />
             </div>
             <div>
+              <Label>Legal entity name</Label>
+              <Input value={legalEntityName} onChange={(e) => setLegalEntityName(e.target.value)} placeholder="Jane Smith trading as ZyncoAI" />
+              <p className="mt-1 text-xs text-[#9CA3AF]">Printed on invoices, OAIC breach templates, and the legal-doc party clauses. Update this if you incorporate.</p>
+            </div>
+            <div>
               <Label>Bank name</Label>
               <Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Commonwealth Bank" />
             </div>
             <div>
               <Label>Bank account name</Label>
-              <Input value={bankAccountName} onChange={(e) => setBankAccountName(e.target.value)} placeholder="ZyncoAI Pty Ltd" />
+              <Input value={bankAccountName} onChange={(e) => setBankAccountName(e.target.value)} placeholder="Jane Smith trading as ZyncoAI" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>

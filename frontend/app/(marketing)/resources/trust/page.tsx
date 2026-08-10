@@ -28,8 +28,13 @@ export default function TrustPage() {
 
       <ResourceSection title="Data residency">
         <p>
-          Production data is currently hosted in Singapore (AWS ap-southeast-1). We&apos;re aware some Australian healthcare customers prefer in-country
-          (Sydney, ap-southeast-2) hosting, and that migration is on our roadmap — contact us if this is a hard requirement for your practice today.
+          Our database and file storage — business records, contacts, appointments, invoices, and call recordings —
+          are hosted in Sydney, Australia (ap-southeast-2). That&apos;s the honest scope of the claim: it covers where
+          your data is <em>stored</em>, not every step of how a call is handled. To answer a call in real time, audio
+          and transcript text are sent to overseas AI providers (speech-to-text, the conversational AI, and
+          text-to-speech) and carried by our telephony provider — see the full named subprocessor list at{" "}
+          <a href="/privacy#subprocessors" className="text-[#6366f1] hover:underline">/privacy#subprocessors</a> for
+          exactly which providers, what each receives, and where.
         </p>
       </ResourceSection>
 
@@ -58,7 +63,7 @@ export default function TrustPage() {
       <ResourceSection title="Incident response">
         <p>
           If we identify a security issue affecting your data, we notify affected practices directly and provide a clear timeline and remediation. We
-          don&apos;t currently publish a public bug-bounty program, but we take reports seriously — email <a href="mailto:security@zyncoai.com" className="text-[#6366f1] hover:underline">security@zyncoai.com</a> if you find something.
+          don&apos;t currently publish a public bug-bounty program, but we take reports seriously — email <a href="mailto:support@zyncoai.com" className="text-[#6366f1] hover:underline">support@zyncoai.com</a> if you find something.
         </p>
       </ResourceSection>
 

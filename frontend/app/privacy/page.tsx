@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getLegalEntity, formatLegalParty } from "@/lib/legalEntity";
 
 export const metadata = {
   title: "Privacy Policy • ZyncoAI",
@@ -28,8 +29,9 @@ const Bullet = ({ children }: { children: React.ReactNode }) => (
   </li>
 );
 
-export default function PrivacyPage() {
-  const updated = "August 7, 2026";
+export default async function PrivacyPage() {
+  const updated = "August 10, 2026";
+  const legalParty = formatLegalParty(await getLegalEntity());
 
   return (
     <main className="min-h-screen bg-[#f8fafc]">
@@ -54,6 +56,7 @@ export default function PrivacyPage() {
             protected, in accordance with the <strong>Privacy Act 1988 (Cth)</strong> and the Australian Privacy
             Principles (APPs).
           </p>
+          <p className="mt-2 max-w-3xl text-xs leading-6 text-[#94a3b8]">ZyncoAI is operated by {legalParty}.</p>
 
           <div className="mt-6 flex flex-wrap gap-2">
             <Link href="/terms" className="rounded-full border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-3 py-1.5 text-sm text-[#475569] hover:bg-slate-100 hover:text-[#0f172a] transition">
@@ -77,11 +80,13 @@ export default function PrivacyPage() {
                   ["health-records", "Clinical & health records"],
                   ["identifiers", "Healthcare identifiers"],
                   ["how-we-use", "How we use information"],
+                  ["retention", "Data retention"],
                   ["adm", "Automated decision-making"],
                   ["consent", "Consent"],
-                  ["access-correction", "Access & correction"],
-                  ["storage", "Data storage & sovereignty"],
-                  ["sharing", "Disclosure to third parties"],
+                  ["rights", "Access, correction, deletion & export"],
+                  ["storage", "Data storage & cross-border processing"],
+                  ["subprocessors", "Subprocessors"],
+                  ["cookies", "Cookies & analytics"],
                   ["support-access", "Support access"],
                   ["breach", "Data breach notification"],
                   ["cyber-security", "Security practices"],
@@ -143,6 +148,36 @@ export default function PrivacyPage() {
               </ul>
             </Section>
 
+            <Section id="retention" title="Data retention">
+              <p>
+                Retention differs by data type, and we&apos;d rather state that plainly than imply a uniform policy
+                that doesn&apos;t exist yet:
+              </p>
+              <ul className="mt-2 space-y-2">
+                <Bullet>
+                  <strong>Call recordings (audio)</strong> — where a practice has recording enabled, audio is
+                  automatically deleted 90 days after the call. This is enforced by a daily automated job, not a
+                  manual process, and a practice owner can delete a recording earlier at any time from the dashboard.
+                </Bullet>
+                <Bullet>
+                  <strong>Call transcripts are not covered by that same 90-day deletion</strong> — they&apos;re kept
+                  indefinitely today, separately from the audio. We&apos;re calling this out explicitly because it&apos;s
+                  reasonable to assume transcript and audio retention match; they currently don&apos;t.
+                </Bullet>
+                <Bullet>
+                  <strong>Contact (caller) records, appointments, invoices, and account activity logs</strong> are
+                  kept indefinitely while your account is active, and are <strong>not automatically deleted</strong>{" "}
+                  when a subscription is cancelled or an account is suspended — see{" "}
+                  <a href="#rights">Access, correction, deletion &amp; export</a> below for how to request deletion.
+                </Bullet>
+                <Bullet>
+                  Individual staff can delete a specific contact record from the dashboard at any time; this removes
+                  that person&apos;s appointment and note history but does not retroactively delete call recordings or
+                  transcripts already linked to them (those are unlinked, not erased).
+                </Bullet>
+              </ul>
+            </Section>
+
             <Section id="adm" title="Automated decision-making">
               <p>
                 ZyncoAI uses AI to assist with appointment booking. No decisions significantly affecting your rights
@@ -163,28 +198,146 @@ export default function PrivacyPage() {
               </p>
             </Section>
 
-            <Section id="access-correction" title="Access & correction">
+            <Section id="rights" title="Access, correction, deletion & export">
               <p>
-                Staff members have the right to access the personal information ZyncoAI holds about them, and to
-                request correction of inaccurate information. Requests can be made by the clinic owner via
-                Settings, or directly to <a href="mailto:support@zyncoai.com" className="text-indigo-300 underline">support@zyncoai.com</a>.
+                What&apos;s genuinely self-service today, and what requires contacting us directly — stated separately
+                so this section doesn&apos;t overpromise either way:
+              </p>
+              <ul className="mt-2 space-y-2">
+                <Bullet>
+                  <strong>Export (self-service, works today):</strong> a clinic owner or authorised staff member can
+                  export contacts, appointments, call history, revenue records, and staff data as CSV/Excel/JSON
+                  directly from the relevant dashboard page, at any time, with no request needed.
+                </Bullet>
+                <Bullet>
+                  <strong>Correction:</strong> staff can correct their own details, and clinic owners can correct
+                  contact/caller details, directly in the dashboard. For anything not editable there, email{" "}
+                  <a href="mailto:support@zyncoai.com" className="text-indigo-300 underline">support@zyncoai.com</a>.
+                </Bullet>
+                <Bullet>
+                  <strong>Deletion of a specific contact:</strong> a clinic owner can delete an individual caller/
+                  contact record from the dashboard (see <a href="#retention">Data retention</a> above for what this
+                  does and doesn&apos;t remove).
+                </Bullet>
+                <Bullet>
+                  <strong>Full account deletion / erasure requests do not yet have a self-service path.</strong> If
+                  you want your account, or a specific individual&apos;s data, deleted beyond what the dashboard
+                  controls above cover, email{" "}
+                  <a href="mailto:support@zyncoai.com" className="text-indigo-300 underline">support@zyncoai.com</a>{" "}
+                  and we will process the request manually. We&apos;re stating this plainly rather than implying an
+                  automated erasure process exists — it doesn&apos;t yet.
+                </Bullet>
+              </ul>
+            </Section>
+
+            <Section id="storage" title="Data storage & cross-border processing">
+              <p>
+                Our database and file storage — business records, contacts, appointments, invoices, and call
+                recordings — are hosted in Sydney, Australia (AWS/Neon region ap-southeast-2). That part is a
+                straightforward, unqualified fact: your stored data sits in an Australian data centre.
+              </p>
+              <p>
+                Voice processing does not stay in Australia, and we want to be precise about that rather than let
+                the storage claim above imply otherwise. To answer a call, audio and the resulting transcript text
+                are sent to overseas AI providers in real time — see{" "}
+                <a href="#subprocessors">Subprocessors</a> below for exactly which ones, what each receives, and
+                where they process it. Card payments, some outbound email, and our Redis cache also involve
+                providers outside Australia. Current infrastructure region status is visible to you directly in
+                Settings → Security &amp; Compliance.
               </p>
             </Section>
 
-            <Section id="storage" title="Data storage & sovereignty">
+            <Section id="subprocessors" title="Subprocessors">
               <p>
-                We aim to store personal information in Australian data centres wherever possible, and do not send
-                personal data outside Australia without consent. If our infrastructure provider&apos;s configured region
-                does not currently match this commitment, we disclose that status in your dashboard&apos;s Security &amp;
-                Compliance settings.
+                Every third party that receives personal information as part of operating ZyncoAI, what they
+                receive, why, and where they process it:
+              </p>
+              <div className="mt-3 overflow-x-auto rounded-xl border border-[#e2e8f0]">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50 text-[#0f172a]">
+                    <tr>
+                      <th className="p-3 font-bold">Provider</th>
+                      <th className="p-3 font-bold">What it receives</th>
+                      <th className="p-3 font-bold">Purpose</th>
+                      <th className="p-3 font-bold">Processing location</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#e2e8f0]">
+                    <tr>
+                      <td className="p-3 font-semibold text-[#0f172a]">Neon (database)</td>
+                      <td className="p-3">All account, contact, appointment, invoice, and call-record data</td>
+                      <td className="p-3">Primary database</td>
+                      <td className="p-3">Australia (Sydney)</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold text-[#0f172a]">Twilio</td>
+                      <td className="p-3">Caller phone number, business phone number, call audio in transit</td>
+                      <td className="p-3">Telephony — carries every call in and out</td>
+                      <td className="p-3">United States</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold text-[#0f172a]">Deepgram</td>
+                      <td className="p-3">Raw caller audio</td>
+                      <td className="p-3">Speech-to-text (converts what the caller says into text)</td>
+                      <td className="p-3">United States</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold text-[#0f172a]">OpenAI</td>
+                      <td className="p-3">Live transcript text, conversation context, relevant booking/business data</td>
+                      <td className="p-3">The conversational AI that decides what Ella says and does</td>
+                      <td className="p-3">United States</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold text-[#0f172a]">Cartesia</td>
+                      <td className="p-3">Ella&apos;s response text</td>
+                      <td className="p-3">Text-to-speech (generates Ella&apos;s voice audio)</td>
+                      <td className="p-3">United States</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold text-[#0f172a]">Square</td>
+                      <td className="p-3">Billing contact details and a tokenised payment reference — never a raw card number</td>
+                      <td className="p-3">Payment processing (PCI DSS compliant; card numbers are vaulted by Square, not stored by us)</td>
+                      <td className="p-3">Processed via Square&apos;s network</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold text-[#0f172a]">Resend</td>
+                      <td className="p-3">Recipient email address, name, and the content of transactional emails (confirmations, invoices, alerts)</td>
+                      <td className="p-3">Transactional email delivery</td>
+                      <td className="p-3">United States</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold text-[#0f172a]">Upstash (Redis)</td>
+                      <td className="p-3">Session tokens, job queue data, rate-limit counters</td>
+                      <td className="p-3">Caching and background job infrastructure</td>
+                      <td className="p-3">Region configured per deployment — see Settings → Security &amp; Compliance for the current value</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold text-[#0f172a]">Google / Microsoft</td>
+                      <td className="p-3">Calendar availability and event details — only if you connect a calendar</td>
+                      <td className="p-3">Calendar sync, opt-in per practice</td>
+                      <td className="p-3">Google/Microsoft&apos;s own infrastructure</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p className="mt-3">
+                Every subprocessor above is bound by confidentiality and data-protection terms in our agreement with
+                them. If you connect an additional third party yourself — a practice-management system, an extra
+                calendar — that connection and its data flow are covered under{" "}
+                <a href="#consent">Consent</a> above, not this list, since it&apos;s a service you chose to add rather
+                than one we use to run the core platform.
               </p>
             </Section>
 
-            <Section id="sharing" title="Disclosure to third parties">
+            <Section id="cookies" title="Cookies & analytics">
               <p>
-                We only share personal information with third parties you explicitly connect (e.g. Google Calendar,
-                or a practice-management system you configure) and with service providers who help us operate the
-                platform (e.g. hosting, email delivery), under contractual confidentiality obligations.
+                Our marketing site and dashboard use PostHog for product analytics, including session recording
+                (input fields are masked by default). We don&apos;t currently show a cookie-consent banner, and
+                PostHog begins collecting data when a page loads rather than waiting for opt-in — if you&apos;d prefer
+                not to be tracked, most browsers let you block third-party cookies, which stops it. PostHog cookies
+                are third-party (served from posthog.com infrastructure, not our own domain), and IP addresses are
+                captured by default rather than anonymised. Google Analytics is integrated in code but not
+                currently active on the live site.
               </p>
             </Section>
 

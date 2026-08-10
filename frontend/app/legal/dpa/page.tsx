@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getLegalEntity, formatLegalParty } from "@/lib/legalEntity";
 
 export const metadata = {
   title: "Data Processing Agreement • ZyncoAI",
@@ -28,8 +29,9 @@ const Bullet = ({ children }: { children: React.ReactNode }) => (
   </li>
 );
 
-export default function DpaPage() {
-  const updated = "August 7, 2026";
+export default async function DpaPage() {
+  const updated = "August 10, 2026";
+  const legalParty = formatLegalParty(await getLegalEntity());
 
   return (
     <main className="min-h-screen bg-[#f8fafc]">
@@ -49,9 +51,9 @@ export default function DpaPage() {
           <h1 className="mt-4 text-3xl font-black tracking-tight text-[#0f172a] sm:text-4xl">Data Processing Agreement</h1>
 
           <p className="mt-3 max-w-3xl text-sm leading-6 text-[#475569]">
-            This Data Processing Agreement (&quot;DPA&quot;) forms part of the agreement between ZyncoAI (&quot;Processor&quot;) and
-            the clinic or business (&quot;Controller&quot;) using the ZyncoAI platform, and describes how personal
-            information is processed on the Controller&apos;s behalf.
+            This Data Processing Agreement (&quot;DPA&quot;) forms part of the agreement between {legalParty}
+            (&quot;Processor&quot;) and the clinic or business (&quot;Controller&quot;) using the ZyncoAI platform, and
+            describes how personal information is processed on the Controller&apos;s behalf.
           </p>
 
           <div className="mt-6 flex flex-wrap gap-2">
@@ -106,7 +108,14 @@ export default function DpaPage() {
                 <Bullet>Business profile data: name, address, phone number, hours, industry.</Bullet>
                 <Bullet>Staff/administrative data: names, titles, email addresses, calendar availability.</Bullet>
                 <Bullet>Caller/patient contact details necessary for scheduling: name, phone number, email.</Bullet>
-                <Bullet>Call audio and transcripts, retained to operate and improve the service.</Bullet>
+                <Bullet>
+                  Call audio and transcripts. Audio is automatically deleted 90 days after the call where recording
+                  is enabled; transcripts are retained indefinitely today — see{" "}
+                  <Link href="/privacy#retention" className="text-indigo-300 underline">
+                    Privacy Policy → Data retention
+                  </Link>{" "}
+                  for the full breakdown by data type.
+                </Bullet>
               </ul>
             </Section>
 
@@ -157,17 +166,27 @@ export default function DpaPage() {
 
             <Section id="subprocessors" title="Subprocessors">
               <p>
-                ZyncoAI uses a limited set of infrastructure and communication providers (hosting, database, email
-                delivery, telephony) to operate the service. These subprocessors are bound by confidentiality and
-                data-protection obligations no less protective than this DPA.
+                The full named list — provider, what it receives, and where it processes — is published at{" "}
+                <Link href="/privacy#subprocessors" className="text-indigo-300 underline">
+                  Privacy Policy → Subprocessors
+                </Link>{" "}
+                and kept in sync with this DPA. In summary: Neon (database, Sydney), Twilio (telephony), Deepgram
+                (speech-to-text), OpenAI (conversational AI), Cartesia (text-to-speech), Square (payments), Resend
+                (transactional email), Upstash (Redis cache/queues), and Google/Microsoft (calendar sync, only if
+                the Controller connects one). Each is bound by confidentiality and data-protection obligations no
+                less protective than this DPA.
               </p>
             </Section>
 
             <Section id="residency" title="Data residency">
               <p>
-                ZyncoAI aims to store personal information in Australian data centres. Current infrastructure
-                region status is visible to the Controller in Settings → Security & Compliance. Personal data is
-                not transferred outside Australia without the Controller&apos;s consent.
+                The database and file storage underlying ZyncoAI — business records, contacts, appointments,
+                invoices, and call recordings — are hosted in Sydney, Australia. Voice processing is not: to answer
+                a call, audio and transcript text are sent in real time to the overseas subprocessors listed above
+                (Twilio, Deepgram, OpenAI, Cartesia — all US-processed), which is necessary to provide the service
+                and is disclosed here rather than covered by a blanket no-overseas-transfer promise that wouldn&apos;t
+                be accurate. Current infrastructure region status is visible to the Controller in Settings →
+                Security &amp; Compliance.
               </p>
             </Section>
 
@@ -181,9 +200,18 @@ export default function DpaPage() {
 
             <Section id="deletion" title="Data return & deletion">
               <p>
-                Upon termination of the Controller&apos;s account, ZyncoAI will delete or de-identify personal
-                information held on the Controller&apos;s behalf within a reasonable period, except where retention is
-                required by law.
+                The Controller can export all personal information ZyncoAI holds on its behalf at any time —
+                contacts, appointments, call history, revenue records, and staff data — as CSV/Excel/JSON directly
+                from the dashboard, with no request required, including after cancellation.
+              </p>
+              <p className="pt-2">
+                <strong>Deletion on termination is not yet automated.</strong> Ending a subscription or suspending
+                an account retains the Controller&apos;s data rather than deleting it — we&apos;re stating this plainly
+                rather than promising an automatic purge that doesn&apos;t exist today. To request deletion, the
+                Controller can email{" "}
+                <a href="mailto:support@zyncoai.com" className="text-indigo-300 underline">support@zyncoai.com</a>{" "}
+                and we will process it manually, except where retention is required by law (e.g. issued tax
+                invoices).
               </p>
             </Section>
 

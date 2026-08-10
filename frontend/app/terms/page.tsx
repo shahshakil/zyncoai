@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getLegalEntity, formatLegalParty } from "@/lib/legalEntity";
 
 export const metadata = {
   title: "Terms of Service • ZyncoAI",
@@ -28,8 +29,9 @@ const Bullet = ({ children }: { children: React.ReactNode }) => (
   </li>
 );
 
-export default function TermsPage() {
-  const updated = "August 7, 2026";
+export default async function TermsPage() {
+  const updated = "August 10, 2026";
+  const legalParty = formatLegalParty(await getLegalEntity());
 
   return (
     <main className="min-h-screen bg-[#f8fafc]">
@@ -63,10 +65,12 @@ export default function TermsPage() {
           </h1>
 
           <p className="mt-3 max-w-3xl text-sm leading-6 text-[#475569]">
-            These Terms govern your use of ZyncoAI (“ZyncoAI”, “we”, “us”), including the
-            website, apps, APIs, and workflow automation features. By accessing or using
+            These Terms govern your use of ZyncoAI (“ZyncoAI”, “we”, “us”) — an AI voice
+            receptionist that answers calls, books appointments, and automates the follow-up
+            that comes next — including the website, dashboard, and APIs. By accessing or using
             ZyncoAI, you agree to these Terms.
           </p>
+          <p className="mt-2 max-w-3xl text-xs leading-6 text-[#94a3b8]">ZyncoAI is operated by {legalParty}.</p>
 
           <div className="mt-6 flex flex-wrap gap-2">
             <Link
@@ -109,13 +113,15 @@ export default function TermsPage() {
                   ["acceptance", "Acceptance & eligibility"],
                   ["accounts", "Accounts & access"],
                   ["usage", "Acceptable use"],
-                  ["workflows", "Workflows, connectors & data"],
-                  ["ai", "AI features & outputs"],
+                  ["connectors", "Connectors & third-party data"],
+                  ["recording-consent", "Recording & outbound-calling consent"],
+                  ["ai", "How Ella works"],
                   ["adm", "Automated decision making"],
                   ["ai-transparency", "AI transparency & human handling"],
                   ["tga", "TGA disclaimer"],
                   ["billing", "Billing & plans"],
                   ["cancellation", "Cancellation & refunds"],
+                  ["availability", "Service availability"],
                   ["security", "Security & incidents"],
                   ["support-access", "Support access"],
                   ["incident-reporting", "Incident reporting obligations"],
@@ -124,6 +130,7 @@ export default function TermsPage() {
                   ["warranty", "Disclaimers"],
                   ["liability", "Limitation of liability"],
                   ["termination", "Termination"],
+                  ["governing-law", "Governing law"],
                   ["changes", "Changes to Terms"],
                   ["contact", "Contact"],
                 ].map(([id, label]) => (
@@ -197,36 +204,24 @@ export default function TermsPage() {
             <Section id="usage" title="Acceptable use">
               <p>You agree not to misuse the platform. Prohibited conduct includes:</p>
               <ul className="mt-2 space-y-2">
-                <Bullet>Breaking laws or violating third-party rights.</Bullet>
+                <Bullet>Breaking laws or violating third-party rights, including telemarketing and privacy law that applies to how you use ZyncoAI to contact people.</Bullet>
                 <Bullet>Attempting to bypass security controls or rate limits.</Bullet>
                 <Bullet>Uploading malware or using ZyncoAI to distribute malicious content.</Bullet>
-                <Bullet>
-                  Running workflows that intentionally degrade services (e.g., abusive scraping,
-                  denial of service).
-                </Bullet>
-                <Bullet>
-                  Using ZyncoAI to handle sensitive data without appropriate protections and
-                  permissions.
-                </Bullet>
+                <Bullet>Intentionally degrading the service — abusive scraping, denial of service, or similar.</Bullet>
+                <Bullet>Using ZyncoAI to collect, store, or process sensitive data (e.g. health information) beyond what this service is designed to handle — see our Privacy Policy&apos;s <Link href="/privacy#health-records" className="text-[#6366f1] underline underline-offset-4 hover:text-[#4f46e5]">Clinical &amp; health records</Link> section for what we deliberately don&apos;t store.</Bullet>
               </ul>
             </Section>
 
-            <Section id="workflows" title="Workflows, connectors & data">
+            <Section id="connectors" title="Connectors & third-party data">
               <p>
-                ZyncoAI helps you connect services and automate workflows. You control what
-                you connect and what data you send through workflows.
+                ZyncoAI can connect to services you choose — Google Calendar, Microsoft Outlook/365 Calendar, and
+                supported practice-management systems — to sync availability and bookings. You control what you
+                connect.
               </p>
               <ul className="mt-2 space-y-2">
-                <Bullet>
-                  You must have permission to access and process any data you use with ZyncoAI.
-                </Bullet>
-                <Bullet>
-                  Some connectors are provided by third parties; their terms may apply.
-                </Bullet>
-                <Bullet>
-                  Workflow execution may involve retries, queues, and background processing to
-                  improve reliability.
-                </Bullet>
+                <Bullet>You must have permission to access and process any data you connect to ZyncoAI through a third-party integration.</Bullet>
+                <Bullet>Each connected provider&apos;s own terms apply to that integration in addition to these Terms.</Bullet>
+                <Bullet>You can disconnect any integration at any time from Settings.</Bullet>
               </ul>
               <p className="pt-2">
                 For our security posture, see{" "}
@@ -237,17 +232,41 @@ export default function TermsPage() {
               </p>
             </Section>
 
-            <Section id="ai" title="AI features & outputs">
+            <Section id="recording-consent" title="Recording & outbound-calling consent">
               <p>
-                ZyncoAI may provide AI-assisted workflow generation, suggestions, and summaries.
-                AI outputs can be incorrect or incomplete. You are responsible for reviewing
-                workflows and results before relying on them.
+                Some ZyncoAI features are regulated activity where responsibility is split between us and you —
+                stated plainly here because it matters for both of us:
               </p>
               <ul className="mt-2 space-y-2">
-                <Bullet>Do not input confidential data unless you intend to process it.</Bullet>
-                <Bullet>Validate actions (e.g., CRM updates, payments, emails) before enabling production runs.</Bullet>
-                <Bullet>Use governance controls for approvals and change management where needed.</Bullet>
+                <Bullet>
+                  <strong>Call recording:</strong> ZyncoAI provides the disclosure and recording tooling (see{" "}
+                  <Link href="/privacy#calls" className="text-[#6366f1] underline underline-offset-4 hover:text-[#4f46e5]">
+                    Call recording
+                  </Link>{" "}
+                  in our Privacy Policy for exactly how disclosure works). <strong>You are responsible</strong> for
+                  having the right to record your callers under the law that applies to your business — including
+                  any state-specific surveillance/listening-device requirements — and for keeping the disclosure
+                  setting on unless you have your own lawful basis for turning it off.
+                </Bullet>
+                <Bullet>
+                  <strong>Outbound calling</strong> (e.g. recall reminders, cancellation-backfill waitlist offers):
+                  ZyncoAI provides consent-capture and opt-out tooling for these features.{" "}
+                  <strong>You are responsible</strong> for the accuracy of any consent you record for a contact, for
+                  honouring an opt-out, and for your own compliance with the Do Not Call Register Act 2006 and the
+                  ACMA Telemarketing and Research Calls Industry Standard for any outbound calling you run through
+                  the platform.
+                </Bullet>
               </ul>
+            </Section>
+
+            <Section id="ai" title="How Ella works">
+              <p>
+                Ella is ZyncoAI&apos;s AI voice receptionist. She answers calls, books/reschedules/cancels
+                appointments against your real connected calendar, and answers common questions using the
+                information you configure. AI outputs — what Ella says, and any booking she makes — can occasionally
+                be wrong or incomplete. You are responsible for reviewing your booking/calendar data and correcting
+                anything Ella got wrong, the same as you would for a human receptionist&apos;s mistake.
+              </p>
             </Section>
 
             <Section id="adm" title="Automated decision making">
@@ -279,28 +298,52 @@ export default function TermsPage() {
 
             <Section id="billing" title="Billing & plans">
               <p>
-                If you subscribe to a paid plan, you agree to pay the fees described on{" "}
+                Every plan starts with a <strong>7-day free trial — no card required to start.</strong> If your
+                trial ends without you choosing a plan, calling is paused (your dashboard stays fully accessible)
+                until you pick one; nothing is charged automatically at trial end.
+              </p>
+              <p className="pt-2">
+                Plans are priced per real published minute allowance (see{" "}
                 <Link href="/pricing" className="text-[#6366f1] underline underline-offset-4 hover:text-[#4f46e5]">
                   /pricing
-                </Link>
-                . Taxes may apply depending on your location. Plan limits may include runs,
-                seats, connectors, and retention.
+                </Link>{" "}
+                for your industry&apos;s current rates) — <strong>call minutes over your plan&apos;s allowance are
+                billed as overage</strong> at your plan&apos;s published per-minute rate, itemised as a separate line
+                on your invoice. All prices shown are <strong>GST-inclusive</strong>.
+              </p>
+              <p className="pt-2">
+                Choosing a paid card plan <strong>charges your card immediately</strong> to activate it — activation
+                is payment-first, not invoice-then-pay. Choosing to pay by bank transfer instead puts your plan in a{" "}
+                <strong>pending state until we confirm the transfer has arrived</strong>; you can cancel a pending
+                bank-transfer plan choice before it&apos;s confirmed.
+              </p>
+              <p className="pt-2">
+                If an automatic card charge fails, we retry automatically on day 2 and day 7 after the failure
+                (updating your card at any point triggers an immediate retry regardless of that schedule). If
+                payment still hasn&apos;t succeeded 14 days after the original failure, your account moves to a{" "}
+                <strong>payment hold</strong> — calling is paused, but your <strong>dashboard stays fully
+                accessible</strong> so you can update your card or switch to bank transfer; calling resumes as soon
+                as payment succeeds.
+              </p>
+              <p className="pt-2">
+                Some accounts are provided on a complimentary (no-charge) plan at our discretion — for example,
+                internal test or demonstration accounts. A complimentary plan is noted in your billing settings and
+                doesn&apos;t generate invoices while active.
               </p>
               <div className="mt-4 rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-5">
                 <div className="text-sm font-extrabold text-[#0f172a]">Fair usage</div>
                 <p className="mt-2 text-sm text-[#475569]">
-                  To protect platform reliability, we may rate-limit abusive traffic or
-                  temporarily pause workflows that cause repeated failures or excessive load.
+                  To protect platform reliability, we may rate-limit abusive traffic or temporarily pause activity
+                  that causes repeated failures or excessive load.
                 </p>
               </div>
             </Section>
 
             <Section id="cancellation" title="Cancellation & refunds">
               <ul className="mt-2 space-y-2">
-                <Bullet>Every plan starts with a <strong>7-day free trial</strong> — you&apos;re not charged anything during this period.</Bullet>
-                <Bullet>You can <strong>cancel at any time</strong> from Settings → Billing — cancellation takes effect at the <strong>end of your current paid billing period</strong>, not immediately, and your plan stays active and billable through that period.</Bullet>
-                <Bullet>We don&apos;t offer <strong>partial-month refunds</strong> for the current billing period once it&apos;s begun.</Bullet>
-                <Bullet>After your current period ends, your account moves to no plan — you can choose a new plan at any time to reactivate billing, and you can undo a pending cancellation before the period ends.</Bullet>
+                <Bullet>You can <strong>cancel at any time</strong> from Settings → Billing — cancellation takes effect at the <strong>end of your current paid billing period</strong>, not immediately, and your plan stays active and billable through that period. No partial-month refund is given for the period already underway.</Bullet>
+                <Bullet>You can <strong>undo a pending cancellation</strong> at any time before the period ends, from the same Settings → Billing page.</Bullet>
+                <Bullet>After your current period ends, your account moves to no plan — calling pauses (same as the trial-ended/payment-hold states) until you choose a new plan; the dashboard stays accessible.</Bullet>
                 <Bullet>
                   <strong>You can export your data at any time</strong>, including after cancellation — patients/contacts, appointments, call
                   history, revenue records, staff, and claims are all available as CSV/Excel exports from their respective dashboard pages, on demand,
@@ -316,22 +359,28 @@ export default function TermsPage() {
               </ul>
             </Section>
 
+            <Section id="availability" title="Service availability">
+              <p>
+                We work to keep ZyncoAI available and reliable, but we do not currently offer a formal uptime
+                Service Level Agreement (SLA) or guaranteed compensation for downtime. The service is provided on
+                the &quot;as is&quot;/&quot;as available&quot; basis described under{" "}
+                <a href="#warranty">Disclaimers</a> below.
+              </p>
+            </Section>
+
             <Section id="security" title="Security & incidents">
               <p>
                 We implement reasonable measures to protect the service, but no system is
                 100% secure. You are responsible for securing your own environment, connected
-                systems, and API keys.
+                systems, and account credentials.
               </p>
               <p className="pt-2">
-                If you experience an incident, check{" "}
-                <Link href="/brain" className="text-[#6366f1] underline underline-offset-4 hover:text-[#4f46e5]">
-                  /brain
-                </Link>{" "}
-                and follow recommended actions in the{" "}
-                <Link href="/docs" className="text-[#6366f1] underline underline-offset-4 hover:text-[#4f46e5]">
-                  docs
-                </Link>
-                .
+                If you believe you&apos;ve found a security issue, or experience one, contact{" "}
+                <a href="mailto:support@zyncoai.com" className="text-[#6366f1] underline underline-offset-4 hover:text-[#4f46e5]">
+                  support@zyncoai.com
+                </a>{" "}
+                directly — see <a href="#incident-reporting">Incident reporting obligations</a> below for how we
+                handle a confirmed breach.
               </p>
             </Section>
 
@@ -371,9 +420,10 @@ export default function TermsPage() {
             <Section id="ip" title="Intellectual property">
               <p>
                 ZyncoAI and its underlying software, UI, brand, and documentation are owned
-                by ZyncoAI and protected by applicable laws. You retain ownership of your
-                content and workflow logic you create, but you grant ZyncoAI the limited rights
-                needed to host, process, and display it to operate the service.
+                by ZyncoAI and protected by applicable laws. You retain ownership of your business
+                data — contacts, appointments, call recordings and transcripts, and any configuration
+                you set (greetings, services, business hours) — but you grant ZyncoAI the limited
+                rights needed to host, process, and display it to operate the service on your behalf.
               </p>
             </Section>
 
@@ -395,13 +445,29 @@ export default function TermsPage() {
                 ZyncoAI’s total liability for any claim will not exceed the amount you paid to
                 ZyncoAI in the 3 months before the event giving rise to the claim.
               </p>
+              <p className="pt-2">
+                You agree to indemnify and hold ZyncoAI harmless from claims, losses, or costs (including
+                reasonable legal fees) arising from your breach of these Terms, your misuse of the platform, or
+                your non-compliance with the consent, recording, or outbound-calling obligations described under{" "}
+                <a href="#recording-consent">Recording &amp; outbound-calling consent</a> above.
+              </p>
             </Section>
 
             <Section id="termination" title="Termination">
               <p>
-                You may stop using ZyncoAI at any time. We may suspend or terminate access if
-                you violate these Terms, if required by law, or if necessary to protect platform
-                integrity.
+                You may stop using ZyncoAI at any time (see <a href="#cancellation">Cancellation &amp; refunds</a>{" "}
+                above). We may suspend or terminate access if you violate these Terms, if required by law, or if
+                necessary to protect platform integrity — separately from the automated billing-related states
+                described under <a href="#billing">Billing &amp; plans</a> (trial ended, payment hold), which pause
+                calling but never lock you out of your dashboard or data.
+              </p>
+            </Section>
+
+            <Section id="governing-law" title="Governing law">
+              <p>
+                These Terms are governed by the laws of New South Wales, Australia, without regard to conflict-of-law
+                principles. You agree to submit to the exclusive jurisdiction of the courts of New South Wales for
+                any dispute arising from these Terms or your use of ZyncoAI.
               </p>
             </Section>
 
@@ -442,9 +508,8 @@ export default function TermsPage() {
             <div className="rounded-2xl border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-5">
               <div className="text-sm font-extrabold text-[#0f172a]">Note</div>
               <p className="mt-2 text-sm text-[#475569]">
-                This page is written in plain language for clarity. Some sections may vary by
-                jurisdiction. If your organization needs customized terms, add governance
-                controls and contact us through your enterprise onboarding flow.
+                This page is written in plain language for clarity. If your practice needs a custom agreement,
+                contact <a href="mailto:support@zyncoai.com" className="text-[#6366f1] underline underline-offset-4 hover:text-[#4f46e5]">support@zyncoai.com</a>.
               </p>
             </div>
           </section>

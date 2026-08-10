@@ -1,7 +1,7 @@
-"use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { INDUSTRIES, USE_CASES, COMPANY_SIZES } from "@/components/marketing/receptionist/data";
+import { getLegalEntity } from "@/lib/legalEntity";
+import { ClinicalComplianceLine } from "./ClinicalComplianceLine";
 
 // 2026-08-10 — vertical-aware compliance additions, each added only after
 // checking the actual product backs it, not just the marketing claim (see
@@ -13,11 +13,13 @@ import { INDUSTRIES, USE_CASES, COMPANY_SIZES } from "@/components/marketing/rec
 // consent record, no hard quiet-hours clamp, and Contact.waitlistOptOut is
 // never checked there. A claim covering "outbound calling" generally would
 // be overbroad until that second dialer has the same guardrails.
-const CLINICAL_VERTICAL_SLUGS = ["healthcare", "dental"];
-
-export default function MarketingMegaFooter() {
-  const pathname = usePathname();
-  const isClinicalVerticalPage = CLINICAL_VERTICAL_SLUGS.some((slug) => pathname === `/solutions/${slug}`);
+//
+// Now an async server component (was a client component) so the ABN can be
+// fetched server-side from real platform settings rather than hardcoded —
+// see lib/legalEntity.ts. The one pathname-dependent line (clinical-vertical
+// state health-records acts) is split out into its own client subcomponent.
+export default async function MarketingMegaFooter() {
+  const entity = await getLegalEntity();
 
   return (
     <footer className="border-t border-white/10 bg-[#0f172a]">
@@ -100,16 +102,7 @@ export default function MarketingMegaFooter() {
               <li>
                 ✅ <Link href="/privacy#health-records" className="underline hover:text-[#f8fafc]">My Health Records Act 2012</Link>
               </li>
-              {/* Vertical-aware — state health-privacy legislation only applies to,
-                  and is only claimed on, the two clinical solution pages. */}
-              {isClinicalVerticalPage && (
-                <li>
-                  ✅{" "}
-                  <Link href="/privacy#health-records" className="underline hover:text-[#f8fafc]">
-                    NSW HRIP Act 2002 &amp; Vic Health Records Act 2001
-                  </Link>
-                </li>
-              )}
+              <ClinicalComplianceLine />
               <li>
                 ✅ AI Transparency (
                 <Link href="/ai-transparency" className="underline hover:text-[#f8fafc]">
@@ -144,7 +137,7 @@ export default function MarketingMegaFooter() {
         </div>
 
         <div className="mt-6 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-[#94a3b8] md:flex-row md:items-center md:justify-between">
-          <div>© 2026 ZyncoAI Pty Ltd. ABN available on request.</div>
+          <div>© 2026 ZyncoAI{entity.abn ? ` · ABN ${entity.abn}` : " · ABN available on request"}</div>
           <div className="flex gap-4">
             <Link href="/privacy" className="hover:text-[#f8fafc]">Privacy</Link>
             <Link href="/terms" className="hover:text-[#f8fafc]">Terms</Link>
