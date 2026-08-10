@@ -5,14 +5,7 @@ import { ClinicalComplianceLine } from "./ClinicalComplianceLine";
 
 // 2026-08-10 — vertical-aware compliance additions, each added only after
 // checking the actual product backs it, not just the marketing claim (see
-// the per-line comments below). One item that was proposed — a blanket "Do
-// Not Call Register Act + ACMA Telemarketing Standard" line — did NOT ship:
-// the waitlist-backfill outbound dialer genuinely enforces consent, quiet
-// hours, and opt-out (src/lib/waitlist/), but the separate patient-recall/
-// ghost-call rescue dialer (src/jobs/autoRescueSweep.ts) does not — no
-// consent record, no hard quiet-hours clamp, and Contact.waitlistOptOut is
-// never checked there. A claim covering "outbound calling" generally would
-// be overbroad until that second dialer has the same guardrails.
+// the per-line comments below).
 //
 // Now an async server component (was a client component) so the ABN can be
 // fetched server-side from real platform settings rather than hardcoded —
@@ -132,6 +125,22 @@ export default async function MarketingMegaFooter() {
                   sourceId/cardId/last4 — no raw card number touches our
                   servers or database at any point. */}
               <li>✅ Card payments processed by Square, a PCI DSS compliant processor</li>
+              {/* 2026-08-11 — real now. autoRescueSweep.ts's patient-recall/
+                  ghost-call dialer was the gap (src/jobs/autoRescueSweep.ts)
+                  — it now checks Contact.outboundCallOptOut before every
+                  dial and hard-clamps to 8am-8pm local time regardless of a
+                  business's own configured hours (isWithinHardQuietHours,
+                  shared with the waitlist-backfill dialer so both engines
+                  use the same constants). Verified: an opted-out contact is
+                  excluded from candidates, and a 3am sweep dials nothing
+                  even for a business configured with 24-hour opening hours
+                  (computeOpenStatus alone would have said "open"; the hard
+                  clamp is what actually blocks it). */}
+              <li>
+                ✅ <Link href="/terms#recording-consent" className="underline hover:text-[#f8fafc]">
+                  Do Not Call Register Act 2006 &amp; ACMA Telemarketing Standard
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

@@ -1,7 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import posthog from "posthog-js";
 import { toast } from "sonner";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { ArrowLeft, Phone, CalendarClock, StickyNote, Tag as TagIcon, Merge, FileDown, Printer, Loader2 } from "lucide-react";
@@ -158,10 +157,6 @@ export default function ContactDetailPage() {
   const [savingNote, setSavingNote] = useState(false);
   const [mergeOpen, setMergeOpen] = useState(false);
   const [duplicateId, setDuplicateId] = useState("");
-
-  useEffect(() => {
-    if (id) posthog.capture("patient_file_opened", {});
-  }, [id]);
 
   async function addNote() {
     if (!noteBody.trim()) return;
