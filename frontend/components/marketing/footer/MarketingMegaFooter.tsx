@@ -1,7 +1,24 @@
+"use client";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { INDUSTRIES, USE_CASES, COMPANY_SIZES } from "@/components/marketing/receptionist/data";
 
+// 2026-08-10 — vertical-aware compliance additions, each added only after
+// checking the actual product backs it, not just the marketing claim (see
+// the per-line comments below). One item that was proposed — a blanket "Do
+// Not Call Register Act + ACMA Telemarketing Standard" line — did NOT ship:
+// the waitlist-backfill outbound dialer genuinely enforces consent, quiet
+// hours, and opt-out (src/lib/waitlist/), but the separate patient-recall/
+// ghost-call rescue dialer (src/jobs/autoRescueSweep.ts) does not — no
+// consent record, no hard quiet-hours clamp, and Contact.waitlistOptOut is
+// never checked there. A claim covering "outbound calling" generally would
+// be overbroad until that second dialer has the same guardrails.
+const CLINICAL_VERTICAL_SLUGS = ["healthcare", "dental"];
+
 export default function MarketingMegaFooter() {
+  const pathname = usePathname();
+  const isClinicalVerticalPage = CLINICAL_VERTICAL_SLUGS.some((slug) => pathname === `/solutions/${slug}`);
+
   return (
     <footer className="border-t border-white/10 bg-[#0f172a]">
       <div className="mx-auto max-w-[1440px] px-6 py-16 lg:px-8">
@@ -73,10 +90,26 @@ export default function MarketingMegaFooter() {
           <div className="mt-5">
             <div className="text-xs font-semibold uppercase tracking-wide text-[#64748b]">Built for Australian compliance</div>
             <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-2 text-xs text-[#94a3b8]">
-              <li>✅ Privacy Act 1988</li>
-              <li>✅ Spam Act 2003</li>
+              <li>
+                ✅ <Link href="/privacy" className="underline hover:text-[#f8fafc]">Privacy Act 1988</Link>
+              </li>
+              <li>
+                ✅ <Link href="/privacy#marketing" className="underline hover:text-[#f8fafc]">Spam Act 2003</Link>
+              </li>
               <li>✅ Australian Consumer Law (Competition and Consumer Act 2010)</li>
-              <li>✅ My Health Records Act 2012</li>
+              <li>
+                ✅ <Link href="/privacy#health-records" className="underline hover:text-[#f8fafc]">My Health Records Act 2012</Link>
+              </li>
+              {/* Vertical-aware — state health-privacy legislation only applies to,
+                  and is only claimed on, the two clinical solution pages. */}
+              {isClinicalVerticalPage && (
+                <li>
+                  ✅{" "}
+                  <Link href="/privacy#health-records" className="underline hover:text-[#f8fafc]">
+                    NSW HRIP Act 2002 &amp; Vic Health Records Act 2001
+                  </Link>
+                </li>
+              )}
               <li>
                 ✅ AI Transparency (
                 <Link href="/ai-transparency" className="underline hover:text-[#f8fafc]">
@@ -84,8 +117,28 @@ export default function MarketingMegaFooter() {
                 </Link>
                 )
               </li>
-              <li>✅ Cyber Security Act 2024 aligned</li>
-              <li>✅ TGA administrative tool disclaimer</li>
+              <li>
+                ✅ <Link href="/privacy#cyber-security" className="underline hover:text-[#f8fafc]">Cyber Security Act 2024 aligned</Link>
+              </li>
+              <li>
+                ✅ <Link href="/privacy#tga" className="underline hover:text-[#f8fafc]">TGA administrative tool disclaimer</Link>
+              </li>
+              {/* Verified in the live greeting logic (server.py) — every
+                  fresh-answer call speaks a recording disclosure alongside
+                  the AI-identity line, and audio is only ever captured when
+                  that disclosure was actually given this call. */}
+              <li>
+                ✅ <Link href="/privacy#calls" className="underline hover:text-[#f8fafc]">Call recording disclosed to callers</Link>
+              </li>
+              {/* Verified real: DataBreachReport model + admin case workflow
+                  + OAIC notification template, not just a policy statement. */}
+              <li>
+                ✅ <Link href="/privacy#breach" className="underline hover:text-[#f8fafc]">Notifiable Data Breaches scheme</Link>
+              </li>
+              {/* Verified: saveCard() only ever stores a Square-tokenized
+                  sourceId/cardId/last4 — no raw card number touches our
+                  servers or database at any point. */}
+              <li>✅ Card payments processed by Square, a PCI DSS compliant processor</li>
             </ul>
           </div>
         </div>

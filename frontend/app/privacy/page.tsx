@@ -118,6 +118,12 @@ export default function PrivacyPage() {
                 endpoint) returns clinical data such as diagnoses, medications, or test results, that data is
                 rejected and not stored, and the rejected attempt is recorded in our audit log.
               </p>
+              <p>
+                For medical and dental practices, this same data-minimisation approach is how we operate within
+                state health-privacy legislation — including the <strong>Health Records and Information Privacy
+                Act 2002 (NSW)</strong> and the <strong>Health Records Act 2001 (Vic)</strong> — since booking and
+                calendar administration does not constitute the collection of health information under either Act.
+              </p>
             </Section>
 
             <Section id="identifiers" title="Healthcare identifiers">
