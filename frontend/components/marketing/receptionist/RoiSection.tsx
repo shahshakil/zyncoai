@@ -1,9 +1,29 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { SITEWIDE_CHEAPEST_PLAN_PRICE } from "./data";
+import {
+  SITEWIDE_CHEAPEST_PLAN_PRICE,
+  SITEWIDE_MOST_EXPENSIVE_PLAN_PRICE,
+  SITEWIDE_MIN_MINUTES_INCLUDED,
+  SITEWIDE_MAX_MINUTES_INCLUDED,
+} from "./data";
 
 type Mode = "traditional" | "zynco";
+
+// 2026-08-10 — the only figures on this page with no real source: a
+// full-time receptionist's wage. Stated here as a named, on-screen
+// assumption (typical Australian admin/reception award-wage range) rather
+// than presented as fact, per this rebuild's "assumptions stated on-screen"
+// requirement. Everything else below is computed from real INDUSTRY_PRICING
+// plan data (./data), so it can't drift out of sync with what a visitor can
+// actually select on /pricing.
+const TRADITIONAL_ANNUAL_LOW = 65000;
+const TRADITIONAL_ANNUAL_HIGH = 75000;
+const TRADITIONAL_MONTHLY = Math.round(TRADITIONAL_ANNUAL_LOW / 12);
+
+const ZYNCO_ANNUAL_LOW = SITEWIDE_CHEAPEST_PLAN_PRICE * 12;
+const ZYNCO_ANNUAL_HIGH = SITEWIDE_MOST_EXPENSIVE_PLAN_PRICE * 12;
+const MAX_ANNUAL_SAVINGS = TRADITIONAL_ANNUAL_HIGH - ZYNCO_ANNUAL_LOW;
 
 function SlotPrice({ value }: { value: number }) {
   return (
@@ -51,7 +71,7 @@ const TRADITIONAL_ROWS = [
   { label: "Data integration", value: "Manual EHR entry", pct: 20 },
   { label: "Languages", value: "English only", pct: 20 },
   { label: "After-hours", value: "Voicemail / missed calls", pct: 20 },
-  { label: "Annual cost", value: "$65,000 – $75,000 AUD", pct: 20 },
+  { label: "Annual cost", value: `$${TRADITIONAL_ANNUAL_LOW.toLocaleString()} – $${TRADITIONAL_ANNUAL_HIGH.toLocaleString()} AUD`, pct: 20 },
 ];
 const ZYNCO_ROWS = [
   { label: "Operational hours", value: "24/7/365 — never closes", pct: 100 },
@@ -59,7 +79,7 @@ const ZYNCO_ROWS = [
   { label: "Data integration", value: "Instant automated webhook sync", pct: 100 },
   { label: "Languages", value: "15+ auto-detected", pct: 100 },
   { label: "After-hours", value: "AI answers every call, every time", pct: 100 },
-  { label: "Annual cost", value: "$3,588 – $8,388 AUD", pct: 100 },
+  { label: "Annual cost", value: `$${ZYNCO_ANNUAL_LOW.toLocaleString()} – $${ZYNCO_ANNUAL_HIGH.toLocaleString()} AUD`, pct: 100 },
 ];
 
 export function RoiSection() {
@@ -108,11 +128,13 @@ export function RoiSection() {
             </span>
 
             <div className="mt-4">
-              <SlotPrice value={isTrad ? 5400 : SITEWIDE_CHEAPEST_PLAN_PRICE} />
-              <p className="text-sm text-[#94a3b8]">AUD/month</p>
+              <SlotPrice value={isTrad ? TRADITIONAL_MONTHLY : SITEWIDE_CHEAPEST_PLAN_PRICE} />
+              <p className="text-sm text-[#94a3b8]">AUD/month{!isTrad && " from"}</p>
             </div>
             <p className="mt-2 text-xs text-[#94a3b8]">
-              {isTrad ? "Based on $65,000–75,000 AUD award wages" : "Fixed flat fee — scales with your practice"}
+              {isTrad
+                ? `Assumes a $${TRADITIONAL_ANNUAL_LOW.toLocaleString()}–$${TRADITIONAL_ANNUAL_HIGH.toLocaleString()} AUD/year full-time receptionist wage — a typical Australian admin/reception award range, not a quote`
+                : `Real published plans, $${SITEWIDE_CHEAPEST_PLAN_PRICE}–$${SITEWIDE_MOST_EXPENSIVE_PLAN_PRICE}/month, including ${SITEWIDE_MIN_MINUTES_INCLUDED.toLocaleString()}–${SITEWIDE_MAX_MINUTES_INCLUDED.toLocaleString()} minutes/month depending on plan`}
             </p>
 
             <div className="mt-6 h-24">
@@ -139,7 +161,11 @@ export function RoiSection() {
       </div>
 
       <div className="mt-8 text-center">
-        <p className="text-3xl font-bold text-[#10b981] sm:text-4xl">Save up to $61,412 AUD per year</p>
+        <p className="text-3xl font-bold text-[#10b981] sm:text-4xl">Save up to ${MAX_ANNUAL_SAVINGS.toLocaleString()} AUD per year</p>
+        <p className="mx-auto mt-2 max-w-lg text-xs text-[#94a3b8]">
+          Best case: a ${TRADITIONAL_ANNUAL_HIGH.toLocaleString()} AUD/year receptionist wage (assumption, not a quote) vs. our cheapest real plan at ${SITEWIDE_CHEAPEST_PLAN_PRICE}
+          /month. Your actual plan and savings depend on your industry and call volume — see real pricing below.
+        </p>
       </div>
     </section>
   );

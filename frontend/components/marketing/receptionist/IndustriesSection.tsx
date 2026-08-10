@@ -3,9 +3,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
-  Stethoscope, Smile, Scale, Wrench, UtensilsCrossed, Landmark, GraduationCap, Sparkles, PiggyBank, Home, type LucideIcon,
+  Stethoscope, Smile, Scale, Wrench, UtensilsCrossed, Landmark, GraduationCap, Sparkles, PiggyBank, Home, ShieldCheck, type LucideIcon,
 } from "lucide-react";
-import { INDUSTRIES } from "./data";
+import { INDUSTRIES, INDUSTRY_PRICING, INDUSTRY_PRICING_SLUG_MAP, REAL_DIFFERENTIATORS } from "./data";
 
 const ICONS: Record<string, LucideIcon> = {
   healthcare: Stethoscope,
@@ -20,19 +20,34 @@ const ICONS: Record<string, LucideIcon> = {
   "home-services": Home,
 };
 
+// 2026-08-10 — removed a fabricated "N calls handled today" counter (we
+// have zero live customers to have handled any calls). Each card now shows
+// its real entry price via the same INDUSTRY_PRICING_SLUG_MAP resolution
+// SolutionTemplate.tsx already uses, so nothing here can drift from the
+// real plan data. The section-level strip below reuses REAL_DIFFERENTIATORS
+// (./data) rather than duplicating another invented trust signal.
+function industryFromPrice(slug: string): number | undefined {
+  const pricingSlug = INDUSTRY_PRICING_SLUG_MAP[slug];
+  return pricingSlug ? INDUSTRY_PRICING.find((g) => g.slug === pricingSlug)?.plans[0]?.priceMonthly : undefined;
+}
+
 export function IndustriesSection() {
   const [hovered, setHovered] = useState<string | null>(null);
 
   return (
     <section className="py-20">
       <div className="mx-auto max-w-2xl text-center">
-        <h2 className="text-3xl font-bold text-[#0f172a] sm:text-4xl">Built for every Australian business</h2>
+        <span className="inline-flex items-center rounded-full border border-[#e2e8f0] bg-white px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#6366f1]">
+          Early access
+        </span>
+        <h2 className="mt-4 text-3xl font-bold text-[#0f172a] sm:text-4xl">Built for every Australian business</h2>
       </div>
 
       <div className="mt-14 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {INDUSTRIES.map((ind, i) => {
           const Icon = ICONS[ind.slug] || Sparkles;
           const isHovered = hovered === ind.slug;
+          const fromPrice = industryFromPrice(ind.slug);
           return (
             <Link key={ind.slug} href={`/solutions/${ind.slug}`}>
               <motion.div
@@ -50,7 +65,9 @@ export function IndustriesSection() {
                     <Icon className="h-6 w-6 text-[#6366f1]" />
                     <div>
                       <p className="text-sm font-semibold text-[#0f172a]">{ind.name}</p>
-                      <p className="mt-0.5 text-[11px] text-[#94a3b8]">{ind.callsHandledToday.toLocaleString()} calls handled</p>
+                      {fromPrice != null && (
+                        <p className="mt-0.5 text-[11px] text-[#94a3b8]">From ${fromPrice}/mo</p>
+                      )}
                     </div>
                   </>
                 ) : (
@@ -63,6 +80,15 @@ export function IndustriesSection() {
             </Link>
           );
         })}
+      </div>
+
+      <div className="mx-auto mt-10 flex max-w-4xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-6">
+        {REAL_DIFFERENTIATORS.map((d) => (
+          <div key={d.title} className="flex items-center gap-2 text-xs font-medium text-[#475569]">
+            <ShieldCheck className="h-4 w-4 shrink-0 text-[#10b981]" />
+            {d.title}
+          </div>
+        ))}
       </div>
     </section>
   );

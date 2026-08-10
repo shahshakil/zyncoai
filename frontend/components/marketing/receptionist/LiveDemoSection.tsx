@@ -5,12 +5,18 @@ import posthog from "posthog-js";
 import { motion } from "framer-motion";
 import { Play, RotateCcw, ArrowRight, Phone } from "lucide-react";
 
-// Exported so other components (e.g. FaqSection's closing CTA) reuse this
-// exact, DB-verified number instead of duplicating the literal — there is
-// a second, unrelated "demo" number elsewhere on the site
-// (CallEllaButton.tsx) with no matching business record; this is the real
-// one.
-export const DEMO_NUMBER = "+61 2 5747 4612";
+// 2026-08-10 — this file and CallEllaButton.tsx each carried a different
+// number with a comment claiming the OTHER one was fake. Re-verified
+// directly against the DB rather than trusting either stale comment: BOTH
+// numbers are real, live, ACTIVE Business.phoneNumber records with genuine
+// completed call history (+61 2 5747 4612 = Bright Smile Dental, +61 2 5747
+// 4792 = shahs clinic). Standardized on 4792 — shahs clinic is the
+// deliberately-designated internal test/demo business (see BusinessAddOn /
+// paid-plan-invariant notes elsewhere in this codebase) and has the more
+// recently verified live completed call. Exported so other components
+// (e.g. FaqSection's closing CTA) reuse this exact literal instead of
+// duplicating it, so there's only ever one number to keep correct.
+export const DEMO_NUMBER = "+61 2 5747 4792";
 
 type Turn = { speaker: "ella" | "caller"; text: string };
 

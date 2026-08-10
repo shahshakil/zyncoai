@@ -9,7 +9,7 @@ const FEATURES = [
   { icon: Activity, color: "#10b981", title: "Real-time Analytics", desc: "Every call, outcome, and trend live in your dashboard." },
   { icon: PhoneForwarded, color: "#f59e0b", title: "Human Handoff", desc: "Escalates to your team the moment a call needs a person." },
   { icon: SlidersHorizontal, color: "#4f46e5", title: "Tuned Per Vertical", desc: "Scripts and workflows built for how your industry actually books work." },
-  { icon: Plug, color: "#06b6d4", title: "Works With Your Tools", desc: "Calendar, CRM, and payments — connected, not bolted on." },
+  { icon: Plug, color: "#06b6d4", title: "Works With Your Tools", desc: "Google and Microsoft Calendar sync built in, not bolted on." },
 ];
 
 export function FeaturesSection() {

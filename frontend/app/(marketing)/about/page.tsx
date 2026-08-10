@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, MapPin, Phone, ShieldCheck, Sparkles, Star } from "lucide-react";
+import { ArrowRight, CheckCircle2, MapPin, Phone, ShieldCheck, Sparkles } from "lucide-react";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
-import { TESTIMONIALS } from "@/components/marketing/receptionist/data";
+import { REAL_DIFFERENTIATORS } from "@/components/marketing/receptionist/data";
 
 export const metadata: Metadata = {
   title: "About | ZyncoAI",
@@ -115,19 +115,20 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* 2026-08-10 — replaced a fabricated "What clients say" testimonial
+          block (invented names, ratings, and quotes — ZyncoAI has no live
+          customers to quote yet) with real, verifiable differentiators.
+          Same REAL_DIFFERENTIATORS source used on every solution page. */}
       <section className="mx-auto max-w-4xl px-6 pb-16 lg:px-8">
-        <h2 className="text-center text-xl font-bold text-[#0f172a]">What clients say</h2>
-        <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">
-          {TESTIMONIALS.map((t) => (
-            <div key={t.name} className="rounded-2xl border border-[#e2e8f0] bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
-              <div className="flex gap-0.5 text-[#f59e0b]">
-                {Array.from({ length: t.rating }).map((_, i) => (
-                  <Star key={i} className="h-3.5 w-3.5 fill-current" />
-                ))}
+        <h2 className="text-center text-xl font-bold text-[#0f172a]">Built early, built honestly</h2>
+        <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2">
+          {REAL_DIFFERENTIATORS.map((d) => (
+            <div key={d.title} className="flex items-start gap-3 rounded-2xl border border-[#e2e8f0] bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+              <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#10b981]" />
+              <div>
+                <p className="text-sm font-semibold text-[#0f172a]">{d.title}</p>
+                <p className="mt-1 text-sm leading-relaxed text-[#475569]">{d.detail}</p>
               </div>
-              <p className="mt-3 text-sm leading-relaxed text-[#475569]">&ldquo;{t.quote}&rdquo;</p>
-              <p className="mt-4 text-sm font-semibold text-[#0f172a]">{t.name}</p>
-              <p className="text-xs text-[#94a3b8]">{t.role} · {t.location}</p>
             </div>
           ))}
         </div>

@@ -23,25 +23,25 @@ export function HeroSection() {
           AI Receptionist &times; Workflow Automation
         </motion.div>
 
-        <motion.h1
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.5 }}
-          className="mt-6 text-[42px] font-bold leading-[1.1] tracking-tight text-[#0f172a] [text-wrap:balance] sm:text-5xl lg:text-[64px]"
-        >
+        {/* 2026-08-10 perf fix — this h1/p pair is the page's real LCP
+            element (confirmed via Lighthouse trace + live-HTML inspection:
+            Framer Motion's initial={{opacity:0}} bakes straight into the
+            server-rendered HTML, so the headline was invisible until JS
+            hydrated and the animation fired — 87% of a measured 4.8s
+            mobile LCP was this render delay, not network or server time).
+            Plain elements paint immediately from the initial HTML; the
+            badge pill above and CTA below keep their entrance motion, so
+            the section still has fade-in feel, just not gating its own
+            most important text. */}
+        <h1 className="mt-6 text-[42px] font-bold leading-[1.1] tracking-tight text-[#0f172a] [text-wrap:balance] sm:text-5xl lg:text-[64px]">
           <span className="block">Never miss another call.</span>
           <span className="block bg-[image:linear-gradient(135deg,#4f46e5,#06b6d4)] bg-clip-text text-transparent">Never lose another customer.</span>
-        </motion.h1>
+        </h1>
 
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-          className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-[#475569]"
-        >
+        <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-[#475569]">
           Ella answers every call instantly, 24/7, completes the booking, and automates the follow-up that comes next — one AI receptionist built to
           run across every industry, day or night.
-        </motion.p>
+        </p>
 
         <motion.div
           initial={{ opacity: 0, y: 10 }}

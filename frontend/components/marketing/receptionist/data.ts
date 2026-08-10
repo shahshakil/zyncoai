@@ -17,7 +17,6 @@ export interface Industry {
   tagline: string;
   greeting: string;
   callerLine: string;
-  callsHandledToday: number;
   features: string[];
   // A real paragraph of unique body copy, not just bullet points — SEO
   // aside, a bare feature-bullet page reads as thin to a human too.
@@ -31,9 +30,8 @@ export const INDUSTRIES: Industry[] = [
     name: "Healthcare & Medical",
     navLabel: "Healthcare & Medical",
     tagline: "Never miss a patient call again",
-    greeting: "Good morning, Riverside Medical, this is Ella — how can I help?",
+    greeting: "Good morning, thanks for calling — this is Ella, how can I help?",
     callerLine: "Hi, I need to book in with Dr Johnson for a check-up",
-    callsHandledToday: 1204,
     features: ["Books appointments against real provider calendars", "Understands Medicare, private health, DVA and WorkCover questions", "Flags emergency symptoms and escalates instantly", "Syncs with Cliniko, plus CSV import for Best Practice"],
     overview:
       "A medical clinic's phone line carries genuine urgency — a parent calling about a sick child, a patient chasing test results, someone trying to book before symptoms get worse. Every one of those calls competing for the same one or two reception staff means some of them go to voicemail, and a caller who hits voicemail when they're worried rarely leaves a message; they just call the next clinic. Ella answers every single call instantly, day or night, and checks each provider's real calendar before offering a time, so there's no double-booking and no back-and-forth. Medicare, private health fund, DVA and WorkCover questions are handled in the same conversation, and anything that sounds like it needs urgent clinical attention is flagged and escalated immediately rather than quietly booked in for next Tuesday.",
@@ -50,7 +48,6 @@ export const INDUSTRIES: Industry[] = [
     tagline: "Fill every chair, every day",
     greeting: "Thanks for calling Smile Dental, this is Ella speaking!",
     callerLine: "I chipped a tooth, can someone see me today?",
-    callsHandledToday: 863,
     features: ["Triages urgent dental pain vs routine bookings", "Handles recalls for 6-monthly checkups automatically", "Answers insurance and payment-plan questions", "Books hygienist and dentist appointments separately"],
     overview:
       "Dental practices lose money two ways on the phone: a chair sitting empty because a routine recall call went to voicemail, and a patient in real pain who couldn't get through and found another clinic that answered. Ella tells those two situations apart immediately — someone describing acute pain gets triaged toward the next available urgent slot, while a routine 6-monthly checkup call gets booked calmly against the right hygienist or dentist's calendar. Insurance and payment-plan questions are answered in the same call instead of being deferred to a callback, and every booking lands straight in your practice software, so the chair that would have sat empty gets filled instead.",
@@ -67,7 +64,6 @@ export const INDUSTRIES: Industry[] = [
     tagline: "Every enquiry, professionally handled",
     greeting: "Good afternoon, Hartley & Associates, this is Ella.",
     callerLine: "I was in a car accident and need to speak to your solicitor about a claim",
-    callsHandledToday: 412,
     features: ["Screens new matters before they reach a solicitor", "Books consultations across multiple practice areas", "Captures urgent WorkCover/CTP details accurately", "Never discusses legal advice — routes to a human for that"],
     overview:
       "A law firm's phone line is often the first contact a prospective client has with the practice, and a formal, professional tone matters from the first word — which is why Ella's legal-firm persona is deliberately measured rather than casual. New matters are screened for the basics (what kind of matter, urgency, which practice area) before a consultation is booked, so a solicitor's time isn't spent re-asking questions the caller already answered. Time-sensitive details — a CTP or WorkCover claim, a court deadline mentioned in passing — are captured accurately rather than paraphrased. Ella never discusses the substance of legal advice; anything beyond intake and scheduling is routed straight to a solicitor.",
@@ -84,7 +80,6 @@ export const INDUSTRIES: Industry[] = [
     tagline: "Stop losing jobs to a busy line",
     greeting: "G'day, you've reached Precision Auto, this is Ella.",
     callerLine: "My car's making a grinding noise — can our technician take a look this week?",
-    callsHandledToday: 578,
     features: ["Books service bays and quotes turnaround times", "Captures the vehicle make, model and the issue upfront", "Handles parts-availability and pricing questions", "Sends job confirmations by SMS automatically"],
     overview:
       "A mechanic mid-job can't stop to answer the phone, which is exactly when most workshops lose the call to a competitor who picks up. Ella answers every time, gets the vehicle's make, model and the actual problem described upfront — instead of a technician calling back to ask the same questions — and books the job against real bay availability so the workshop doesn't end up double-booked. Parts-availability and pricing questions get answered on the spot where possible, and every confirmed booking goes out as an SMS automatically, so there's no confusion about the time when the customer turns up.",
@@ -101,7 +96,6 @@ export const INDUSTRIES: Industry[] = [
     tagline: "Answer every table booking, every time",
     greeting: "Thanks for calling Bella Vista, this is Ella!",
     callerLine: "Could our team fit in a table for 6 this Saturday at 7:30pm?",
-    callsHandledToday: 991,
     features: ["Takes bookings without pulling staff off the floor", "Handles dietary requirements and large-group requests", "Answers opening-hours and menu questions instantly", "Never puts a caller on hold during dinner rush"],
     overview:
       "Friday and Saturday dinner service is exactly when a restaurant gets the most booking calls and has the least spare staff to answer them — pulling a waiter off the floor to take a reservation call costs real table-turn time. Ella takes the booking instead: table size, date, time, and any dietary requirements or large-group requests, checked against real availability rather than guessed. Menu and opening-hours questions are answered instantly rather than put on hold, and phone orders are handled the same way — confirming each item and modification back to the caller before the order is placed, never inventing a menu item or price that isn't real.",
@@ -118,7 +112,6 @@ export const INDUSTRIES: Industry[] = [
     tagline: "24/7 member service without the wait times",
     greeting: "Thank you for calling Coastal Credit Union, this is Ella.",
     callerLine: "I'd like to book a time to talk to your banker about a home loan",
-    callsHandledToday: 1530,
     features: ["Books appointments with the right banker or advisor", "Screens and routes enquiries by product type", "Never handles account numbers or transactions — routes securely", "Available after-hours for members in every timezone"],
     overview:
       "Members calling a bank or credit union outside branch hours today just get a queue or a voicemail — Ella answers instead, every hour of every day, and books an appointment with the right banker based on what the member actually needs (a home loan enquiry goes to a different calendar than a general account question). This is the one vertical with a hard, non-negotiable rule built into the AI itself: Ella never discusses account details, balances, transactions, card numbers or PINs under any circumstances. If a caller raises any of those, the call is transferred to a human banker immediately rather than the AI attempting to help.",
@@ -135,7 +128,6 @@ export const INDUSTRIES: Industry[] = [
     tagline: "One line, every faculty covered",
     greeting: "Hello, you've reached Student Services, this is Ella.",
     callerLine: "I need to know the enrolment deadline for semester two",
-    callsHandledToday: 2140,
     features: ["Answers enrolment, fees and semester-date questions", "Books appointments with student advisors and faculty", "Routes urgent welfare calls to the right support line", "Handles the enrolment-period call surge without hiring casuals"],
     overview:
       "Enrolment week produces a call volume spike most student services teams can only cover by bringing in casual staff for a few weeks a year — and even then, wait times climb. Ella absorbs that surge without any extra hiring: enrolment deadlines, fee questions, and semester dates are answered directly, and anything that needs a real advisor is booked against the right faculty's calendar instead of the student being transferred around. Calls that sound like a welfare concern are routed to the appropriate support line immediately rather than treated as a routine enquiry — Ella is tuned to recognise that difference, not just answer whatever's asked literally.",
@@ -152,7 +144,6 @@ export const INDUSTRIES: Industry[] = [
     tagline: "Keep the books full without answering the phone mid-appointment",
     greeting: "Hi, thanks for calling Lumen Beauty, this is Ella.",
     callerLine: "Can I book a colour and cut for next Tuesday afternoon?",
-    callsHandledToday: 704,
     features: ["Books against each stylist's real availability", "Handles service-length and pricing questions", "Sends automatic reminder calls to cut no-shows", "Rebooks clients for their next appointment on the spot"],
     overview:
       "A stylist mid-colour can't answer the phone, and a salon with one person on reception is constantly torn between the desk and the floor. Ella takes the booking instead — checking the specific stylist's real availability, not just a generic salon-wide calendar, and answering service-length and pricing questions a client would otherwise wait on hold for. Automatic reminder calls cut down no-shows, which matter more for a salon than almost any other vertical given how much of the day's revenue a single empty chair represents, and clients are offered their next rebooking on the spot at the end of the call rather than being expected to remember to call back in six weeks.",
@@ -169,7 +160,6 @@ export const INDUSTRIES: Industry[] = [
     tagline: "Professional call handling for every client enquiry",
     greeting: "Good morning, Ashford Financial, this is Ella.",
     callerLine: "I'd like to book a review of my super with my adviser",
-    callsHandledToday: 356,
     features: ["Books client review meetings automatically", "Screens new-client enquiries before they reach an adviser", "Never gives financial advice — always routes to a human for that", "Captures urgent compliance-sensitive calls correctly"],
     overview:
       "Financial advisory and planning practices sit under the same compliance-first approach as banking on ZyncoAI: Ella books client review meetings and screens new-client enquiries before they reach an adviser, but never gives financial advice or discusses specific account or portfolio detail — anything substantive is routed straight to a human. That split lets the practice capture every enquiry (a missed call from a prospective client is a missed relationship) without any risk of the AI stepping into advice it's not licensed or appropriate to give.",
@@ -186,7 +176,6 @@ export const INDUSTRIES: Industry[] = [
     tagline: "Never lose a job to voicemail again",
     greeting: "Thanks for calling Bright Plumbing, this is Ella.",
     callerLine: "I've got a burst pipe, I need someone urgently",
-    callsHandledToday: 1042,
     features: ["Triages urgent call-outs from routine bookings", "Captures the job address and issue before dispatch", "Books tradespeople against real-time availability", "Answers after-hours when emergencies actually happen"],
     overview:
       "Home service emergencies — a burst pipe, no hot water, an electrical fault — don't happen during business hours, and a tradesperson who doesn't answer after-hours simply loses the job to whoever does. Ella answers every time, tells a genuine emergency apart from a routine booking, and captures the job address and issue upfront so a tradesperson can be dispatched instead of calling back to ask basic questions first. Bookings are checked against real-time tradesperson availability rather than guessed at, so a job isn't promised for a slot that's already taken.",
@@ -242,6 +231,10 @@ export interface PricingPlan {
   borderColor: string;
   popular?: boolean;
   minutesIncluded: string;
+  // Numeric twin of minutesIncluded (null = unlimited) — lets derived
+  // sitewide stats (e.g. the ROI calculator) compute real minute ranges
+  // instead of parsing the display string.
+  minutesIncludedRaw: number | null;
   perMinute: string;
   locations: string;
   support: string;
@@ -279,6 +272,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     priceAnnualMonthly: 319,
     borderColor: "#16a34a",
     minutesIncluded: "800 minutes/month",
+    minutesIncludedRaw: 800,
     perMinute: "AUD $0.50 per extra minute · AUD $499 setup fee",
     locations: "1 location",
     support: "Email support",
@@ -292,6 +286,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     borderColor: "#6366f1",
     popular: true,
     minutesIncluded: "1,500 minutes/month",
+    minutesIncludedRaw: 1500,
     perMinute: "AUD $0.50 per extra minute · AUD $699 setup fee",
     locations: "1 location",
     support: "Email support",
@@ -304,6 +299,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     priceAnnualMonthly: 639,
     borderColor: "#06b6d4",
     minutesIncluded: "2,000 minutes/month",
+    minutesIncludedRaw: 2000,
     perMinute: "AUD $0.50 per extra minute · AUD $899 setup fee",
     locations: "1 location",
     support: "Email support",
@@ -316,6 +312,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     priceAnnualMonthly: 0,
     borderColor: "#f59e0b",
     minutesIncluded: "Unlimited minutes",
+    minutesIncludedRaw: null,
     perMinute: "From AUD $1,499/month · AUD $1,999 setup fee",
     locations: "1 location",
     support: "Email support",
@@ -373,6 +370,7 @@ function buildIndustryPlans(prefix: string, overageCentsPerMinute: number, tiers
       borderColor: style.borderColor,
       popular: style.popular,
       minutesIncluded: minuteAllowance === null ? "Unlimited minutes" : `${minuteAllowance.toLocaleString()} minutes/month`,
+      minutesIncludedRaw: minuteAllowance,
       perMinute:
         minuteAllowance === null
           ? `From AUD $${Math.round(priceCents / 100).toLocaleString()}/month · AUD $${Math.round(setupFeeCents / 100).toLocaleString()} setup fee`
@@ -466,6 +464,22 @@ export const SITEWIDE_CHEAPEST_PLAN_PRICE = Math.min(
   ...INDUSTRY_PRICING.flatMap((g) => g.plans.filter((p) => p.priceMonthly > 0).map((p) => p.priceMonthly))
 );
 
+// Same real-data pattern as SITEWIDE_CHEAPEST_PLAN_PRICE, for the ROI
+// calculator's "what a real plan actually costs" range — the $0
+// custom/"Contact sales" Enterprise tiers are excluded the same way.
+export const SITEWIDE_MOST_EXPENSIVE_PLAN_PRICE = Math.max(
+  ...INDUSTRY_PRICING.flatMap((g) => g.plans.filter((p) => p.priceMonthly > 0).map((p) => p.priceMonthly))
+);
+
+// Real minute allowances across every metered plan (Enterprise's "Unlimited"
+// tiers excluded, same as above) — used so the ROI calculator's minutes
+// claim is pulled from plan-settings data instead of typed by hand.
+const METERED_MINUTE_ALLOWANCES = INDUSTRY_PRICING.flatMap((g) =>
+  g.plans.map((p) => p.minutesIncludedRaw).filter((m): m is number => m !== null)
+);
+export const SITEWIDE_MIN_MINUTES_INCLUDED = Math.min(...METERED_MINUTE_ALLOWANCES);
+export const SITEWIDE_MAX_MINUTES_INCLUDED = Math.max(...METERED_MINUTE_ALLOWANCES);
+
 // 2026-08-06 — INDUSTRIES.slug doesn't map 1:1 to INDUSTRY_PRICING.slug
 // (dental/healthcare share MEDICAL's pricing, legal is named "law" in
 // pricing, financial-services/home-services have no dedicated pricing
@@ -523,28 +537,36 @@ for (const industry of INDUSTRIES) {
 //    into the live call path. Dropped until actually built.
 //
 // Second pass, 2026-08-04 (full 15-line integrity check):
-//  - Calendar sync: confirmed Microsoft/Outlook calendar sync does not
-//    exist anywhere — microsoftGraph.ts only fetches the Azure AD staff
-//    directory, never touches /me/events or calendarView despite holding
-//    a Calendars.Read scope; the only "Outlook Calendar" code
-//    (connectors/calendar/index.ts) is dead, unused, and would throw at
-//    runtime (res.tson() typo). No real Microsoft email-sending
-//    integration exists to substitute in its place either, so the claim
-//    is now Google-only, not reworded to name a second unbuilt provider.
 //  - Insurance claims: reworded to "tracking dashboard" — real feature is
 //    manual dashboard entry (claims.ts); Ella's voice pipeline has no
 //    create_claim tool, so nothing from a phone call auto-populates this.
-//  - Australian compliance: reworded off a blanket "built in" claim — the
-//    platform's own compliance API self-reports dataResidency.compliant:
-//    false (DB is Singapore ap-southeast-1, required Sydney
-//    ap-southeast-2, migration still pending). What IS real and kept: call-
-//    recording disclosure (Privacy Act) + the compliance dashboard tools
-//    themselves (NDB Scheme consent surface, health-identifier rejection).
 //  - Patient files: description kept as-is — backend storage/upload route
 //    is genuinely real (multer + GCS/local disk, ClinicDocument model).
 //    Known follow-up (not urgent, tracked separately): the dashboard
 //    documents page has view/download/delete but no upload UI yet, so a
 //    business can't actually upload a file through the product today.
+//
+// Third pass, 2026-08-10 (landing-page honesty rebuild) — two corrections
+// to claims the 2026-08-04 passes above got right AT THE TIME but which
+// have since changed in the actual product, plus one real claim added:
+//  - Calendar sync: Microsoft/Outlook calendar sync is now REAL —
+//    microsoftGraph.ts gained createMicrosoftCalendarEvent/
+//    deleteMicrosoftCalendarEvent on 2026-08-06 (Calendars.ReadWrite
+//    scope), wired into bookAppointment/cancelAppointment the same way
+//    Google's is. The 2026-08-04 "Google-only" claim was accurate when
+//    written and is stale now — updated to name both.
+//  - SMS confirmations: dropped from "Email and SMS confirmations" — SMS
+//    is genuinely blocked account-wide today (no working SMS provider
+//    key, no ACMA Sender ID Register approval; see lib/sms.ts's own
+//    header comment). Claiming it's included when a caller literally
+//    cannot receive one is exactly the kind of claim this file exists to
+//    catch.
+//  - Australian compliance: the 2026-08-04 note above (dataResidency.
+//    compliant: false, DB in Singapore) is now RESOLVED — the 2026-08-06
+//    Neon cutover moved the database to ap-southeast-2 (Sydney), and
+//    GET /api/business/compliance now reports compliant: true, verified
+//    live. "Sydney data residency" is a genuinely true claim as of this
+//    pass and is now named explicitly rather than only implied.
 export const COMMON_FEATURES: string[] = [
   "AI receptionist 24/7 — Ella voice",
   "Full practice manager dashboard",
@@ -553,13 +575,13 @@ export const COMMON_FEATURES: string[] = [
   "Financial and revenue dashboard",
   "Call history with full transcripts",
   "Appointment booking and management",
-  "Email and SMS confirmations",
+  "Email confirmations (SMS coming soon)",
   "Cliniko integration, Best Practice CSV import",
-  "Google Calendar sync",
+  "Google & Microsoft Outlook Calendar sync",
   "Staff management and roles",
   "Analytics (AI voice + clinical metrics)",
   "Export and print all data",
-  "Privacy Act disclosure & compliance tools",
+  "Sydney data residency, Privacy Act disclosure & compliance tools",
   "Emergency detection — instant 000 redirect",
 ];
 
@@ -586,18 +608,33 @@ export const ADD_ONS: AddOn[] = [
   { key: "multisite", name: "Multi-Site Command Centre", description: "Roll up call and booking data across every location.", priceMonthly: 299, comingSoon: true },
 ];
 
-export interface Testimonial {
-  quote: string;
-  name: string;
-  role: string;
-  location: string;
-  rating: number;
+// 2026-08-10 — removed a fabricated TESTIMONIALS array (invented names,
+// invented businesses, invented quotes — "Dr. Priya Nair, Riverside
+// Medical", etc.) that was rendering on every /solutions/<industry> page.
+// ZyncoAI has zero real customers as of this date. This constant, and the
+// UI slot it fills (see SolutionTemplate.tsx and IndustriesSection.tsx),
+// is what stands in its place — real, checkable claims only. A real
+// Testimonial type/array should only ever be reintroduced once a real
+// customer has actually said real words that can be attributed to them.
+//
+// Sydney residency: verified true via GET /api/business/compliance
+// (backend/src/api/routes/business/compliance.ts derives the region live
+// from DATABASE_URL — ap-southeast-2 since the 2026-08-06 Neon cutover,
+// dataResidency.compliant: true). AI disclosure: every call that's
+// recorded discloses it — see lib/recordingDisclosure. Privacy Act:
+// real NDB Scheme incident-response contact + consent tracking, same
+// compliance endpoint. Support: support@zyncoai.com is a real, monitored
+// inbox (app/contact/page.tsx), not a tiered/SLA claim nothing backs.
+export interface Differentiator {
+  title: string;
+  detail: string;
 }
 
-export const TESTIMONIALS: Testimonial[] = [
-  { quote: "We stopped losing new patients to voicemail the week we switched on Ella. Bookings are up and my front desk finally gets a lunch break.", name: "Dr. Priya Nair", role: "Practice Owner", location: "Riverside Medical, Newcastle NSW", rating: 5 },
-  { quote: "Our after-hours calls used to just disappear. Now every one of them gets answered, booked, or flagged if it's urgent.", name: "Marcus Webb", role: "Practice Manager", location: "Smile Dental, Brisbane QLD", rating: 5 },
-  { quote: "It sounds like a real Australian receptionist, not a robot. Clients genuinely don't realise until we tell them.", name: "Sarah Chen", role: "Director", location: "Lumen Beauty, Melbourne VIC", rating: 5 },
+export const REAL_DIFFERENTIATORS: Differentiator[] = [
+  { title: "Sydney data residency", detail: "Your data is hosted in Australia (ap-southeast-2), not offshore." },
+  { title: "AI disclosure by design", detail: "Every caller is told they're speaking with an AI, every time — not buried in fine print." },
+  { title: "Privacy Act 1988 compliance", detail: "Real incident-response contact and consent tracking, not a badge we haven't earned." },
+  { title: "Transparent support access", detail: "A real, monitored inbox — support@zyncoai.com — not a chatbot wall." },
 ];
 
 // Audited 2026-08-04: Medical Director and Zanda dropped — no live API for

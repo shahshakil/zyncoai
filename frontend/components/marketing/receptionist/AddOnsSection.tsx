@@ -22,7 +22,7 @@ export function AddOnsSection({ showTitle = true }: { showTitle?: boolean }) {
   function addToPlan(key: string) {
     setAdded((s) => new Set(s).add(key));
     posthog.capture("addon_clicked", { addon: key });
-    toast.success("Added — we'll include this when your account is provisioned");
+    toast.success("Noted — mention this add-on during signup and we'll include it on your account");
   }
 
   return (

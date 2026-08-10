@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, ChevronDown } from "lucide-react";
 import { PricingSection } from "./PricingSection";
 import { FinalCtaSection } from "./FinalCtaSection";
-import { TESTIMONIALS, INDUSTRIES, INDUSTRY_PRICING, INDUSTRY_PRICING_SLUG_MAP, type IndustryFaq } from "./data";
+import { INDUSTRIES, INDUSTRY_PRICING, INDUSTRY_PRICING_SLUG_MAP, REAL_DIFFERENTIATORS, type IndustryFaq } from "./data";
 import { Breadcrumbs, type Crumb } from "@/components/seo/Breadcrumbs";
 
 export interface SolutionContent {
@@ -27,7 +27,6 @@ export interface SolutionContent {
 }
 
 export function SolutionTemplate({ content }: { content: SolutionContent }) {
-  const testimonial = TESTIMONIALS[content.name.length % TESTIMONIALS.length];
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const otherIndustries = content.currentIndustrySlug
     ? INDUSTRIES.filter((i) => i.slug !== content.currentIndustrySlug).slice(0, 4)
@@ -125,11 +124,28 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
         </div>
       </section>
 
+      {/* 2026-08-10 — replaced a fabricated testimonial (invented name,
+          invented business, invented quote) with real, verifiable
+          differentiators. ZyncoAI has no customers to quote yet — this
+          slot returns to a real testimonial only once a real one exists.
+          Sydney residency is a genuinely true claim as of the 2026-08-06
+          Neon cutover (GET /api/business/compliance reports
+          dataResidency.compliant: true) — see REAL_DIFFERENTIATORS in
+          ./data for the single source of truth these are pulled from. */}
       <section className="py-14">
-        <div className="mx-auto max-w-2xl rounded-2xl border border-[#e2e8f0] bg-white p-6 text-center shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)]">
-          <p className="text-sm leading-relaxed text-[#475569]">&ldquo;{testimonial.quote}&rdquo;</p>
-          <p className="mt-4 text-sm font-semibold text-[#0f172a]">{testimonial.name}</p>
-          <p className="text-xs text-[#94a3b8]">{testimonial.role} · {testimonial.location}</p>
+        <div className="mx-auto max-w-3xl rounded-2xl border border-[#e2e8f0] bg-white p-8 shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)]">
+          <p className="text-center text-xs font-semibold uppercase tracking-wide text-[#94a3b8]">Built early, built honestly</p>
+          <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
+            {REAL_DIFFERENTIATORS.map((d) => (
+              <div key={d.title} className="flex items-start gap-3">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#10b981]" />
+                <div>
+                  <p className="text-sm font-semibold text-[#0f172a]">{d.title}</p>
+                  <p className="mt-0.5 text-sm text-[#475569]">{d.detail}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

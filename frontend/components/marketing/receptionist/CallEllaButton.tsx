@@ -1,13 +1,7 @@
 "use client";
 import { Phone } from "lucide-react";
 import { trackConversion } from "@/components/seo/GoogleAnalytics";
-
-// Real, Twilio-verified voice number (confirmed live via the Twilio API
-// against the account's actual owned number, and via a real test call
-// this session) — was previously "+61 2 5747 4612", the same stale/wrong
-// number found and fixed on the contact page. This is specifically the
-// "call the live AI" number, not the human contact line used elsewhere.
-const DEMO_NUMBER = "+61 2 5747 4792";
+import { DEMO_NUMBER } from "./LiveDemoSection";
 
 export function CallEllaButton() {
   return (

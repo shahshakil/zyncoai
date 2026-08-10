@@ -19,6 +19,12 @@
 // FaqJsonLd's mapper only ever reads question/answer, so adding it here
 // doesn't change the emitted schema at all. Content of every question/
 // answer is unchanged from the fact-check pass — see the comment above.
+// 2026-08-10 — the calendar-sync answer had gone stale in the other
+// direction: it said external calendar sync was "on our roadmap", but
+// Google Calendar and Microsoft Outlook/365 calendar sync are both real
+// and live today (src/lib/googleCalendar.ts, src/lib/microsoftGraph.ts).
+// Corrected to say so; practice-management-software sync is still
+// genuinely not live, so that half of the claim is unchanged.
 import { SITEWIDE_CHEAPEST_PLAN_PRICE } from "@/components/marketing/receptionist/data";
 
 export const FAQ_CATEGORIES = ["Getting started", "Reliability", "Pricing & plans", "Privacy & data"] as const;
@@ -64,7 +70,7 @@ const FAQS: { question: string; answer: string; category: FaqCategory }[] = [
   {
     question: "Can it book appointments into my calendar?",
     answer:
-      "Yes — every appointment is booked straight into your ZyncoAI dashboard the moment a caller confirms a time, with automatic confirmation and reminder messages sent out. Direct sync into external calendars and practice-management software is on our roadmap, but not yet live for new bookings.",
+      "Yes — every appointment is booked straight into your ZyncoAI dashboard the moment a caller confirms a time, with automatic confirmation and reminder messages sent out. It also syncs two-way with your real Google Calendar or Microsoft Outlook/365 calendar. Direct sync into practice-management software is on our roadmap, but not yet live.",
     category: "Reliability",
   },
   {
