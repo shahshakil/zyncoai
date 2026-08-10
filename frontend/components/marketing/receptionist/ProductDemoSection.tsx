@@ -30,12 +30,12 @@ function ScreenOverview() {
     <div className="grid h-full grid-cols-3 gap-3 p-5">
       {["Appointments", "No-shows", "AI Calls"].map((label, i) => (
         <div key={label} className="rounded-xl border border-[#e2e8f0] bg-slate-50 p-3">
-          <p className="text-[10px] text-[#94a3b8]">{label}</p>
+          <p className="text-[10px] text-[#475569]">{label}</p>
           <p className="mt-1 text-lg font-bold text-[#0f172a]">{[42, 3, 118][i]}</p>
         </div>
       ))}
       <div className="col-span-3 mt-1 rounded-xl border border-[#e2e8f0] bg-slate-100 p-3">
-        <p className="text-[10px] text-[#94a3b8]">Live AI call feed</p>
+        <p className="text-[10px] text-[#475569]">Live AI call feed</p>
         <div className="mt-2 space-y-1.5">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-3 w-full animate-pulse rounded bg-slate-200" style={{ animationDelay: `${i * 0.15}s` }} />
@@ -49,7 +49,7 @@ function ScreenOverview() {
 function ScreenCalls() {
   return (
     <div className="h-full space-y-2 p-5">
-      <p className="text-[10px] uppercase tracking-wide text-[#94a3b8]">Transcript</p>
+      <p className="text-[10px] uppercase tracking-wide text-[#475569]">Transcript</p>
       {["Caller: Hi, I'd like to book an appointment", "Ella: Sure! What day suits you best?"].map((t, i) => (
         <div key={i} className="rounded-lg border border-[#e2e8f0] bg-slate-50 px-3 py-2 text-xs text-[#475569]">{t}</div>
       ))}
@@ -92,7 +92,7 @@ export function ProductDemoSection() {
             <span className="h-2.5 w-2.5 rounded-full bg-amber-500/60" />
             <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/60" />
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-[#94a3b8]">
+          <div className="flex items-center gap-1.5 text-xs text-[#475569]">
             <screen.icon className="h-3.5 w-3.5" /> {screen.label}
           </div>
         </div>

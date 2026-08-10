@@ -65,8 +65,8 @@ function CanvasDiagram() {
         className="relative mx-auto h-[620px] w-[1150px] rounded-3xl border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(15,23,42,0.04)]"
         style={{ backgroundImage: "radial-gradient(rgba(79,70,229,0.10) 1px, transparent 1px)", backgroundSize: "22px 22px" }}
       >
-        <div className="absolute left-6 top-[70px] text-[11px] font-bold uppercase tracking-[0.14em] text-[#94a3b8]">Inbound channels</div>
-        <div className="absolute left-[900px] top-[22px] text-[11px] font-bold uppercase tracking-[0.14em] text-[#94a3b8]">Verticals ZyncoAI serves</div>
+        <div className="absolute left-6 top-[70px] text-[11px] font-bold uppercase tracking-[0.14em] text-[#475569]">Inbound channels</div>
+        <div className="absolute left-[900px] top-[22px] text-[11px] font-bold uppercase tracking-[0.14em] text-[#475569]">Verticals ZyncoAI serves</div>
 
         {/* connector lines: channels -> hub -> verticals */}
         <svg className="pointer-events-none absolute inset-0 h-full w-full overflow-visible">
@@ -116,9 +116,9 @@ function CanvasDiagram() {
             style={{ top: CHANNEL_TOPS[i], height: CHANNEL_NODE_H, width: CHANNEL_PILL_W, borderColor: c.live ? "#4f46e5" : "#e2e8f0" }}
           >
             <c.icon className="h-[18px] w-[18px] shrink-0" style={{ color: c.live ? "#4f46e5" : "#cbd5e1" }} />
-            <span className={`text-[13px] font-semibold ${c.live ? "text-[#1e293b]" : "text-[#94a3b8]"}`}>{c.label}</span>
+            <span className={`text-[13px] font-semibold ${c.live ? "text-[#1e293b]" : "text-[#475569]"}`}>{c.label}</span>
             {!c.live && (
-              <span className="ml-auto shrink-0 text-[8.5px] font-semibold uppercase leading-tight tracking-wide text-[#94a3b8]">
+              <span className="ml-auto shrink-0 text-[8.5px] font-semibold uppercase leading-tight tracking-wide text-[#475569]">
                 Coming
                 <br />
                 soon
@@ -191,7 +191,7 @@ function MobileDiagram() {
         <div className="flex flex-col items-stretch gap-0">
           {/* channels */}
           <div className="flex flex-1 flex-col gap-2.5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#94a3b8]">Inbound channels</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#475569]">Inbound channels</p>
             {CHANNELS.map((c) => (
               <div
                 key={c.label}
@@ -199,9 +199,9 @@ function MobileDiagram() {
                 style={{ borderColor: c.live ? "#4f46e5" : "#e2e8f0" }}
               >
                 <c.icon className="h-[18px] w-[18px] shrink-0" style={{ color: c.live ? "#4f46e5" : "#cbd5e1" }} />
-                <span className={`text-[13px] font-semibold ${c.live ? "text-[#1e293b]" : "text-[#94a3b8]"}`}>{c.label}</span>
+                <span className={`text-[13px] font-semibold ${c.live ? "text-[#1e293b]" : "text-[#475569]"}`}>{c.label}</span>
                 {!c.live && (
-                  <span className="ml-auto shrink-0 text-[9.5px] font-semibold uppercase tracking-wide text-[#94a3b8]">Coming soon</span>
+                  <span className="ml-auto shrink-0 text-[9.5px] font-semibold uppercase tracking-wide text-[#475569]">Coming soon</span>
                 )}
               </div>
             ))}
@@ -228,7 +228,7 @@ function MobileDiagram() {
 
           {/* verticals */}
           <div className="flex flex-1 flex-col gap-2.5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#94a3b8]">Verticals ZyncoAI serves</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#475569]">Verticals ZyncoAI serves</p>
             <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
               {VERTICALS.map((v) => (
                 <Link

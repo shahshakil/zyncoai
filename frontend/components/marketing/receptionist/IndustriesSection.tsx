@@ -37,7 +37,7 @@ export function IndustriesSection() {
   return (
     <section className="py-20">
       <div className="mx-auto max-w-2xl text-center">
-        <span className="inline-flex items-center rounded-full border border-[#e2e8f0] bg-white px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#6366f1]">
+        <span className="inline-flex items-center rounded-full border border-[#e2e8f0] bg-white px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#4f46e5]">
           Early access
         </span>
         <h2 className="mt-4 text-3xl font-bold text-[#0f172a] sm:text-4xl">Built for every Australian business</h2>
@@ -66,13 +66,13 @@ export function IndustriesSection() {
                     <div>
                       <p className="text-sm font-semibold text-[#0f172a]">{ind.name}</p>
                       {fromPrice != null && (
-                        <p className="mt-0.5 text-[11px] text-[#94a3b8]">From ${fromPrice}/mo</p>
+                        <p className="mt-0.5 text-[11px] text-[#475569]">From ${fromPrice}/mo</p>
                       )}
                     </div>
                   </>
                 ) : (
                   <div className="flex h-full flex-col justify-center">
-                    <p className="text-[10px] uppercase tracking-wide text-[#94a3b8]">Ella says</p>
+                    <p className="text-[10px] uppercase tracking-wide text-[#475569]">Ella says</p>
                     <p className="mt-1 text-xs leading-5 text-[#475569]">&ldquo;{ind.greeting}&rdquo;</p>
                   </div>
                 )}

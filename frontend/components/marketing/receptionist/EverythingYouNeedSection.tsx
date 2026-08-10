@@ -75,7 +75,7 @@ export function EverythingYouNeedSection() {
   return (
     <section className="py-20">
       <div className="mx-auto max-w-2xl text-center">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#94a3b8]">Beyond the phone call</p>
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#475569]">Beyond the phone call</p>
         <h2 className="mt-2 text-3xl font-bold text-[#0f172a] sm:text-4xl">Everything your practice needs</h2>
       </div>
 
@@ -90,7 +90,7 @@ export function EverythingYouNeedSection() {
             className={`relative rounded-2xl border border-[#e2e8f0] bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)] ${item.needsConfirmation ? "opacity-70" : ""}`}
           >
             {item.needsConfirmation && (
-              <span className="absolute right-4 top-4 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#64748b]">
+              <span className="absolute right-4 top-4 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#475569]">
                 Coming soon
               </span>
             )}

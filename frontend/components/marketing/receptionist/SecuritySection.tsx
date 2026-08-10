@@ -69,7 +69,7 @@ export function SecuritySection() {
   return (
     <section className="py-20">
       <div className="mx-auto max-w-2xl text-center">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#94a3b8]">Security</p>
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#475569]">Security</p>
         <h2 className="mt-2 text-3xl font-bold text-[#0f172a] sm:text-4xl">What&apos;s actually built, not what sounds good</h2>
         <p className="mt-3 text-sm text-[#475569]">No badges we haven&apos;t earned — this list only grows as new measures genuinely ship.</p>
       </div>

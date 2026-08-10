@@ -42,7 +42,7 @@ export function FinalCtaSection({ price = SITEWIDE_CHEAPEST_PLAN_PRICE }: { pric
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@business.com"
-                className="w-full rounded-xl border border-white/20 bg-white/95 px-4 py-3 text-sm text-[#0f172a] placeholder:text-[#94a3b8] outline-none focus:ring-4 focus:ring-white/30"
+                className="w-full rounded-xl border border-white/20 bg-white/95 px-4 py-3 text-sm text-[#0f172a] placeholder:text-[#475569] outline-none focus:ring-4 focus:ring-white/30"
               />
               <button
                 type="submit"

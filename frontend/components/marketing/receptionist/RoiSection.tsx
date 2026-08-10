@@ -48,7 +48,7 @@ function FeatureRow({ label, value, pct, color }: { label: string; value: string
   return (
     <div>
       <div className="flex items-center justify-between text-sm">
-        <span className="text-[#94a3b8]">{label}</span>
+        <span className="text-[#475569]">{label}</span>
         <span className="font-medium text-[#0f172a]">{value}</span>
       </div>
       <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
@@ -96,13 +96,13 @@ export function RoiSection() {
       <div className="mx-auto mt-8 flex w-fit items-center gap-1 rounded-full border border-[#e2e8f0] bg-white p-1 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
         <button
           onClick={() => setMode("traditional")}
-          className={`rounded-full px-5 py-2 text-sm font-semibold transition ${isTrad ? "bg-[#dc2626] text-white" : "text-[#94a3b8] hover:text-[#0f172a]"}`}
+          className={`rounded-full px-5 py-2 text-sm font-semibold transition ${isTrad ? "bg-[#b91c1c] text-white" : "text-[#475569] hover:text-[#0f172a]"}`}
         >
           Traditional Receptionist
         </button>
         <button
           onClick={() => setMode("zynco")}
-          className={`rounded-full px-5 py-2 text-sm font-semibold transition ${!isTrad ? "bg-[#10b981] text-white" : "text-[#94a3b8] hover:text-[#0f172a]"}`}
+          className={`rounded-full px-5 py-2 text-sm font-semibold transition ${!isTrad ? "bg-[#047857] text-white" : "text-[#475569] hover:text-[#0f172a]"}`}
         >
           ZyncoAI Powered
         </button>
@@ -129,9 +129,9 @@ export function RoiSection() {
 
             <div className="mt-4">
               <SlotPrice value={isTrad ? TRADITIONAL_MONTHLY : SITEWIDE_CHEAPEST_PLAN_PRICE} />
-              <p className="text-sm text-[#94a3b8]">AUD/month{!isTrad && " from"}</p>
+              <p className="text-sm text-[#475569]">AUD/month{!isTrad && " from"}</p>
             </div>
-            <p className="mt-2 text-xs text-[#94a3b8]">
+            <p className="mt-2 text-xs text-[#475569]">
               {isTrad
                 ? `Assumes a $${TRADITIONAL_ANNUAL_LOW.toLocaleString()}–$${TRADITIONAL_ANNUAL_HIGH.toLocaleString()} AUD/year full-time receptionist wage — a typical Australian admin/reception award range, not a quote`
                 : `Real published plans, $${SITEWIDE_CHEAPEST_PLAN_PRICE}–$${SITEWIDE_MOST_EXPENSIVE_PLAN_PRICE}/month, including ${SITEWIDE_MIN_MINUTES_INCLUDED.toLocaleString()}–${SITEWIDE_MAX_MINUTES_INCLUDED.toLocaleString()} minutes/month depending on plan`}
@@ -161,8 +161,8 @@ export function RoiSection() {
       </div>
 
       <div className="mt-8 text-center">
-        <p className="text-3xl font-bold text-[#10b981] sm:text-4xl">Save up to ${MAX_ANNUAL_SAVINGS.toLocaleString()} AUD per year</p>
-        <p className="mx-auto mt-2 max-w-lg text-xs text-[#94a3b8]">
+        <p className="text-3xl font-bold text-[#047857] sm:text-4xl">Save up to ${MAX_ANNUAL_SAVINGS.toLocaleString()} AUD per year</p>
+        <p className="mx-auto mt-2 max-w-lg text-xs text-[#475569]">
           Best case: a ${TRADITIONAL_ANNUAL_HIGH.toLocaleString()} AUD/year receptionist wage (assumption, not a quote) vs. our cheapest real plan at ${SITEWIDE_CHEAPEST_PLAN_PRICE}
           /month. Your actual plan and savings depend on your industry and call volume — see real pricing below.
         </p>

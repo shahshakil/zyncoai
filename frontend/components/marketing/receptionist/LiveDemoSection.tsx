@@ -77,11 +77,11 @@ export function LiveDemoSection() {
           <Phone className="h-5 w-5" /> Call Ella now: {DEMO_NUMBER}
         </a>
       </div>
-      <p className="mt-3 text-center text-xs text-[#94a3b8]">This is a real AI — she will answer instantly.</p>
+      <p className="mt-3 text-center text-xs text-[#475569]">This is a real AI — she will answer instantly.</p>
 
       <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-[#e2e8f0] bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)] sm:p-8">
         <div className="flex items-center justify-between">
-          <p className="text-xs uppercase tracking-wide text-[#94a3b8]">Example conversation</p>
+          <p className="text-xs uppercase tracking-wide text-[#475569]">Example conversation</p>
           <button
             onClick={playSequence}
             disabled={playing}
@@ -102,7 +102,7 @@ export function LiveDemoSection() {
                     isCaller ? "bg-slate-100 text-[#0f172a]" : "border border-[#c7d2fe] bg-[#eef2ff] text-[#0f172a]"
                   }`}
                 >
-                  <p className={`mb-0.5 text-[10px] uppercase tracking-wide ${isCaller ? "text-[#64748b]" : "text-[#4f46e5]"}`}>
+                  <p className={`mb-0.5 text-[10px] uppercase tracking-wide ${isCaller ? "text-[#475569]" : "text-[#4f46e5]"}`}>
                     {isCaller ? "Caller" : "Ella"}
                   </p>
                   {turn.text}
@@ -110,7 +110,7 @@ export function LiveDemoSection() {
               </motion.div>
             );
           })}
-          {visibleCount === 0 && <p className="py-16 text-center text-sm text-[#94a3b8]">Press play to see the conversation</p>}
+          {visibleCount === 0 && <p className="py-16 text-center text-sm text-[#475569]">Press play to see the conversation</p>}
         </div>
 
         <div className="mt-6 flex justify-center">

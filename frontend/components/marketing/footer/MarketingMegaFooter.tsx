@@ -73,7 +73,7 @@ export default async function MarketingMegaFooter() {
         </div>
 
         <div className="mt-12 border-t border-white/10 pt-6">
-          <p className="text-xs leading-5 text-[#64748b]">
+          <p className="text-xs leading-5 text-[#94a3b8]">
             ZyncoAI is an AI-powered phone answering service. It does not replace licensed medical professionals.
             ZyncoAI uses AI-assisted decision making — see our{" "}
             <Link href="/privacy#adm" className="underline hover:text-[#94a3b8]">
@@ -83,7 +83,7 @@ export default async function MarketingMegaFooter() {
           </p>
 
           <div className="mt-5">
-            <div className="text-xs font-semibold uppercase tracking-wide text-[#64748b]">Built for Australian compliance</div>
+            <div className="text-xs font-semibold uppercase tracking-wide text-[#94a3b8]">Built for Australian compliance</div>
             <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-2 text-xs text-[#94a3b8]">
               <li>
                 ✅ <Link href="/privacy" className="underline hover:text-[#f8fafc]">Privacy Act 1988</Link>

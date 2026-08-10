@@ -52,7 +52,7 @@ export function PricingSection({ showTitle = true, defaultIndustry }: { showTitl
         </p>
       </div>
 
-      <div className="mx-auto mt-4 flex max-w-2xl flex-wrap items-center justify-center gap-2 text-center text-sm text-[#64748b]">
+      <div className="mx-auto mt-4 flex max-w-2xl flex-wrap items-center justify-center gap-2 text-center text-sm text-[#475569]">
         <span>Pricing varies by industry — select yours below.</span>
       </div>
 
@@ -62,26 +62,26 @@ export function PricingSection({ showTitle = true, defaultIndustry }: { showTitl
             key={g.slug}
             onClick={() => setIndustry(g.slug)}
             className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
-              g.slug === industry ? "border-[#6366f1] bg-[#eef2ff] text-[#4f46e5]" : "border-[#e2e8f0] bg-white text-[#64748b] hover:bg-slate-50"
+              g.slug === industry ? "border-[#6366f1] bg-[#eef2ff] text-[#4f46e5]" : "border-[#e2e8f0] bg-white text-[#475569] hover:bg-slate-50"
             }`}
           >
             {g.label}
           </button>
         ))}
       </div>
-      <div className="mx-auto mt-2 flex max-w-2xl flex-wrap items-center justify-center gap-2 text-center text-xs text-[#94a3b8]">
+      <div className="mx-auto mt-2 flex max-w-2xl flex-wrap items-center justify-center gap-2 text-center text-xs text-[#475569]">
         <span>Don&rsquo;t see your industry?</span>
-        <Link href="/contact" className="font-semibold text-[#6366f1] hover:underline">
+        <Link href="/contact" className="font-semibold text-[#4f46e5] underline underline-offset-2">
           Contact us →
         </Link>
       </div>
 
       <div className="mx-auto mt-8 flex w-fit items-center gap-1 rounded-full border border-[#e2e8f0] bg-white p-1 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
-        <button onClick={() => setAnnual(false)} className={`rounded-full px-5 py-2 text-sm font-semibold transition ${!annual ? "bg-slate-100 text-[#0f172a]" : "text-[#94a3b8]"}`}>
+        <button onClick={() => setAnnual(false)} className={`rounded-full px-5 py-2 text-sm font-semibold transition ${!annual ? "bg-slate-100 text-[#0f172a]" : "text-[#475569]"}`}>
           Monthly
         </button>
-        <button onClick={() => setAnnual(true)} className={`rounded-full px-5 py-2 text-sm font-semibold transition ${annual ? "bg-slate-100 text-[#0f172a]" : "text-[#94a3b8]"}`}>
-          Annual <span className="text-emerald-600">(save 20%)</span>
+        <button onClick={() => setAnnual(true)} className={`rounded-full px-5 py-2 text-sm font-semibold transition ${annual ? "bg-slate-100 text-[#0f172a]" : "text-[#475569]"}`}>
+          Annual <span className="text-emerald-700">(save 20%)</span>
         </button>
       </div>
 
@@ -105,18 +105,18 @@ export function PricingSection({ showTitle = true, defaultIndustry }: { showTitl
                   Most popular
                 </span>
               )}
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-[#94a3b8]">{plan.name}</h3>
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-[#475569]">{plan.name}</h3>
               <div className="mt-2">
                 {plan.priceMonthly > 0 ? (
                   <>
                     <span className="text-3xl font-bold text-[#0f172a]">AUD ${price}</span>
-                    <span className="text-sm text-[#94a3b8]">/month</span>
+                    <span className="text-sm text-[#475569]">/month</span>
                   </>
                 ) : (
                   <span className="text-3xl font-bold text-[#0f172a]">Contact us</span>
                 )}
               </div>
-              <p className="mt-2 text-xs text-[#94a3b8]">{plan.perMinute}</p>
+              <p className="mt-2 text-xs text-[#475569]">{plan.perMinute}</p>
 
               <ul className="mt-4 space-y-2">
                 {[plan.minutesIncluded, plan.locations, plan.support].map((t) => (
@@ -162,7 +162,7 @@ export function PricingSection({ showTitle = true, defaultIndustry }: { showTitl
         })}
       </div>
 
-      <p className="mt-8 text-center text-xs text-[#94a3b8]">
+      <p className="mt-8 text-center text-xs text-[#475569]">
         One-time setup fee ({activeGroup.label}): {activePlans.map((p) => `${p.name} ${p.perMinute.match(/AUD \$[\d,]+ setup fee/)?.[0] || ""}`).join(" · ")}
       </p>
     </section>

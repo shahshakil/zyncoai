@@ -54,7 +54,7 @@ export function TrustControlSection() {
                     aria-expanded={isOpen}
                   >
                     <span className="text-sm font-semibold text-[#0f172a]">{item.title}</span>
-                    <ChevronDown className={`h-4 w-4 shrink-0 text-[#94a3b8] transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                    <ChevronDown className={`h-4 w-4 shrink-0 text-[#475569] transition-transform ${isOpen ? "rotate-180" : ""}`} />
                   </button>
                   <motion.div
                     initial={false}
@@ -86,7 +86,7 @@ export function TrustControlSection() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@business.com"
-                className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm text-[#0f172a] placeholder:text-[#94a3b8] outline-none focus:border-[#4f46e5]/50 focus:ring-4 focus:ring-[#4f46e5]/10"
+                className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm text-[#0f172a] placeholder:text-[#475569] outline-none focus:border-[#4f46e5]/50 focus:ring-4 focus:ring-[#4f46e5]/10"
               />
               <button
                 type="submit"

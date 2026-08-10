@@ -27,7 +27,7 @@ export function PlatformControlsSection() {
   return (
     <section className="py-16">
       <div className="mx-auto max-w-2xl text-center">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#94a3b8]">Platform controls</p>
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#475569]">Platform controls</p>
         <h2 className="mt-2 text-2xl font-bold text-[#0f172a] sm:text-3xl">What&apos;s live today</h2>
       </div>
 
@@ -42,12 +42,12 @@ export function PlatformControlsSection() {
                 borderColor: isLit ? c.color : "#e2e8f0",
                 boxShadow: isLit ? `0 8px 20px ${c.color}26, 0 1px 3px rgba(0,0,0,0.08)` : "0 1px 3px rgba(0,0,0,0.08)",
                 transform: isLit ? "translateY(-2px)" : "none",
-                color: c.live ? "#1e293b" : "#94a3b8",
+                color: c.live ? "#1e293b" : "#475569",
               }}
             >
               <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: c.live ? c.color : "#cbd5e1" }} />
               {c.label}
-              {!c.live && <span className="text-[10px] font-semibold uppercase tracking-wide text-[#94a3b8]">Coming soon</span>}
+              {!c.live && <span className="text-[10px] font-semibold uppercase tracking-wide text-[#475569]">Coming soon</span>}
             </span>
           );
         })}

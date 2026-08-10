@@ -33,7 +33,7 @@ export function WhyZyncoSection() {
   return (
     <section className="py-20">
       <div className="mx-auto max-w-2xl text-center">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#94a3b8]">Why ZyncoAI</p>
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#475569]">Why ZyncoAI</p>
         <h2 className="mt-2 text-3xl font-bold text-[#0f172a] sm:text-4xl">What actually makes this different</h2>
       </div>
 

@@ -35,13 +35,13 @@ export function AddOnsSection({ showTitle = true }: { showTitle?: boolean }) {
       )}
 
       {!selectedPlan && (
-        <p className="mx-auto mt-6 max-w-md text-center text-xs text-[#94a3b8]">
+        <p className="mx-auto mt-6 max-w-md text-center text-xs text-[#475569]">
           Add-ons require an active plan subscription.{" "}
-          <a href="/pricing" className="text-[#6366f1] hover:underline">Choose a plan</a> to unlock them.
+          <a href="/pricing" className="font-semibold text-[#4f46e5] underline underline-offset-2">Choose a plan</a> to unlock them.
         </p>
       )}
       {selectedPlan && (
-        <p className="mx-auto mt-6 max-w-md text-center text-xs text-[#10b981]">Unlocked with your {planName} plan.</p>
+        <p className="mx-auto mt-6 max-w-md text-center text-xs text-[#047857]">Unlocked with your {planName} plan.</p>
       )}
 
       <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -61,12 +61,12 @@ export function AddOnsSection({ showTitle = true }: { showTitle?: boolean }) {
               className={`relative rounded-2xl border border-[#e2e8f0] bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)] ${locked || a.comingSoon ? "opacity-70" : ""}`}
             >
               {a.comingSoon ? (
-                <span className="absolute right-4 top-4 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#64748b]">
+                <span className="absolute right-4 top-4 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#475569]">
                   Coming soon
                 </span>
               ) : (
                 locked && (
-                  <span title="Select a plan first to unlock add-ons" className="absolute right-4 top-4 text-[#94a3b8]">
+                  <span title="Select a plan first to unlock add-ons" className="absolute right-4 top-4 text-[#475569]">
                     <Lock className="h-4 w-4" />
                   </span>
                 )
@@ -76,7 +76,7 @@ export function AddOnsSection({ showTitle = true }: { showTitle?: boolean }) {
               </div>
               <h3 className="mt-4 text-sm font-semibold text-[#0f172a]">{a.name}</h3>
               <p className="mt-1.5 text-xs leading-relaxed text-[#475569]">{a.description}</p>
-              <p className="mt-3 text-lg font-bold text-[#0f172a]">AUD ${a.priceMonthly}<span className="text-xs font-normal text-[#94a3b8]">/month</span></p>
+              <p className="mt-3 text-lg font-bold text-[#0f172a]">AUD ${a.priceMonthly}<span className="text-xs font-normal text-[#475569]">/month</span></p>
               <button
                 disabled={disabled}
                 onClick={() => addToPlan(a.key)}

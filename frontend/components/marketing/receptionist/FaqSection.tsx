@@ -83,7 +83,7 @@ export function FaqSection({
                 aria-expanded={open}
               >
                 <span className="text-base font-semibold text-[#0f172a]">{f.question}</span>
-                {open ? <Minus className="h-5 w-5 shrink-0 text-[#6366f1]" /> : <Plus className="h-5 w-5 shrink-0 text-[#94a3b8]" />}
+                {open ? <Minus className="h-5 w-5 shrink-0 text-[#6366f1]" /> : <Plus className="h-5 w-5 shrink-0 text-[#475569]" />}
               </button>
               <AnimatePresence initial={false}>
                 {open && (
