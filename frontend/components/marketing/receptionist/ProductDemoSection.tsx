@@ -10,7 +10,7 @@ export function ProductDemoSection() {
   const handleFirstPassComplete = useCallback(() => setCtaSettled(true), []);
 
   return (
-    <section className="py-20">
+    <section className="py-20" id="dashboard-live-scene">
       <div className="mx-auto max-w-2xl text-center">
         <h2 className="text-3xl font-bold text-[#0f172a] sm:text-4xl">See the dashboard in action</h2>
       </div>
