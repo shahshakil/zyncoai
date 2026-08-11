@@ -10,8 +10,10 @@ export const metadata: Metadata = {
   alternates: { canonical: "/about", languages: { "en-AU": "/about", en: "/about" } },
 };
 
+// "Answer time: < 1 second" removed 2026-08-13 — no real measured data
+// exists to back it (see SolutionTemplate.tsx's audit comment).
 const STATS = [
-  { label: "Answer time", value: "< 1 second" },
+  { label: "Hold music", value: "None" },
   { label: "Availability", value: "24/7/365" },
   { label: "Industry verticals", value: "10+" },
   { label: "Built in", value: "Newcastle, AU" },

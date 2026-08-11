@@ -32,7 +32,9 @@ export default function UseCasePage({ params }: { params: { slug: string } }) {
         callerLine: useCase.description,
         features: [
           `Purpose-built for ${useCase.name.toLowerCase()}`,
-          "Answers in under 1 second, every time",
+          // was "Answers in under 1 second, every time" — see
+          // SolutionTemplate.tsx's audit comment for why that's unverified.
+          "No rings, no hold music — Ella just answers",
           "Books directly into your real calendar",
           "Escalates anything it can't handle straight to your team",
         ],

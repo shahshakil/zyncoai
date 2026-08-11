@@ -68,8 +68,21 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
           >
             {content.tagline}
           </motion.h1>
+          {/* 2026-08-13: was "in under 1 second" — audited against real
+              production data (Call.pddMs/ttfbMs, the fields built to
+              measure exactly this, were 0% populated across all 257 real
+              calls; see HowItWorksSection.tsx's CallVisual for the full
+              finding). No real distribution exists yet to back a stopwatch
+              claim, so this states what's true by design instead. The
+              backend write path is now wired (server.py's
+              record_call_timing -> POST /api/internal/voice/call-timing
+              -> recordCallTiming, src/lib/voice/callTiming.ts) — every
+              real call from here on records pddMs/ttfbMs. Once Twilio is
+              reactivated and ~50+ real calls exist, pull the real p90:
+              if genuinely sub-second, this copy can go back to a real
+              number; if it's ~1.3s, say "about a second" and mean it. */}
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-5 text-lg text-[#475569]">
-            Ella answers every call for {content.name.toLowerCase()} in under 1 second, 24 hours a day.
+            Ella answers every call for {content.name.toLowerCase()}, 24 hours a day — no rings, no hold music.
           </motion.p>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-8 flex justify-center gap-3">
             <Link href="/signup" className="inline-flex items-center gap-2 rounded-xl bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)] px-6 py-3.5 text-sm font-semibold text-white hover:opacity-90">
