@@ -208,6 +208,7 @@ export function PersonalizedDemoForm() {
               idleTeaseText={`${Math.round(result.transcript.totalDuration)} seconds. Hear Ella answer for ${businessName.trim()}.`}
               bookingLineMatch={(text) => text.startsWith("Perfect, you're all set")}
               bookingLabel={`Tomorrow — New booking for ${businessName.trim()}`}
+              onPlayError={(reason) => posthog.capture("personalized_demo_play_error", { vertical, reason })}
             />
 
             <div className="mt-6 flex flex-wrap items-center justify-center gap-4">

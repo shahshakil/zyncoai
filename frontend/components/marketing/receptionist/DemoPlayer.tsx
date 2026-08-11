@@ -68,6 +68,7 @@ export function DemoPlayer({
   bookingLineMatch,
   bookingLabel = "Tomorrow, 9:00am — New booking",
   onFirstPlay,
+  onPlayError,
 }: {
   audioSrc: string;
   transcript: DemoTranscript;
@@ -75,11 +76,13 @@ export function DemoPlayer({
   bookingLineMatch: (text: string) => boolean;
   bookingLabel?: string;
   onFirstPlay?: () => void;
+  onPlayError?: (reason: string) => void;
 }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const playheadRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
+  const hasFiredFirstPlayRef = useRef(false);
   const reducedMotion = usePrefersReducedMotion();
 
   const { totalDuration, lines, waveform } = transcript;
@@ -90,6 +93,14 @@ export function DemoPlayer({
   const [activeLineIndex, setActiveLineIndex] = useState(-1);
   const [bookingCardShown, setBookingCardShown] = useState(false);
   const [displayTime, setDisplayTime] = useState(0);
+  // Truthful playback-failure state — never assumed. audio.play() returns a
+  // promise that can reject (mobile autoplay/gesture policy, a blocked
+  // cross-origin load, a decode error) without ever throwing synchronously,
+  // and isPlaying itself is only ever set from the <audio> element's own
+  // native play/pause/error events below, never optimistically in the click
+  // handler — otherwise a rejected play() still LOOKS like "Call connected"
+  // with nothing actually playing: a silent hang, not a visible failure.
+  const [playError, setPlayError] = useState<string | null>(null);
 
   const tick = useCallback(() => {
     const audio = audioRef.current;
@@ -125,26 +136,39 @@ export function DemoPlayer({
   useEffect(() => {
     setHasStarted(false);
     setIsPlaying(false);
+    setPlayError(null);
     setActiveLineIndex(-1);
     setBookingCardShown(false);
     setDisplayTime(0);
+    hasFiredFirstPlayRef.current = false;
     if (overlayRef.current) overlayRef.current.style.clipPath = "inset(0 100% 0 0)";
     if (playheadRef.current) playheadRef.current.style.transform = "translateX(0%)";
   }, [audioSrc]);
 
+  // Direct result of a real tap/click — this is the ONLY place play() is
+  // ever called. Never called from an effect, a timer, or right after
+  // generation completes: mobile browsers silently reject autoplay outside
+  // a genuine user gesture, and this handler only ever runs from one.
   function handlePlayPause() {
     const audio = audioRef.current;
     if (!audio) return;
     if (audio.paused) {
-      if (!hasStarted) {
-        setHasStarted(true);
-        onFirstPlay?.();
+      if (!hasStarted) setHasStarted(true);
+      setPlayError(null);
+      const playPromise = audio.play();
+      // isPlaying is set by the native onPlay handler below, not here —
+      // this only captures WHY a rejection happened, for the error state
+      // and telemetry. Older browsers whose play() doesn't return a
+      // promise fall through fine: onPlay still fires normally.
+      if (playPromise && typeof playPromise.catch === "function") {
+        playPromise.catch((err: unknown) => {
+          const reason = err instanceof Error ? err.name || err.message : "playback_failed";
+          setPlayError(reason);
+          onPlayError?.(reason);
+        });
       }
-      audio.play();
-      setIsPlaying(true);
     } else {
       audio.pause();
-      setIsPlaying(false);
     }
   }
 
@@ -155,6 +179,13 @@ export function DemoPlayer({
     setDisplayTime(0);
     if (overlayRef.current) overlayRef.current.style.clipPath = "inset(0 100% 0 0)";
     if (playheadRef.current) playheadRef.current.style.transform = "translateX(0%)";
+  }
+
+  function handleAudioError() {
+    setIsPlaying(false);
+    const reason = "load_failed";
+    setPlayError(reason);
+    onPlayError?.(reason);
   }
 
   function seekTo(fraction: number) {
@@ -236,11 +267,33 @@ export function DemoPlayer({
         </div>
       </div>
 
+      {playError && (
+        <p className="mt-3 text-center text-sm font-medium text-red-600">
+          Playback didn&apos;t start — tap the play button to try again.
+        </p>
+      )}
+
       {!hasStarted && idleTeaseText && (
         <p className="mt-4 text-center text-sm font-medium text-[#475569]">{idleTeaseText}</p>
       )}
 
-      <audio ref={audioRef} src={audioSrc} preload="none" onEnded={handleEnded} className="hidden" />
+      <audio
+        ref={audioRef}
+        src={audioSrc}
+        preload="none"
+        crossOrigin="anonymous"
+        onPlay={() => {
+          setIsPlaying(true);
+          if (!hasFiredFirstPlayRef.current) {
+            hasFiredFirstPlayRef.current = true;
+            onFirstPlay?.();
+          }
+        }}
+        onPause={() => setIsPlaying(false)}
+        onEnded={handleEnded}
+        onError={handleAudioError}
+        className="hidden"
+      />
 
       <div className="mt-6 space-y-2.5">
         {lines.map((line, i) => {

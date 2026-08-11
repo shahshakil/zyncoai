@@ -63,6 +63,7 @@ export function LiveDemoSection({ voiceHealthy = false }: { voiceHealthy?: boole
           idleTeaseText={`${Math.round(TRANSCRIPT.totalDuration)} seconds. Hear your next receptionist.`}
           bookingLineMatch={(text) => text.startsWith("Great, you're booked in")}
           onFirstPlay={() => posthog.capture("demo_played", {})}
+          onPlayError={(reason) => posthog.capture("demo_play_error", { reason })}
         />
 
         <div className="mt-6 flex justify-center">
