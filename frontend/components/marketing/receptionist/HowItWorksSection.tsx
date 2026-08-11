@@ -1,7 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import { PhoneIncoming, ArrowRight } from "lucide-react";
-import { BookingCard } from "./LiveDemoSection";
+import { BookingCard } from "./DemoPlayer";
 
 // 2026-08-11 — executive-grade restage. The old version was a small,
 // auto-rotating 4-step carousel with a progress-dot rail — replaced with a

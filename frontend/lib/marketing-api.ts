@@ -1,6 +1,20 @@
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://zyncoai.com/api";
+// 2026-08-11 — real bug found while verifying the personalized-demo
+// generator: NEXT_PUBLIC_API_BASE_URL is set in both .env.local and
+// .env.production to the bare domain "https://api.zyncoai.com" (no /api
+// suffix), but the backend Express app mounts every route under /api
+// (server.ts: `app.use("/api", routes)`) — so every apiGet() call here
+// (getVoiceHealth, getMarketingMetrics, getApiHealth, ...) has been hitting
+// e.g. https://api.zyncoai.com/voice-health/public, which 404s, instead of
+// the real https://api.zyncoai.com/api/voice-health/public. The old bare
+// `|| "https://zyncoai.com/api"` fallback happened to include /api, which
+// masked this in any environment where the env var was unset — but it's
+// always set here, so the bug was live in production. Normalizing so
+// API_BASE always ends in /api regardless of whether the configured env
+// var already has it. Exported so client components (e.g.
+// PersonalizedDemoForm.tsx) share this exact same corrected base instead
+// of re-deriving their own and risking the same drift again.
+const RAW_API_BASE = (process.env.NEXT_PUBLIC_API_BASE_URL || "https://zyncoai.com").replace(/\/+$/, "");
+export const API_BASE = RAW_API_BASE.endsWith("/api") ? RAW_API_BASE : `${RAW_API_BASE}/api`;
 
 async function parseJsonSafe(res: Response) {
   const text = await res.text();
