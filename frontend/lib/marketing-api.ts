@@ -60,6 +60,29 @@ export async function getApiHealth() {
   return apiGet("/health");
 }
 
+// The real signal for "can a caller actually reach us right now" — checks
+// Twilio's own Account resource status directly, not just whether our own
+// webhook/pipecat process is reachable (which stays green even when
+// Twilio itself has suspended the account — see voiceHealth.ts's own
+// header comment on the backend for the full reasoning). Short revalidate
+// window (not the 30s default) so a call CTA genuinely "auto-restores
+// with zero code changes" within a minute of Twilio coming back, not
+// after the next deploy.
+export async function getVoiceHealth(): Promise<{ healthy: boolean; detail: string } > {
+  try {
+    const res = await fetch(`${API_BASE}/voice-health/public`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return { healthy: false, detail: "unreachable" };
+    const data = await parseJsonSafe(res);
+    return { healthy: Boolean(data?.healthy), detail: data?.detail || "unknown" };
+  } catch {
+    return { healthy: false, detail: "unreachable" };
+  }
+}
+
 export async function getInternalGatewayHealth() {
   try {
     const url =

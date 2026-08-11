@@ -2,6 +2,7 @@ import dynamic from "next/dynamic";
 import { HeroSection } from "@/components/marketing/receptionist/HeroSection";
 import { FaqJsonLd } from "@/components/seo/FaqJsonLd";
 import { SITEWIDE_CHEAPEST_PLAN_PRICE } from "@/components/marketing/receptionist/data";
+import { getVoiceHealth } from "@/lib/marketing-api";
 
 // 2026-08-10 perf fix — everything below the hero used to be one eager
 // import per section, so Next bundled all 16 sections' client JS (plus
@@ -63,13 +64,15 @@ export const metadata = {
   },
 };
 
-export default function Page() {
+export default async function Page() {
+  const { healthy: voiceHealthy } = await getVoiceHealth();
+
   return (
     <div className="bg-[#f8fafc]">
       <FaqJsonLd />
       <HeroSection />
       <VerticalsDiagramSection />
-      <LiveDemoSection />
+      <LiveDemoSection voiceHealthy={voiceHealthy} />
       <HowItWorksSection />
       <RoiSection />
       <FeaturesSection />
@@ -82,7 +85,7 @@ export default function Page() {
       <ProductDemoSection />
       <PricingSection />
       <AddOnsSection />
-      <FaqSection />
+      <FaqSection voiceHealthy={voiceHealthy} />
       <FinalCtaSection />
     </div>
   );

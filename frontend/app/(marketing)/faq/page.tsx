@@ -3,6 +3,7 @@ import { FaqSection } from "@/components/marketing/receptionist/FaqSection";
 import { FaqJsonLd } from "@/components/seo/FaqJsonLd";
 import { FinalCtaSection } from "@/components/marketing/receptionist/FinalCtaSection";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { getVoiceHealth } from "@/lib/marketing-api";
 
 const TITLE = "Frequently Asked Questions — ZyncoAI AI Receptionist";
 const DESCRIPTION =
@@ -29,12 +30,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "/faq", languages: { "en-AU": "/faq", en: "/faq" } },
 };
 
-export default function FaqPage() {
+export default async function FaqPage() {
+  const { healthy } = await getVoiceHealth();
   return (
     <div className="bg-[#f8fafc] pt-8">
       <FaqJsonLd />
       <Breadcrumbs crumbs={[{ name: "Home", href: "/" }, { name: "FAQ", href: "/faq" }]} />
-      <FaqSection eyebrow="FAQ" title="Frequently asked questions" headingLevel="h1" />
+      <FaqSection eyebrow="FAQ" title="Frequently asked questions" headingLevel="h1" voiceHealthy={healthy} />
       <FinalCtaSection />
     </div>
   );

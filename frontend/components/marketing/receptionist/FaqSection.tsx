@@ -23,11 +23,13 @@ export function FaqSection({
   title = "Common questions",
   subtitle = "Everything you need to know about ZyncoAI, answered plainly.",
   headingLevel = "h2",
+  voiceHealthy = false,
 }: {
   eyebrow?: string;
   title?: string;
   subtitle?: string;
   headingLevel?: "h1" | "h2";
+  voiceHealthy?: boolean;
 }) {
   const [openQuestion, setOpenQuestion] = useState<string | null>(FAQS[0]?.question ?? null);
   const [activeCategory, setActiveCategory] = useState<FaqCategory | null>(null);
@@ -105,12 +107,14 @@ export function FaqSection({
 
       <div className="mx-auto mt-8 max-w-2xl rounded-2xl border border-[#e2e8f0] bg-white p-8 text-center shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
         <h3 className="text-lg font-semibold text-[#0f172a]">Still have questions?</h3>
-        <p className="mt-2 text-sm text-[#475569]">Hear ZyncoAI handle a real call yourself — no sign-up required.</p>
+        <p className="mt-2 text-sm text-[#475569]">
+          {voiceHealthy ? "Hear ZyncoAI handle a real call yourself — no sign-up required." : "Our live demo line is temporarily offline — hear a real recording instead."}
+        </p>
         <a
-          href={`tel:${DEMO_NUMBER.replace(/\s/g, "")}`}
+          href={voiceHealthy ? `tel:${DEMO_NUMBER.replace(/\s/g, "")}` : "#live-demo-audio"}
           className="mt-5 inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)] px-6 py-3 text-sm font-semibold text-white hover:opacity-90"
         >
-          <PhoneCall className="h-4 w-4" /> Call the live demo
+          <PhoneCall className="h-4 w-4" /> {voiceHealthy ? "Call the live demo" : "Hear the demo recording"}
         </a>
       </div>
     </section>
