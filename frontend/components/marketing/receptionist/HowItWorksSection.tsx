@@ -144,7 +144,7 @@ export function HowItWorksSection() {
   }, [reducedMotion]);
 
   return (
-    <section className="py-24">
+    <section id="how-it-works" className="py-24">
       <div className="mx-auto max-w-2xl text-center">
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#475569]">How it works</p>
         <h2 className="mt-2 text-3xl font-bold text-[#0f172a] sm:text-4xl">A live call, start to finish</h2>

@@ -87,7 +87,7 @@ export function RoiSection() {
   const isTrad = mode === "traditional";
 
   return (
-    <section className="py-20">
+    <section id="roi" className="py-20">
       <div className="mx-auto max-w-2xl text-center">
         <h2 className="text-3xl font-bold text-[#0f172a] sm:text-4xl">The math is simple</h2>
         <p className="mt-3 text-[#475569]">Compare what you pay now vs ZyncoAI</p>

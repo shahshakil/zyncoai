@@ -35,7 +35,7 @@ export function IndustriesSection() {
   const [hovered, setHovered] = useState<string | null>(null);
 
   return (
-    <section className="py-20">
+    <section id="industries" className="py-20">
       <div className="mx-auto max-w-2xl text-center">
         <span className="inline-flex items-center rounded-full border border-[#e2e8f0] bg-white px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#4f46e5]">
           Early access

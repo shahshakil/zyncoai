@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
 import { HeroSection } from "@/components/marketing/receptionist/HeroSection";
 import { FaqJsonLd } from "@/components/seo/FaqJsonLd";
+import { SectionViewObserver } from "@/components/marketing/receptionist/SectionViewObserver";
 import { SITEWIDE_CHEAPEST_PLAN_PRICE } from "@/components/marketing/receptionist/data";
 import { getVoiceHealth } from "@/lib/marketing-api";
 
@@ -20,15 +21,11 @@ const LiveDemoSection = dynamic(() => import("@/components/marketing/receptionis
 const HowItWorksSection = dynamic(() => import("@/components/marketing/receptionist/HowItWorksSection").then((m) => m.HowItWorksSection), { ssr: true });
 const RoiSection = dynamic(() => import("@/components/marketing/receptionist/RoiSection").then((m) => m.RoiSection), { ssr: true });
 const FeaturesSection = dynamic(() => import("@/components/marketing/receptionist/FeaturesSection").then((m) => m.FeaturesSection), { ssr: true });
-const PlatformControlsSection = dynamic(() => import("@/components/marketing/receptionist/PlatformControlsSection").then((m) => m.PlatformControlsSection), { ssr: true });
 const TrustControlSection = dynamic(() => import("@/components/marketing/receptionist/TrustControlSection").then((m) => m.TrustControlSection), { ssr: true });
-const WhyZyncoSection = dynamic(() => import("@/components/marketing/receptionist/WhyZyncoSection").then((m) => m.WhyZyncoSection), { ssr: true });
 const EverythingYouNeedSection = dynamic(() => import("@/components/marketing/receptionist/EverythingYouNeedSection").then((m) => m.EverythingYouNeedSection), { ssr: true });
-const SecuritySection = dynamic(() => import("@/components/marketing/receptionist/SecuritySection").then((m) => m.SecuritySection), { ssr: true });
 const IndustriesSection = dynamic(() => import("@/components/marketing/receptionist/IndustriesSection").then((m) => m.IndustriesSection), { ssr: true });
 const ProductDemoSection = dynamic(() => import("@/components/marketing/receptionist/ProductDemoSection").then((m) => m.ProductDemoSection), { ssr: true });
 const PricingSection = dynamic(() => import("@/components/marketing/receptionist/PricingSection").then((m) => m.PricingSection), { ssr: true });
-const AddOnsSection = dynamic(() => import("@/components/marketing/receptionist/AddOnsSection").then((m) => m.AddOnsSection), { ssr: true });
 const FinalCtaSection = dynamic(() => import("@/components/marketing/receptionist/FinalCtaSection").then((m) => m.FinalCtaSection), { ssr: true });
 const FaqSection = dynamic(() => import("@/components/marketing/receptionist/FaqSection").then((m) => m.FaqSection), { ssr: true });
 
@@ -70,21 +67,18 @@ export default async function Page() {
   return (
     <div className="bg-[#f8fafc]">
       <FaqJsonLd />
+      <SectionViewObserver />
       <HeroSection />
       <VerticalsDiagramSection />
       <LiveDemoSection voiceHealthy={voiceHealthy} />
       <HowItWorksSection />
       <RoiSection />
       <FeaturesSection />
-      <PlatformControlsSection />
       <TrustControlSection />
-      <WhyZyncoSection />
       <EverythingYouNeedSection />
-      <SecuritySection />
       <IndustriesSection />
       <ProductDemoSection />
       <PricingSection />
-      <AddOnsSection />
       <FaqSection voiceHealthy={voiceHealthy} />
       <FinalCtaSection />
     </div>

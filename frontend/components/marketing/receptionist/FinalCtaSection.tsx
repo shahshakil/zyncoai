@@ -21,7 +21,7 @@ export function FinalCtaSection({ price = SITEWIDE_CHEAPEST_PLAN_PRICE }: { pric
   }
 
   return (
-    <section className="relative mx-[calc(50%-50vw)] w-screen py-16">
+    <section id="final-cta" className="relative mx-[calc(50%-50vw)] w-screen py-16">
       <div className="mx-auto max-w-[1100px] px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 16 }}

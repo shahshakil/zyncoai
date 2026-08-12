@@ -6,14 +6,20 @@ import {
   MessageSquare,
   MessageCircle,
   Stethoscope,
+  Smile,
+  Scale,
   Wrench,
   UtensilsCrossed,
-  Scale,
   Landmark,
-  Scissors,
+  GraduationCap,
+  Sparkles,
+  PiggyBank,
+  Home,
   ArrowRight,
   ArrowDown,
+  type LucideIcon,
 } from "lucide-react";
+import { INDUSTRIES } from "./data";
 
 // 2026-08-10 — the original absolute-positioned 1150x620px canvas design is
 // restored for md+ (desktop/tablet, which already handled anything
@@ -31,14 +37,31 @@ const CHANNELS = [
   { label: "Web Chat", icon: MessageCircle, live: false },
 ];
 
-const VERTICALS = [
-  { label: "Medical & Dental", icon: Stethoscope, accent: "#10b981", href: "/solutions/healthcare" },
-  { label: "Mechanic Shops", icon: Wrench, accent: "#06b6d4", href: "/solutions/mechanic" },
-  { label: "Restaurants", icon: UtensilsCrossed, accent: "#f59e0b", href: "/solutions/restaurant" },
-  { label: "Law Firms", icon: Scale, accent: "#7c3aed", href: "/solutions/legal" },
-  { label: "Financial Services", icon: Landmark, accent: "#4f46e5", href: "/solutions/bank" },
-  { label: "Salon & Retail", icon: Scissors, accent: "#10b981", href: "/solutions/salon" },
-];
+// 2026-08-12 — this used to be a separate, hand-typed 6-item list that
+// silently drifted from IndustriesSection's 10-item INDUSTRIES list (an
+// audit flagged the two sections telling visitors different vertical
+// counts). Now derived directly from the same INDUSTRIES data
+// IndustriesSection reads, so the two can never disagree again.
+const ICONS: Record<string, LucideIcon> = {
+  healthcare: Stethoscope,
+  dental: Smile,
+  legal: Scale,
+  mechanic: Wrench,
+  restaurant: UtensilsCrossed,
+  bank: Landmark,
+  university: GraduationCap,
+  salon: Sparkles,
+  "financial-services": PiggyBank,
+  "home-services": Home,
+};
+const ACCENTS = ["#10b981", "#06b6d4", "#f59e0b", "#7c3aed", "#4f46e5"];
+
+const VERTICALS = INDUSTRIES.map((ind, i) => ({
+  label: ind.name,
+  icon: ICONS[ind.slug] || Sparkles,
+  accent: ACCENTS[i % ACCENTS.length],
+  href: `/solutions/${ind.slug}`,
+}));
 
 // --- md+ canvas layout (restored original design) ---------------------
 
@@ -47,11 +70,19 @@ const CHANNEL_EDGE_X = 20 + CHANNEL_PILL_W;
 const VERTICAL_EDGE_X = 900;
 const HUB_LEFT_X = 440;
 const HUB_RIGHT_X = 700;
-const HUB_Y = 320;
 const CHANNEL_NODE_H = 64;
 const VERTICAL_NODE_H = 58;
-const CHANNEL_TOPS = [120, 288, 456];
-const VERTICAL_TOPS = [51, 131, 211, 291, 371, 451];
+const VERTICAL_GAP = 12;
+const VERTICAL_TOP_MARGIN = 40;
+// All 10 verticals now render (see VERTICALS above), so positions and the
+// canvas height are computed from the real item count instead of the old
+// 6-item hardcoded array — this can't silently fall out of sync if another
+// industry is added to INDUSTRIES later.
+const VERTICAL_TOPS = VERTICALS.map((_, i) => VERTICAL_TOP_MARGIN + i * (VERTICAL_NODE_H + VERTICAL_GAP));
+const VERTICAL_SPAN_BOTTOM = VERTICAL_TOPS[VERTICAL_TOPS.length - 1] + VERTICAL_NODE_H;
+const CANVAS_H = VERTICAL_SPAN_BOTTOM + VERTICAL_TOP_MARGIN;
+const HUB_Y = Math.round((VERTICAL_TOP_MARGIN + VERTICAL_SPAN_BOTTOM) / 2);
+const CHANNEL_TOPS = [HUB_Y - 32 - 168, HUB_Y - 32, HUB_Y - 32 + 168];
 
 function bezier(x1: number, y1: number, x2: number, y2: number) {
   const mx = (x1 + x2) / 2;
@@ -62,11 +93,11 @@ function CanvasDiagram() {
   return (
     <div className="hidden overflow-x-auto px-6 pb-2 md:block lg:px-8">
       <div
-        className="relative mx-auto h-[620px] w-[1150px] rounded-3xl border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(15,23,42,0.04)]"
-        style={{ backgroundImage: "radial-gradient(rgba(79,70,229,0.10) 1px, transparent 1px)", backgroundSize: "22px 22px" }}
+        className="relative mx-auto w-[1150px] rounded-3xl border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(15,23,42,0.04)]"
+        style={{ height: CANVAS_H, backgroundImage: "radial-gradient(rgba(79,70,229,0.10) 1px, transparent 1px)", backgroundSize: "22px 22px" }}
       >
-        <div className="absolute left-6 top-[70px] text-[11px] font-bold uppercase tracking-[0.14em] text-[#475569]">Inbound channels</div>
-        <div className="absolute left-[900px] top-[22px] text-[11px] font-bold uppercase tracking-[0.14em] text-[#475569]">Verticals ZyncoAI serves</div>
+        <div className="absolute left-6 top-[16px] text-[11px] font-bold uppercase tracking-[0.14em] text-[#475569]">Inbound channels</div>
+        <div className="absolute left-[900px] top-[16px] text-[11px] font-bold uppercase tracking-[0.14em] text-[#475569]">Verticals ZyncoAI serves</div>
 
         {/* connector lines: channels -> hub -> verticals */}
         <svg className="pointer-events-none absolute inset-0 h-full w-full overflow-visible">
@@ -128,7 +159,7 @@ function CanvasDiagram() {
         ))}
 
         {/* hub, with rotating conic-gradient halo */}
-        <div className="absolute left-[440px] top-[245px] h-[150px] w-[260px]">
+        <div className="absolute left-[440px] h-[150px] w-[260px]" style={{ top: HUB_Y - 75 }}>
           <div className="animate-zynco-spin pointer-events-none absolute -inset-6 rounded-[999px] opacity-60 blur-2xl" style={{ backgroundImage: "conic-gradient(from 0deg, #4f46e5, #7c3aed, #06b6d4, #4f46e5)" }} />
           <div className="relative flex h-full w-full flex-col items-center justify-center gap-2 rounded-[22px] bg-[image:linear-gradient(135deg,#4f46e5,#06b6d4)] text-center shadow-[0_20px_45px_rgba(79,70,229,0.32)]">
             <div className="relative flex h-10 w-10 items-center justify-center rounded-[11px] bg-white text-lg font-extrabold text-[#4f46e5]">
@@ -153,16 +184,9 @@ function CanvasDiagram() {
             style={{ top: VERTICAL_TOPS[i], height: VERTICAL_NODE_H, borderLeft: `3px solid ${v.accent}` }}
           >
             <v.icon className="h-[18px] w-[18px] shrink-0" style={{ color: v.accent }} />
-            <span className="text-[13px] font-semibold text-[#1e293b]">{v.label}</span>
+            <span className="text-[12px] font-semibold leading-tight text-[#1e293b]">{v.label}</span>
           </Link>
         ))}
-        <Link
-          href="/solutions"
-          className="absolute left-[900px] flex w-[220px] items-center justify-center rounded-2xl bg-[image:linear-gradient(90deg,#4f46e5,#7c3aed)] px-3.5 shadow-[0_2px_8px_rgba(15,23,42,0.05)] transition duration-150 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(79,70,229,0.25)]"
-          style={{ top: 531, height: VERTICAL_NODE_H }}
-        >
-          <span className="text-[13px] font-bold text-white">+ More verticals</span>
-        </Link>
       </div>
     </div>
   );
@@ -241,12 +265,6 @@ function MobileDiagram() {
                   <span className="text-[13px] font-semibold text-[#1e293b]">{v.label}</span>
                 </Link>
               ))}
-              <Link
-                href="/solutions"
-                className="flex items-center justify-center rounded-2xl bg-[image:linear-gradient(90deg,#4f46e5,#7c3aed)] px-3.5 py-3 shadow-[0_2px_8px_rgba(15,23,42,0.05)] transition duration-150 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(79,70,229,0.25)]"
-              >
-                <span className="text-[13px] font-bold text-white">+ More verticals</span>
-              </Link>
             </div>
           </div>
         </div>
@@ -257,7 +275,7 @@ function MobileDiagram() {
 
 export function VerticalsDiagramSection() {
   return (
-    <section className="relative bg-[#f8fafc] py-16">
+    <section id="who-we-serve" className="relative bg-[#f8fafc] py-16">
       <style jsx global>{`
         @keyframes zynco-dash { to { stroke-dashoffset: -130; } }
         .animate-zynco-dash { animation: zynco-dash 1.7s linear infinite; }

@@ -73,7 +73,7 @@ const ITEMS = [
 
 export function EverythingYouNeedSection() {
   return (
-    <section className="py-20">
+    <section id="everything-you-need" className="py-20">
       <div className="mx-auto max-w-2xl text-center">
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#475569]">Beyond the phone call</p>
         <h2 className="mt-2 text-3xl font-bold text-[#0f172a] sm:text-4xl">Everything your practice needs</h2>

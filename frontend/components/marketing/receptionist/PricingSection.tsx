@@ -37,7 +37,7 @@ export function PricingSection({ showTitle = true, defaultIndustry }: { showTitl
   }
 
   return (
-    <section className="py-20">
+    <section id="pricing" className="py-20">
       {showTitle && (
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold text-[#0f172a] sm:text-4xl">Simple, transparent pricing</h2>
@@ -164,6 +164,9 @@ export function PricingSection({ showTitle = true, defaultIndustry }: { showTitl
 
       <p className="mt-8 text-center text-xs text-[#475569]">
         One-time setup fee ({activeGroup.label}): {activePlans.map((p) => `${p.name} ${p.perMinute.match(/AUD \$[\d,]+ setup fee/)?.[0] || ""}`).join(" · ")}
+      </p>
+      <p className="mt-2 text-center text-xs text-[#475569]">
+        Add-ons available after you pick a plan.
       </p>
     </section>
   );

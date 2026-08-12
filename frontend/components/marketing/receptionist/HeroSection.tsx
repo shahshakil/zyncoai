@@ -6,7 +6,7 @@ import { ArrowRight } from "lucide-react";
 
 export function HeroSection() {
   return (
-    <section className="relative mx-[calc(50%-50vw)] w-screen overflow-hidden bg-[#f8fafc] pb-16 pt-32">
+    <section id="hero" className="relative mx-[calc(50%-50vw)] w-screen overflow-hidden bg-[#f8fafc] pb-16 pt-32">
       {/* dot-pattern background, same motif as the dashboard */}
       <div
         className="pointer-events-none absolute inset-0 opacity-40"

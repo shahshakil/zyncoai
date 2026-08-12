@@ -38,7 +38,7 @@ export function FaqSection({
   const visibleFaqs = useMemo(() => (activeCategory ? FAQS.filter((f) => f.category === activeCategory) : FAQS), [activeCategory]);
 
   return (
-    <section className="py-20">
+    <section id="faq" className="py-20">
       <div className="mx-auto max-w-2xl text-center">
         <span className="inline-flex items-center rounded-full bg-[#eef2ff] px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-[#4f46e5]">
           {eyebrow}
