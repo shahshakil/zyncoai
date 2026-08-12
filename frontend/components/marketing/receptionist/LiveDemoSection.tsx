@@ -30,9 +30,17 @@ export const DEMO_NUMBER = "+61 2 5747 4792";
 // backend/scripts/generate-demo-audio.mjs if the script text ever changes.
 // The conversation itself follows the real production greeting pattern
 // (server.py's build_dynamic_new_caller_greeting / AI IDENTITY rule): AI
-// disclosure, recording disclosure, and an email confirmation — not SMS,
-// which is currently blocked account-wide (lib/sms.ts) and would have
-// reintroduced the exact overclaim already fixed elsewhere on this site.
+// disclosure and an email confirmation — not SMS, which is currently
+// blocked account-wide (lib/sms.ts) and would have reintroduced the exact
+// overclaim already fixed elsewhere on this site.
+//
+// 2026-08-12 — the opening line also used to include the recording
+// disclosure ("this call may be recorded"), dropped here for pacing. Real
+// production calls still say it whenever a business has recordingDisclosure
+// enabled (dashboard/settings/CallRecordingSection.tsx) — this demo is a
+// real Cartesia recording of Ella's voice on a real booking flow, but is no
+// longer claimed to be an exact, unedited match of the production greeting
+// script (see the softened copy below and in HowItWorksSection.tsx).
 //
 // 2026-08-11 (later same day) — player internals (waveform/transcript/
 // incoming-call/booking-card) extracted to DemoPlayer.tsx so the new
@@ -47,7 +55,7 @@ export function LiveDemoSection({ voiceHealthy = false }: { voiceHealthy?: boole
       <div className="mx-auto max-w-3xl text-center">
         <h2 className="text-3xl font-bold text-[#0f172a] sm:text-4xl">See how Ella handles a real call</h2>
         <p className="mt-3 text-[#475569]">
-          {voiceHealthy ? "This is the actual conversation pattern from Ella's production booking flow." : "Our live demo line is temporarily offline — this recording is not a mockup."}
+          {voiceHealthy ? "A real recording of Ella's voice, handling a booking end to end." : "Our live demo line is temporarily offline — this recording is not a mockup."}
         </p>
       </div>
 

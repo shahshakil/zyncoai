@@ -88,7 +88,7 @@ function ConversationVisual() {
   // "See how Ella handles a real call" (demoCallTranscript.json) — not a
   // paraphrase — so the "hear this exact conversation" link below is
   // literally true. Ella's line is a real substring (the ellipsis marks
-  // the trimmed greeting/disclosure that precedes it in the full call).
+  // the trimmed greeting that precedes it in the full call).
   return (
     <div className="flex w-full flex-col gap-2 rounded-2xl border border-[#e2e8f0] bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
       <div className="flex justify-end">
