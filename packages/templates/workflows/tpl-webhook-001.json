@@ -1,0 +1,31 @@
+{
+  "id": "tpl-webhook-001",
+  "name": "Webhook → HTTP → Echo",
+  "category": "Triggers",
+  "definition": {
+    "nodes": [
+      { "id": "start", "type": "start" },
+
+      {
+        "id": "callApi",
+        "type": "httpRequest",
+        "config": {
+          "method": "GET",
+          "url": "https://api.agify.io/?name={{last.name}}"
+        }
+      },
+
+      {
+        "id": "echo",
+        "type": "echo",
+        "config": {
+          "text": "Webhook name={{last.json.name}} age={{last.json.age}} count={{last.json.count}}"
+        }
+      }
+    ],
+    "edges": [
+      { "from": "start", "to": "callApi" },
+      { "from": "callApi", "to": "echo" }
+    ]
+  }
+}

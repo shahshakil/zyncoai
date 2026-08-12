@@ -1,0 +1,35 @@
+# -------- Worker Builder --------
+FROM node:20-alpine AS builder
+
+RUN apk add --no-cache bash git python3 build-base libc6-compat
+
+WORKDIR /app
+
+# Worker lives in backend
+COPY backend/package*.json ./
+RUN npm install --legacy-peer-deps
+
+COPY backend/ .
+
+# Build if exists
+RUN npm run build || echo "no build step"
+
+# -------- Worker Runtime --------
+FROM node:20-alpine
+
+RUN apk add --no-cache bash curl libc6-compat
+
+WORKDIR /app
+
+COPY --from=builder /app /app
+
+ENV NODE_ENV=production
+
+# ============================
+# Fix Node ESM directory import
+# ============================
+RUN mkdir -p dist/ai/semanticRouter \
+ && cp dist/ai/semanticRouter.js dist/ai/semanticRouter/index.js
+
+# IMPORTANT: worker entry
+CMD ["node","--experimental-specifier-resolution=node","dist/worker.js"]

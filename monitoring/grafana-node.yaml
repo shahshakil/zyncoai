@@ -1,0 +1,9 @@
+grafana:
+  nodeSelector:
+    role: monitoring
+
+  tolerations:
+    - key: "role"
+      operator: "Equal"
+      value: "monitoring"
+      effect: "NoSchedule"

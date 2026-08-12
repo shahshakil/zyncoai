@@ -1,0 +1,42 @@
+{
+ "id": "tpl-retry-001",
+  "name": "Retry HTTP Example",
+  "category": "HTTP",
+  "definition": {
+    "nodes": [
+      { "id": "start", "type": "start" },
+
+      {
+        "id": "callApi",
+        "type": "httpRequest",
+        "config": {
+          "method": "GET",
+          "url": "https://api.agify.io/?name={{input.name}}"
+        }
+      },
+
+      {
+        "id": "retryCall",
+        "type": "retry",
+        "config": {
+          "target": "callApi",
+          "maxAttempts": 4,
+          "delayMs": 300,
+          "backoff": "exponential"
+        }
+      },
+
+      {
+        "id": "echo",
+        "type": "echo",
+        "config": {
+          "text": "Finished retry. Status={{last.status}} Name={{last.json.name}} Age={{last.json.age}} Count={{last.json.count}}"
+        }
+      }
+    ],
+    "edges": [
+      { "from": "start", "to": "retryCall" },
+      { "from": "retryCall", "to": "echo" }
+    ]
+  }
+}

@@ -1,0 +1,87 @@
+# ── Dependencies ──────────────────────────────────────────────
+node_modules/
+**/node_modules/
+
+# ── Environment / secrets ─────────────────────────────────────
+.env
+.env.*
+*.env
+*.env.*
+!.env.example
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
+id_rsa*
+*kubeconfig*
+*service-account*.json
+*credentials*.json
+cluster-secrets.json
+decoded-secrets.txt
+secrets/
+redis-certs/
+certs/
+
+# All loose YAML/JSON sitting at the repo root — this box has repeatedly
+# mixed real credentials (API keys, DB/Redis URLs, OAuth secrets) into
+# one-off ops/kubectl-apply files here. Curated IaC lives under k8s/,
+# infra/, monitoring/, helm/ and is reviewed on its own.
+/*.yaml
+/*.yml
+
+# ── Database dumps ────────────────────────────────────────────
+*.sql
+!prisma/migrations/**/*.sql
+!prisma/sql/**/*.sql
+
+# ── Archives / large blobs ────────────────────────────────────
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+
+# ── Backups, snapshots, stray duplicate trees ─────────────────
+backup/
+backups/
+_snapshots/
+backend_backup_before_voice/
+frontend_backup_2026-02-19_063239/
+frontend-hybrid copy/
+*.bak
+*.bak-stub
+*.bak.*
+**/*__backup_before_marketing_merge_*/
+components.bak.*/
+
+# frontend/src/ is a stale, untracked duplicate of the already-tracked
+# frontend/app/ (same restructure that produced the .bak files above) —
+# not live code, never served, safe to leave out of git entirely.
+frontend/src/
+
+# 2026-08-12 — two empty (0-byte) stray files found alongside the .bak
+# artifacts above, almost certainly created by a mistyped command
+# (e.g. a redirect gone to the wrong place). Left on disk untouched,
+# just excluded from git — no content to lose either way.
+frontend/next
+frontend/frontend@0.1.0
+
+# ── Logs ───────────────────────────────────────────────────────
+logs/
+*.log
+
+# ── Build caches (per sub-app, not just the root) ─────────────
+.next/
+**/.next/
+
+# ── User-uploaded / generated content — real data, not source ──
+uploads/
+
+# ── Vendored third-party bulk (not our source) ────────────────
+aws/
+
+# ── Nested git repos, not registered as submodules yet ────────
+# (git would otherwise silently embed these as broken gitlinks —
+# decide separately whether each becomes a proper submodule)
+frontend-hybrid/
+frontend/zyncoai-marketing/

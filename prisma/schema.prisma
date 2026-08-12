@@ -1,0 +1,664 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Workflow {
+  id                 String              @id @default(cuid())
+  teamId             String
+  name               String
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  config             Json?
+  definitionId       String?
+  steps              Json?
+  trigger            Json?
+  userId             String?
+  Trigger            Trigger[]
+  WorkflowDefinition WorkflowDefinition? @relation(fields: [definitionId], references: [id])
+  Team               Team                @relation(fields: [teamId], references: [id])
+  User               User?               @relation(fields: [userId], references: [id])
+  WorkflowApproval   WorkflowApproval[]
+  WorkflowLoop       WorkflowLoop[]
+  runs               WorkflowRun[]
+
+  @@index([teamId])
+}
+
+model WorkflowRun {
+  id                 String              @id @default(cuid())
+  workflowId         String
+  definitionId       String?
+  userId             String?
+  teamId             String?
+  input              Json?
+  output             Json?
+  context            Json?
+  error              String?
+  status             String              @default("queued")
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  WorkflowApproval   WorkflowApproval[]
+  WorkflowLoop       WorkflowLoop[]
+  WorkflowDefinition WorkflowDefinition? @relation(fields: [definitionId], references: [id])
+  Team               Team?               @relation(fields: [teamId], references: [id])
+  User               User?               @relation(fields: [userId], references: [id])
+  workflow           Workflow            @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  @@index([teamId])
+  @@index([userId])
+  @@index([workflowId])
+}
+
+model AdminLog {
+  id        String   @id
+  teamId    String
+  userId    String?
+  action    String
+  payload   Json?
+  createdAt DateTime @default(now())
+
+  @@index([teamId])
+}
+
+model AiOrchestratorLog {
+  id        String   @id
+  message   String
+  createdAt DateTime @default(now())
+  taskId    String?
+  AiTask    AiTask?  @relation(fields: [taskId], references: [id])
+}
+
+model AiTask {
+  id                String              @id
+  data              Json?
+  status            String
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  AiOrchestratorLog AiOrchestratorLog[]
+}
+
+model AnalyticsEvent {
+  id        String   @id
+  teamId    String
+  name      String
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  @@index([teamId])
+}
+
+model AnalyticsSummary {
+  id        String   @id
+  teamId    String
+  period    String
+  counts    Json?
+  createdAt DateTime @default(now())
+
+  @@index([teamId])
+}
+
+model AuthLog {
+  id        String   @id
+  userId    String?
+  teamId    String?
+  action    String
+  ip        String?
+  json      Json?
+  env       Json?
+  createdAt DateTime @default(now())
+  Team      Team?    @relation(fields: [teamId], references: [id])
+  User      User?    @relation(fields: [userId], references: [id])
+
+  @@index([teamId])
+  @@index([userId])
+}
+
+model Billing {
+  id           String         @id
+  teamId       String?        @unique
+  createdAt    DateTime       @default(now())
+  renewAt      DateTime?
+  status       String
+  updatedAt    DateTime
+  plan         String
+  BillingLog   BillingLog[]
+  Subscription Subscription[]
+  Team         Team?
+}
+
+model BillingLog {
+  id        String   @id
+  teamId    String
+  billingId String
+  action    String
+  amount    Int      @default(0)
+  meta      Json?
+  createdAt DateTime @default(now())
+  Billing   Billing  @relation(fields: [billingId], references: [id], onDelete: Cascade)
+
+  @@index([billingId])
+  @@index([teamId])
+}
+
+model Connector {
+  id                  String                @id
+  key                 String                @unique
+  category            String
+  createdAt           DateTime              @default(now())
+  enabled             Boolean               @default(true)
+  name                String
+  updatedAt           DateTime
+  ConnectorCredential ConnectorCredential[]
+
+  versions  ConnectorVersion[]
+  teamLinks TeamConnector[]
+}
+
+model ConnectorCredential {
+  id          String    @id
+  teamId      String
+  connectorId String
+  type        String
+  data        Json
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  Connector   Connector @relation(fields: [connectorId], references: [id], onDelete: Cascade)
+
+  @@index([connectorId])
+  @@index([teamId])
+}
+
+model ConnectorVersion {
+  id           String   @id @default(cuid())
+  connectorId  String
+  version      String
+  manifestJson Json
+  isDeprecated Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  connector Connector @relation(fields: [connectorId], references: [id], onDelete: Cascade)
+
+  @@unique([connectorId, version])
+  @@index([connectorId])
+}
+
+model TeamConnector {
+  id          String   @id @default(cuid())
+  teamId      String
+  connectorId String
+  version     String
+  status      String   @default("enabled")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  connector Connector @relation(fields: [connectorId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, connectorId])
+  @@index([teamId])
+}
+
+model ConnectorSecret {
+  id          String   @id @default(cuid())
+  teamId      String
+  connectorId String
+  key         String
+  valueEnc    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([teamId, connectorId, key])
+  @@index([teamId])
+}
+
+model Embedding {
+  id           String         @id
+  teamId       String
+  vector       Json?
+  meta         Json?
+  createdAt    DateTime       @default(now())
+  EmbeddingLog EmbeddingLog[]
+
+  @@index([teamId])
+}
+
+model EmbeddingLog {
+  id          String    @id
+  embeddingId String
+  status      String
+  meta        Json?
+  createdAt   DateTime  @default(now())
+  Embedding   Embedding @relation(fields: [embeddingId], references: [id], onDelete: Cascade)
+
+  @@index([embeddingId])
+}
+
+model FeatureFlag {
+  id        String    @id
+  key       String
+  value     Boolean
+  teamId    String?
+  userId    String?
+  json      Json?
+  env       Json?
+  createdAt DateTime  @default(now())
+  Team      Team?     @relation(fields: [teamId], references: [id])
+  User      User?     @relation(fields: [userId], references: [id])
+  FlagLog   FlagLog[]
+
+  @@index([teamId])
+  @@index([userId])
+}
+
+model FileProcessLog {
+  id         String     @id
+  teamId     String
+  fileId     String
+  status     String
+  message    String?
+  meta       Json?
+  createdAt  DateTime   @default(now())
+  FileRecord FileRecord @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  @@index([fileId])
+  @@index([teamId])
+}
+
+model FileRecord {
+  id             String           @id
+  teamId         String
+  name           String
+  size           Int?
+  mimeType       String?
+  meta           Json?
+  createdAt      DateTime         @default(now())
+  FileProcessLog FileProcessLog[]
+
+  @@index([teamId])
+}
+
+model FlagLog {
+  id          String      @id
+  flagId      String
+  userId      String?
+  teamId      String?
+  action      String
+  env         Json?
+  json        Json?
+  createdAt   DateTime    @default(now())
+  FeatureFlag FeatureFlag @relation(fields: [flagId], references: [id], onDelete: Cascade)
+  Team        Team?       @relation(fields: [teamId], references: [id])
+  User        User?       @relation(fields: [userId], references: [id])
+
+  @@index([flagId])
+  @@index([teamId])
+  @@index([userId])
+}
+
+model IngestError {
+  id           String       @id
+  ingestId     String
+  message      String
+  meta         Json?
+  createdAt    DateTime     @default(now())
+  IngestRecord IngestRecord @relation(fields: [ingestId], references: [id], onDelete: Cascade)
+
+  @@index([ingestId])
+}
+
+model IngestRecord {
+  id          String        @id
+  teamId      String
+  source      String
+  payload     Json?
+  createdAt   DateTime      @default(now())
+  IngestError IngestError[]
+
+  @@index([teamId])
+}
+
+model InternalMetrics {
+  id        String   @id
+  teamId    String?
+  json      Json?
+  createdAt DateTime @default(now())
+
+  @@index([teamId])
+}
+
+model MarketplaceApp {
+  id                 String               @id
+  teamId             String
+  name               String
+  icon               String?
+  meta               Json?
+  createdAt          DateTime             @default(now())
+  MarketplaceEvent   MarketplaceEvent[]
+  MarketplaceInstall MarketplaceInstall[]
+  MarketplaceReview  MarketplaceReview[]
+  MarketplaceVersion MarketplaceVersion[]
+
+  @@index([teamId])
+}
+
+model MarketplaceEvent {
+  id             String         @id
+  appId          String
+  teamId         String
+  name           String
+  payload        Json?
+  createdAt      DateTime       @default(now())
+  MarketplaceApp MarketplaceApp @relation(fields: [appId], references: [id], onDelete: Cascade)
+
+  @@index([appId])
+}
+
+model MarketplaceInstall {
+  id             String         @id
+  appId          String
+  teamId         String
+  config         Json?
+  createdAt      DateTime       @default(now())
+  MarketplaceApp MarketplaceApp @relation(fields: [appId], references: [id], onDelete: Cascade)
+
+  @@index([appId])
+  @@index([teamId])
+}
+
+model MarketplaceReview {
+  id             String         @id
+  appId          String
+  teamId         String
+  rating         Int
+  comment        String?
+  createdAt      DateTime       @default(now())
+  MarketplaceApp MarketplaceApp @relation(fields: [appId], references: [id], onDelete: Cascade)
+
+  @@index([appId])
+}
+
+model MarketplaceVersion {
+  id             String         @id
+  appId          String
+  version        String
+  changelog      Json?
+  createdAt      DateTime       @default(now())
+  MarketplaceApp MarketplaceApp @relation(fields: [appId], references: [id], onDelete: Cascade)
+
+  @@index([appId])
+}
+
+model MonitorHealth {
+  id        String   @id
+  service   String
+  status    String
+  meta      Json?
+  createdAt DateTime @default(now())
+}
+
+model MonitorInfra {
+  id        String   @id
+  usageCpu  Float?
+  usageRam  Float?
+  meta      Json?
+  createdAt DateTime @default(now())
+}
+
+model MonitorSystem {
+  id        String   @id
+  metric    String
+  value     Float?
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  @@index([metric])
+}
+
+model NotificationLog {
+  id                 String               @id
+  teamId             String
+  userId             String?
+  type               String
+  payload            Json?
+  createdAt          DateTime             @default(now())
+  NotificationStatus NotificationStatus[]
+
+  @@index([teamId])
+}
+
+model NotificationStatus {
+  id              String          @id
+  logId           String
+  userId          String?
+  status          String
+  meta            Json?
+  createdAt       DateTime        @default(now())
+  NotificationLog NotificationLog @relation(fields: [logId], references: [id], onDelete: Cascade)
+
+  @@index([logId])
+}
+
+model PlaygroundLog {
+  id        String   @id
+  teamId    String
+  request   Json?
+  response  Json?
+  createdAt DateTime @default(now())
+
+  @@index([teamId])
+}
+
+model RealtimeLog {
+  id        String   @id
+  teamId    String
+  channel   String
+  payload   Json?
+  createdAt DateTime @default(now())
+
+  @@index([teamId])
+}
+
+model SearchIndex {
+  id        String      @id
+  teamId    String
+  key       String
+  content   Json?
+  tags      Json?
+  createdAt DateTime    @default(now())
+  SearchLog SearchLog[]
+
+  @@index([key])
+  @@index([teamId])
+}
+
+model SearchLog {
+  id          String      @id
+  teamId      String
+  indexId     String
+  event       String
+  meta        Json?
+  createdAt   DateTime    @default(now())
+  SearchIndex SearchIndex @relation(fields: [indexId], references: [id], onDelete: Cascade)
+
+  @@index([indexId])
+  @@index([teamId])
+}
+
+model Session {
+  id        String    @id
+  userId    String
+  teamId    String?
+  token     String    @unique
+  json      Json?
+  env       Json?
+  createdAt DateTime  @default(now())
+  expiresAt DateTime?
+  Team      Team?     @relation(fields: [teamId], references: [id])
+  User      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([teamId])
+  @@index([userId])
+}
+
+model Subscription {
+  id          String   @id
+  teamId      String
+  billingId   String
+  status      String   @default("active")
+  periodStart DateTime
+  periodEnd   DateTime
+  meta        Json?
+  Billing     Billing  @relation(fields: [billingId], references: [id], onDelete: Cascade)
+
+  @@index([billingId])
+  @@index([teamId])
+}
+
+model Team {
+  id          String        @id
+  name        String
+  createdAt   DateTime      @default(now())
+  billingId   String?       @unique
+  env         Json?
+  json        Json?
+  updatedAt   DateTime
+  AuthLog     AuthLog[]
+  FeatureFlag FeatureFlag[]
+  FlagLog     FlagLog[]
+  Session     Session[]
+  Billing     Billing?      @relation(fields: [billingId], references: [id], onDelete: Cascade)
+  User        User[]
+  Workflow    Workflow[]
+  WorkflowRun WorkflowRun[]
+}
+
+model Trigger {
+  id         String   @id
+  workflowId String
+  createdAt  DateTime @default(now())
+  active     Boolean  @default(true)
+  type       String
+  config     Json?
+  Workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  @@index([workflowId])
+}
+
+model User {
+  id          String        @id
+  email       String        @unique
+  name        String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  env         Json?
+  json        Json?
+  password    String?
+  teamId      String?
+  AuthLog     AuthLog[]
+  FeatureFlag FeatureFlag[]
+  FlagLog     FlagLog[]
+  Session     Session[]
+  Team        Team?         @relation(fields: [teamId], references: [id])
+  Workflow    Workflow[]
+  WorkflowRun WorkflowRun[]
+
+  @@index([teamId])
+}
+
+model WebhookEvent {
+  id         String       @id
+  teamId     String
+  name       String
+  payload    Json?
+  createdAt  DateTime     @default(now())
+  WebhookLog WebhookLog[]
+
+  @@index([teamId])
+}
+
+model WebhookLog {
+  id           String       @id
+  teamId       String
+  eventId      String
+  status       String
+  response     Json?
+  createdAt    DateTime     @default(now())
+  WebhookEvent WebhookEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+  @@index([teamId])
+}
+
+model WorkflowApproval {
+  id            String      @id
+  workflowRunId String
+  stepIndex     Int?
+  userId        String?
+  status        String      @default("pending")
+  createdAt     DateTime    @default(now())
+  workflowId    String?
+  Workflow      Workflow?   @relation(fields: [workflowId], references: [id])
+  WorkflowRun   WorkflowRun @relation(fields: [workflowRunId], references: [id], onDelete: Cascade)
+
+  @@index([workflowRunId])
+}
+
+model WorkflowDefinition {
+  id          String        @id
+  teamId      String
+  name        String
+  description String?
+  steps       Json?
+  trigger     Json?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  Workflow    Workflow[]
+  WorkflowRun WorkflowRun[]
+
+  @@index([teamId])
+}
+
+model WorkflowLoop {
+  id            String      @id
+  workflowRunId String
+  workflowId    String?
+  stepIndex     Int?
+  createdAt     DateTime    @default(now())
+  Workflow      Workflow?   @relation(fields: [workflowId], references: [id])
+  WorkflowRun   WorkflowRun @relation(fields: [workflowRunId], references: [id], onDelete: Cascade)
+
+  @@index([workflowRunId])
+}
+
+model WorkflowSpec {
+  id     String @id
+  teamId String
+  name   String
+  spec   Json
+
+  @@unique([teamId, name])
+}
+
+model Job {
+  id       String  @id @default(cuid())
+  type     String  @default("generic")
+  status   String  @default("queued") // queued | running | done | failed
+  payload  Json?
+  result   Json?
+  error    String?
+  attempts Int     @default(0)
+
+  runAt    DateTime  @default(now())
+  lockedAt DateTime?
+  lockedBy String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, runAt])
+  @@index([lockedAt])
+}

@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zyncoai-marketing
+  namespace: zyncoai
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: zyncoai-marketing
+  template:
+    metadata:
+      labels:
+        app: zyncoai-marketing
+    spec:
+      containers:
+        - name: marketing
+          image: gcr.io/YOUR_PROJECT/zyncoai-marketing:1.0
+          ports:
+            - containerPort: 3000

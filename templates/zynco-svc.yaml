@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $NAME
+  namespace: my-ai-saas
+  labels:
+    app: zynco
+    tier: $TIER
+    svc: $NAME
+spec:
+  replicas: $REPLICAS
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: zynco
+      tier: $TIER
+      svc: $NAME
+  template:
+    metadata:
+      labels:
+        app: zynco
+        tier: $TIER
+        svc: $NAME
+    spec:
+      containers:
+        - name: $NAME
+          image: $IMAGE
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: $PORT
+          envFrom:
+            - secretRef:
+                name: zynco-env
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PORT
+              value: "$PORT"
+            - name: REDIS_URL
+              value: "redis://my-ai-saas-redis:6379"
+            - name: WORKFLOW_QUEUE_NAME
+              value: "$QUEUE"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: $PORT
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: $PORT
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 10001
+            runAsGroup: 10001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: $NAME
+  namespace: my-ai-saas
+  labels:
+    app: zynco
+    tier: $TIER
+    svc: $NAME
+spec:
+  selector:
+    app: zynco
+    tier: $TIER
+    svc: $NAME
+  ports:
+    - name: http
+      port: $PORT
+      targetPort: $PORT
+      protocol: TCP
+  type: ClusterIP

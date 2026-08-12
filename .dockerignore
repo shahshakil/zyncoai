@@ -1,0 +1,25 @@
+# Ignore everything by default
+**
+
+# ✅ ALLOW BACKEND FOR WORKER IMAGE
+!backend/
+!backend/**
+
+# ✅ ALLOW WORKER DOCKERFILE
+!Dockerfile.worker
+
+# (optional but safe)
+!package-lock.json
+
+# But keep frontend sources
+!frontend/
+!frontend/**
+
+# Still ignore local builds & node_modules anywhere
+**/node_modules
+**/.next
+**/dist
+**/.turbo
+**/.git
+**/.gitignore
+*/.log

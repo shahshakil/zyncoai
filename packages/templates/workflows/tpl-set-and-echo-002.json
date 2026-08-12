@@ -1,0 +1,25 @@
+{
+  "id": "tpl-set-and-echo-002",
+  "name": "Set variable then echo",
+  "category": "Basics",
+  "tags": ["variable", "mapping"],
+  "definition": {
+    "nodes": [
+      { "id": "start", "type": "start" },
+      {
+        "id": "set1",
+        "type": "setVariable",
+        "config": { "key": "greeting", "value": "Hello {{input.name}}" }
+      },
+      {
+        "id": "echo",
+        "type": "echo",
+        "config": { "text": "{{vars.greeting}}" }
+      }
+    ],
+    "edges": [
+      { "from": "start", "to": "set1" },
+      { "from": "set1", "to": "echo" }
+    ]
+  }
+}

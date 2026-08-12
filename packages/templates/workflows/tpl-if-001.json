@@ -1,0 +1,41 @@
+{
+  "id": "tpl-if-001",
+  "name": "IF Example",
+  "category": "Logic",
+  "definition": {
+    "nodes": [
+      { "id": "start", "type": "start" },
+
+      {
+        "id": "checkAge",
+        "type": "condition",
+        "config": {
+          "left": "{{input.value}}",
+          "operator": ">",
+          "right": 30
+        }
+      },
+
+      {
+        "id": "echoTrue",
+        "type": "echo",
+        "config": {
+          "text": "Age is greater than 30"
+        }
+      },
+
+      {
+        "id": "echoFalse",
+        "type": "echo",
+        "config": {
+          "text": "Age is 30 or below"
+        }
+      }
+    ],
+    "edges": [
+      { "from": "start", "to": "checkAge" },
+      { "from": "checkAge", "to": "echoTrue", "when": true },
+      { "from": "checkAge", "to": "echoFalse", "when": false }
+    ]
+  }
+}

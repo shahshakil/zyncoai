@@ -1,0 +1,184 @@
+/* =========================================================
+   ZyncoAI Global Styles
+   Interaction-safe, n8n-inspired (NOT a clone)
+   ========================================================= */
+
+/* -----------------------------
+   Base resets
+------------------------------ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background-color: #020617; /* slate-950 style */
+  color: #ffffff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* -----------------------------
+   Core layout isolation
+   (prevents click hijacking)
+------------------------------ */
+body {
+  position: relative;
+  isolation: isolate; /* IMPORTANT: n8n-style fix */
+}
+
+/* -----------------------------
+   Decorative layers
+   NEVER capture clicks
+------------------------------ */
+.pointer-events-none,
+.bg-gradient,
+.bg-[radial-gradient],
+.blur,
+.blur-2xl,
+.blur-3xl,
+.backdrop-blur,
+.backdrop-blur-sm,
+.backdrop-blur-md,
+.backdrop-blur-lg {
+  pointer-events: none !important;
+}
+
+/* -----------------------------
+   Fixed & absolute elements
+   Only interactive if intended
+------------------------------ */
+.fixed,
+.absolute {
+  pointer-events: auto;
+}
+
+/* -----------------------------
+   Main interactive zones
+------------------------------ */
+main,
+header,
+nav,
+section,
+footer {
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+/* -----------------------------
+   Clickable elements
+------------------------------ */
+a,
+button,
+[role="button"],
+input,
+select,
+textarea {
+  pointer-events: auto;
+  position: relative;
+  z-index: 20;
+  cursor: pointer;
+}
+
+/* Prevent invisible overlays */
+a::before,
+a::after,
+button::before,
+button::after {
+  pointer-events: none;
+}
+
+/* -----------------------------
+   Navigation & dropdowns
+   (n8n / Linear behaviour)
+------------------------------ */
+nav *,
+nav a,
+nav button {
+  pointer-events: auto;
+  z-index: 30;
+}
+
+/* -----------------------------
+   Cards / tiles (use cases, pricing)
+------------------------------ */
+.card,
+.tile,
+.group {
+  position: relative;
+  z-index: 15;
+  pointer-events: auto;
+}
+
+/* Hover effects allowed, clicks preserved */
+.group:hover {
+  z-index: 20;
+}
+
+/* -----------------------------
+   Background visual layers
+   (stars, glows, grids)
+------------------------------ */
+.bg-layer,
+.visual-layer,
+.decorative-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* -----------------------------
+   Control dashboards / panels
+------------------------------ */
+.dashboard,
+.panel,
+.widget {
+  position: relative;
+  z-index: 25;
+  pointer-events: auto;
+}
+
+/* -----------------------------
+   Fix common Next.js + Tailwind trap
+------------------------------ */
+[data-overlay],
+[data-bg],
+[data-decorative] {
+  pointer-events: none !important;
+}
+
+/* -----------------------------
+   Ensure modals work correctly
+------------------------------ */
+.modal,
+.dialog {
+  pointer-events: auto;
+  z-index: 100;
+}
+
+/* -----------------------------
+   Footer always clickable
+------------------------------ */
+footer a,
+footer button {
+  pointer-events: auto;
+  z-index: 30;
+}
+
+/* -----------------------------
+   Debug helper (optional)
+   Uncomment if needed
+------------------------------ */
+/*
+* {
+  outline: 1px solid rgba(255,0,0,0.05);
+}
+*/

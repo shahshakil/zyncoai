@@ -1,0 +1,21 @@
+{
+  "id": "tpl-http-test-001",
+  "name": "HTTP Request Test",
+  "category": "Testing",
+  "definition": {
+    "nodes": [
+      { "id": "start", "type": "start" },
+      {
+        "id": "callApi",
+        "type": "httpRequest",
+        "config": {
+          "method": "GET",
+          "url": "https://api.agify.io/?name={{input.name}}"
+        }
+      }
+    ],
+    "edges": [
+      { "from": "start", "to": "callApi" }
+    ]
+  }
+}

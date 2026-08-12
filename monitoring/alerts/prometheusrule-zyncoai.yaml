@@ -1,0 +1,40 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: zyncoai-alerts
+  namespace: monitoring
+spec:
+  groups:
+  - name: zyncoai.core
+    rules:
+    - alert: ZyncoAIHigh5xx
+      expr: sum(rate(http_requests_total{status=~"5.."}[5m])) > 1
+      for: 5m
+      labels: { severity: warning }
+      annotations:
+        summary: "High 5xx error rate"
+        description: "Services are returning too many 5xx errors"
+
+    - alert: ZyncoAIHighLatencyP95
+      expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 1
+      for: 10m
+      labels: { severity: warning }
+      annotations:
+        summary: "High latency p95"
+        description: "p95 latency over 1s"
+
+    - alert: RedisExporterDown
+      expr: up{job=~".*redis-exporter.*"} == 0
+      for: 2m
+      labels: { severity: critical }
+      annotations:
+        summary: "Redis exporter down"
+        description: "Redis metrics not scraping"
+
+    - alert: PostgresExporterDown
+      expr: up{job=~".*postgres-exporter.*"} == 0
+      for: 2m
+      labels: { severity: critical }
+      annotations:
+        summary: "Postgres exporter down"
+        description: "Postgres metrics not scraping"

@@ -1,0 +1,13 @@
+{
+  "id": "tpl-echo-001",
+  "name": "Echo message",
+  "category": "Testing",
+  "tags": ["debug", "hello"],
+  "definition": {
+    "nodes": [
+      { "id": "start", "type": "start" },
+      { "id": "echo", "type": "echo", "config": { "text": "{{input.msg}}" } }
+    ],
+    "edges": [{ "from": "start", "to": "echo" }]
+  }
+}

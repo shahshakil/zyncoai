@@ -1,0 +1,16 @@
+{
+  "id": "tpl-setvar-test-001",
+  "name": "SetVar Test",
+  "category": "Logic",
+  "definition": {
+    "nodes": [
+      { "id": "start", "type": "start" },
+      { "id": "setAge", "type": "setVar", "config": { "key": "age", "value": "{{input.value}}" } },
+      { "id": "echo", "type": "echo", "config": { "text": "Age={{vars.age}}" } }
+    ],
+    "edges": [
+      { "from": "start", "to": "setAge" },
+      { "from": "setAge", "to": "echo" }
+    ]
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "name": "my-ai-saas",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend",
+    "packages/*",
+    "services/*"
+  ],
+  "scripts": {
+    "db:generate": "prisma generate --schema prisma/schema.prisma",
+    "db:push": "prisma db push --schema prisma/schema.prisma",
+    "db:migrate": "prisma migrate dev --schema prisma/schema.prisma"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.24",
+    "postcss": "^8.5.6",
+    "prisma": "^6.19.2",
+    "tailwindcss": "^4.2.1",
+    "tsx": "^4.21.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.2"
+  },
+  "version": "1.0.0",
+  "main": "ecosystem.config.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

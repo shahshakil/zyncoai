@@ -1,0 +1,17 @@
+{
+  "id": "tpl-setvar-001",
+  "name": "Set Variable + Echo",
+  "category": "Basics",
+  "tags": ["vars", "debug"],
+  "definition": {
+    "nodes": [
+      { "id": "start", "type": "start" },
+      { "id": "set1", "type": "setVariable", "config": { "key": "greeting", "value": "Hello {{input.msg}}" } },
+      { "id": "echo", "type": "echo", "config": { "text": "{{vars.greeting}}" } }
+    ],
+    "edges": [
+      { "from": "start", "to": "set1" },
+      { "from": "set1", "to": "echo" }
+    ]
+  }
+}

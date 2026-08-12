@@ -1,0 +1,53 @@
+{
+  "id": "tpl-http-extract-001",
+  "name": "HTTP + Extract + Echo",
+  "category": "HTTP",
+  "tags": ["http", "extract", "json"],
+  "definition": {
+    "nodes": [
+      { "id": "start", "type": "start" },
+
+      {
+        "id": "callApi",
+        "type": "httpRequest",
+        "config": {
+          "method": "GET",
+          "url": "https://api.agify.io/?name={{input.name}}"
+        }
+      },
+
+{
+  "id": "age",
+  "type": "jsonExtract",
+  "config": {
+    "from": "callApi",
+    "path": "json.age",
+    "toVar": "age"
+  }
+},
+{
+  "id": "count",
+  "type": "jsonExtract",
+  "config": {
+    "from": "callApi",
+    "path": "json.count",
+    "toVar": "count"
+  }
+},
+
+      {
+        "id": "echo",
+        "type": "echo",
+        "config": {
+          "text": "Name={{input.name}}, Age={{vars.age}}, Count={{vars.count}}"
+        }
+      }
+    ],
+    "edges": [
+      { "from": "start", "to": "callApi" },
+      { "from": "callApi", "to": "age" },
+      { "from": "age", "to": "count" },
+      { "from": "count", "to": "echo" }
+    ]
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "id": "tpl-http-transform-001",
+  "name": "HTTP → Save Age → Echo",
+  "category": "HTTP",
+  "tags": ["http", "transform", "vars"],
+  "definition": {
+    "nodes": [
+      { "id": "start", "type": "start" },
+      {
+        "id": "callApi",
+        "type": "httpRequest",
+        "config": {
+          "method": "GET",
+          "url": "https://api.agify.io/?name={{input.name}}"
+        }
+      },
+      {
+        "id": "saveAge",
+        "type": "transform",
+        "config": {
+          "set": {
+            "age": "{{last.json.age}}",
+            "count": "{{last.json.count}}"
+          }
+        }
+      },
+      {
+        "id": "echo",
+        "type": "echo",
+        "config": {
+          "text": "Name={{input.name}}, Age={{vars.age}}, Count={{vars.count}}"
+        }
+      }
+    ],
+    "edges": [
+      { "from": "start", "to": "callApi" },
+      { "from": "callApi", "to": "saveAge" },
+      { "from": "saveAge", "to": "echo" }
+    ]
+  }
+}

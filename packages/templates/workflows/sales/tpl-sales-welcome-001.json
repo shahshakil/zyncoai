@@ -1,0 +1,25 @@
+{
+  "id": "tpl-sales-welcome-001",
+  "name": "Sales welcome message",
+  "category": "Sales",
+  "tags": ["sales", "welcome", "onboarding"],
+  "definition": {
+    "nodes": [
+      { "id": "start", "type": "start" },
+      {
+        "id": "set1",
+        "type": "setVariable",
+        "config": { "key": "welcome", "value": "Welcome {{input.name}}! Thanks for joining." }
+      },
+      {
+        "id": "echo",
+        "type": "echo",
+        "config": { "text": "{{vars.welcome}}" }
+      }
+    ],
+    "edges": [
+      { "from": "start", "to": "set1" },
+      { "from": "set1", "to": "echo" }
+    ]
+  }
+}
