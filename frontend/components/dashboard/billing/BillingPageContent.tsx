@@ -331,12 +331,15 @@ export function BillingPageContent() {
 
       {/* Section 3 — Payment method */}
       <PaymentMethodSelector
-        preferredPaymentMethod={data.preferredPaymentMethod}
+        // BPAY was never actually selectable (never configured) so no
+        // business could have genuinely set this — guarded defensively
+        // since the DB-backed type still technically allows the legacy value.
+        preferredPaymentMethod={data.preferredPaymentMethod === "BPAY" ? null : data.preferredPaymentMethod}
         square={data.square}
         bankTransfer={data.bankTransfer}
-        bpay={data.bpay}
         paypal={data.paypal}
         hasPlan={Boolean(data.plan)}
+        nextBillingDate={data.plan?.nextBillingDate ?? null}
         onChanged={mutate}
       />
 

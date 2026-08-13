@@ -1,30 +1,47 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { CreditCard, Landmark, Wallet, Receipt, Copy, CheckCircle2, Lock } from "lucide-react";
-import { apiPost, ApiError } from "@/lib/useApi";
+import { CreditCard, Landmark, Wallet, Copy, Check, CheckCircle2 } from "lucide-react";
+import { apiPost } from "@/lib/useApi";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/tabs";
 import { SquareCardForm } from "../settings/SquarePaymentMethodCard";
 
-type Method = "SQUARE" | "BANK_TRANSFER" | "PAYPAL" | "BPAY";
+type Method = "SQUARE" | "BANK_TRANSFER" | "PAYPAL";
 
 interface SquareClientConfig { applicationId: string; locationId: string; environment: "sandbox" | "production" }
 interface SavedCard { brand: string | null; last4: string | null; expMonth: number | null; expYear: number | null }
 interface BankTransferInfo { bankName: string | null; bankAccountName: string | null; bankBsb: string | null; bankAccountNumber: string | null; payId: string | null; configured: boolean }
-interface BpayInfo { billerCode: string | null; reference: string; configured: boolean }
 interface PayPalInfo { configured: boolean; clientId: string | null; environment: "sandbox" | "production" | null; subscriptionActive: boolean; payerEmail: string | null }
 
-const METHODS: { key: Method; label: string; icon: typeof CreditCard }[] = [
-  { key: "SQUARE", label: "Credit / Debit Card", icon: CreditCard },
-  { key: "BANK_TRANSFER", label: "Bank Transfer", icon: Landmark },
-  { key: "PAYPAL", label: "PayPal", icon: Wallet },
-  { key: "BPAY", label: "BPAY", icon: Receipt },
-];
-
-function copyToClipboard(value: string, label: string) {
-  navigator.clipboard.writeText(value);
-  toast.success(`${label} copied`);
+// Click-to-copy field with its own transient checkmark state (not just a
+// toast) — used for every Bank Transfer detail so copying is confirmed
+// right where the user's eyes already are.
+function CopyField({ label, value, mono = true }: { label: string; value: string; mono?: boolean }) {
+  const [copied, setCopied] = useState(false);
+  async function copy() {
+    await navigator.clipboard.writeText(value);
+    setCopied(true);
+    toast.success(`${label} copied`);
+    setTimeout(() => setCopied(false), 1500);
+  }
+  return (
+    <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3.5 transition hover:border-slate-300">
+      <p className="text-xs font-medium text-slate-500">{label}</p>
+      <div className="mt-0.5 flex items-center justify-between gap-2">
+        <p className={`truncate text-sm font-semibold text-slate-900 ${mono ? "font-mono tracking-wide" : ""}`}>{value}</p>
+        <button
+          type="button"
+          onClick={copy}
+          aria-label={`Copy ${label}`}
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-slate-400 transition hover:bg-slate-200 hover:text-slate-700"
+        >
+          {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+        </button>
+      </div>
+    </div>
+  );
 }
 
 function BankTransferPanel({ info }: { info: BankTransferInfo }) {
@@ -32,51 +49,16 @@ function BankTransferPanel({ info }: { info: BankTransferInfo }) {
     return <p className="text-sm text-slate-500">Bank transfer is temporarily unavailable.</p>;
   }
   return (
-    <div className="space-y-2 text-sm">
-      <div className="flex items-center justify-between rounded-lg border border-slate-200 p-3">
-        <div>
-          <p className="text-xs text-slate-400">Account name</p>
-          <p className="font-medium text-slate-900">{info.bankAccountName}</p>
-        </div>
+    <div className="space-y-2.5">
+      <CopyField label="Account name" value={info.bankAccountName || "—"} mono={false} />
+      <div className="grid grid-cols-2 gap-2.5">
+        <CopyField label="BSB" value={info.bankBsb || "—"} />
+        <CopyField label="Account number" value={info.bankAccountNumber || "—"} />
       </div>
-      <div className="grid grid-cols-2 gap-2">
-        <div className="rounded-lg border border-slate-200 p-3">
-          <p className="text-xs text-slate-400">BSB</p>
-          <div className="flex items-center justify-between"><p className="font-medium text-slate-900">{info.bankBsb}</p><button onClick={() => copyToClipboard(info.bankBsb || "", "BSB")}><Copy className="h-3.5 w-3.5 text-slate-400" /></button></div>
-        </div>
-        <div className="rounded-lg border border-slate-200 p-3">
-          <p className="text-xs text-slate-400">Account number</p>
-          <div className="flex items-center justify-between"><p className="font-medium text-slate-900">{info.bankAccountNumber}</p><button onClick={() => copyToClipboard(info.bankAccountNumber || "", "Account number")}><Copy className="h-3.5 w-3.5 text-slate-400" /></button></div>
-        </div>
-      </div>
-      {info.payId && (
-        <div className="rounded-lg border border-slate-200 p-3">
-          <p className="text-xs text-slate-400">PayID</p>
-          <div className="flex items-center justify-between"><p className="font-medium text-slate-900">{info.payId}</p><button onClick={() => copyToClipboard(info.payId || "", "PayID")}><Copy className="h-3.5 w-3.5 text-slate-400" /></button></div>
-        </div>
-      )}
-      <p className="text-xs text-slate-500">{info.bankName} · Reference each payment with your invoice number (shown on every invoice) so it&apos;s matched automatically.</p>
-    </div>
-  );
-}
-
-function BpayPanel({ info }: { info: BpayInfo }) {
-  if (!info.configured) {
-    return <p className="text-sm text-slate-500">BPAY is temporarily unavailable.</p>;
-  }
-  return (
-    <div className="space-y-2 text-sm">
-      <div className="grid grid-cols-2 gap-2">
-        <div className="rounded-lg border border-slate-200 p-3">
-          <p className="text-xs text-slate-400">Biller code</p>
-          <div className="flex items-center justify-between"><p className="font-medium text-slate-900">{info.billerCode}</p><button onClick={() => copyToClipboard(info.billerCode || "", "Biller code")}><Copy className="h-3.5 w-3.5 text-slate-400" /></button></div>
-        </div>
-        <div className="rounded-lg border border-slate-200 p-3">
-          <p className="text-xs text-slate-400">Reference</p>
-          <div className="flex items-center justify-between"><p className="font-medium text-slate-900">{info.reference}</p><button onClick={() => copyToClipboard(info.reference, "Reference")}><Copy className="h-3.5 w-3.5 text-slate-400" /></button></div>
-        </div>
-      </div>
-      <p className="text-xs text-slate-500">Pay via internet banking — search &quot;BPAY&quot; in your bank&apos;s app, then enter the biller code and reference above. This reference stays the same every month.</p>
+      {info.payId && <CopyField label="PayID" value={info.payId} />}
+      <p className="pt-1 text-xs text-slate-500">
+        {info.bankName ? `${info.bankName} · ` : ""}Reference each payment with your invoice number (shown on every invoice) so it&apos;s matched automatically.
+      </p>
     </div>
   );
 }
@@ -184,7 +166,7 @@ function PayPalPanel({ info, hasPlan, onChanged }: { info: PayPalInfo; hasPlan: 
     <div className="space-y-2">
       <p className="text-sm text-slate-500">Subscribe with PayPal for automatic recurring billing each month.</p>
       <div ref={containerRef} className="max-w-xs" />
-      {rendering && <p className="text-xs text-slate-400">Loading PayPal…</p>}
+      {rendering && <p className="text-xs text-slate-500">Loading PayPal…</p>}
     </div>
   );
 }
@@ -193,28 +175,30 @@ export function PaymentMethodSelector({
   preferredPaymentMethod,
   square,
   bankTransfer,
-  bpay,
   paypal,
   hasPlan,
+  nextBillingDate,
   onChanged,
 }: {
   preferredPaymentMethod: Method | null;
   square: { configured: boolean; clientConfig: SquareClientConfig | null; card: SavedCard | null };
   bankTransfer: BankTransferInfo;
-  bpay: BpayInfo;
   paypal: PayPalInfo;
   hasPlan: boolean;
+  nextBillingDate?: string | null;
   onChanged: () => void;
 }) {
   // A method that isn't actually configured yet can never be a real
-  // preference — shown as a locked "Coming soon" tile instead of a
-  // selectable one (BPAY needs a real biller code from the bank; PayPal's
-  // integration is real but has no production credentials yet).
-  const availability: Record<Method, boolean> = { SQUARE: true, BANK_TRANSFER: true, PAYPAL: paypal.configured, BPAY: bpay.configured };
+  // preference — PayPal falls back to Card and shows as a quiet, disabled
+  // tab until it has real production credentials. BPAY has been removed
+  // entirely (see PaymentMethodSelector's git history) — it was never going
+  // to ship, so a "Soon" tile for it was a false promise.
+  const availability: Record<Method, boolean> = { SQUARE: true, BANK_TRANSFER: true, PAYPAL: paypal.configured };
   const initialSelected = preferredPaymentMethod && availability[preferredPaymentMethod] ? preferredPaymentMethod : "SQUARE";
   const [selected, setSelected] = useState<Method>(initialSelected);
 
-  async function choose(method: Method) {
+  async function choose(value: string) {
+    const method = value as Method;
     if (!availability[method]) return;
     setSelected(method);
     try {
@@ -228,51 +212,25 @@ export function PaymentMethodSelector({
     <Card>
       <CardHeader><CardTitle>Payment method</CardTitle></CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {METHODS.map((m) => {
-            const Icon = m.icon;
-            const active = selected === m.key;
-            const available = availability[m.key];
-            if (!available) {
-              return (
-                <div
-                  key={m.key}
-                  className="flex cursor-not-allowed items-center gap-2 rounded-lg border border-dashed border-slate-200 bg-slate-50 p-3 text-left text-sm text-slate-400"
-                  title="Coming soon"
-                >
-                  <Icon className="h-4 w-4 shrink-0" />
-                  <span className="font-medium">{m.label}</span>
-                  <span className="ml-auto flex items-center gap-1 rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-                    <Lock className="h-2.5 w-2.5" /> Soon
-                  </span>
-                </div>
-              );
-            }
-            return (
-              <button
-                key={m.key}
-                type="button"
-                onClick={() => choose(m.key)}
-                className={`flex items-center gap-2 rounded-lg border p-3 text-left text-sm transition ${
-                  active ? "border-[var(--accent,#4f46e5)] bg-[var(--accent-soft,#EEF2FF)] text-slate-900" : "border-slate-200 text-slate-600 hover:border-slate-300"
-                }`}
-              >
-                <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${active ? "border-[var(--accent,#4f46e5)]" : "border-slate-300"}`}>
-                  {active && <span className="h-2 w-2 rounded-full bg-[var(--accent,#4f46e5)]" />}
-                </span>
-                <Icon className="h-4 w-4 shrink-0" />
-                <span className="font-medium">{m.label}</span>
-              </button>
-            );
-          })}
-        </div>
+        <Tabs value={selected} onValueChange={choose}>
+          <TabsList>
+            <TabsTrigger value="SQUARE" className="gap-1.5"><CreditCard className="h-4 w-4" /> Card</TabsTrigger>
+            <TabsTrigger value="BANK_TRANSFER" className="gap-1.5"><Landmark className="h-4 w-4" /> Bank Transfer</TabsTrigger>
+            <TabsTrigger value="PAYPAL" disabled={!paypal.configured} className="gap-1.5 disabled:cursor-not-allowed disabled:opacity-50">
+              <Wallet className="h-4 w-4" /> PayPal{!paypal.configured && <span className="text-slate-400">&middot; Soon</span>}
+            </TabsTrigger>
+          </TabsList>
 
-        <div className="border-t border-slate-100 pt-4">
-          {selected === "SQUARE" && <SquareCardForm configured={square.configured} clientConfig={square.clientConfig} card={square.card} onChanged={onChanged} />}
-          {selected === "BANK_TRANSFER" && <BankTransferPanel info={bankTransfer} />}
-          {selected === "PAYPAL" && <PayPalPanel info={paypal} hasPlan={hasPlan} onChanged={onChanged} />}
-          {selected === "BPAY" && <BpayPanel info={bpay} />}
-        </div>
+          <TabsContent value="SQUARE">
+            <SquareCardForm configured={square.configured} clientConfig={square.clientConfig} card={square.card} nextBillingDate={nextBillingDate} onChanged={onChanged} />
+          </TabsContent>
+          <TabsContent value="BANK_TRANSFER">
+            <BankTransferPanel info={bankTransfer} />
+          </TabsContent>
+          <TabsContent value="PAYPAL">
+            <PayPalPanel info={paypal} hasPlan={hasPlan} onChanged={onChanged} />
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );
