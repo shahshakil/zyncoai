@@ -15,7 +15,7 @@ export function BrandLogo({ collapsed }: { collapsed?: boolean }) {
       {!collapsed && (
         <div className="min-w-0 leading-tight">
           <p className="truncate text-sm font-bold tracking-tight text-slate-900">ZyncoAI</p>
-          <p className="truncate text-xs font-medium uppercase tracking-wider text-slate-400">Voice Core</p>
+          <p className="truncate text-xs font-medium uppercase tracking-wider text-slate-500">Voice Core</p>
         </div>
       )}
     </div>

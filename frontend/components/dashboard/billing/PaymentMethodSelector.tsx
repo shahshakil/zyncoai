@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/tabs";
 import { SquareCardForm } from "../settings/SquarePaymentMethodCard";
+import { BrandLogo } from "@/components/layout/BrandLogo";
 
 type Method = "SQUARE" | "BANK_TRANSFER" | "PAYPAL";
 
@@ -210,6 +211,12 @@ export function PaymentMethodSelector({
 
   return (
     <Card>
+      {/* Quiet brand presence heading the payment area, Zapier-checkout
+          style — the existing sidebar wordmark (BrandLogo), untouched,
+          just scaled down for a section header rather than nav real estate. */}
+      <div className="scale-[0.82] origin-left px-5 pt-4">
+        <BrandLogo />
+      </div>
       <CardHeader><CardTitle>Payment method</CardTitle></CardHeader>
       <CardContent className="space-y-4">
         <Tabs value={selected} onValueChange={choose}>
