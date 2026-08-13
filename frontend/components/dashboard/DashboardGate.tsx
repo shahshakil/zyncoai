@@ -22,6 +22,7 @@ export function DashboardGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [state, setState] = useState<GateState | null>(null);
   const [error, setError] = useState(false);
+  const [maintenance, setMaintenance] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -45,6 +46,17 @@ export function DashboardGate({ children }: { children: React.ReactNode }) {
         const me = await meRes.json();
 
         const businessMe = await businessMeRes.json().catch(() => null);
+
+        // Platform-wide maintenance mode (server.ts's maintenanceGate, mounted
+        // ahead of every /api/business route) returns this exact 503 shape for
+        // both fresh and already-established sessions alike — /api/auth/me is
+        // untouched by the gate, so a logged-in user always gets this far
+        // instead of being bounced to /login. Checked before the impersonation
+        // branch below so it applies to admin "view as business" sessions too.
+        if (businessMeRes.status === 503 && businessMe?.error === "maintenance_mode") {
+          if (!cancelled) setMaintenance(businessMe.message || "ZyncoAI is undergoing scheduled maintenance. Please check back shortly.");
+          return;
+        }
 
         // Admin "view as business" sessions have no real User/Membership/
         // onboarding-status row behind them (see requireJwt's impersonation
@@ -122,6 +134,17 @@ export function DashboardGate({ children }: { children: React.ReactNode }) {
       cancelled = true;
     };
   }, [router]);
+
+  if (maintenance) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
+        <div className="max-w-sm space-y-2 text-center">
+          <p className="text-sm font-semibold text-slate-900">ZyncoAI is undergoing maintenance</p>
+          <p className="text-sm text-slate-500">{maintenance}</p>
+        </div>
+      </div>
+    );
+  }
 
   if (error) {
     return (
