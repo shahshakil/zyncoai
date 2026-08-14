@@ -12,6 +12,7 @@ import { formatAUD as money } from "@/lib/money";
 interface AvailablePlan { key: string; name: string; priceCents: number; isCustom: boolean }
 interface BillingData {
   square: { configured: boolean; clientConfig: { applicationId: string; locationId: string; environment: "sandbox" | "production" } | null; card: { brand: string | null; last4: string | null; expMonth: number | null; expYear: number | null } | null };
+  billingContact: { name: string | null; email: string | null };
   availablePlans: AvailablePlan[];
 }
 
@@ -63,6 +64,7 @@ export function SuspendedAccountGate() {
               configured={data.square.configured}
               clientConfig={data.square.clientConfig}
               card={data.square.card}
+              billingContact={data.billingContact}
               onChanged={mutate}
             />
             {hasCard && (

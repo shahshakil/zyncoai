@@ -18,6 +18,7 @@ interface SquareInfo {
   clientConfig: { applicationId: string; locationId: string; environment: "sandbox" | "production" } | null;
   card: { brand: string | null; last4: string | null; expMonth: number | null; expYear: number | null } | null;
 }
+interface BillingContact { name: string | null; email: string | null }
 interface BankTransferInfo {
   configured: boolean;
 }
@@ -33,7 +34,7 @@ function gstBreakdown(totalCents: number) {
 }
 
 export function PlanPickerDialog({
-  open, onClose, plans, currentPlanKey, hasExistingPlan, square, bankTransfer, onSaved,
+  open, onClose, plans, currentPlanKey, hasExistingPlan, square, billingContact, bankTransfer, onSaved,
 }: {
   open: boolean;
   onClose: () => void;
@@ -41,6 +42,7 @@ export function PlanPickerDialog({
   currentPlanKey: string | null;
   hasExistingPlan: boolean;
   square: SquareInfo;
+  billingContact?: BillingContact | null;
   bankTransfer: BankTransferInfo;
   onSaved: () => void;
 }) {
@@ -228,7 +230,7 @@ function CheckoutSummary({
         ) : (
           <div className="space-y-3">
             <p className="text-sm font-medium text-slate-700">Choose how to pay:</p>
-            <SquareCardForm configured={square.configured} clientConfig={square.clientConfig} card={square.card} onChanged={onCardSaved} />
+            <SquareCardForm configured={square.configured} clientConfig={square.clientConfig} card={square.card} billingContact={billingContact} onChanged={onCardSaved} />
             <div className="flex items-center gap-2 text-xs text-slate-400">
               <div className="h-px flex-1 bg-slate-200" /> or <div className="h-px flex-1 bg-slate-200" />
             </div>

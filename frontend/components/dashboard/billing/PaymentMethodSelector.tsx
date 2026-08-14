@@ -14,6 +14,7 @@ type Method = "SQUARE" | "BANK_TRANSFER" | "PAYPAL";
 
 interface SquareClientConfig { applicationId: string; locationId: string; environment: "sandbox" | "production" }
 interface SavedCard { brand: string | null; last4: string | null; expMonth: number | null; expYear: number | null }
+interface BillingContact { name: string | null; email: string | null }
 interface BankTransferInfo { bankName: string | null; bankAccountName: string | null; bankBsb: string | null; bankAccountNumber: string | null; payId: string | null; configured: boolean }
 interface PayPalInfo { configured: boolean; clientId: string | null; environment: "sandbox" | "production" | null; subscriptionActive: boolean; payerEmail: string | null }
 // The one invoice PayPal can pay right now — the oldest still-ISSUED
@@ -218,6 +219,7 @@ function PayPalPanel({ info, invoice, onChanged }: { info: PayPalInfo; invoice: 
 export function PaymentMethodSelector({
   preferredPaymentMethod,
   square,
+  billingContact,
   bankTransfer,
   paypal,
   outstandingInvoice,
@@ -226,6 +228,7 @@ export function PaymentMethodSelector({
 }: {
   preferredPaymentMethod: Method | null;
   square: { configured: boolean; clientConfig: SquareClientConfig | null; card: SavedCard | null };
+  billingContact?: BillingContact | null;
   bankTransfer: BankTransferInfo;
   paypal: PayPalInfo;
   outstandingInvoice: OutstandingInvoice | null;
@@ -272,7 +275,7 @@ export function PaymentMethodSelector({
           </TabsList>
 
           <TabsContent value="SQUARE">
-            <SquareCardForm configured={square.configured} clientConfig={square.clientConfig} card={square.card} nextBillingDate={nextBillingDate} onChanged={onChanged} />
+            <SquareCardForm configured={square.configured} clientConfig={square.clientConfig} card={square.card} billingContact={billingContact} nextBillingDate={nextBillingDate} onChanged={onChanged} />
           </TabsContent>
           <TabsContent value="BANK_TRANSFER">
             <BankTransferPanel info={bankTransfer} />

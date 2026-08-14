@@ -59,6 +59,7 @@ interface BillingData {
   pendingPlanKey: string | null;
   pendingActivation: { invoiceNumber: string; totalCents: number; planName: string } | null;
   preferredPaymentMethod: "SQUARE" | "BANK_TRANSFER" | "PAYPAL" | "BPAY" | null;
+  billingContact: { name: string | null; email: string | null };
   square: {
     configured: boolean;
     clientConfig: { applicationId: string; locationId: string; environment: "sandbox" | "production" } | null;
@@ -347,6 +348,7 @@ export function BillingPageContent() {
         // since the DB-backed type still technically allows the legacy value.
         preferredPaymentMethod={data.preferredPaymentMethod === "BPAY" ? null : data.preferredPaymentMethod}
         square={data.square}
+        billingContact={data.billingContact}
         bankTransfer={data.bankTransfer}
         paypal={data.paypal}
         outstandingInvoice={outstandingInvoice}
@@ -480,6 +482,7 @@ export function BillingPageContent() {
         currentPlanKey={data.plan?.key ?? null}
         hasExistingPlan={Boolean(data.plan)}
         square={data.square}
+        billingContact={data.billingContact}
         bankTransfer={{ configured: data.bankTransfer.configured }}
         onSaved={mutate}
       />

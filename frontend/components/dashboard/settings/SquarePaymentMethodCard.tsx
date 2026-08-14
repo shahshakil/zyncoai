@@ -21,6 +21,10 @@ interface SavedCard {
   expMonth: number | null;
   expYear: number | null;
 }
+interface BillingContact {
+  name: string | null;
+  email: string | null;
+}
 
 declare global {
   interface Window {
@@ -68,7 +72,7 @@ const SQUARE_CARD_STYLE = {
   ".message-icon": { color: "#e11d48" },
 };
 
-export function SquarePaymentMethodCard(props: { configured: boolean; clientConfig: SquareClientConfig | null; card: SavedCard | null; nextBillingDate?: string | null; onChanged: () => void }) {
+export function SquarePaymentMethodCard(props: { configured: boolean; clientConfig: SquareClientConfig | null; card: SavedCard | null; billingContact?: BillingContact | null; nextBillingDate?: string | null; onChanged: () => void }) {
   return (
     <Card>
       <CardHeader><CardTitle>Payment method</CardTitle></CardHeader>
@@ -92,12 +96,14 @@ export function SquareCardForm({
   configured,
   clientConfig,
   card,
+  billingContact,
   nextBillingDate,
   onChanged,
 }: {
   configured: boolean;
   clientConfig: SquareClientConfig | null;
   card: SavedCard | null;
+  billingContact?: BillingContact | null;
   nextBillingDate?: string | null;
   onChanged: () => void;
 }) {
@@ -169,8 +175,25 @@ export function SquareCardForm({
     try {
       // intent: "STORE" — saving a card on file, not charging one right
       // now (the first real charge happens on the next generated invoice,
-      // or via "Pay now" on an existing one).
-      const tokenResult = await cardInstanceRef.current.tokenize({ intent: "STORE" });
+      // or via "Pay now" on an existing one). Square's SDK validates this
+      // client-side: passing intent without a billingContact throws
+      // "verificationDetails.billingContact is required" before any
+      // network request is made — invisible to the backend's error
+      // sanitization since the backend is never reached. givenName is the
+      // only field Square actually requires; everything else just
+      // improves buyer-verification success rates.
+      const [givenName, ...familyNameParts] = (billingContact?.name || "Customer").trim().split(/\s+/);
+      const familyName = familyNameParts.join(" ");
+      const tokenResult = await cardInstanceRef.current.tokenize({
+        intent: "STORE",
+        customerInitiated: true,
+        sellerKeyedIn: false,
+        billingContact: {
+          givenName: givenName || "Customer",
+          ...(familyName ? { familyName } : {}),
+          ...(billingContact?.email ? { email: billingContact.email } : {}),
+        },
+      });
       if (tokenResult.status !== "OK") {
         const message = friendlySquareError(tokenResult.errors?.[0]);
         setFieldError(message);
