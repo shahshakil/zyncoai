@@ -1,13 +1,14 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { CreditCard, Landmark, Wallet, Copy, Check, CheckCircle2 } from "lucide-react";
+import { CreditCard, Landmark, Copy, Check } from "lucide-react";
 import { apiPost } from "@/lib/useApi";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
-import { Button } from "../ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/tabs";
 import { SquareCardForm } from "../settings/SquarePaymentMethodCard";
 import { BrandLogo } from "@/components/layout/BrandLogo";
+import { PayPalBrandIcon } from "./CardBrandIcon";
+import { formatAUD as money } from "@/lib/money";
 
 type Method = "SQUARE" | "BANK_TRANSFER" | "PAYPAL";
 
@@ -15,6 +16,10 @@ interface SquareClientConfig { applicationId: string; locationId: string; enviro
 interface SavedCard { brand: string | null; last4: string | null; expMonth: number | null; expYear: number | null }
 interface BankTransferInfo { bankName: string | null; bankAccountName: string | null; bankBsb: string | null; bankAccountNumber: string | null; payId: string | null; configured: boolean }
 interface PayPalInfo { configured: boolean; clientId: string | null; environment: "sandbox" | "production" | null; subscriptionActive: boolean; payerEmail: string | null }
+// The one invoice PayPal can pay right now — the oldest still-ISSUED
+// invoice, same "at most one under normal operation" invariant
+// paypalWebhook.ts's subscription handler already relies on.
+interface OutstandingInvoice { id: string; invoiceNumber: string; totalCents: number }
 
 // Click-to-copy field with its own transient checkmark state (not just a
 // toast) — used for every Bank Transfer detail so copying is confirmed
@@ -69,9 +74,12 @@ declare global {
     paypal?: any;
   }
 }
+// intent=capture (not subscription), no vault — this SDK instance only ever
+// drives a one-off Orders v2 "pay this invoice now" button, never a stored
+// billing agreement.
 const paypalSdkPromises = new Map<string, Promise<void>>();
-function loadPayPalSdk(clientId: string): Promise<void> {
-  const src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&vault=true&intent=subscription&currency=AUD`;
+function loadPayPalOrdersSdk(clientId: string): Promise<void> {
+  const src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&currency=AUD&intent=capture`;
   if (paypalSdkPromises.has(src)) return paypalSdkPromises.get(src)!;
   const promise = new Promise<void>((resolve, reject) => {
     const script = document.createElement("script");
@@ -84,45 +92,43 @@ function loadPayPalSdk(clientId: string): Promise<void> {
   return promise;
 }
 
-function PayPalPanel({ info, hasPlan, onChanged }: { info: PayPalInfo; hasPlan: boolean; onChanged: () => void }) {
-  const [cancelling, setCancelling] = useState(false);
+// PayPal here is a manual, per-invoice payment option — like Bank Transfer,
+// not an auto-charge default (that's the Card tab's job). Buttons render
+// PayPal's own official gold "pay" button; createOrder/onApprove call
+// billing.ts's create-order/capture-order routes, which compute the amount
+// and invoice reference server-side from `invoice.id` — the amount shown
+// here is display-only, never sent to the backend.
+function PayPalPanel({ info, invoice, onChanged }: { info: PayPalInfo; invoice: OutstandingInvoice | null; onChanged: () => void }) {
   const [rendering, setRendering] = useState(false);
+  const [paying, setPaying] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  async function cancel() {
-    setCancelling(true);
-    try {
-      await apiPost("/api/business/billing/paypal/cancel");
-      toast.success("PayPal billing cancelled");
-      onChanged();
-    } catch {
-      toast.error("Could not cancel PayPal billing");
-    } finally {
-      setCancelling(false);
-    }
-  }
-
   useEffect(() => {
-    if (!info.configured || info.subscriptionActive || !hasPlan || !info.clientId) return;
+    if (!info.configured || !invoice || !info.clientId) return;
     let cancelled = false;
     setRendering(true);
     (async () => {
       try {
-        const { planId } = await apiPost<{ planId: string }>("/api/business/billing/paypal/plan");
-        await loadPayPalSdk(info.clientId!);
+        await loadPayPalOrdersSdk(info.clientId!);
         if (cancelled || !window.paypal || !containerRef.current) return;
         containerRef.current.innerHTML = "";
         window.paypal
           .Buttons({
-            style: { shape: "pill", color: "gold", layout: "horizontal", label: "subscribe" },
-            createSubscription: (_data: any, actions: any) => actions.subscription.create({ plan_id: planId }),
+            style: { shape: "pill", color: "gold", layout: "horizontal", label: "pay" },
+            createOrder: async () => {
+              const { orderId } = await apiPost<{ orderId: string }>(`/api/business/billing/invoices/${invoice.id}/paypal/create-order`);
+              return orderId;
+            },
             onApprove: async (data: any) => {
+              setPaying(true);
               try {
-                await apiPost("/api/business/billing/paypal/subscription-approved", { subscriptionId: data.subscriptionID });
-                toast.success("PayPal connected — billed automatically each month");
+                await apiPost(`/api/business/billing/invoices/${invoice.id}/paypal/capture-order`, { orderId: data.orderID });
+                toast.success("Invoice paid with PayPal");
                 onChanged();
               } catch {
-                toast.error("PayPal approved the subscription, but we couldn't confirm it — contact support");
+                toast.error("PayPal approved the payment, but we couldn't confirm it — contact support");
+              } finally {
+                setPaying(false);
               }
             },
             onError: (err: any) => {
@@ -141,33 +147,24 @@ function PayPalPanel({ info, hasPlan, onChanged }: { info: PayPalInfo; hasPlan: 
     return () => {
       cancelled = true;
     };
-  }, [info.configured, info.subscriptionActive, info.clientId, hasPlan]);
+  }, [info.configured, info.clientId, invoice?.id]);
 
   if (!info.configured) {
     return <p className="text-sm text-slate-500">PayPal isn&apos;t set up on this account yet.</p>;
   }
-  if (info.subscriptionActive) {
-    return (
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-          <div>
-            <p className="text-sm font-medium text-slate-900">Connected{info.payerEmail ? ` — ${info.payerEmail}` : ""}</p>
-            <p className="text-xs text-slate-500">Charged automatically each billing period via PayPal.</p>
-          </div>
-        </div>
-        <Button variant="ghost" size="sm" disabled={cancelling} onClick={cancel}>{cancelling ? "…" : "Disconnect"}</Button>
-      </div>
-    );
-  }
-  if (!hasPlan) {
-    return <p className="text-sm text-slate-500">Choose a plan first, then come back here to subscribe via PayPal.</p>;
+  if (!invoice) {
+    return <p className="text-sm text-slate-500">No outstanding invoice to pay right now — PayPal will appear here the next time one is due.</p>;
   }
   return (
-    <div className="space-y-2">
-      <p className="text-sm text-slate-500">Subscribe with PayPal for automatic recurring billing each month.</p>
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <PayPalBrandIcon className="h-6 w-9 shrink-0" />
+        <p className="text-sm text-slate-500">
+          Pay invoice <span className="font-medium text-slate-700">{invoice.invoiceNumber}</span> ({money(invoice.totalCents)}) with PayPal — a manual, one-time payment. Your card on file remains the recommended automatic method.
+        </p>
+      </div>
       <div ref={containerRef} className="max-w-xs" />
-      {rendering && <p className="text-xs text-slate-500">Loading PayPal…</p>}
+      {(rendering || paying) && <p className="text-xs text-slate-500">{paying ? "Confirming payment…" : "Loading PayPal…"}</p>}
     </div>
   );
 }
@@ -177,7 +174,7 @@ export function PaymentMethodSelector({
   square,
   bankTransfer,
   paypal,
-  hasPlan,
+  outstandingInvoice,
   nextBillingDate,
   onChanged,
 }: {
@@ -185,7 +182,7 @@ export function PaymentMethodSelector({
   square: { configured: boolean; clientConfig: SquareClientConfig | null; card: SavedCard | null };
   bankTransfer: BankTransferInfo;
   paypal: PayPalInfo;
-  hasPlan: boolean;
+  outstandingInvoice: OutstandingInvoice | null;
   nextBillingDate?: string | null;
   onChanged: () => void;
 }) {
@@ -224,7 +221,7 @@ export function PaymentMethodSelector({
             <TabsTrigger value="SQUARE" className="gap-1.5"><CreditCard className="h-4 w-4" /> Card</TabsTrigger>
             <TabsTrigger value="BANK_TRANSFER" className="gap-1.5"><Landmark className="h-4 w-4" /> Bank Transfer</TabsTrigger>
             <TabsTrigger value="PAYPAL" disabled={!paypal.configured} className="gap-1.5 disabled:cursor-not-allowed disabled:opacity-50">
-              <Wallet className="h-4 w-4" /> PayPal{!paypal.configured && <span className="text-slate-400">&middot; Soon</span>}
+              <PayPalBrandIcon className="h-4 w-6 rounded-sm" /> PayPal{!paypal.configured && <span className="text-slate-400">&middot; Soon</span>}
             </TabsTrigger>
           </TabsList>
 
@@ -235,7 +232,7 @@ export function PaymentMethodSelector({
             <BankTransferPanel info={bankTransfer} />
           </TabsContent>
           <TabsContent value="PAYPAL">
-            <PayPalPanel info={paypal} hasPlan={hasPlan} onChanged={onChanged} />
+            <PayPalPanel info={paypal} invoice={outstandingInvoice} onChanged={onChanged} />
           </TabsContent>
         </Tabs>
       </CardContent>

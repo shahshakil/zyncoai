@@ -213,6 +213,12 @@ export function BillingPageContent() {
 
   const overUsage = data.plan?.pctMinutesUsed != null && data.plan.pctMinutesUsed >= 80;
 
+  // The oldest still-ISSUED invoice — same invariant the backend already
+  // relies on (paypalWebhook.ts's subscription handler, invoiceGenerator.ts):
+  // under normal operation there's at most one open invoice per business.
+  const issuedInvoices = data.invoices.filter((i) => i.status === "ISSUED").sort((a, b) => new Date(a.issuedAt).getTime() - new Date(b.issuedAt).getTime());
+  const outstandingInvoice = issuedInvoices[0] ? { id: issuedInvoices[0].id, invoiceNumber: issuedInvoices[0].invoiceNumber, totalCents: issuedInvoices[0].totalCents } : null;
+
   return (
     <div className="space-y-6">
       <div>
@@ -338,7 +344,7 @@ export function BillingPageContent() {
         square={data.square}
         bankTransfer={data.bankTransfer}
         paypal={data.paypal}
-        hasPlan={Boolean(data.plan)}
+        outstandingInvoice={outstandingInvoice}
         nextBillingDate={data.plan?.nextBillingDate ?? null}
         onChanged={mutate}
       />

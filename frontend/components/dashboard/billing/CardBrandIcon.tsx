@@ -95,6 +95,22 @@ export function CardBrandIcon({ brand, className }: { brand: CardBrand; classNam
   }
 }
 
+// PayPal's own two-tone wordmark colors (dark "Pay" navy, bright "Pal"
+// blue) — not a CardBrand (PayPal isn't a card number Square's SDK ever
+// detects), so kept as its own small mark rather than folded into the
+// CardBrand union above.
+export function PayPalBrandIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 36 24" className={className || "h-6 w-9"} role="img" aria-label="PayPal">
+      <rect width="36" height="24" rx="4" fill="#fff" />
+      <text x="18" y="15.5" textAnchor="middle" fontSize="8.5" fontWeight="800" fontFamily="Arial, sans-serif" letterSpacing="-0.2">
+        <tspan fill="#003087">Pay</tspan>
+        <tspan fill="#0070E0">Pal</tspan>
+      </text>
+    </svg>
+  );
+}
+
 const BRAND_LABELS: Record<CardBrand, string> = {
   visa: "Visa", mastercard: "Mastercard", amex: "American Express",
   discover: "Discover", jcb: "JCB", unionpay: "UnionPay", unknown: "Card",
