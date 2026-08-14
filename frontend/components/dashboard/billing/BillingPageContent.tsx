@@ -194,10 +194,15 @@ export function BillingPageContent() {
     }
   }
 
-  function copyReferralLink() {
+  async function copyReferralLink() {
     if (!data) return;
-    navigator.clipboard.writeText(data.referral.link);
-    toast.success("Referral link copied");
+    try {
+      await navigator.clipboard.writeText(data.referral.link);
+      toast.success("Referral link copied");
+    } catch (err) {
+      console.error("[BillingPageContent] referral link clipboard write failed:", err);
+      toast.error("Couldn't copy the link — select and copy it manually");
+    }
   }
 
   if (isLoading || !data) {

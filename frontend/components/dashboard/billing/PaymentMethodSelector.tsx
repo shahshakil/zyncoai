@@ -27,10 +27,15 @@ interface OutstandingInvoice { id: string; invoiceNumber: string; totalCents: nu
 function CopyField({ label, value, mono = true }: { label: string; value: string; mono?: boolean }) {
   const [copied, setCopied] = useState(false);
   async function copy() {
-    await navigator.clipboard.writeText(value);
-    setCopied(true);
-    toast.success(`${label} copied`);
-    setTimeout(() => setCopied(false), 1500);
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      toast.success(`${label} copied`);
+      setTimeout(() => setCopied(false), 1500);
+    } catch (err) {
+      console.error(`[CopyField] clipboard write failed for ${label}:`, err);
+      toast.error(`Couldn't copy ${label} — select and copy it manually`);
+    }
   }
   return (
     <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3.5 transition hover:border-slate-300">
@@ -129,8 +134,17 @@ function PayPalPanel({ info, invoice, onChanged }: { info: PayPalInfo; invoice: 
           .Buttons({
             style: { shape: "pill", color: "gold", layout: "horizontal", label: "pay" },
             createOrder: async () => {
-              const { orderId } = await apiPost<{ orderId: string }>(`/api/business/billing/invoices/${invoice.id}/paypal/create-order`);
-              return orderId;
+              // Explicit try/catch (rather than letting apiPost's rejection
+              // propagate on its own) guarantees onError below is what
+              // actually fires — never a raw ApiError reaching the SDK's
+              // own uncaught-rejection handling.
+              try {
+                const { orderId } = await apiPost<{ orderId: string }>(`/api/business/billing/invoices/${invoice.id}/paypal/create-order`);
+                return orderId;
+              } catch (err) {
+                console.error("[PayPalPanel] createOrder failed:", err);
+                throw new Error("paypal_order_create_failed");
+              }
             },
             onApprove: async (data: any) => {
               setPaying(true);
@@ -138,11 +152,19 @@ function PayPalPanel({ info, invoice, onChanged }: { info: PayPalInfo; invoice: 
                 await apiPost(`/api/business/billing/invoices/${invoice.id}/paypal/capture-order`, { orderId: data.orderID });
                 toast.success("Invoice paid with PayPal");
                 onChanged();
-              } catch {
+              } catch (err) {
+                console.error("[PayPalPanel] capture failed:", err);
                 toast.error("PayPal approved the payment, but we couldn't confirm it — contact support");
               } finally {
                 setPaying(false);
               }
+            },
+            // Buyer closed the popup or clicked "Cancel and return" before
+            // approving — a normal, non-error outcome. No charge was ever
+            // attempted (that only happens in onApprove), so this is purely
+            // informational, never styled as a failure.
+            onCancel: () => {
+              toast("Payment cancelled — no charge was made");
             },
             onError: (err: any) => {
               console.error("[PayPalPanel] Buttons error:", err);
