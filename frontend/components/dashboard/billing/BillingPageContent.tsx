@@ -189,7 +189,15 @@ export function BillingPageContent() {
       toast.success("Payment successful");
       mutate();
     } catch (e) {
-      toast.error(e instanceof ApiError && e.status === 402 ? "That charge didn't go through — check your card details" : "Could not process payment");
+      if (e instanceof ApiError && e.message === "already_paid") {
+        // A redundant click landing after a slow-but-successful first
+        // request already paid this invoice — not a failure, just stale
+        // UI. Refresh quietly instead of alarming the payer with an
+        // error toast for something that already went right.
+        mutate();
+      } else {
+        toast.error(e instanceof ApiError && e.status === 402 ? "That charge didn't go through — check your card details" : "Could not process payment");
+      }
     } finally {
       setBusyKey(null);
     }
