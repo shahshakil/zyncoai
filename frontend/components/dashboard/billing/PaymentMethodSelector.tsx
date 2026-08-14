@@ -98,15 +98,28 @@ function loadPayPalOrdersSdk(clientId: string): Promise<void> {
 // billing.ts's create-order/capture-order routes, which compute the amount
 // and invoice reference server-side from `invoice.id` — the amount shown
 // here is display-only, never sent to the backend.
+// A CSP block, an ad-blocker, or a network that refuses paypal.com all fail
+// the same way from here: loadPayPalOrdersSdk's script tag never fires
+// onload or onerror, so the button silently never appears. blocked flips on
+// either an explicit load failure OR a load that's still hanging after
+// PAYPAL_LOAD_TIMEOUT_MS — the only way this panel is never just quietly
+// empty.
+const PAYPAL_LOAD_TIMEOUT_MS = 6000;
+
 function PayPalPanel({ info, invoice, onChanged }: { info: PayPalInfo; invoice: OutstandingInvoice | null; onChanged: () => void }) {
   const [rendering, setRendering] = useState(false);
   const [paying, setPaying] = useState(false);
+  const [blocked, setBlocked] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!info.configured || !invoice || !info.clientId) return;
     let cancelled = false;
     setRendering(true);
+    setBlocked(false);
+    const timeoutId = setTimeout(() => {
+      if (!cancelled) setBlocked(true);
+    }, PAYPAL_LOAD_TIMEOUT_MS);
     (async () => {
       try {
         await loadPayPalOrdersSdk(info.clientId!);
@@ -137,15 +150,18 @@ function PayPalPanel({ info, invoice, onChanged }: { info: PayPalInfo; invoice: 
             },
           })
           .render(containerRef.current);
+        clearTimeout(timeoutId);
       } catch (err) {
         console.error("[PayPalPanel] setup failed:", err);
-        toast.error("Could not load PayPal — please try again");
+        if (!cancelled) setBlocked(true);
+        clearTimeout(timeoutId);
       } finally {
         if (!cancelled) setRendering(false);
       }
     })();
     return () => {
       cancelled = true;
+      clearTimeout(timeoutId);
     };
   }, [info.configured, info.clientId, invoice?.id]);
 
@@ -163,8 +179,16 @@ function PayPalPanel({ info, invoice, onChanged }: { info: PayPalInfo; invoice: 
           Pay invoice <span className="font-medium text-slate-700">{invoice.invoiceNumber}</span> ({money(invoice.totalCents)}) with PayPal — a manual, one-time payment. Your card on file remains the recommended automatic method.
         </p>
       </div>
-      <div ref={containerRef} className="max-w-xs" />
-      {(rendering || paying) && <p className="text-xs text-slate-500">{paying ? "Confirming payment…" : "Loading PayPal…"}</p>}
+      {blocked ? (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-800">
+          Your browser or network is blocking PayPal — please pay by card or bank transfer instead.
+        </p>
+      ) : (
+        <>
+          <div ref={containerRef} className="max-w-xs" />
+          {(rendering || paying) && <p className="text-xs text-slate-500">{paying ? "Confirming payment…" : "Loading PayPal…"}</p>}
+        </>
+      )}
     </div>
   );
 }
