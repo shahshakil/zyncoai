@@ -491,7 +491,8 @@ export function BillingPageContent() {
         hasExistingPlan={Boolean(data.plan)}
         square={data.square}
         billingContact={data.billingContact}
-        bankTransfer={{ configured: data.bankTransfer.configured }}
+        bankTransfer={data.bankTransfer}
+        paypal={data.paypal}
         onSaved={mutate}
       />
 

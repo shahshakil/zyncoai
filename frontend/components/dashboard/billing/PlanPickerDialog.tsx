@@ -1,12 +1,16 @@
 "use client";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Check, Landmark } from "lucide-react";
+import { Check, CreditCard, Landmark } from "lucide-react";
 import { apiPost, ApiError } from "@/lib/useApi";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/tabs";
 import { SquareCardForm } from "../settings/SquarePaymentMethodCard";
+import { BankTransferPanel, CopyField, type BankTransferInfo, type PayPalInfo } from "./PaymentMethodSelector";
+import { PayPalSmartButton } from "./PayPalSmartButton";
+import { PayPalBrandIcon } from "./CardBrandIcon";
 import { formatAUD as money } from "@/lib/money";
 
 interface Plan {
@@ -19,9 +23,12 @@ interface SquareInfo {
   card: { brand: string | null; last4: string | null; expMonth: number | null; expYear: number | null } | null;
 }
 interface BillingContact { name: string | null; email: string | null }
-interface BankTransferInfo {
-  configured: boolean;
-}
+type PayMethod = "SQUARE" | "BANK_TRANSFER" | "PAYPAL";
+// What a PATCH /plan call returns once an invoice exists for it — shared
+// shape whether that invoice ended up PAID instantly (card, or a $0
+// already-paid-this-period switch) or ISSUED-and-pending (bank transfer,
+// PayPal) — see business/billing.ts's PATCH /plan for the source of truth.
+interface PlanChangeResult { ok: boolean; pending?: boolean; planKey?: string; invoice?: { id: string; invoiceNumber: string; totalCents: number } }
 
 type Step = "pick" | "checkout";
 
@@ -34,7 +41,7 @@ function gstBreakdown(totalCents: number) {
 }
 
 export function PlanPickerDialog({
-  open, onClose, plans, currentPlanKey, hasExistingPlan, square, billingContact, bankTransfer, onSaved,
+  open, onClose, plans, currentPlanKey, hasExistingPlan, square, billingContact, bankTransfer, paypal, onSaved,
 }: {
   open: boolean;
   onClose: () => void;
@@ -44,11 +51,19 @@ export function PlanPickerDialog({
   square: SquareInfo;
   billingContact?: BillingContact | null;
   bankTransfer: BankTransferInfo;
+  paypal: PayPalInfo;
   onSaved: () => void;
 }) {
   const [step, setStep] = useState<Step>("pick");
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  // Pending-payment invoices created mid-checkout (Bank Transfer / PayPal
+  // both issue a real invoice before anything activates) — held here so
+  // their details/button can render inside the still-open dialog instead of
+  // closing immediately on a bare toast.
+  const [bankInvoice, setBankInvoice] = useState<{ id: string; invoiceNumber: string; totalCents: number } | null>(null);
+  const [payingByPayPal, setPayingByPayPal] = useState(false);
+  const [paypalInvoice, setPaypalInvoice] = useState<{ id: string; invoiceNumber: string; totalCents: number } | null>(null);
 
   const selectable = plans.filter((p) => !p.isCustom);
   const mostPopularKey = selectable.length > 1 ? selectable[1].key : null;
@@ -57,28 +72,26 @@ export function PlanPickerDialog({
   function close() {
     setStep("pick");
     setSelectedKey(null);
+    setBankInvoice(null);
+    setPaypalInvoice(null);
     onClose();
   }
 
   function pick(key: string) {
     setSelectedKey(key);
+    setBankInvoice(null);
+    setPaypalInvoice(null);
     setStep("checkout");
   }
 
-  async function confirm(paymentMethod?: "BANK_TRANSFER") {
+  // CARD is the only path that both charges AND activates synchronously, so
+  // it's still the one case where "success" always means "close now."
+  async function confirm() {
     if (!selected) return;
     setSaving(true);
     try {
-      const result = await apiPost<{ ok: boolean; pending?: boolean }>(
-        "/api/business/billing/plan",
-        { planKey: selected.key, ...(paymentMethod ? { paymentMethod } : {}) },
-        "PATCH"
-      );
-      // Payment-first: a card charge activates instantly, but a
-      // bank-transfer pick never does — the plan only goes live once an
-      // admin confirms the transfer arrived (result.pending distinguishes
-      // the two; both are 200s, this isn't an error path).
-      toast.success(result.pending ? "Invoice issued — your plan activates once we receive your transfer" : "Plan activated");
+      const result = await apiPost<PlanChangeResult>("/api/business/billing/plan", { planKey: selected.key, paymentMethod: "SQUARE" }, "PATCH");
+      toast.success(result.pending ? "Invoice issued — your plan activates once payment is confirmed" : "Plan activated");
       close();
       onSaved();
     } catch (e) {
@@ -98,6 +111,59 @@ export function PlanPickerDialog({
   async function handleCardSaved() {
     onSaved();
     await confirm();
+  }
+
+  // BANK_TRANSFER and PAYPAL both issue a real invoice that ISN'T paid yet
+  // (unless this exact billing period was already paid for — see
+  // CheckoutSummary's "no extra charge now" case — in which case the
+  // backend activates it instantly just like Card does, and this closes the
+  // same way confirm() does). The pending case stays open and shows what
+  // the buyer needs: our bank details + the real reference for Bank
+  // Transfer, or the live gold button for PayPal.
+  async function confirmBankTransfer() {
+    if (!selected) return;
+    setSaving(true);
+    try {
+      const result = await apiPost<PlanChangeResult>("/api/business/billing/plan", { planKey: selected.key, paymentMethod: "BANK_TRANSFER" }, "PATCH");
+      if (result.pending && result.invoice) {
+        setBankInvoice(result.invoice);
+        onSaved();
+      } else {
+        toast.success("Plan activated");
+        close();
+        onSaved();
+      }
+    } catch (e) {
+      toast.error(e instanceof ApiError && e.status === 402 ? "Add a payment method to activate this plan" : "Could not issue invoice — please try again");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function confirmPayPal() {
+    if (!selected) return;
+    setPayingByPayPal(true);
+    try {
+      const result = await apiPost<PlanChangeResult>("/api/business/billing/plan", { planKey: selected.key, paymentMethod: "PAYPAL" }, "PATCH");
+      if (result.pending && result.invoice) {
+        setPaypalInvoice(result.invoice);
+        onSaved();
+      } else {
+        toast.success("Plan activated");
+        close();
+        onSaved();
+      }
+    } catch (e) {
+      toast.error(e instanceof ApiError && e.status === 402 ? "Add a payment method to activate this plan" : "Could not issue invoice — please try again");
+    } finally {
+      setPayingByPayPal(false);
+    }
+  }
+
+  function handlePayPalCaptured() {
+    toast.success("Plan activated with PayPal");
+    close();
+    onSaved();
   }
 
   return (
@@ -160,12 +226,20 @@ export function PlanPickerDialog({
             plan={selected}
             hasExistingPlan={hasExistingPlan}
             square={square}
+            billingContact={billingContact}
             bankTransfer={bankTransfer}
+            paypal={paypal}
             saving={saving}
+            payingByPayPal={payingByPayPal}
+            bankInvoice={bankInvoice}
+            paypalInvoice={paypalInvoice}
             onBack={() => setStep("pick")}
-            onConfirm={() => confirm()}
-            onConfirmBankTransfer={() => confirm("BANK_TRANSFER")}
+            onConfirm={confirm}
+            onConfirmBankTransfer={confirmBankTransfer}
+            onConfirmPayPal={confirmPayPal}
+            onPayPalCaptured={handlePayPalCaptured}
             onCardSaved={handleCardSaved}
+            onDoneWithBankDetails={() => { close(); onSaved(); }}
           />
         ) : null}
       </DialogContent>
@@ -174,20 +248,36 @@ export function PlanPickerDialog({
 }
 
 function CheckoutSummary({
-  plan, hasExistingPlan, square, bankTransfer, saving, onBack, onConfirm, onConfirmBankTransfer, onCardSaved,
+  plan, hasExistingPlan, square, billingContact, bankTransfer, paypal, saving, payingByPayPal, bankInvoice, paypalInvoice,
+  onBack, onConfirm, onConfirmBankTransfer, onConfirmPayPal, onPayPalCaptured, onCardSaved, onDoneWithBankDetails,
 }: {
   plan: Plan;
   hasExistingPlan: boolean;
   square: SquareInfo;
+  billingContact?: BillingContact | null;
   bankTransfer: BankTransferInfo;
+  paypal: PayPalInfo;
   saving: boolean;
+  payingByPayPal: boolean;
+  bankInvoice: { id: string; invoiceNumber: string; totalCents: number } | null;
+  paypalInvoice: { id: string; invoiceNumber: string; totalCents: number } | null;
   onBack: () => void;
   onConfirm: () => void;
   onConfirmBankTransfer: () => void;
+  onConfirmPayPal: () => void;
+  onPayPalCaptured: () => void;
   onCardSaved: () => void;
+  onDoneWithBankDetails: () => void;
 }) {
   const totalTodayCents = plan.priceCents + plan.setupFeeCents; // first-ever activation only
   const { gstCents, exGstCents } = gstBreakdown(plan.priceCents);
+  // A pending Bank Transfer or PayPal invoice already issued mid-checkout —
+  // the payment-method tabs step aside for its own confirmation view rather
+  // than staying interactive underneath it (switching methods once a real
+  // invoice already exists is exactly what PATCH /plan's own
+  // pendingActivationInvoiceId-void handles on the NEXT pick, not something
+  // this dialog needs to re-offer mid-flow).
+  const [method, setMethod] = useState<PayMethod>("SQUARE");
 
   return (
     <>
@@ -223,44 +313,94 @@ function CheckoutSummary({
           )}
         </div>
 
-        {square.card ? (
-          <p className="text-xs text-slate-500">
-            Payment method: {square.card.brand} ending in {square.card.last4} — charged automatically.
-          </p>
+        {bankInvoice ? (
+          <div className="space-y-3">
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-900">
+              Invoice <span className="font-semibold">{bankInvoice.invoiceNumber}</span> issued for {money(bankInvoice.totalCents)}. Your plan activates when your payment is received and confirmed.
+            </div>
+            <BankTransferPanel info={bankTransfer} />
+            <CopyField label="Payment reference" value={bankInvoice.invoiceNumber} />
+            <Button className="h-11 min-h-[44px] w-full" onClick={onDoneWithBankDetails}>Done</Button>
+          </div>
+        ) : paypalInvoice ? (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <PayPalBrandIcon className="h-6 w-9 shrink-0" />
+              <p className="text-sm text-slate-500">
+                Invoice <span className="font-medium text-slate-700">{paypalInvoice.invoiceNumber}</span> ({money(paypalInvoice.totalCents)}) — pay below to activate instantly.
+              </p>
+            </div>
+            <PayPalSmartButton clientId={paypal.clientId!} invoiceId={paypalInvoice.id} onPaid={onPayPalCaptured} />
+          </div>
         ) : (
           <div className="space-y-3">
-            <p className="text-sm font-medium text-slate-700">Choose how to pay:</p>
-            <SquareCardForm configured={square.configured} clientConfig={square.clientConfig} card={square.card} billingContact={billingContact} onChanged={onCardSaved} />
-            <div className="flex items-center gap-2 text-xs text-slate-400">
-              <div className="h-px flex-1 bg-slate-200" /> or <div className="h-px flex-1 bg-slate-200" />
-            </div>
-            <button
-              type="button"
-              onClick={onConfirmBankTransfer}
-              disabled={saving || !bankTransfer.configured}
-              className="flex w-full items-center gap-2 rounded-lg border border-slate-200 p-3 text-left text-sm text-slate-600 transition hover:border-slate-300 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Landmark className="h-4 w-4 shrink-0 text-slate-400" />
-              <span>
-                <span className="font-medium text-slate-900">Pay by bank transfer</span>
-                {bankTransfer.configured ? (
-                  <span className="block text-xs text-slate-400">We&apos;ll issue an invoice with our bank details and a payment reference — no card needed. Your plan activates as soon as we confirm the transfer.</span>
-                ) : (
-                  <span className="block text-xs text-slate-400">Temporarily unavailable.</span>
-                )}
-              </span>
-            </button>
-          </div>
-        )}
+            <Tabs value={method} onValueChange={(v) => setMethod(v as PayMethod)}>
+              <TabsList>
+                <TabsTrigger value="SQUARE" className="gap-1.5">
+                  <CreditCard className="h-4 w-4" /> Card <Badge tone="success" className="ml-0.5 text-[9px]">Recommended</Badge>
+                </TabsTrigger>
+                <TabsTrigger value="BANK_TRANSFER" disabled={!bankTransfer.configured} className="gap-1.5 disabled:cursor-not-allowed disabled:opacity-50">
+                  <Landmark className="h-4 w-4" /> Bank Transfer
+                </TabsTrigger>
+                <TabsTrigger value="PAYPAL" disabled={!paypal.configured} className="gap-1.5 disabled:cursor-not-allowed disabled:opacity-50">
+                  <PayPalBrandIcon className="h-4 w-6 rounded-sm" /> PayPal
+                </TabsTrigger>
+              </TabsList>
 
-        {square.card && (
-          <div className="flex gap-2 pt-2">
-            <Button variant="outline" className="h-11 min-h-[44px]" onClick={onBack}>Back</Button>
-            <Button className="h-11 min-h-[44px] flex-1" disabled={saving} onClick={onConfirm}>{saving ? "Confirming…" : "Confirm"}</Button>
+              <TabsContent value="SQUARE" className="space-y-3 pt-1">
+                {square.card ? (
+                  <p className="text-xs text-slate-500">
+                    Charged automatically to {square.card.brand} ending in {square.card.last4} — activates instantly.
+                  </p>
+                ) : (
+                  <>
+                    <p className="text-xs text-slate-500">Charges the moment you add a card — activates instantly. This card also auto-renews the plan every month.</p>
+                    <SquareCardForm configured={square.configured} clientConfig={square.clientConfig} card={square.card} billingContact={billingContact} onChanged={onCardSaved} />
+                  </>
+                )}
+                {square.card && (
+                  <div className="flex gap-2 pt-1">
+                    <Button variant="outline" className="h-11 min-h-[44px]" onClick={onBack}>Back</Button>
+                    <Button className="h-11 min-h-[44px] flex-1" disabled={saving} onClick={onConfirm}>{saving ? "Confirming…" : "Confirm"}</Button>
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="BANK_TRANSFER" className="space-y-3 pt-1">
+                {bankTransfer.configured ? (
+                  <>
+                    <p className="text-xs text-slate-500">
+                      We&apos;ll issue an invoice with our bank details and a payment reference — no card needed. Your plan activates when your payment is received and confirmed (usually 1–2 business days).
+                    </p>
+                    <Button className="h-11 min-h-[44px] w-full" disabled={saving} onClick={onConfirmBankTransfer}>
+                      {saving ? "Issuing invoice…" : "Pay by bank transfer"}
+                    </Button>
+                  </>
+                ) : (
+                  <p className="text-xs text-slate-500">Bank transfer is temporarily unavailable.</p>
+                )}
+              </TabsContent>
+
+              <TabsContent value="PAYPAL" className="space-y-3 pt-1">
+                {paypal.configured ? (
+                  <>
+                    <p className="text-xs text-slate-500">
+                      We&apos;ll issue an invoice payable via PayPal&apos;s gold button — no card needed. Your plan activates the moment PayPal confirms your payment.
+                    </p>
+                    <Button className="h-11 min-h-[44px] w-full" disabled={payingByPayPal} onClick={onConfirmPayPal}>
+                      {payingByPayPal ? "Issuing invoice…" : "Continue with PayPal"}
+                    </Button>
+                  </>
+                ) : (
+                  <p className="text-xs text-slate-500">PayPal isn&apos;t set up on this account yet.</p>
+                )}
+              </TabsContent>
+            </Tabs>
+
+            {!(method === "SQUARE" && square.card) && (
+              <Button variant="outline" className="h-11 min-h-[44px] w-full" onClick={onBack}>Back</Button>
+            )}
           </div>
-        )}
-        {!square.card && (
-          <Button variant="outline" className="h-11 min-h-[44px] w-full" onClick={onBack}>Back</Button>
         )}
       </div>
     </>

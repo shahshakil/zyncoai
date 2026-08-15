@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { CreditCard, Landmark, Copy, Check } from "lucide-react";
 import { apiPost } from "@/lib/useApi";
@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/tabs";
 import { SquareCardForm } from "../settings/SquarePaymentMethodCard";
 import { BrandLogo } from "@/components/layout/BrandLogo";
 import { PayPalBrandIcon } from "./CardBrandIcon";
+import { PayPalSmartButton } from "./PayPalSmartButton";
 import { formatAUD as money } from "@/lib/money";
 
 type Method = "SQUARE" | "BANK_TRANSFER" | "PAYPAL";
@@ -15,8 +16,8 @@ type Method = "SQUARE" | "BANK_TRANSFER" | "PAYPAL";
 interface SquareClientConfig { applicationId: string; locationId: string; environment: "sandbox" | "production" }
 interface SavedCard { brand: string | null; last4: string | null; expMonth: number | null; expYear: number | null }
 interface BillingContact { name: string | null; email: string | null }
-interface BankTransferInfo { bankName: string | null; bankAccountName: string | null; bankBsb: string | null; bankAccountNumber: string | null; payId: string | null; configured: boolean }
-interface PayPalInfo { configured: boolean; clientId: string | null; environment: "sandbox" | "production" | null; subscriptionActive: boolean; payerEmail: string | null }
+export interface BankTransferInfo { bankName: string | null; bankAccountName: string | null; bankBsb: string | null; bankAccountNumber: string | null; payId: string | null; configured: boolean }
+export interface PayPalInfo { configured: boolean; clientId: string | null; environment: "sandbox" | "production" | null; subscriptionActive: boolean; payerEmail: string | null }
 // The one invoice PayPal can pay right now — the oldest still-ISSUED
 // invoice, same "at most one under normal operation" invariant
 // paypalWebhook.ts's subscription handler already relies on.
@@ -25,7 +26,7 @@ interface OutstandingInvoice { id: string; invoiceNumber: string; totalCents: nu
 // Click-to-copy field with its own transient checkmark state (not just a
 // toast) — used for every Bank Transfer detail so copying is confirmed
 // right where the user's eyes already are.
-function CopyField({ label, value, mono = true }: { label: string; value: string; mono?: boolean }) {
+export function CopyField({ label, value, mono = true }: { label: string; value: string; mono?: boolean }) {
   const [copied, setCopied] = useState(false);
   async function copy() {
     try {
@@ -56,7 +57,7 @@ function CopyField({ label, value, mono = true }: { label: string; value: string
   );
 }
 
-function BankTransferPanel({ info }: { info: BankTransferInfo }) {
+export function BankTransferPanel({ info }: { info: BankTransferInfo }) {
   if (!info.configured) {
     return <p className="text-sm text-slate-500">Bank transfer is temporarily unavailable.</p>;
   }
@@ -75,119 +76,10 @@ function BankTransferPanel({ info }: { info: BankTransferInfo }) {
   );
 }
 
-declare global {
-  interface Window {
-    paypal?: any;
-  }
-}
-// intent=capture (not subscription), no vault — this SDK instance only ever
-// drives a one-off Orders v2 "pay this invoice now" button, never a stored
-// billing agreement.
-const paypalSdkPromises = new Map<string, Promise<void>>();
-function loadPayPalOrdersSdk(clientId: string): Promise<void> {
-  const src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&currency=AUD&intent=capture`;
-  if (paypalSdkPromises.has(src)) return paypalSdkPromises.get(src)!;
-  const promise = new Promise<void>((resolve, reject) => {
-    const script = document.createElement("script");
-    script.src = src;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error("paypal_sdk_load_failed"));
-    document.head.appendChild(script);
-  });
-  paypalSdkPromises.set(src, promise);
-  return promise;
-}
-
 // PayPal here is a manual, per-invoice payment option — like Bank Transfer,
-// not an auto-charge default (that's the Card tab's job). Buttons render
-// PayPal's own official gold "pay" button; createOrder/onApprove call
-// billing.ts's create-order/capture-order routes, which compute the amount
-// and invoice reference server-side from `invoice.id` — the amount shown
-// here is display-only, never sent to the backend.
-// A CSP block, an ad-blocker, or a network that refuses paypal.com all fail
-// the same way from here: loadPayPalOrdersSdk's script tag never fires
-// onload or onerror, so the button silently never appears. blocked flips on
-// either an explicit load failure OR a load that's still hanging after
-// PAYPAL_LOAD_TIMEOUT_MS — the only way this panel is never just quietly
-// empty.
-const PAYPAL_LOAD_TIMEOUT_MS = 6000;
-
+// not an auto-charge default (that's the Card tab's job). The gold button
+// itself is PayPalSmartButton.tsx, shared with plan checkout's PayPal path.
 function PayPalPanel({ info, invoice, onChanged }: { info: PayPalInfo; invoice: OutstandingInvoice | null; onChanged: () => void }) {
-  const [rendering, setRendering] = useState(false);
-  const [paying, setPaying] = useState(false);
-  const [blocked, setBlocked] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!info.configured || !invoice || !info.clientId) return;
-    let cancelled = false;
-    setRendering(true);
-    setBlocked(false);
-    const timeoutId = setTimeout(() => {
-      if (!cancelled) setBlocked(true);
-    }, PAYPAL_LOAD_TIMEOUT_MS);
-    (async () => {
-      try {
-        await loadPayPalOrdersSdk(info.clientId!);
-        if (cancelled || !window.paypal || !containerRef.current) return;
-        containerRef.current.innerHTML = "";
-        window.paypal
-          .Buttons({
-            style: { shape: "pill", color: "gold", layout: "horizontal", label: "pay" },
-            createOrder: async () => {
-              // Explicit try/catch (rather than letting apiPost's rejection
-              // propagate on its own) guarantees onError below is what
-              // actually fires — never a raw ApiError reaching the SDK's
-              // own uncaught-rejection handling.
-              try {
-                const { orderId } = await apiPost<{ orderId: string }>(`/api/business/billing/invoices/${invoice.id}/paypal/create-order`);
-                return orderId;
-              } catch (err) {
-                console.error("[PayPalPanel] createOrder failed:", err);
-                throw new Error("paypal_order_create_failed");
-              }
-            },
-            onApprove: async (data: any) => {
-              setPaying(true);
-              try {
-                await apiPost(`/api/business/billing/invoices/${invoice.id}/paypal/capture-order`, { orderId: data.orderID });
-                toast.success("Invoice paid with PayPal");
-                onChanged();
-              } catch (err) {
-                console.error("[PayPalPanel] capture failed:", err);
-                toast.error("PayPal approved the payment, but we couldn't confirm it — contact support");
-              } finally {
-                setPaying(false);
-              }
-            },
-            // Buyer closed the popup or clicked "Cancel and return" before
-            // approving — a normal, non-error outcome. No charge was ever
-            // attempted (that only happens in onApprove), so this is purely
-            // informational, never styled as a failure.
-            onCancel: () => {
-              toast("Payment cancelled — no charge was made");
-            },
-            onError: (err: any) => {
-              console.error("[PayPalPanel] Buttons error:", err);
-              toast.error("PayPal checkout failed — please try again");
-            },
-          })
-          .render(containerRef.current);
-        clearTimeout(timeoutId);
-      } catch (err) {
-        console.error("[PayPalPanel] setup failed:", err);
-        if (!cancelled) setBlocked(true);
-        clearTimeout(timeoutId);
-      } finally {
-        if (!cancelled) setRendering(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-      clearTimeout(timeoutId);
-    };
-  }, [info.configured, info.clientId, invoice?.id]);
-
   if (!info.configured) {
     return <p className="text-sm text-slate-500">PayPal isn&apos;t set up on this account yet.</p>;
   }
@@ -219,16 +111,14 @@ function PayPalPanel({ info, invoice, onChanged }: { info: PayPalInfo; invoice: 
           Pay invoice <span className="font-medium text-slate-700">{invoice.invoiceNumber}</span> ({money(invoice.totalCents)}) with PayPal — a manual, one-time payment. Your card on file remains the recommended automatic method.
         </p>
       </div>
-      {blocked ? (
-        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-800">
-          Your browser or network is blocking PayPal — please pay by card or bank transfer instead.
-        </p>
-      ) : (
-        <>
-          <div ref={containerRef} className="max-w-xs" />
-          {(rendering || paying) && <p className="text-xs text-slate-500">{paying ? "Confirming payment…" : "Loading PayPal…"}</p>}
-        </>
-      )}
+      <PayPalSmartButton
+        clientId={info.clientId!}
+        invoiceId={invoice.id}
+        onPaid={() => {
+          toast.success("Invoice paid with PayPal");
+          onChanged();
+        }}
+      />
     </div>
   );
 }
