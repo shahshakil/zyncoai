@@ -191,8 +191,25 @@ function PayPalPanel({ info, invoice, onChanged }: { info: PayPalInfo; invoice: 
   if (!info.configured) {
     return <p className="text-sm text-slate-500">PayPal isn&apos;t set up on this account yet.</p>;
   }
+  // No invoice to attach a real order to right now — per the hard rule
+  // above (PayPalPanel's header comment), a clickable button never renders
+  // without one. This branded "accepted here" state replaces what used to
+  // be bare text, and swaps back to the live button automatically the
+  // moment `invoice` (sourced from the same billing payload as everything
+  // else on this page) is next non-null — no reload involved, just React
+  // re-rendering off a changed prop.
   if (!invoice) {
-    return <p className="text-sm text-slate-500">No outstanding invoice to pay right now — PayPal will appear here the next time one is due.</p>;
+    return (
+      <div className="flex flex-col items-center gap-3 rounded-2xl border border-[#0070E0]/15 bg-gradient-to-b from-[#0070E0]/[0.06] to-transparent px-6 py-8 text-center">
+        <div className="flex h-14 w-24 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
+          <PayPalBrandIcon className="h-8 w-14" />
+        </div>
+        <div className="space-y-1">
+          <p className="text-sm font-semibold text-slate-900">PayPal is accepted on this account</p>
+          <p className="max-w-xs text-sm text-slate-500">The payment button appears automatically when an invoice is due.</p>
+        </div>
+      </div>
+    );
   }
   return (
     <div className="space-y-3">
