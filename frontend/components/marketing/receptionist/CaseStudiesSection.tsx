@@ -16,7 +16,7 @@ export function CaseStudiesSection({ industryName }: { industryName: string }) {
         </div>
         <h2 className="mt-4 text-[clamp(1.5rem,1.2rem+1.2vw,2rem)] font-bold text-[#0f172a]">First {industryName.toLowerCase()} partner story coming soon</h2>
         <p className="mt-3 text-[#475569]">
-          We're not going to invent one. This slot fills the day a real {industryName.toLowerCase()} business gives us real numbers to share.
+          We&apos;re not going to invent one. This slot fills the day a real {industryName.toLowerCase()} business gives us real numbers to share.
         </p>
       </div>
     </section>

@@ -36,7 +36,7 @@ export function InteractiveRoiCalculator({ industryName, plans }: { industryName
     <section id="roi-calculator" className="py-14">
       <div className="mx-auto max-w-2xl px-6 text-center">
         <h2 className="text-[clamp(1.5rem,1.2rem+1.2vw,2rem)] font-bold text-[#0f172a]">What would this actually cost you?</h2>
-        <p className="mt-3 text-[#475569]">Move the slider to your real call volume — every number below is either a published {industryName.toLowerCase()} plan price or a named assumption, never an estimate we can't show our working for.</p>
+        <p className="mt-3 text-[#475569]">Move the slider to your real call volume — every number below is either a published {industryName.toLowerCase()} plan price or a named assumption, never an estimate we can&apos;t show our working for.</p>
       </div>
 
       <div className="mx-auto mt-10 max-w-2xl rounded-3xl border border-[#e2e8f0] bg-white p-8 shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)]">
@@ -94,7 +94,7 @@ export function InteractiveRoiCalculator({ industryName, plans }: { industryName
           </p>
         )}
         <p className="mt-3 text-center text-[10px] text-[#94a3b8]">
-          A real receptionist and Ella aren't a like-for-like swap — this compares call-answering cost only, using the two figures shown above.
+          A real receptionist and Ella aren&apos;t a like-for-like swap — this compares call-answering cost only, using the two figures shown above.
         </p>
       </div>
     </section>
