@@ -81,6 +81,10 @@ const ALLOWLIST = new Set([
   // credential/SLA rather than implying we do.
   "app/(marketing)/resources/trust/page.tsx::GDPR claim",
   "app/(marketing)/resources/trust/page.tsx::SOC 2 / SOC2 claim",
+  // Same honest "not currently certified" disclaimer, same wording pattern,
+  // now also in the new compliance blog post (2026-08-17).
+  "components/marketing/blog/posts.ts::GDPR claim",
+  "components/marketing/blog/posts.ts::SOC 2 / SOC2 claim",
   "app/terms/page.tsx::SLA / uptime guarantee",
   // "SLA" here means the workflow-automation product's ability to monitor
   // a CUSTOMER's own SLA (e.g. ticket-response deadlines, KYC approval
