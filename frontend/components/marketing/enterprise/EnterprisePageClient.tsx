@@ -74,9 +74,9 @@ export default function EnterprisePageClient() {
               </h1>
 
               <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-300">
-                ZyncoAI is designed to feel bigger than a workflow toy. It combines
-                agents, workflows, connectors, runtime controls, visibility, approvals,
-                auditability, and deployment structure into one operational platform.
+                ZyncoAI combines agents, workflows, connectors, runtime controls,
+                visibility, approvals, auditability, and deployment structure into
+                one operational platform.
               </p>
 
               <div className="mt-8 flex flex-wrap gap-4">
@@ -97,9 +97,9 @@ export default function EnterprisePageClient() {
               <div className="mt-8 grid gap-3 sm:grid-cols-2">
                 {[
                   "Operational guardrails built in",
-                  "Better deployment structure",
+                  "Versioned deployment structure",
                   "Workflow + AgentOps + WorkflowOps",
-                  "Designed to look credible to buyers",
+                  "Approvals and audit trails by default",
                 ].map((item) => (
                   <div
                     key={item}
@@ -253,7 +253,7 @@ export default function EnterprisePageClient() {
                           "Safer deployment structure",
                           "Cross-system orchestration",
                           "Better visibility for operators",
-                          "Cleaner buyer story",
+                          "Clear ownership at every step",
                         ].map((item) => (
                           <div
                             key={item}
@@ -267,11 +267,11 @@ export default function EnterprisePageClient() {
 
                     <div className="rounded-[24px] border border-violet-400/20 bg-violet-500/10 p-4">
                       <div className="text-sm font-medium text-white">
-                        Enterprise should feel complete, not like a broken nav item.
+                        One control layer across every workflow.
                       </div>
                       <p className="mt-2 text-sm leading-7 text-zinc-300">
-                        This page exists to make ZyncoAI look like a platform with real depth,
-                        not only a landing page with missing structure.
+                        Approvals, policy checks, and audit evidence apply the same way
+                        whether a step ran automatically or an agent decided it.
                       </p>
                     </div>
                   </div>
@@ -289,7 +289,7 @@ export default function EnterprisePageClient() {
               Enterprise pillars
             </div>
             <h2 className="mt-3 text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl">
-              What makes ZyncoAI feel bigger than a normal workflow app.
+              What enterprise governance means on ZyncoAI.
             </h2>
           </div>
 
@@ -385,8 +385,8 @@ export default function EnterprisePageClient() {
                 Turn AI workflows into a governed operating system.
               </h2>
               <p className="mt-6 text-lg leading-8 text-zinc-300">
-                ZyncoAI should sell the idea that intelligent automation can be fast,
-                visible, controlled, and production-ready at the same time.
+                Intelligent automation that stays fast, visible, controlled, and
+                production-ready at the same time.
               </p>
 
               <div className="mt-10 flex flex-wrap gap-4">

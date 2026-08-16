@@ -9,16 +9,6 @@ function Pill({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Stat({ label, value, hint }: { label: string; value: string; hint: string }) {
-  return (
-    <div className="rounded-2xl border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-5">
-      <div className="text-xs text-[rgb(var(--text-3))]">{label}</div>
-      <div className="mt-2 text-2xl font-semibold text-[rgb(var(--text))]">{value}</div>
-      <div className="mt-2 text-sm text-[rgb(var(--text-3))]">{hint}</div>
-    </div>
-  );
-}
-
 function Card({ title, desc, bullets }: { title: string; desc: string; bullets: string[] }) {
   return (
     <div className="rounded-3xl border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-6">
@@ -87,18 +77,12 @@ export default function SupportSolutionPage() {
                 Security & controls
               </Link>
             </div>
-
-            <div className="mt-10 grid gap-4 sm:grid-cols-3">
-              <Stat label="Deflection" value="↑ 25–45%" hint="Auto answers + KB enrichment" />
-              <Stat label="Handle time" value="↓ 15–30%" hint="Summaries + routing + macros" />
-              <Stat label="Escalations" value="↓ 20%" hint="Smart triage + approvals" />
-            </div>
           </div>
 
           <div className="relative">
             <div className="relative overflow-hidden rounded-[28px] border border-[rgb(var(--border))] bg-[rgb(var(--surface))]">
               <div className="flex items-center justify-between border-b border-[rgb(var(--border))] px-4 py-3">
-                <div className="text-xs text-[rgb(var(--text))]">Live Preview</div>
+                <div className="text-xs text-[rgb(var(--text))]">Example workflow preview</div>
                 <div className="text-[11px] text-[rgb(var(--text-3))]">ticket-triage • approvals • logs</div>
               </div>
 

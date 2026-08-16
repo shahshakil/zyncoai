@@ -38,22 +38,8 @@ export default async function ConnectorDetailPage({
 }) {
   const { id } = await params;
 
-  const data =
-    (await safeGetJson<ConnectorDetailPayload>(`/connectors/public/${id}`)) || {
-      ok: true,
-      connector: {
-        id,
-        name: id,
-        category: "General",
-        status: "live",
-        authType: "oauth2",
-        installationStatus: "ready",
-        health: "healthy",
-        logs: [],
-      },
-    };
-
-  const connector = data.connector;
+  const data = await safeGetJson<ConnectorDetailPayload>(`/connectors/public/${id}`);
+  const connector = data?.connector;
 
   if (!connector) {
     return (

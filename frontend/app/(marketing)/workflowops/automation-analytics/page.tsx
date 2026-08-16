@@ -31,7 +31,7 @@ export default async function AutomationAnalyticsPage() {
         <p className="text-sm uppercase tracking-[0.2em] text-neutral-500">WorkflowOps</p>
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-neutral-950">Automation Analytics</h1>
         <p className="mt-4 max-w-3xl text-base leading-7 text-neutral-600">
-          Outcome tracking for workflow execution, time savings, and reliability. This page should always come from backend metrics.
+          Outcome tracking for workflow execution, time savings, and reliability.
         </p>
       </div>
 

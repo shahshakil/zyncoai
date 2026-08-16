@@ -151,7 +151,7 @@ export const BLOG_POSTS: BlogPost[] = [
     blocks: [
       {
         type: "p",
-        text: "This isn't a \"replace your receptionist\" pitch — most businesses running ZyncoAI still have a human team, and for good reason. The honest answer to \"AI vs human receptionist\" is that they're good at different things, and understanding which is which matters more than picking a side.",
+        text: "This isn't a \"replace your receptionist\" pitch — ZyncoAI is built to work alongside a human team, not instead of one. The honest answer to \"AI vs human receptionist\" is that they're good at different things, and understanding which is which matters more than picking a side.",
       },
       { type: "h2", text: "Where an AI receptionist genuinely wins" },
       {

@@ -105,7 +105,7 @@ export default function AboutPage() {
               I believe every Australian business — no matter how small — deserves to sound professional, never miss a customer, and compete with
               the big players.
             </p>
-            <p>From a single student with a vision to Australia&apos;s leading AI receptionist platform — we are just getting started.</p>
+            <p>From a single student with a vision to a platform I&apos;m building one Australian business at a time — we are just getting started.</p>
           </div>
 
           <div className="mt-6 border-t border-[#e2e8f0] pt-5 text-xs leading-relaxed text-[#94a3b8]">
