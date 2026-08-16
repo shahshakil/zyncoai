@@ -664,6 +664,50 @@ export const INDUSTRY_PRICING_SLUG_MAP: Record<string, string> = {
   "home-services": "mechanic",
 };
 
+// 2026-08-17 — five of ten industries' hardcoded "How much does ZyncoAI
+// cost for a X?" FAQ answers had drifted out of sync with the real
+// INDUSTRY_PRICING numbers (found while sourcing a real price for a new
+// blog post): Legal claimed $499 (real: $349), Mechanic claimed $149
+// (real: $199), Bank claimed $599 (real: $399), University claimed $299
+// (real: $499), and Financial Services inherited Bank's wrong $599. Live,
+// user-facing, on the same page as the real pricing table that showed the
+// correct number — exactly the "two different numbers for the same
+// question" inconsistency this site has been getting rigorously purged of.
+// Rewriting every one of these ten answers here, once, driven by the real
+// data, rather than patching the five wrong literals — a literal fix would
+// leave the other five one accidental edit away from drifting the same way.
+// Mutates the FAQ arrays already embedded in the INDUSTRIES literal above;
+// safe because INDUSTRIES itself is a plain array of objects (only the
+// `const` *binding* is immutable, not its contents), and this runs once at
+// module load, after both INDUSTRIES and INDUSTRY_PRICING already exist.
+// Explicit, not inferred: which industries borrow another's pricing tier
+// rather than having their own INDUSTRY_PRICING group, and which real
+// industry they should be described as matching. Only 3 today (dental
+// piggybacks on the medical group's own name "healthcare", financial-
+// services and home-services explicitly say so in their own FAQ already) —
+// inferring this from INDUSTRY_PRICING_SLUG_MAP's shape got the direction
+// backwards for bank/mechanic (whichever industry happened to be found
+// first was arbitrarily treated as "primary").
+const SHARES_PRICING_WITH: Record<string, string> = {
+  dental: "healthcare",
+  "financial-services": "bank",
+  "home-services": "mechanic",
+};
+
+for (const industry of INDUSTRIES) {
+  const pricingSlug = INDUSTRY_PRICING_SLUG_MAP[industry.slug];
+  const group = INDUSTRY_PRICING.find((g) => g.slug === pricingSlug);
+  if (!group) continue;
+  const cheapest = Math.min(...group.plans.filter((p) => p.priceMonthly > 0).map((p) => p.priceMonthly));
+  const sharesWithSlug = SHARES_PRICING_WITH[industry.slug];
+  const sharesWith = sharesWithSlug ? INDUSTRIES.find((i) => i.slug === sharesWithSlug) : undefined;
+  const faq = industry.faqs.find((f) => f.question.startsWith("How much does ZyncoAI cost"));
+  if (!faq) continue;
+  faq.answer = sharesWith
+    ? `${industry.name} plans use the same pricing as ${sharesWith.name.toLowerCase()}, starting from AUD $${cheapest}/month with a 7-day free trial.`
+    : `${industry.name} plans start from AUD $${cheapest}/month, with a 7-day free trial.`;
+}
+
 // 2026-08-15 — same-shaped mapping as above, but to the real Vertical enum
 // key used by lib/integrationsCatalog.ts's CATALOG (getIntegrationsCatalog),
 // for the new per-vertical integrations content block. Distinct from
@@ -728,24 +772,6 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
   { title: "Activate your voice line", detail: "Click Activate — a real Australian phone number is purchased and configured for your business." },
   { title: "Ella goes live", detail: "The moment a real number is assigned, Ella starts answering. Automatic number purchase is usually immediate; on the rare occasion it needs a manual step on our side, we're notified automatically and follow up directly." },
 ];
-
-// Rewrites each industry's "how much does it cost" FAQ answer in place to
-// the real INDUSTRY_PRICING entry price, instead of the hand-typed prose
-// this used to be — four of ten had already drifted wrong (legal $499 vs
-// real $349, mechanic $149 vs real $199, bank $599 vs real $399,
-// university $299 vs real $499) and were silently contradicting both
-// /pricing and this same page's own PricingSection tab, including in the
-// FAQPage JSON-LD served to search engines. Only the "AUD $X/month"
-// fragment is replaced — the surrounding sentence (e.g. financial-services'
-// "same tier as banks" framing) stays intact.
-for (const industry of INDUSTRIES) {
-  const pricingSlug = INDUSTRY_PRICING_SLUG_MAP[industry.slug];
-  const group = INDUSTRY_PRICING.find((g) => g.slug === pricingSlug);
-  const price = group?.plans[0]?.priceMonthly;
-  if (!price) continue;
-  const costFaq = industry.faqs.find((f) => /how much does zyncoai cost/i.test(f.question));
-  if (costFaq) costFaq.answer = costFaq.answer.replace(/AUD \$[\d,]+(\.\d+)?\/month/i, `AUD $${price}/month`);
-}
 
 // 2026-08-15 richer-vertical-page pass — one more real FAQ per industry, on
 // the two questions the new onboarding-roadmap block raises but doesn't
