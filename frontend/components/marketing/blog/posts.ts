@@ -23,6 +23,13 @@ function cheapestFor(pricingGroupSlug: string): number {
 }
 const SALON_STARTER_PRICE = cheapestFor("salon");
 const LAW_STARTER_PRICE = cheapestFor("law");
+// Dental shares the "medical" INDUSTRY_PRICING group (same tier as
+// healthcare, per data.ts's SHARES_PRICING_WITH mapping) — there's no
+// separate "dental" pricing group to read from.
+const DENTAL_STARTER_PRICE = cheapestFor("medical");
+const MECHANIC_STARTER_PRICE = cheapestFor("mechanic");
+const BANK_STARTER_PRICE = cheapestFor("bank");
+const UNIVERSITY_STARTER_PRICE = cheapestFor("university");
 
 export type BlogBlock = { type: "p"; text: string } | { type: "h2"; text: string } | { type: "ul"; items: string[] };
 
@@ -378,6 +385,164 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         type: "p",
         text: "If a security issue affecting your data is identified, affected businesses are notified directly with a clear timeline and remediation — not left to find out independently. There's no public bug-bounty program running today; if you find a real issue, reporting it directly is the fastest way to get it looked at and fixed.",
+      },
+    ],
+  },
+  {
+    slug: "ai-receptionist-guide-dental-practices",
+    title: "How Ella Handles Calls for Dental Practices: A Real-World Guide",
+    description:
+      "What actually happens when a patient calls a dental practice using ZyncoAI — emergency triage, recall bookings, insurance questions, and what's deliberately off-limits.",
+    publishedAt: "2026-08-16",
+    readingMinutes: 6,
+    category: "industry-guides",
+    tags: ["dental", "healthcare", "recalls", "emergency-triage", "pricing"],
+    relatedIndustrySlugs: ["dental", "healthcare"],
+    blocks: [
+      {
+        type: "p",
+        text: "A dental practice loses money on the phone in two quite different ways: a routine six-monthly recall call that goes to voicemail and never gets rebooked, and a patient in real pain who couldn't get through and found a clinic that answered instead. Ella is built to tell those two situations apart immediately, rather than treating every call the same way.",
+      },
+      { type: "h2", text: "What Ella actually does on a patient call" },
+      {
+        type: "ul",
+        items: [
+          "Answers instantly, day or night, and asks enough to tell a routine booking from something urgent — a small chip mentioned in passing gets booked calmly, while real pain is triaged toward the next available urgent slot.",
+          "Books hygienist and dentist appointments against their own separate real calendars, not one shared practice-wide slot.",
+          "Handles six-monthly recall calls the same way as any other booking request — checked against real availability, not just noted down for someone to action later.",
+          "Answers insurance and payment-plan questions in the same call — explaining how a gap payment works, for instance — without inventing a specific dollar figure it doesn't actually have.",
+        ],
+      },
+      { type: "h2", text: "A genuine safety mechanism, not just a script instruction" },
+      {
+        type: "p",
+        text: "Separate from routine pain triage, there's a hard-coded safety check running underneath every medical and dental call. If a caller mentions something that sounds like a genuine medical emergency — chest pain, difficulty breathing, heavy bleeding, signs of a stroke — the call doesn't rely on the AI's in-the-moment judgment to catch it. A deterministic keyword check intercepts the call, tells the caller to hang up and dial 000 immediately, and keeps repeating that instruction for the rest of the call rather than quietly returning to booking. It's a narrow, specific safeguard for genuinely serious symptoms — not a substitute for the everyday judgment call of whether a chipped tooth needs to be seen today or can wait, which still runs through Ella's normal triage above.",
+      },
+      { type: "h2", text: "What Ella deliberately does not do" },
+      {
+        type: "p",
+        text: "Ella doesn't diagnose anything and doesn't tell a caller how serious their pain is. It doesn't quote a specific Medicare rebate or gap-payment dollar figure unless that number is already configured for the practice — if it isn't, the honest answer is a note passed to the practice manager to confirm, not a guess. General dental isn't covered by Medicare bulk billing the way a GP visit is, and Ella won't imply otherwise.",
+      },
+      { type: "h2", text: "What it costs" },
+      {
+        type: "p",
+        text: `Dental plans use the same pricing as medical clinics, starting from AUD $${DENTAL_STARTER_PRICE}/month with a 7-day free trial. Against the cost of even one chair sitting empty because a recall call went unanswered, most practices find the comparison isn't close.`,
+      },
+    ],
+  },
+  {
+    slug: "ai-receptionist-guide-mechanic-shops",
+    title: "How Ella Handles Calls for Mechanic Shops: A Real-World Guide",
+    description:
+      "What actually happens when a customer calls a mechanic or auto shop using ZyncoAI — booking the job, capturing the vehicle details, and what still needs a real inspection.",
+    publishedAt: "2026-08-16",
+    readingMinutes: 5,
+    category: "industry-guides",
+    tags: ["mechanic", "auto-shop", "bookings", "pricing"],
+    relatedIndustrySlugs: ["mechanic"],
+    blocks: [
+      {
+        type: "p",
+        text: "A mechanic mid-job can't stop what they're doing to answer the phone — and a shop that doesn't pick up doesn't get a second chance, the caller just rings the next workshop on the list. Ella exists specifically to answer the phone a busy workshop can't.",
+      },
+      { type: "h2", text: "What Ella actually does on a call" },
+      {
+        type: "ul",
+        items: [
+          "Answers every time, even while the whole team is under a car, with no hold music and no ringing through to someone who can't get to the phone.",
+          "Captures the vehicle's make, model, and a description of the actual problem upfront — so a technician isn't calling the customer back just to ask the same questions again before the job can even be scheduled.",
+          "Books the job against real service-bay availability, not a guess — so the shop doesn't end up double-booked on a busy day.",
+          "Sends the job confirmation out by SMS automatically once it's booked, cutting down the number of \"what time was my booking again\" calls.",
+        ],
+      },
+      { type: "h2", text: "What Ella can — and can't — quote over the phone" },
+      {
+        type: "p",
+        text: "For general pricing and parts-availability questions, Ella answers directly where it can. But a workshop's honest reality is that most real quotes depend on physically looking at the vehicle — a grinding noise could be a dozen different things. For anything that genuinely needs an inspection, Ella books the job in and flags it for a proper quote once the vehicle's actually on the hoist, rather than guessing a number over the phone that might be wrong by the time the car arrives.",
+      },
+      { type: "h2", text: "What it costs" },
+      {
+        type: "p",
+        text: `Workshop plans start from AUD $${MECHANIC_STARTER_PRICE}/month, with a 7-day free trial. For a shop that's routinely missing calls during service hours — which is most of them, most days — that's a small cost against the jobs that would otherwise go to whichever workshop's phone got answered instead.`,
+      },
+    ],
+  },
+  {
+    slug: "ai-receptionist-guide-banks-credit-unions",
+    title: "How Ella Handles Calls for Banks and Credit Unions: A Real-World Guide",
+    description:
+      "What actually happens when a member calls a bank or credit union using ZyncoAI — appointment booking, product screening, and the one hard rule that overrides everything else.",
+    publishedAt: "2026-08-16",
+    readingMinutes: 6,
+    category: "industry-guides",
+    tags: ["banking", "financial-services", "compliance", "pricing"],
+    relatedIndustrySlugs: ["bank", "financial-services"],
+    blocks: [
+      {
+        type: "p",
+        text: "A bank or credit union's phone line carries a kind of risk most other businesses on ZyncoAI don't have to think about: the caller might, at any moment, start reading out an account number or a card PIN. That single fact shapes almost everything about how Ella is built for this vertical — starting with one rule that overrides every other instruction in the system.",
+      },
+      { type: "h2", text: "The one hard rule" },
+      {
+        type: "p",
+        text: "Ella never discusses account details, balances, transactions, or card and PIN numbers — under any circumstances, on any call. This isn't a soft preference the AI can be talked around; if a caller raises any of those topics, the instruction is to immediately use the transfer-to-human tool and hand the call to a real banker rather than continuing the conversation itself. It's written into the system prompt as an explicit override, not left to the AI's general judgment about what seems sensitive.",
+      },
+      { type: "h2", text: "What Ella actually does on a routine call" },
+      {
+        type: "ul",
+        items: [
+          "Answers 24/7 — outside branch hours, a member today just gets a queue or a voicemail; Ella answers instead, every time.",
+          "Screens what the enquiry actually is before booking — a home-loan question and a general account question aren't the same kind of appointment, and get routed to the right calendar.",
+          "Books the appointment against the specific banker or advisor's real availability for that product type, not a generic branch-wide slot.",
+          "Hands the call straight to a human the moment anything sensitive comes up, per the hard rule above.",
+        ],
+      },
+      { type: "h2", text: "What Ella deliberately does not do" },
+      {
+        type: "p",
+        text: "Beyond the account-detail rule, Ella doesn't give financial advice and doesn't make decisions about a member's application, eligibility, or account. Its job on this vertical is narrower than most: answer the phone, work out what kind of appointment someone needs, book it with the right person, and get out of the way the moment anything sensitive comes up.",
+      },
+      { type: "h2", text: "What it costs" },
+      {
+        type: "p",
+        text: `Bank and credit union plans start from AUD $${BANK_STARTER_PRICE}/month, with a 7-day free trial. Financial services practices — advisers and planners — run on the same compliance-focused tier.`,
+      },
+    ],
+  },
+  {
+    slug: "ai-receptionist-guide-universities",
+    title: "How Ella Handles Calls for Universities: A Real-World Guide",
+    description:
+      "What actually happens when a student calls student services using ZyncoAI — enrolment questions, advisor bookings, and how welfare calls are handled differently.",
+    publishedAt: "2026-08-16",
+    readingMinutes: 5,
+    category: "industry-guides",
+    tags: ["university", "student-services", "education", "pricing"],
+    relatedIndustrySlugs: ["university"],
+    blocks: [
+      {
+        type: "p",
+        text: "Enrolment week is a problem every university student-services team recognises: call volume spikes hard for a few weeks a year, and the usual fix is hiring casual staff just to cover it — an expensive, temporary patch for a predictable, recurring spike. Ella is built to absorb that surge without any extra hiring, answering every call regardless of volume.",
+      },
+      { type: "h2", text: "What Ella actually does on a student call" },
+      {
+        type: "ul",
+        items: [
+          "Answers enrolment deadlines, fee questions, and semester-date questions directly, without transferring the student around to find whoever handles that.",
+          "Books appointments with student advisors against the right faculty's real calendar, rather than a generic switchboard slot that turns out to be the wrong department.",
+          "Handles the enrolment-period call surge as a matter of how the platform is built — no extra hiring, no casual-staff scramble every year.",
+          "Recognises when a call sounds like a welfare concern rather than a routine enquiry, and routes it to the appropriate support line immediately instead of queuing it as just another question.",
+        ],
+      },
+      { type: "h2", text: "What Ella deliberately does not do" },
+      {
+        type: "p",
+        text: "Ella doesn't make academic decisions — it doesn't approve enrolments, grant extensions, or interpret a specific student's academic standing. Anything that needs a real advisor's judgment is booked as an appointment with the right faculty, not answered on the spot by the AI acting as though it had that authority.",
+      },
+      { type: "h2", text: "What it costs" },
+      {
+        type: "p",
+        text: `University plans start from AUD $${UNIVERSITY_STARTER_PRICE}/month, with a 7-day free trial. Against the cost of hiring casual reception staff for enrolment week alone, most student-services teams find the year-round coverage the better trade.`,
       },
     ],
   },
