@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { CalendarClock, PhoneCall, UserX, LayoutDashboard } from "lucide-react";
 import { Card } from "@/components/dashboard/ui/card";
@@ -17,6 +17,20 @@ import { BookingCard } from "./DemoPlayer";
 type FeedKind = "ongoing" | "booked" | "faq";
 type FeedRow = { id: string; kind: FeedKind; title: string; summary: string; durationLabel: string; statusLabel: string; timeAgo: string };
 
+// Per-vertical sample-data LABELS only — the scene's structure, timing, and
+// "Simulated preview" disclosure never change. Optional so the homepage's
+// existing <LiveDashboardScene /> (no vertical context) keeps its original
+// generic wording exactly as-is. Sourced from Industry.dashboardPreview in
+// ./data, passed down from SolutionTemplate — this component stays
+// decoupled from data.ts itself, per "one shared component reading
+// per-vertical label data."
+export interface DashboardPreviewLabels {
+  stat1Label: string;
+  stat2Label: string;
+  recordNoun: string;
+}
+const DEFAULT_LABELS: DashboardPreviewLabels = { stat1Label: "Today's Appointments", stat2Label: "AI Calls Today", recordNoun: "appointment" };
+
 // Mirrors OverviewDashboard.tsx's CALL_BORDER/CALL_BADGE color-by-meaning
 // convention: emerald = booked (positive outcome), cyan = informational,
 // indigo = live/in-progress so it never reads as "already booked."
@@ -26,13 +40,15 @@ const FEED_STYLE: Record<FeedKind, { border: string; dot: string; badge: string 
   faq: { border: "border-l-cyan-400", dot: "bg-cyan-400", badge: "bg-cyan-500/15 text-cyan-300" },
 };
 
-const ROW_A: FeedRow = { id: "a", kind: "booked", title: "Incoming call", summary: "Booked appointment — Tuesday 2:00pm", durationLabel: "3m 12s", statusLabel: "Booked", timeAgo: "12m ago" };
-const ROW_B_RINGING: FeedRow = { id: "b", kind: "ongoing", title: "Incoming call", summary: "Ringing…", durationLabel: "0:03", statusLabel: "Live", timeAgo: "just now" };
-const ROW_B_BOOKED: FeedRow = { id: "b", kind: "booked", title: "Incoming call", summary: "Booked appointment — Thursday 9:00am", durationLabel: "2m 04s", statusLabel: "Booked", timeAgo: "just now" };
-const ROW_C: FeedRow = { id: "c", kind: "faq", title: "After-hours call", summary: "Message taken for the on-call team", durationLabel: "1m 48s", statusLabel: "Message taken", timeAgo: "just now" };
+function buildRows(recordNoun: string) {
+  const rowA: FeedRow = { id: "a", kind: "booked", title: "Incoming call", summary: `Booked ${recordNoun} — Tuesday 2:00pm`, durationLabel: "3m 12s", statusLabel: "Booked", timeAgo: "12m ago" };
+  const rowBRinging: FeedRow = { id: "b", kind: "ongoing", title: "Incoming call", summary: "Ringing…", durationLabel: "0:03", statusLabel: "Live", timeAgo: "just now" };
+  const rowBBooked: FeedRow = { id: "b", kind: "booked", title: "Incoming call", summary: `Booked ${recordNoun} — Thursday 9:00am`, durationLabel: "2m 04s", statusLabel: "Booked", timeAgo: "just now" };
+  const rowC: FeedRow = { id: "c", kind: "faq", title: "After-hours call", summary: "Message taken for the on-call team", durationLabel: "1m 48s", statusLabel: "Message taken", timeAgo: "just now" };
+  return { rowA, rowBRinging, rowBBooked, rowC };
+}
 
 const BASELINE = { appointments: 41, aiCalls: 116 };
-const FINAL_ROWS: FeedRow[] = [ROW_C, ROW_B_BOOKED, ROW_A];
 const FINAL = { appointments: 42, aiCalls: 118 };
 
 function usePrefersReducedMotion() {
@@ -73,14 +89,17 @@ function FeedRowCard({ row, animated }: { row: FeedRow; animated: boolean }) {
   );
 }
 
-export function LiveDashboardScene({ onFirstPassComplete }: { onFirstPassComplete?: () => void }) {
+export function LiveDashboardScene({ onFirstPassComplete, labels = DEFAULT_LABELS }: { onFirstPassComplete?: () => void; labels?: DashboardPreviewLabels }) {
   const reducedMotion = usePrefersReducedMotion();
   const sceneRef = useRef<HTMLDivElement>(null);
   const inView = useInView(sceneRef, { once: true, amount: 0.4 });
   const startedRef = useRef(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const { rowA, rowBRinging, rowBBooked, rowC } = useMemo(() => buildRows(labels.recordNoun), [labels.recordNoun]);
+  const finalRows = useMemo(() => [rowC, rowBBooked, rowA], [rowA, rowBBooked, rowC]);
+  const bookingCardLabel = `Tomorrow, 9:00am — New ${labels.recordNoun}`;
 
-  const [rows, setRows] = useState<FeedRow[]>([ROW_A]);
+  const [rows, setRows] = useState<FeedRow[]>([rowA]);
   const [appointments, setAppointments] = useState(BASELINE.appointments);
   const [aiCalls, setAiCalls] = useState(BASELINE.aiCalls);
   const [bookingShown, setBookingShown] = useState(false);
@@ -97,13 +116,13 @@ export function LiveDashboardScene({ onFirstPassComplete }: { onFirstPassComplet
     if (!reducedMotion) return;
     timers.current.forEach(clearTimeout);
     timers.current = [];
-    setRows(FINAL_ROWS);
+    setRows(finalRows);
     setAppointments(FINAL.appointments);
     setAiCalls(FINAL.aiCalls);
     setBookingShown(true);
     setBookingGlow(false);
     onFirstPassComplete?.();
-  }, [reducedMotion, onFirstPassComplete]);
+  }, [reducedMotion, onFirstPassComplete, finalRows]);
 
   useEffect(() => {
     if (reducedMotion || !inView || startedRef.current) return;
@@ -116,15 +135,15 @@ export function LiveDashboardScene({ onFirstPassComplete }: { onFirstPassComplet
     function runLoop() {
       // t=0 — settle back to the resting frame (one existing row; never an
       // empty/skeleton feed).
-      setRows([ROW_A]);
+      setRows([rowA]);
       setAppointments(BASELINE.appointments);
       setAiCalls(BASELINE.aiCalls);
       setBookingShown(false);
       setBookingGlow(false);
 
-      schedule(1400, () => setRows((prev) => [ROW_B_RINGING, ...prev]));
+      schedule(1400, () => setRows((prev) => [rowBRinging, ...prev]));
       schedule(3200, () => {
-        setRows((prev) => prev.map((r) => (r.id === "b" ? ROW_B_BOOKED : r)));
+        setRows((prev) => prev.map((r) => (r.id === "b" ? rowBBooked : r)));
         setAppointments(42);
         setAiCalls(117);
       });
@@ -132,7 +151,7 @@ export function LiveDashboardScene({ onFirstPassComplete }: { onFirstPassComplet
       schedule(3650, () => setBookingGlow(true));
       schedule(4850, () => setBookingGlow(false));
       schedule(7000, () => {
-        setRows((prev) => [ROW_C, ...prev]);
+        setRows((prev) => [rowC, ...prev]);
         setAiCalls(118);
       });
       schedule(9500, () => onFirstPassComplete?.());
@@ -148,7 +167,7 @@ export function LiveDashboardScene({ onFirstPassComplete }: { onFirstPassComplet
       timers.current.forEach(clearTimeout);
       timers.current = [];
     };
-  }, [reducedMotion, inView, onFirstPassComplete]);
+  }, [reducedMotion, inView, onFirstPassComplete, rowA, rowBRinging, rowBBooked, rowC]);
 
   return (
     <div ref={sceneRef} className="relative mx-auto mt-12 max-w-4xl overflow-hidden rounded-3xl border border-[#e2e8f0] bg-white shadow-[0_20px_60px_-20px_rgba(15,23,42,0.15)]">
@@ -179,7 +198,7 @@ export function LiveDashboardScene({ onFirstPassComplete }: { onFirstPassComplet
           <Card className="p-4">
             <div className="flex items-start justify-between">
               <div className="min-w-0">
-                <p className="text-[10px] uppercase tracking-wide text-slate-400">Today&apos;s Appointments</p>
+                <p className="text-[10px] uppercase tracking-wide text-slate-400">{labels.stat1Label}</p>
                 <p className="mt-1.5 text-[1.65rem] font-bold tabular-nums text-slate-900"><CountUp value={appointments} /></p>
               </div>
               <div className="shrink-0 rounded-xl bg-indigo-50 p-2"><CalendarClock className="h-4 w-4 text-indigo-600" /></div>
@@ -188,7 +207,7 @@ export function LiveDashboardScene({ onFirstPassComplete }: { onFirstPassComplet
           <Card className="p-4">
             <div className="flex items-start justify-between">
               <div className="min-w-0">
-                <p className="text-[10px] uppercase tracking-wide text-slate-400">AI Calls Today</p>
+                <p className="text-[10px] uppercase tracking-wide text-slate-400">{labels.stat2Label}</p>
                 <p className="mt-1.5 text-[1.65rem] font-bold tabular-nums text-slate-900"><CountUp value={aiCalls} /></p>
               </div>
               <div className="shrink-0 rounded-xl bg-emerald-50 p-2"><PhoneCall className="h-4 w-4 text-emerald-600" /></div>
@@ -212,13 +231,13 @@ export function LiveDashboardScene({ onFirstPassComplete }: { onFirstPassComplet
               className="overflow-hidden"
             >
               <div className={`rounded-xl transition-shadow duration-500 ${bookingGlow ? "shadow-[0_0_0_3px_rgba(16,185,129,0.35),0_8px_24px_rgba(16,185,129,0.25)]" : ""}`}>
-                <BookingCard label="Tomorrow, 9:00am — New booking" />
+                <BookingCard label={bookingCardLabel} />
               </div>
             </motion.div>
           ) : (
             bookingShown && (
               <div className="mt-3">
-                <BookingCard label="Tomorrow, 9:00am — New booking" />
+                <BookingCard label={bookingCardLabel} />
               </div>
             )
           )}

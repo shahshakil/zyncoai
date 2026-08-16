@@ -25,7 +25,8 @@ export function RoleUseCasesSection({ industryName, roles }: { industryName: str
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ delay: i * 0.08, duration: 0.4 }}
-            className="rounded-2xl border border-[#e2e8f0] bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)]"
+            whileHover={{ y: -4 }}
+            className="rounded-2xl border border-[#e2e8f0] bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)] transition-shadow hover:border-[#c7d2fe] hover:shadow-[0_12px_32px_-12px_rgba(99,102,241,0.25)]"
           >
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)]">
               <UserRound className="h-5 w-5 text-white" />

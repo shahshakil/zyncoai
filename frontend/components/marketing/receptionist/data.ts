@@ -31,6 +31,18 @@ export interface Industry {
   // with what Ella/the dashboard actually does for that role (not a
   // generic "saves time" line repeated with a different job title).
   roles: { role: string; description: string }[];
+  // 2026-08-16 — vertical-appropriate sample-data LABELS for the
+  // "See it live" dashboard preview (LiveDashboardScene). The preview
+  // itself is unchanged real UI (Card/CountUp/BookingCard primitives,
+  // still stamped "Simulated preview — sample data") — only the words on
+  // it change per vertical, and every label is grounded in that
+  // industry's real `features` above (booking noun + real distinct
+  // second capability where one exists, e.g. restaurants really do take
+  // phone orders separately from table bookings — see the
+  // restaurant_order_lost alert rule and RESTAURANT's real features).
+  // recordNoun is the singular noun used in the scripted live-feed rows
+  // ("Booked <noun>") and the booking-card label ("New <noun>").
+  dashboardPreview: { stat1Label: string; stat2Label: string; recordNoun: string };
   // Which real Vertical enum + integrations-catalog key this industry maps
   // to (see INDUSTRY_VERTICAL_MAP below) — kept per-industry so a new
   // Industry entry can't forget to wire it up.
@@ -55,6 +67,7 @@ export const INDUSTRIES: Industry[] = [
       { role: "GP / Practice Owner", description: "Never loses a new-patient enquiry to a competing clinic that happened to pick up first." },
       { role: "Front Desk / Reception", description: "Ella absorbs the overlapping-call load so reception can focus on the patient standing in front of them." },
     ],
+    dashboardPreview: { stat1Label: "Appointments Booked", stat2Label: "Calls Answered Today", recordNoun: "appointment" },
     overview:
       "A medical clinic's phone line carries genuine urgency — a parent calling about a sick child, a patient chasing test results, someone trying to book before symptoms get worse. Every one of those calls competing for the same one or two reception staff means some of them go to voicemail, and a caller who hits voicemail when they're worried rarely leaves a message; they just call the next clinic. Ella answers every single call instantly, day or night, and checks each provider's real calendar before offering a time, so there's no double-booking and no back-and-forth. Medicare, private health fund, DVA and WorkCover questions are handled in the same conversation, and anything that sounds like it needs urgent clinical attention is flagged and escalated immediately rather than quietly booked in for next Tuesday.",
     faqs: [
@@ -81,6 +94,7 @@ export const INDUSTRIES: Industry[] = [
       { role: "Principal Dentist", description: "Keeps chairs filled without personally fielding routine booking calls between patients." },
       { role: "Front Desk", description: "Hands off routine recall and booking calls to Ella, freeing time for patients physically in the practice." },
     ],
+    dashboardPreview: { stat1Label: "Appointments Booked", stat2Label: "Calls Answered Today", recordNoun: "appointment" },
     overview:
       "Dental practices lose money two ways on the phone: a chair sitting empty because a routine recall call went to voicemail, and a patient in real pain who couldn't get through and found another clinic that answered. Ella tells those two situations apart immediately — someone describing acute pain gets triaged toward the next available urgent slot, while a routine 6-monthly checkup call gets booked calmly against the right hygienist or dentist's calendar. Insurance and payment-plan questions are answered in the same call instead of being deferred to a callback, and every booking lands straight in your practice software, so the chair that would have sat empty gets filled instead.",
     faqs: [
@@ -107,6 +121,7 @@ export const INDUSTRIES: Industry[] = [
       { role: "Principal / Partner", description: "Never loses a new client relationship to a firm that happened to answer first." },
       { role: "Front Desk / Legal Secretary", description: "Consultations arrive pre-screened and booked against the right solicitor's calendar, not routed by guesswork." },
     ],
+    dashboardPreview: { stat1Label: "Consultations Booked", stat2Label: "New Matters Screened", recordNoun: "consultation" },
     overview:
       "A law firm's phone line is often the first contact a prospective client has with the practice, and a formal, professional tone matters from the first word — which is why Ella's legal-firm persona is deliberately measured rather than casual. New matters are screened for the basics (what kind of matter, urgency, which practice area) before a consultation is booked, so a solicitor's time isn't spent re-asking questions the caller already answered. Time-sensitive details — a CTP or WorkCover claim, a court deadline mentioned in passing — are captured accurately rather than paraphrased. Ella never discusses the substance of legal advice; anything beyond intake and scheduling is routed straight to a solicitor.",
     faqs: [
@@ -133,6 +148,7 @@ export const INDUSTRIES: Industry[] = [
       { role: "Shop Owner", description: "Stops losing jobs to a competitor's busy line during peak hours." },
       { role: "Service Advisor / Front Desk", description: "Confirmations go out by SMS automatically, cutting down \"what time was my booking again\" calls." },
     ],
+    dashboardPreview: { stat1Label: "Jobs Booked", stat2Label: "Calls Answered Today", recordNoun: "job" },
     overview:
       "A mechanic mid-job can't stop to answer the phone, which is exactly when most workshops lose the call to a competitor who picks up. Ella answers every time, gets the vehicle's make, model and the actual problem described upfront — instead of a technician calling back to ask the same questions — and books the job against real bay availability so the workshop doesn't end up double-booked. Parts-availability and pricing questions get answered on the spot where possible, and every confirmed booking goes out as an SMS automatically, so there's no confusion about the time when the customer turns up.",
     faqs: [
@@ -159,6 +175,7 @@ export const INDUSTRIES: Industry[] = [
       { role: "Owner", description: "Keeps tables and phone orders full during dinner rush without adding phone-answering headcount." },
       { role: "Front of House", description: "Ella absorbs the booking-call load during service so staff stay on the floor." },
     ],
+    dashboardPreview: { stat1Label: "Tables Booked", stat2Label: "Orders Taken", recordNoun: "table" },
     overview:
       "Friday and Saturday dinner service is exactly when a restaurant gets the most booking calls and has the least spare staff to answer them — pulling a waiter off the floor to take a reservation call costs real table-turn time. Ella takes the booking instead: table size, date, time, and any dietary requirements or large-group requests, checked against real availability rather than guessed. Menu and opening-hours questions are answered instantly rather than put on hold, and phone orders are handled the same way — confirming each item and modification back to the caller before the order is placed, never inventing a menu item or price that isn't real.",
     faqs: [
@@ -185,6 +202,7 @@ export const INDUSTRIES: Industry[] = [
       { role: "Member / Business Owner", description: "Captures every after-hours enquiry that would otherwise just be a missed call." },
       { role: "Banker / Advisor", description: "Appointments arrive pre-screened by product type, not routed by guesswork." },
     ],
+    dashboardPreview: { stat1Label: "Meetings Booked", stat2Label: "Calls Answered Today", recordNoun: "meeting" },
     overview:
       "Members calling a bank or credit union outside branch hours today just get a queue or a voicemail — Ella answers instead, every hour of every day, and books an appointment with the right banker based on what the member actually needs (a home loan enquiry goes to a different calendar than a general account question). This is the one vertical with a hard, non-negotiable rule built into the AI itself: Ella never discusses account details, balances, transactions, card numbers or PINs under any circumstances. If a caller raises any of those, the call is transferred to a human banker immediately rather than the AI attempting to help.",
     faqs: [
@@ -211,6 +229,7 @@ export const INDUSTRIES: Industry[] = [
       { role: "Faculty Administrator", description: "Advisor bookings land directly on the right faculty's calendar, not transferred in from a generic switchboard." },
       { role: "Front-Line Student Services Staff", description: "Routine deadline and fee questions are answered directly, freeing staff for enquiries that actually need a person." },
     ],
+    dashboardPreview: { stat1Label: "Advisor Appointments", stat2Label: "Calls Answered Today", recordNoun: "appointment" },
     overview:
       "Enrolment week produces a call volume spike most student services teams can only cover by bringing in casual staff for a few weeks a year — and even then, wait times climb. Ella absorbs that surge without any extra hiring: enrolment deadlines, fee questions, and semester dates are answered directly, and anything that needs a real advisor is booked against the right faculty's calendar instead of the student being transferred around. Calls that sound like a welfare concern are routed to the appropriate support line immediately rather than treated as a routine enquiry — Ella is tuned to recognise that difference, not just answer whatever's asked literally.",
     faqs: [
@@ -237,6 +256,7 @@ export const INDUSTRIES: Industry[] = [
       { role: "Salon Owner", description: "Keeps chairs filled without a dedicated full-time reception hire." },
       { role: "Stylist / Front Desk", description: "Bookings check each stylist's own calendar, not a generic salon-wide slot guessed at by whoever answers." },
     ],
+    dashboardPreview: { stat1Label: "Appointments Booked", stat2Label: "Calls Answered Today", recordNoun: "appointment" },
     overview:
       "A stylist mid-colour can't answer the phone, and a salon with one person on reception is constantly torn between the desk and the floor. Ella takes the booking instead — checking the specific stylist's real availability, not just a generic salon-wide calendar, and answering service-length and pricing questions a client would otherwise wait on hold for. Automatic reminder calls cut down no-shows, which matter more for a salon than almost any other vertical given how much of the day's revenue a single empty chair represents, and clients are offered their next rebooking on the spot at the end of the call rather than being expected to remember to call back in six weeks.",
     faqs: [
@@ -263,6 +283,7 @@ export const INDUSTRIES: Industry[] = [
       { role: "Adviser / Practice Owner", description: "Captures every enquiry that would otherwise be a missed relationship, without any advice-compliance risk." },
       { role: "Front Desk / Client Services", description: "Client review meetings arrive pre-booked and screened, not routed by guesswork." },
     ],
+    dashboardPreview: { stat1Label: "Client Meetings Booked", stat2Label: "Calls Answered Today", recordNoun: "meeting" },
     overview:
       "Financial advisory and planning practices sit under the same compliance-first approach as banking on ZyncoAI: Ella books client review meetings and screens new-client enquiries before they reach an adviser, but never gives financial advice or discusses specific account or portfolio detail — anything substantive is routed straight to a human. That split lets the practice capture every enquiry (a missed call from a prospective client is a missed relationship) without any risk of the AI stepping into advice it's not licensed or appropriate to give.",
     faqs: [
@@ -289,6 +310,7 @@ export const INDUSTRIES: Industry[] = [
       { role: "Owner / Tradesperson", description: "Stops losing after-hours emergency jobs to whoever else picks up the phone." },
       { role: "Front Desk / Booking Coordinator", description: "Routine bookings and genuine emergencies arrive already triaged, not mixed together in one queue." },
     ],
+    dashboardPreview: { stat1Label: "Jobs Booked", stat2Label: "Calls Answered Today", recordNoun: "job" },
     overview:
       "Home service emergencies — a burst pipe, no hot water, an electrical fault — don't happen during business hours, and a tradesperson who doesn't answer after-hours simply loses the job to whoever does. Ella answers every time, tells a genuine emergency apart from a routine booking, and captures the job address and issue upfront so a tradesperson can be dispatched instead of calling back to ask basic questions first. Bookings are checked against real-time tradesperson availability rather than guessed at, so a job isn't promised for a slot that's already taken.",
     faqs: [

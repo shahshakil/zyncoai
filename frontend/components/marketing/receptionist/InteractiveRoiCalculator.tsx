@@ -2,6 +2,7 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { TRADITIONAL_RECEPTIONIST_ANNUAL_LOW, TRADITIONAL_RECEPTIONIST_ANNUAL_HIGH, type PricingPlan } from "./data";
+import { CountUp } from "@/components/dashboard/ui/CountUp";
 
 // Pure arithmetic, no invented savings percentage: the visitor's own input
 // (estimated call minutes/month) picks the cheapest real plan for THIS
@@ -68,7 +69,7 @@ export function InteractiveRoiCalculator({ industryName, plans }: { industryName
             ) : (
               <>
                 <p className="mt-2 text-2xl font-bold text-[#0f172a]">
-                  ${matchedPlan!.priceMonthly.toLocaleString()}<span className="text-sm font-normal text-[#475569]">/month</span>
+                  $<CountUp value={matchedPlan!.priceMonthly} durationMs={400} /><span className="text-sm font-normal text-[#475569]">/month</span>
                 </p>
                 <p className="mt-1 text-xs text-[#475569]">
                   {matchedPlan!.name} plan — {matchedPlan!.minutesIncluded}, real published price.
@@ -90,7 +91,7 @@ export function InteractiveRoiCalculator({ industryName, plans }: { industryName
 
         {annualDeltaLow !== null && annualDeltaHigh !== null && (
           <p className="mt-6 text-center text-sm text-[#475569]">
-            At this volume: <span className="font-semibold text-[#0f172a]">${Math.max(0, annualDeltaLow).toLocaleString()}–${Math.max(0, annualDeltaHigh).toLocaleString()} AUD/year</span> difference between the {matchedPlan?.name} plan and the traditional-receptionist wage assumption above — the raw arithmetic, not a marketing percentage.
+            At this volume: <span className="font-semibold text-[#0f172a]">$<CountUp value={Math.max(0, annualDeltaLow)} durationMs={400} />–$<CountUp value={Math.max(0, annualDeltaHigh)} durationMs={400} /> AUD/year</span> difference between the {matchedPlan?.name} plan and the traditional-receptionist wage assumption above — the raw arithmetic, not a marketing percentage.
           </p>
         )}
         <p className="mt-3 text-center text-[10px] text-[#94a3b8]">
