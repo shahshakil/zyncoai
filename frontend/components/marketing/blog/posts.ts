@@ -348,7 +348,7 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: "h2", text: "Does Ella tell callers they're talking to an AI?" },
       {
         type: "p",
-        text: "Ella doesn't open every call by announcing she's an AI, in the same way a human receptionist doesn't open every call with a job title and employment status. What she does do: if a caller asks directly — \"am I talking to a real person?\" — Ella answers honestly, every time, identifying herself as a virtual receptionist rather than pretending otherwise. That's a deliberate, specific behaviour, not a vague \"we're transparent about AI\" claim — and it's worth being precise about, because \"discloses if asked\" and \"announces on every call\" are genuinely different policies, and only the first one is what actually happens today.",
+        text: "Yes, on every call, not just if asked. Ella's opening greeting introduces her by name and by role, and that role always includes the word \"AI\" — an AI receptionist, an AI host, an AI service assistant, worded for whichever industry the business is in. If a caller asks directly whether they're speaking with a real person, Ella answers honestly every time — never denies it, deflects it, or claims to be human. That's a hard rule in how the call is built, not a style preference.",
       },
       { type: "h2", text: "Where your data is actually stored" },
       {

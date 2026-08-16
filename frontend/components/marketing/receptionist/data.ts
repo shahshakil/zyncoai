@@ -335,7 +335,13 @@ export const USE_CASES: UseCase[] = [
   { slug: "appointment-scheduling", name: "Appointment Scheduling", navLabel: "Appointment Scheduling", tagline: "Bookings made without lifting a finger", description: "Ella checks real availability and books directly into your calendar — no back-and-forth." },
   { slug: "intake", name: "Patient & Client Intake", navLabel: "Patient & Client Intake", tagline: "Capture the details right, every time", description: "New patient or client details are captured accurately and pushed straight into your system." },
   { slug: "recalls", name: "Outbound Recalls", navLabel: "Outbound Recalls", tagline: "Fill gaps in your calendar automatically", description: "Ella calls overdue patients and clients to rebook them — no manual call list required." },
-  { slug: "bilingual", name: "Bilingual Call Answering", navLabel: "Bilingual Call Answering", tagline: "Serve every caller in their own language", description: "Ella detects the caller's language automatically and responds fluently in 15+ languages." },
+  // "Bilingual Call Answering" removed 2026-08-17 — its "responds fluently
+  // in 15+ languages" claim was false. The real voice pipeline's speech-to-
+  // text is hardcoded to language="en-AU" (backend/src/voice/pipecat/
+  // server.py), no detection/switching exists anywhere, and every
+  // per-vertical "Custom Multilingual Support" add-on in addOnCatalog.ts is
+  // explicitly comingSoon:true. Found while sourcing a truthful answer to
+  // "what languages does ZyncoAI support" for the FAQ page.
   { slug: "virtual-receptionist", name: "Virtual Receptionist", navLabel: "Virtual Receptionist", tagline: "A full-time receptionist, without the headcount", description: "Everything a front-desk receptionist does — answering, booking, screening — without a salary." },
   { slug: "24-7-answering", name: "24/7 Call Answering", navLabel: "24/7 Call Answering", tagline: "Your business never closes the phone line", description: "Ella works every hour of every day — no shifts, no sick days, no burnout." },
   { slug: "human-ai-together", name: "Human + AI Together", navLabel: "Human + AI Together", tagline: "AI handles the routine, your team handles the rest", description: "Ella filters and books the routine calls, then transfers anything complex straight to your team." },
@@ -845,22 +851,36 @@ for (const industry of INDUSTRIES) {
 //    Deepgram, Cartesia) and telephony (Twilio) are real-time overseas
 //    subprocessors disclosed at /privacy#subprocessors; a blanket "your
 //    data is hosted in Australia, not offshore" line would overclaim.
+// 2026-08-17 — this list is rendered identically under EVERY plan card
+// regardless of which industry tab is selected (PricingSection.tsx doesn't
+// filter it per vertical), but four of the original fifteen items were
+// medical-only in reality: "Patient files", "Insurance claim tracking...
+// Medicare, DVA, WorkCover, NDIS", and "Cliniko integration, Best Practice
+// CSV import" — a restaurant or salon owner expanding "All features
+// included" saw those listed as part of their own plan. Reworded the
+// genuinely universal capabilities to vertical-neutral wording (Documents
+// is real for every vertical via Industry.documentsLabel in
+// lib/verticalOps.ts; claims/incident tracking is real but NOT present for
+// every vertical there, so it's described honestly as "where available"
+// rather than claimed as common to all); dropped the PMS-integration line
+// entirely since Cliniko/Best Practice aren't real for non-medical plans
+// and calendar sync (the integration that IS universal) is already its
+// own line below.
 export const COMMON_FEATURES: string[] = [
   "AI receptionist 24/7 — Ella voice",
-  "Full practice manager dashboard",
-  "Patient files and document management",
-  "Insurance claim tracking dashboard (Medicare, DVA, WorkCover, NDIS)",
+  "Full business management dashboard",
+  "Document storage and management",
+  "Claims/incident tracking dashboard, where available for your industry",
   "Financial and revenue dashboard",
   "Call history with full transcripts",
   "Appointment booking and management",
   "Email confirmations (SMS coming soon)",
-  "Cliniko integration, Best Practice CSV import",
   "Google & Microsoft Outlook Calendar sync",
   "Staff management and roles",
-  "Analytics (AI voice + clinical metrics)",
+  "Analytics (AI voice + business metrics)",
   "Export and print all data",
   "Sydney-hosted database, Privacy Act disclosure & compliance tools",
-  "Emergency detection — instant 000 redirect",
+  "Urgent-call handling — genuine emergencies are told to hang up and dial Triple Zero (000) directly; other urgent calls are transferred to your staff",
 ];
 
 export interface AddOn {

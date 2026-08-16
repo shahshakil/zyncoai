@@ -23,11 +23,20 @@ import { FeaturesPageClient } from "./FeaturesPageClient";
 //   - Sydney-hosted data: REQUIRED_DATA_REGION = "ap-southeast-2" in
 //     backend/src/api/routes/business/compliance.ts, checked live against
 //     DATABASE_URL
-// Deliberately excluded: "AI discloses on every call" — checked the actual
-// voice system prompt (backend/src/voice/core/systemPrompt.ts) and found
-// the real policy is the opposite: "Never volunteer that you are AI...
-// Only if asked directly, answer honestly." Including a proactive-
-// disclosure claim would have been fabricated.
+//   - AI disclosure every call: correction, 2026-08-17 — this was
+//     originally excluded here based on backend/src/voice/core/
+//     systemPrompt.ts's "never volunteer you're AI" language. Traced that
+//     function's actual callers while building the FAQ page and found it's
+//     dead code (zero live callers — even the one file that imports a
+//     different export from the same module, src/jobs/autoRescueSweep.ts,
+//     never calls buildSystemPrompt). The real, live voice pipeline
+//     (backend/src/voice/pipecat/server.py, the only pm2 process that
+//     actually answers calls) does the opposite of what was assumed: every
+//     greeting template interpolates a role_title that always contains
+//     the word "AI" (VERTICAL_ROLE_TITLES: "AI receptionist", "AI host",
+//     "AI service assistant", etc.) — genuine proactive disclosure on
+//     every single call, not just if asked. Added back below now that
+//     it's verified against the code that's actually running.
 
 const TITLE = "Features | ZyncoAI — What Ella Actually Does";
 const DESCRIPTION =

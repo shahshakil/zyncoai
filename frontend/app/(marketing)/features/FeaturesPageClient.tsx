@@ -1,6 +1,6 @@
 "use client";
 import { motion, useReducedMotion } from "framer-motion";
-import { CalendarClock, Phone, CreditCard, MapPin, CalendarDays, ClipboardCheck } from "lucide-react";
+import { CalendarClock, Phone, CreditCard, MapPin, CalendarDays, ClipboardCheck, BadgeCheck } from "lucide-react";
 import { ExampleCallScene } from "@/components/marketing/receptionist/ExampleCallScene";
 import { LiveDashboardScene } from "@/components/marketing/receptionist/LiveDashboardScene";
 import { FeaturePreviewCard } from "@/components/marketing/receptionist/FeaturePreviewCard";
@@ -184,7 +184,6 @@ export function FeaturesPageClient() {
       />
 
       <Section
-        reverse
         eyebrow="Data"
         title="Hosted in Sydney, not offshore"
         body="Your business's data is stored in an Australia (Sydney) data region — not routed through infrastructure overseas by default. This is a real, enforced architectural requirement, checked against the live database connection, not a claim on a compliance page that doesn't match reality."
@@ -198,6 +197,24 @@ export function FeaturesPageClient() {
               <p className="mt-0.5 text-sm text-[#64748b]">Sydney, Australia</p>
             </div>
           </div>
+        }
+      />
+
+      <Section
+        reverse
+        eyebrow="Transparency"
+        title="Every call, Ella identifies as AI"
+        body="There's no ambiguity for callers about who — or what — they're talking to. Every greeting introduces Ella by name and by role, and that role always includes the word 'AI' (an AI receptionist, an AI host, an AI service assistant — worded for your industry). If a caller asks directly whether they're speaking with a real person, Ella always answers honestly, every time — never deflects, never claims to be human."
+        visual={
+          <FeaturePreviewCard
+            icon={BadgeCheck}
+            title="AI disclosure"
+            rows={[
+              { label: "Stated in the opening greeting", value: "Every call", tone: "positive" },
+              { label: "If asked directly", value: "Always answers honestly", tone: "positive" },
+              { label: "Claims to be human", value: "Never" },
+            ]}
+          />
         }
       />
     </div>

@@ -25,6 +25,7 @@ const PAGES = [
   { path: "/solutions/restaurant", mustInclude: "Restaurant" },
   { path: "/features", mustInclude: "What Ella actually does" },
   { path: "/resources/blog", mustInclude: "The ZyncoAI Blog" },
+  { path: "/faq", mustInclude: "Frequently asked questions" },
 ];
 
 // HTTP-poll for readiness rather than matching stdout text — Next's exact
