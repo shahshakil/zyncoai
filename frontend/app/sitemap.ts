@@ -18,6 +18,7 @@ type ChangeFreq = MetadataRoute.Sitemap[number]["changeFrequency"];
 
 const STATIC_ROUTES: { path: string; priority: number; changeFrequency: ChangeFreq }[] = [
   { path: "/", priority: 1.0, changeFrequency: "daily" },
+  { path: "/features", priority: 0.9, changeFrequency: "weekly" },
   { path: "/pricing", priority: 0.9, changeFrequency: "weekly" },
   { path: "/faq", priority: 0.7, changeFrequency: "monthly" },
   { path: "/demo", priority: 0.8, changeFrequency: "weekly" },
@@ -58,12 +59,6 @@ const STATIC_ROUTES: { path: string; priority: number; changeFrequency: ChangeFr
   { path: "/use-cases/marketing-teams", priority: 0.6, changeFrequency: "monthly" },
   { path: "/workflowops/automation-analytics", priority: 0.6, changeFrequency: "monthly" },
   { path: "/workflowops/workflow-builder", priority: 0.6, changeFrequency: "monthly" },
-  { path: "/whats-new/agents", priority: 0.5, changeFrequency: "monthly" },
-  { path: "/whats-new/canvas", priority: 0.5, changeFrequency: "monthly" },
-  { path: "/whats-new/chatbots", priority: 0.5, changeFrequency: "monthly" },
-  { path: "/whats-new/functions", priority: 0.5, changeFrequency: "monthly" },
-  { path: "/whats-new/lead-router", priority: 0.5, changeFrequency: "monthly" },
-  { path: "/whats-new/zyn-mcp", priority: 0.5, changeFrequency: "monthly" },
   { path: "/solutions/ecommerce", priority: 0.6, changeFrequency: "monthly" },
   { path: "/solutions/fintech", priority: 0.6, changeFrequency: "monthly" },
   { path: "/solutions/it-ops", priority: 0.6, changeFrequency: "monthly" },

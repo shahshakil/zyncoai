@@ -7,6 +7,7 @@ import { jwtVerify, errors as joseErrors } from "jose";
  */
 const PUBLIC_PATHS = [
   "/",
+  "/features",
   "/pricing",
   "/addons",
   "/demo",

@@ -23,6 +23,7 @@ const PAGES = [
   { path: "/", mustInclude: "Never miss another call" },
   { path: "/solutions/healthcare", mustInclude: "Healthcare" },
   { path: "/solutions/restaurant", mustInclude: "Restaurant" },
+  { path: "/features", mustInclude: "What Ella actually does" },
 ];
 
 // HTTP-poll for readiness rather than matching stdout text — Next's exact

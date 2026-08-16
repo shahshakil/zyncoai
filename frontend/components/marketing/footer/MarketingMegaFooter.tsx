@@ -29,12 +29,12 @@ export default async function MarketingMegaFooter() {
           <div>
             <div className="text-sm font-semibold text-[#f8fafc]">Product</div>
             <ul className="mt-4 space-y-3 text-sm text-[#94a3b8]">
-              <li><Link href="/#features" className="hover:text-[#f8fafc]">Features</Link></li>
+              <li><Link href="/features" className="hover:text-[#f8fafc]">Features</Link></li>
               <li><Link href="/pricing" className="hover:text-[#f8fafc]">Pricing</Link></li>
               <li><Link href="/addons" className="hover:text-[#f8fafc]">Add-ons</Link></li>
               <li><Link href="/demo" className="hover:text-[#f8fafc]">Demo</Link></li>
               <li><Link href="/faq" className="hover:text-[#f8fafc]">FAQ</Link></li>
-              <li><Link href="/whats-new/agents" className="hover:text-[#f8fafc]">Changelog</Link></li>
+              <li><Link href="/resources/changelog" className="hover:text-[#f8fafc]">Changelog</Link></li>
             </ul>
           </div>
 
