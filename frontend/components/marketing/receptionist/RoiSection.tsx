@@ -6,19 +6,20 @@ import {
   SITEWIDE_MOST_EXPENSIVE_PLAN_PRICE,
   SITEWIDE_MIN_MINUTES_INCLUDED,
   SITEWIDE_MAX_MINUTES_INCLUDED,
+  TRADITIONAL_RECEPTIONIST_ANNUAL_LOW,
+  TRADITIONAL_RECEPTIONIST_ANNUAL_HIGH,
 } from "./data";
 
 type Mode = "traditional" | "zynco";
 
-// 2026-08-10 — the only figures on this page with no real source: a
-// full-time receptionist's wage. Stated here as a named, on-screen
-// assumption (typical Australian admin/reception award-wage range) rather
-// than presented as fact, per this rebuild's "assumptions stated on-screen"
-// requirement. Everything else below is computed from real INDUSTRY_PRICING
-// plan data (./data), so it can't drift out of sync with what a visitor can
-// actually select on /pricing.
-const TRADITIONAL_ANNUAL_LOW = 65000;
-const TRADITIONAL_ANNUAL_HIGH = 75000;
+// 2026-08-15 — TRADITIONAL_ANNUAL_LOW/HIGH moved to data.ts
+// (TRADITIONAL_RECEPTIONIST_ANNUAL_LOW/HIGH) as the single source of truth,
+// now also read by the per-vertical InteractiveRoiCalculator. Everything
+// below is computed from real INDUSTRY_PRICING plan data (./data), so it
+// can't drift out of sync with what a visitor can actually select on
+// /pricing.
+const TRADITIONAL_ANNUAL_LOW = TRADITIONAL_RECEPTIONIST_ANNUAL_LOW;
+const TRADITIONAL_ANNUAL_HIGH = TRADITIONAL_RECEPTIONIST_ANNUAL_HIGH;
 const TRADITIONAL_MONTHLY = Math.round(TRADITIONAL_ANNUAL_LOW / 12);
 
 const ZYNCO_ANNUAL_LOW = SITEWIDE_CHEAPEST_PLAN_PRICE * 12;

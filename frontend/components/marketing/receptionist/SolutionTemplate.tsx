@@ -6,8 +6,16 @@ import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, ChevronDown } from "lucide-react";
 import { PricingSection } from "./PricingSection";
 import { FinalCtaSection } from "./FinalCtaSection";
-import { INDUSTRIES, INDUSTRY_PRICING, INDUSTRY_PRICING_SLUG_MAP, REAL_DIFFERENTIATORS, type IndustryFaq } from "./data";
+import { INDUSTRIES, INDUSTRY_PRICING, INDUSTRY_PRICING_SLUG_MAP, INDUSTRY_VERTICAL_MAP, REAL_DIFFERENTIATORS, type IndustryFaq } from "./data";
 import { Breadcrumbs, type Crumb } from "@/components/seo/Breadcrumbs";
+import { SolutionSubNav, type SubNavItem } from "./SolutionSubNav";
+import { PainPointsSection } from "./PainPointsSection";
+import { RoleUseCasesSection } from "./RoleUseCasesSection";
+import { InteractiveRoiCalculator } from "./InteractiveRoiCalculator";
+import { OnboardingRoadmapSection } from "./OnboardingRoadmapSection";
+import { VerticalIntegrationsSection } from "./VerticalIntegrationsSection";
+import { CaseStudiesSection } from "./CaseStudiesSection";
+import { LiveDashboardScene } from "./LiveDashboardScene";
 
 export interface SolutionContent {
   eyebrow: string;
@@ -22,7 +30,10 @@ export interface SolutionContent {
   overview?: string;
   faqs?: IndustryFaq[];
   crumbs: Crumb[];
-  // Only set on real industry pages — drives the "other industries" cross-links.
+  // Only set on real industry pages — drives the "other industries"
+  // cross-links, AND (2026-08-15) the richer per-vertical content blocks
+  // below, which look themselves up from INDUSTRIES/INDUSTRY_VERTICAL_MAP
+  // rather than needing every page.tsx to thread new props through.
   currentIndustrySlug?: string;
 }
 
@@ -41,7 +52,27 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
   // price. Undefined (falls back to each component's own default) for the
   // use-case/size template pages, which don't have a single vertical.
   const pricingSlug = content.currentIndustrySlug ? INDUSTRY_PRICING_SLUG_MAP[content.currentIndustrySlug] : undefined;
-  const entryPrice = pricingSlug ? INDUSTRY_PRICING.find((g) => g.slug === pricingSlug)?.plans[0]?.priceMonthly : undefined;
+  const industryPricingGroup = pricingSlug ? INDUSTRY_PRICING.find((g) => g.slug === pricingSlug) : undefined;
+  const entryPrice = industryPricingGroup?.plans[0]?.priceMonthly;
+
+  // 2026-08-15 richer-vertical-page pass — the full industry record (real
+  // pain points, roles) and its real Vertical-enum key (for the
+  // integrations catalog), both looked up the same way pricingSlug is
+  // above: derived here, not threaded through every page.tsx.
+  const industry = content.currentIndustrySlug ? INDUSTRIES.find((i) => i.slug === content.currentIndustrySlug) : undefined;
+  const vertical = content.currentIndustrySlug ? INDUSTRY_VERTICAL_MAP[content.currentIndustrySlug] : undefined;
+
+  const subNavItems: SubNavItem[] = industry
+    ? [
+        { id: "pain-points", label: "Pain points" },
+        { id: "use-cases", label: "Use cases" },
+        { id: "roi-calculator", label: "ROI" },
+        { id: "integrations", label: "Integrations" },
+        { id: "analytics-preview", label: "See it live" },
+        { id: "onboarding", label: "Onboarding" },
+        { id: "faq", label: "FAQ" },
+      ]
+    : [];
 
   useEffect(() => {
     posthog.capture("industry_page_viewed", { industry: content.name });
@@ -52,6 +83,7 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
       <Breadcrumbs crumbs={content.crumbs} />
       <section className="relative mx-[calc(50%-50vw)] w-screen overflow-hidden pb-16 pt-16">
         <div className="pointer-events-none absolute left-1/2 top-0 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-[#6366f1]/10 blur-[120px]" />
+        <div className="pointer-events-none absolute right-[8%] top-24 hidden h-64 w-64 rounded-full bg-[#06b6d4]/10 blur-[100px] sm:block" />
         <div className="relative mx-auto max-w-3xl px-6 text-center">
           <motion.span
             initial={{ opacity: 0, y: 8 }}
@@ -64,7 +96,7 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="mt-5 text-4xl font-bold leading-tight text-[#0f172a] sm:text-5xl"
+            className="mt-5 text-[clamp(2rem,1.4rem+3vw,3rem)] font-bold leading-tight text-[#0f172a]"
           >
             {content.tagline}
           </motion.h1>
@@ -84,6 +116,13 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-5 text-lg text-[#475569]">
             Ella answers every call for {content.name.toLowerCase()}, 24 hours a day — no rings, no hold music.
           </motion.p>
+          {/* 2026-08-15 — the "value proposition" economic point, kept
+              qualitative rather than a fabricated conversion-rate stat (a
+              specific "$X per missed call" claim would need real
+              measured-outcome data this product doesn't have yet). */}
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="mt-2 text-sm font-medium text-[#4f46e5]">
+            A missed call is a booking someone else answers instead.
+          </motion.p>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-8 flex justify-center gap-3">
             <Link href="/signup" className="inline-flex items-center gap-2 rounded-xl bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)] px-6 py-3.5 text-sm font-semibold text-white hover:opacity-90">
               Start 7-day free trial <ArrowRight className="h-4 w-4" />
@@ -94,6 +133,8 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
           </motion.div>
         </div>
       </section>
+
+      {subNavItems.length > 0 && <SolutionSubNav items={subNavItems} />}
 
       <section className="py-14">
         <div className="mx-auto max-w-3xl rounded-3xl border border-[#e2e8f0] bg-white p-8 shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)]">
@@ -123,9 +164,11 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
         </section>
       )}
 
+      {industry && <PainPointsSection industryName={content.name} painPoints={industry.painPoints} />}
+
       <section className="py-14">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-2xl font-bold text-[#0f172a] sm:text-3xl">Built for {content.name.toLowerCase()}</h2>
+          <h2 className="text-[clamp(1.5rem,1.2rem+1.2vw,2rem)] font-bold text-[#0f172a]">Built for {content.name.toLowerCase()}</h2>
         </div>
         <div className="mx-auto mt-10 grid max-w-4xl grid-cols-1 gap-4 sm:grid-cols-2">
           {content.features.map((f) => (
@@ -137,6 +180,26 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
         </div>
       </section>
 
+      {industry && <RoleUseCasesSection industryName={content.name} roles={industry.roles} />}
+
+      {industry && industryPricingGroup && <InteractiveRoiCalculator industryName={content.name} plans={industryPricingGroup.plans} />}
+
+      {industry && vertical && <VerticalIntegrationsSection industryName={content.name} vertical={vertical} />}
+
+      {industry && (
+        <section id="analytics-preview" className="py-14">
+          <div className="mx-auto max-w-2xl px-6 text-center">
+            <h2 className="text-[clamp(1.5rem,1.2rem+1.2vw,2rem)] font-bold text-[#0f172a]">See the dashboard in action</h2>
+            <p className="mt-3 text-[#475569]">The real ZyncoAI dashboard interface, shown with clearly-labelled sample data.</p>
+          </div>
+          <div className="mx-auto mt-10 max-w-4xl px-6">
+            <LiveDashboardScene />
+          </div>
+        </section>
+      )}
+
+      {industry && <OnboardingRoadmapSection />}
+
       {/* 2026-08-10 — replaced a fabricated testimonial (invented name,
           invented business, invented quote) with real, verifiable
           differentiators. ZyncoAI has no customers to quote yet — this
@@ -144,7 +207,10 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
           Sydney residency is a genuinely true claim as of the 2026-08-06
           Neon cutover (GET /api/business/compliance reports
           dataResidency.compliant: true) — see REAL_DIFFERENTIATORS in
-          ./data for the single source of truth these are pulled from. */}
+          ./data for the single source of truth these are pulled from.
+          2026-08-15: also doubles as this page's honest COMPLIANCE +
+          SUPPORT content blocks — no separate section needed, and no risk
+          of the two drifting into different wording for the same facts. */}
       <section className="py-14">
         <div className="mx-auto max-w-3xl rounded-2xl border border-[#e2e8f0] bg-white p-8 shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)]">
           <p className="text-center text-xs font-semibold uppercase tracking-wide text-[#475569]">Built early, built honestly</p>
@@ -162,10 +228,12 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
         </div>
       </section>
 
+      {industry && <CaseStudiesSection industryName={content.name} />}
+
       {content.faqs && content.faqs.length > 0 && (
-        <section className="py-14">
+        <section id="faq" className="py-14">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-2xl font-bold text-[#0f172a] sm:text-3xl">Frequently asked questions</h2>
+            <h2 className="text-[clamp(1.5rem,1.2rem+1.2vw,2rem)] font-bold text-[#0f172a]">Frequently asked questions</h2>
           </div>
           <div className="mx-auto mt-10 max-w-2xl space-y-3">
             {content.faqs.map((f, i) => {

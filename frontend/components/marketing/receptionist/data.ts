@@ -22,6 +22,18 @@ export interface Industry {
   // aside, a bare feature-bullet page reads as thin to a human too.
   overview: string;
   faqs: IndustryFaq[];
+  // 2026-08-15 richer-vertical-page pass. Each pain point maps to a REAL
+  // feature already listed above (or a real platform capability) — never a
+  // problem invented to justify a feature, and never a feature invented to
+  // answer a problem. Three per industry, matching the brief.
+  painPoints: { problem: string; solution: string }[];
+  // Role-based use cases — real job titles for this vertical, each paired
+  // with what Ella/the dashboard actually does for that role (not a
+  // generic "saves time" line repeated with a different job title).
+  roles: { role: string; description: string }[];
+  // Which real Vertical enum + integrations-catalog key this industry maps
+  // to (see INDUSTRY_VERTICAL_MAP below) — kept per-industry so a new
+  // Industry entry can't forget to wire it up.
 }
 
 export const INDUSTRIES: Industry[] = [
@@ -33,6 +45,16 @@ export const INDUSTRIES: Industry[] = [
     greeting: "Good morning, thanks for calling — this is Ella, how can I help?",
     callerLine: "Hi, I need to book in with Dr Johnson for a check-up",
     features: ["Books appointments against real provider calendars", "Understands Medicare, private health, DVA and WorkCover questions", "Flags emergency symptoms and escalates instantly", "Syncs with Cliniko, plus CSV import for Best Practice"],
+    painPoints: [
+      { problem: "Reception can only take one call at a time, so overlapping calls during a busy morning go to voicemail.", solution: "Ella answers every call simultaneously — no queue, no voicemail, ever." },
+      { problem: "A caller unsure if Medicare or their private health fund covers a service often gets put on hold while staff check.", solution: "Ella answers Medicare, private health, DVA and WorkCover questions directly, in the same call." },
+      { problem: "A symptom that actually needs urgent attention can get quietly booked in for \"next Tuesday\" by an overloaded desk.", solution: "Anything that sounds like it needs urgent clinical attention is flagged and escalated instantly, not just booked." },
+    ],
+    roles: [
+      { role: "Practice Manager", description: "Sees every call, booking, and escalation in one dashboard instead of chasing reception staff for a verbal handover." },
+      { role: "GP / Practice Owner", description: "Never loses a new-patient enquiry to a competing clinic that happened to pick up first." },
+      { role: "Front Desk / Reception", description: "Ella absorbs the overlapping-call load so reception can focus on the patient standing in front of them." },
+    ],
     overview:
       "A medical clinic's phone line carries genuine urgency — a parent calling about a sick child, a patient chasing test results, someone trying to book before symptoms get worse. Every one of those calls competing for the same one or two reception staff means some of them go to voicemail, and a caller who hits voicemail when they're worried rarely leaves a message; they just call the next clinic. Ella answers every single call instantly, day or night, and checks each provider's real calendar before offering a time, so there's no double-booking and no back-and-forth. Medicare, private health fund, DVA and WorkCover questions are handled in the same conversation, and anything that sounds like it needs urgent clinical attention is flagged and escalated immediately rather than quietly booked in for next Tuesday.",
     faqs: [
@@ -49,6 +71,16 @@ export const INDUSTRIES: Industry[] = [
     greeting: "Thanks for calling Smile Dental, this is Ella speaking!",
     callerLine: "I chipped a tooth, can someone see me today?",
     features: ["Triages urgent dental pain vs routine bookings", "Handles recalls for 6-monthly checkups automatically", "Answers insurance and payment-plan questions", "Books hygienist and dentist appointments separately"],
+    painPoints: [
+      { problem: "A routine 6-monthly recall call going to voicemail means an empty chair that never gets rebooked.", solution: "Recall calls are handled the same as any booking request, checked against real hygienist/dentist availability." },
+      { problem: "A patient in real pain who can't get through calls the next clinic instead.", solution: "Ella triages acute pain toward the next available urgent slot, immediately." },
+      { problem: "Insurance and payment-plan questions get deferred to a callback, slowing the booking down.", solution: "Insurance and payment-plan questions are answered in the same call, not deferred." },
+    ],
+    roles: [
+      { role: "Practice Manager", description: "Tracks recall and no-show patterns across the whole practice from one dashboard instead of a paper recall list." },
+      { role: "Principal Dentist", description: "Keeps chairs filled without personally fielding routine booking calls between patients." },
+      { role: "Front Desk", description: "Hands off routine recall and booking calls to Ella, freeing time for patients physically in the practice." },
+    ],
     overview:
       "Dental practices lose money two ways on the phone: a chair sitting empty because a routine recall call went to voicemail, and a patient in real pain who couldn't get through and found another clinic that answered. Ella tells those two situations apart immediately — someone describing acute pain gets triaged toward the next available urgent slot, while a routine 6-monthly checkup call gets booked calmly against the right hygienist or dentist's calendar. Insurance and payment-plan questions are answered in the same call instead of being deferred to a callback, and every booking lands straight in your practice software, so the chair that would have sat empty gets filled instead.",
     faqs: [
@@ -65,6 +97,16 @@ export const INDUSTRIES: Industry[] = [
     greeting: "Good afternoon, Hartley & Associates, this is Ella.",
     callerLine: "I was in a car accident and need to speak to your solicitor about a claim",
     features: ["Screens new matters before they reach a solicitor", "Books consultations across multiple practice areas", "Captures urgent WorkCover/CTP details accurately", "Never discusses legal advice — routes to a human for that"],
+    painPoints: [
+      { problem: "A prospective client's first call is often the only chance to capture a new matter — an unanswered call is a lost client.", solution: "Ella answers every enquiry and screens the basics (matter type, urgency, practice area) before booking a consultation." },
+      { problem: "Solicitors lose billable time re-asking questions the caller already answered on intake.", solution: "New matters are screened up front, so the first real conversation isn't starting from zero." },
+      { problem: "A time-sensitive detail — a CTP/WorkCover claim, a deadline mentioned in passing — gets lost in a rushed phone note.", solution: "Time-sensitive details are captured accurately, not paraphrased from memory." },
+    ],
+    roles: [
+      { role: "Practice Manager", description: "Sees every new-matter enquiry and its screening detail in one place instead of relying on handwritten phone messages." },
+      { role: "Principal / Partner", description: "Never loses a new client relationship to a firm that happened to answer first." },
+      { role: "Front Desk / Legal Secretary", description: "Consultations arrive pre-screened and booked against the right solicitor's calendar, not routed by guesswork." },
+    ],
     overview:
       "A law firm's phone line is often the first contact a prospective client has with the practice, and a formal, professional tone matters from the first word — which is why Ella's legal-firm persona is deliberately measured rather than casual. New matters are screened for the basics (what kind of matter, urgency, which practice area) before a consultation is booked, so a solicitor's time isn't spent re-asking questions the caller already answered. Time-sensitive details — a CTP or WorkCover claim, a court deadline mentioned in passing — are captured accurately rather than paraphrased. Ella never discusses the substance of legal advice; anything beyond intake and scheduling is routed straight to a solicitor.",
     faqs: [
@@ -81,6 +123,16 @@ export const INDUSTRIES: Industry[] = [
     greeting: "G'day, you've reached Precision Auto, this is Ella.",
     callerLine: "My car's making a grinding noise — can our technician take a look this week?",
     features: ["Books service bays and quotes turnaround times", "Captures the vehicle make, model and the issue upfront", "Handles parts-availability and pricing questions", "Sends job confirmations by SMS automatically"],
+    painPoints: [
+      { problem: "A mechanic mid-job can't stop to answer the phone, so the call goes to whichever workshop does pick up.", solution: "Ella answers every time, even while your whole team is under a car." },
+      { problem: "A technician calls a customer back just to ask the make, model and issue a second time.", solution: "Vehicle make, model and the actual problem are captured upfront, on the call." },
+      { problem: "Double-booked bays because bookings weren't checked against real availability.", solution: "Jobs are booked against real bay availability, not guessed." },
+    ],
+    roles: [
+      { role: "Workshop Manager", description: "Sees every booked job and its captured vehicle details before the car even arrives." },
+      { role: "Shop Owner", description: "Stops losing jobs to a competitor's busy line during peak hours." },
+      { role: "Service Advisor / Front Desk", description: "Confirmations go out by SMS automatically, cutting down \"what time was my booking again\" calls." },
+    ],
     overview:
       "A mechanic mid-job can't stop to answer the phone, which is exactly when most workshops lose the call to a competitor who picks up. Ella answers every time, gets the vehicle's make, model and the actual problem described upfront — instead of a technician calling back to ask the same questions — and books the job against real bay availability so the workshop doesn't end up double-booked. Parts-availability and pricing questions get answered on the spot where possible, and every confirmed booking goes out as an SMS automatically, so there's no confusion about the time when the customer turns up.",
     faqs: [
@@ -97,6 +149,16 @@ export const INDUSTRIES: Industry[] = [
     greeting: "Thanks for calling Bella Vista, this is Ella!",
     callerLine: "Could our team fit in a table for 6 this Saturday at 7:30pm?",
     features: ["Takes bookings without pulling staff off the floor", "Handles dietary requirements and large-group requests", "Answers opening-hours and menu questions instantly", "Never puts a caller on hold during dinner rush"],
+    painPoints: [
+      { problem: "Friday/Saturday dinner service is exactly when booking calls peak and staff are least free to answer them.", solution: "Ella takes the booking without pulling a waiter off the floor." },
+      { problem: "A phone order can misquote a price or invent a menu item that doesn't exist.", solution: "Every item and modification is read back and confirmed before the order is placed — never an invented item or price." },
+      { problem: "Large-group and dietary-requirement requests get left for staff to chase up separately.", solution: "Group size and dietary requirements are captured as part of the booking itself." },
+    ],
+    roles: [
+      { role: "Venue Manager", description: "Reviews every booking and phone order in one place instead of scattered handwritten notes by the till." },
+      { role: "Owner", description: "Keeps tables and phone orders full during dinner rush without adding phone-answering headcount." },
+      { role: "Front of House", description: "Ella absorbs the booking-call load during service so staff stay on the floor." },
+    ],
     overview:
       "Friday and Saturday dinner service is exactly when a restaurant gets the most booking calls and has the least spare staff to answer them — pulling a waiter off the floor to take a reservation call costs real table-turn time. Ella takes the booking instead: table size, date, time, and any dietary requirements or large-group requests, checked against real availability rather than guessed. Menu and opening-hours questions are answered instantly rather than put on hold, and phone orders are handled the same way — confirming each item and modification back to the caller before the order is placed, never inventing a menu item or price that isn't real.",
     faqs: [
@@ -113,6 +175,16 @@ export const INDUSTRIES: Industry[] = [
     greeting: "Thank you for calling Coastal Credit Union, this is Ella.",
     callerLine: "I'd like to book a time to talk to your banker about a home loan",
     features: ["Books appointments with the right banker or advisor", "Screens and routes enquiries by product type", "Never handles account numbers or transactions — routes securely", "Available after-hours for members in every timezone"],
+    painPoints: [
+      { problem: "Members calling outside branch hours get a queue or a voicemail today.", solution: "Ella answers 24/7 and books an appointment with the right banker based on what the member actually needs." },
+      { problem: "A home-loan enquiry and a general account question need different specialists, but often get routed the same way.", solution: "Enquiries are screened by product type and booked against the right banker or advisor's calendar." },
+      { problem: "Any AI touching account numbers, balances or PINs would be an unacceptable risk.", solution: "Ella never discusses account details, balances, transactions or card/PIN numbers — any of those, the call transfers to a human banker immediately, a hard rule enforced in the AI itself." },
+    ],
+    roles: [
+      { role: "Branch / Operations Manager", description: "After-hours member enquiries are booked and routed by product type, visible in one dashboard the next morning." },
+      { role: "Member / Business Owner", description: "Captures every after-hours enquiry that would otherwise just be a missed call." },
+      { role: "Banker / Advisor", description: "Appointments arrive pre-screened by product type, not routed by guesswork." },
+    ],
     overview:
       "Members calling a bank or credit union outside branch hours today just get a queue or a voicemail — Ella answers instead, every hour of every day, and books an appointment with the right banker based on what the member actually needs (a home loan enquiry goes to a different calendar than a general account question). This is the one vertical with a hard, non-negotiable rule built into the AI itself: Ella never discusses account details, balances, transactions, card numbers or PINs under any circumstances. If a caller raises any of those, the call is transferred to a human banker immediately rather than the AI attempting to help.",
     faqs: [
@@ -129,6 +201,16 @@ export const INDUSTRIES: Industry[] = [
     greeting: "Hello, you've reached Student Services, this is Ella.",
     callerLine: "I need to know the enrolment deadline for semester two",
     features: ["Answers enrolment, fees and semester-date questions", "Books appointments with student advisors and faculty", "Routes urgent welfare calls to the right support line", "Handles the enrolment-period call surge without hiring casuals"],
+    painPoints: [
+      { problem: "Enrolment week produces a call spike most teams can only cover by hiring casual staff for a few weeks a year.", solution: "Ella absorbs the surge without any extra hiring — every call answered, regardless of volume." },
+      { problem: "Students get transferred around because reception doesn't know which faculty handles their question.", solution: "Anything needing a real advisor is booked directly against the right faculty's calendar." },
+      { problem: "A genuine student welfare concern can get treated as a routine enquiry by an overloaded line.", solution: "Calls that sound like a welfare concern are routed to the appropriate support line immediately, not queued as routine." },
+    ],
+    roles: [
+      { role: "Student Services Manager", description: "Enrolment-week volume is absorbed automatically instead of needing a casual-staff hiring push every year." },
+      { role: "Faculty Administrator", description: "Advisor bookings land directly on the right faculty's calendar, not transferred in from a generic switchboard." },
+      { role: "Front-Line Student Services Staff", description: "Routine deadline and fee questions are answered directly, freeing staff for enquiries that actually need a person." },
+    ],
     overview:
       "Enrolment week produces a call volume spike most student services teams can only cover by bringing in casual staff for a few weeks a year — and even then, wait times climb. Ella absorbs that surge without any extra hiring: enrolment deadlines, fee questions, and semester dates are answered directly, and anything that needs a real advisor is booked against the right faculty's calendar instead of the student being transferred around. Calls that sound like a welfare concern are routed to the appropriate support line immediately rather than treated as a routine enquiry — Ella is tuned to recognise that difference, not just answer whatever's asked literally.",
     faqs: [
@@ -145,6 +227,16 @@ export const INDUSTRIES: Industry[] = [
     greeting: "Hi, thanks for calling Lumen Beauty, this is Ella.",
     callerLine: "Can I book a colour and cut for next Tuesday afternoon?",
     features: ["Books against each stylist's real availability", "Handles service-length and pricing questions", "Sends automatic reminder calls to cut no-shows", "Rebooks clients for their next appointment on the spot"],
+    painPoints: [
+      { problem: "A stylist mid-colour can't answer the phone, and a one-person reception desk is constantly torn between the desk and the floor.", solution: "Ella takes the booking instead, checking the specific stylist's real availability." },
+      { problem: "No-shows cost more in a salon than almost any other vertical, given how much of the day's revenue one empty chair represents.", solution: "Automatic reminder calls are sent ahead of appointments to cut down no-shows." },
+      { problem: "Clients forget to rebook their next appointment and the chair sits empty six weeks later.", solution: "Clients are offered their next rebooking on the spot, at the end of the call." },
+    ],
+    roles: [
+      { role: "Salon Manager", description: "Sees stylist-level bookings and no-show trends in one dashboard instead of a paper appointment book." },
+      { role: "Salon Owner", description: "Keeps chairs filled without a dedicated full-time reception hire." },
+      { role: "Stylist / Front Desk", description: "Bookings check each stylist's own calendar, not a generic salon-wide slot guessed at by whoever answers." },
+    ],
     overview:
       "A stylist mid-colour can't answer the phone, and a salon with one person on reception is constantly torn between the desk and the floor. Ella takes the booking instead — checking the specific stylist's real availability, not just a generic salon-wide calendar, and answering service-length and pricing questions a client would otherwise wait on hold for. Automatic reminder calls cut down no-shows, which matter more for a salon than almost any other vertical given how much of the day's revenue a single empty chair represents, and clients are offered their next rebooking on the spot at the end of the call rather than being expected to remember to call back in six weeks.",
     faqs: [
@@ -161,6 +253,16 @@ export const INDUSTRIES: Industry[] = [
     greeting: "Good morning, Ashford Financial, this is Ella.",
     callerLine: "I'd like to book a review of my super with my adviser",
     features: ["Books client review meetings automatically", "Screens new-client enquiries before they reach an adviser", "Never gives financial advice — always routes to a human for that", "Captures urgent compliance-sensitive calls correctly"],
+    painPoints: [
+      { problem: "A missed call from a prospective client is a missed relationship — and advisers can't take calls mid-meeting.", solution: "Ella books client review meetings and screens new-client enquiries even when every adviser is unavailable." },
+      { problem: "Any AI discussing specific account or portfolio detail would be a compliance risk this practice can't take.", solution: "Ella never gives financial advice or discusses account/portfolio detail — anything substantive routes straight to a human adviser." },
+      { problem: "New-client calls often start from zero because nothing was captured before the first real conversation.", solution: "New-client enquiries are screened for basic context before being booked in with an adviser." },
+    ],
+    roles: [
+      { role: "Practice Manager", description: "Every client review booking and new-enquiry screening note lands in one dashboard, not a phone-message pad." },
+      { role: "Adviser / Practice Owner", description: "Captures every enquiry that would otherwise be a missed relationship, without any advice-compliance risk." },
+      { role: "Front Desk / Client Services", description: "Client review meetings arrive pre-booked and screened, not routed by guesswork." },
+    ],
     overview:
       "Financial advisory and planning practices sit under the same compliance-first approach as banking on ZyncoAI: Ella books client review meetings and screens new-client enquiries before they reach an adviser, but never gives financial advice or discusses specific account or portfolio detail — anything substantive is routed straight to a human. That split lets the practice capture every enquiry (a missed call from a prospective client is a missed relationship) without any risk of the AI stepping into advice it's not licensed or appropriate to give.",
     faqs: [
@@ -177,6 +279,16 @@ export const INDUSTRIES: Industry[] = [
     greeting: "Thanks for calling Bright Plumbing, this is Ella.",
     callerLine: "I've got a burst pipe, I need someone urgently",
     features: ["Triages urgent call-outs from routine bookings", "Captures the job address and issue before dispatch", "Books tradespeople against real-time availability", "Answers after-hours when emergencies actually happen"],
+    painPoints: [
+      { problem: "Home-service emergencies — a burst pipe, no hot water — don't happen during business hours, and after-hours calls usually just go unanswered.", solution: "Ella answers every time, day or night, and tells a genuine emergency apart from a routine booking." },
+      { problem: "A tradesperson calls back just to ask the job address and issue a second time before they can dispatch anyone.", solution: "The job address and issue are captured upfront, so a tradesperson can be dispatched straight away." },
+      { problem: "A job gets promised for a time slot that's already taken.", solution: "Bookings are checked against real-time tradesperson availability, not guessed at." },
+    ],
+    roles: [
+      { role: "Office Manager / Dispatcher", description: "Every call-out is captured with address and issue detail before a tradesperson is even dispatched." },
+      { role: "Owner / Tradesperson", description: "Stops losing after-hours emergency jobs to whoever else picks up the phone." },
+      { role: "Front Desk / Booking Coordinator", description: "Routine bookings and genuine emergencies arrive already triaged, not mixed together in one queue." },
+    ],
     overview:
       "Home service emergencies — a burst pipe, no hot water, an electrical fault — don't happen during business hours, and a tradesperson who doesn't answer after-hours simply loses the job to whoever does. Ella answers every time, tells a genuine emergency apart from a routine booking, and captures the job address and issue upfront so a tradesperson can be dispatched instead of calling back to ask basic questions first. Bookings are checked against real-time tradesperson availability rather than guessed at, so a job isn't promised for a slot that's already taken.",
     faqs: [
@@ -219,7 +331,13 @@ export const COMPANY_SIZES: CompanySize[] = [
   { slug: "solo", name: "Solo Practitioner", navLabel: "Solo Practitioner", tagline: "Your own receptionist, from day one", description: "Running the business and answering the phone at the same time doesn't scale. Ella does both jobs so you don't have to." },
   { slug: "small-business", name: "Small Business (2-10 staff)", navLabel: "Small Business (2-10 staff)", tagline: "Stop pulling staff off the floor to answer the phone", description: "Every missed call is a missed booking. Ella frees your team to focus on the people already in front of them." },
   { slug: "mid-market", name: "Mid-Market (10-50 staff)", navLabel: "Mid-Market (10-50 staff)", tagline: "Consistent call handling across a growing team", description: "As call volume grows, so does the cost of inconsistency. Ella answers every call the same way, every time." },
-  { slug: "enterprise", name: "Enterprise (50+ staff)", navLabel: "Enterprise (50+ staff)", tagline: "Enterprise-grade call handling, fully auditable", description: "SLA-backed availability, full audit trails, and integrations built for scale — without a call-centre headcount." },
+  // 2026-08-15 — a service-level guarantee claim was removed here: no plan
+  // carries one (our Terms explicitly offer none), so this line was
+  // contradicting our own contract. Caught by
+  // scripts/marketing-fabrication-check.mjs. Audit trails and at-scale
+  // integrations are real (AdminAuditLog + the integrations catalog), so
+  // those stay.
+  { slug: "enterprise", name: "Enterprise (50+ staff)", navLabel: "Enterprise (50+ staff)", tagline: "Enterprise-grade call handling, fully auditable", description: "Reliable availability, full audit trails, and integrations built for scale — without a call-centre headcount." },
   { slug: "franchise", name: "Franchise & Multi-location", navLabel: "Franchise & Multi-location", tagline: "One consistent front desk, every location", description: "Every location answers calls the same way, books into the right calendar, and reports into one dashboard." },
 ];
 
@@ -464,6 +582,17 @@ export const SITEWIDE_CHEAPEST_PLAN_PRICE = Math.min(
   ...INDUSTRY_PRICING.flatMap((g) => g.plans.filter((p) => p.priceMonthly > 0).map((p) => p.priceMonthly))
 );
 
+// 2026-08-15 — moved here from RoiSection.tsx (was a local const) so the
+// new interactive per-vertical ROI calculator (InteractiveRoiCalculator.tsx)
+// reads the exact same assumption instead of a second, driftable copy.
+// The only figures on the ROI-related sections with no real source: a
+// full-time receptionist's wage. Stated as a NAMED, on-screen assumption
+// (typical Australian admin/reception award-wage range), never presented
+// as fact — every other number in these sections is computed from real
+// INDUSTRY_PRICING plan data.
+export const TRADITIONAL_RECEPTIONIST_ANNUAL_LOW = 65000;
+export const TRADITIONAL_RECEPTIONIST_ANNUAL_HIGH = 75000;
+
 // Same real-data pattern as SITEWIDE_CHEAPEST_PLAN_PRICE, for the ROI
 // calculator's "what a real plan actually costs" range — the $0
 // custom/"Contact sales" Enterprise tiers are excluded the same way.
@@ -501,6 +630,71 @@ export const INDUSTRY_PRICING_SLUG_MAP: Record<string, string> = {
   "home-services": "mechanic",
 };
 
+// 2026-08-15 — same-shaped mapping as above, but to the real Vertical enum
+// key used by lib/integrationsCatalog.ts's CATALOG (getIntegrationsCatalog),
+// for the new per-vertical integrations content block. Distinct from
+// INDUSTRY_PRICING_SLUG_MAP because the integrations catalog and the
+// pricing groups are keyed differently (pricing groups nest dental under
+// "medical"; the integrations catalog keys them separately since they get
+// different real integrations lists — DENTAL: [GOOGLE_CALENDAR] on its own,
+// not merged with MEDICAL's). financial-services has no dedicated catalog
+// entry (reuses bank's compliance-focused tier, same as its pricing
+// convention above); home-services has no dedicated catalog entry either —
+// mapped to OTHER, which is an honest fallback (Google Calendar only, no
+// invented trade-specific integrations that don't exist in the product).
+export const INDUSTRY_VERTICAL_MAP: Record<string, string> = {
+  healthcare: "MEDICAL",
+  dental: "DENTAL",
+  legal: "LAW",
+  mechanic: "MECHANIC",
+  restaurant: "RESTAURANT",
+  bank: "BANK",
+  university: "UNIVERSITY",
+  salon: "SALON",
+  "financial-services": "BANK",
+  "home-services": "OTHER",
+};
+
+// Mirrors frontend/components/dashboard/settings/IntegrationsTab.tsx's real
+// PROVIDERS list exactly (2026-08-15) — hasDirectSync means a real
+// practitioner-fetch adapter exists (backend/src/lib/staffSync/providers/*),
+// wired into connect-time auto-sync, the 24h sweep, and manual "Sync now".
+// This is STAFF/PRACTITIONER sync only, never appointment/booking sync —
+// the marketing copy referencing this list must not blur that distinction
+// (booking/availability sync is Google Calendar's job, per
+// integrationsCatalog.ts). Medical & Dental only.
+export const MEDICAL_PMS_PROVIDERS: { name: string; hasDirectSync: boolean }[] = [
+  { name: "Cliniko", hasDirectSync: true },
+  { name: "Nookal", hasDirectSync: true },
+  { name: "Halaxy", hasDirectSync: true },
+  { name: "Zanda (Power Diary)", hasDirectSync: true },
+  { name: "Power Diary", hasDirectSync: true },
+  { name: "Jane App", hasDirectSync: true },
+  { name: "Core Plus", hasDirectSync: true },
+  { name: "Pabau", hasDirectSync: false },
+  { name: "Best Practice", hasDirectSync: false },
+  { name: "Medical Director", hasDirectSync: false },
+];
+
+// The real signup -> live flow (backend/src/api/routes/business/onboarding.ts,
+// lib/voice/numberProvisioning.ts), traced 2026-08-15 — identical for every
+// vertical, so this is shared, not per-industry. The last step deliberately
+// makes no timing promise (no SLA/guarantee language, per this rebuild's
+// hard rule) — automatic AU number purchase can fail (a known Twilio-region
+// constraint) and fall back to a manual step; that's disclosed honestly
+// instead of papered over with an invented "within X hours" claim.
+export interface OnboardingStep {
+  title: string;
+  detail: string;
+}
+export const ONBOARDING_STEPS: OnboardingStep[] = [
+  { title: "Sign up", detail: "Create your account and verify your email address." },
+  { title: "Tell us about your business", detail: "Business name, industry, hours and address — a short setup wizard." },
+  { title: "Add your staff", detail: "Import or add the people whose calendars Ella will book against." },
+  { title: "Activate your voice line", detail: "Click Activate — a real Australian phone number is purchased and configured for your business." },
+  { title: "Ella goes live", detail: "The moment a real number is assigned, Ella starts answering. Automatic number purchase is usually immediate; on the rare occasion it needs a manual step on our side, we're notified automatically and follow up directly." },
+];
+
 // Rewrites each industry's "how much does it cost" FAQ answer in place to
 // the real INDUSTRY_PRICING entry price, instead of the hand-typed prose
 // this used to be — four of ten had already drifted wrong (legal $499 vs
@@ -517,6 +711,26 @@ for (const industry of INDUSTRIES) {
   if (!price) continue;
   const costFaq = industry.faqs.find((f) => /how much does zyncoai cost/i.test(f.question));
   if (costFaq) costFaq.answer = costFaq.answer.replace(/AUD \$[\d,]+(\.\d+)?\/month/i, `AUD $${price}/month`);
+}
+
+// 2026-08-15 richer-vertical-page pass — one more real FAQ per industry, on
+// the two questions the new onboarding-roadmap block raises but doesn't
+// fully answer on its own: how fast setup actually is, and what "sample
+// data" in the analytics preview means. Generic wording (industry name
+// substituted) rather than 20 hand-written near-duplicates, since the
+// underlying facts (the onboarding flow, the dashboard preview) are
+// identical for every vertical — see ONBOARDING_STEPS above.
+for (const industry of INDUSTRIES) {
+  industry.faqs.push(
+    {
+      question: "How quickly can we get set up?",
+      answer: `Sign up, complete the short setup wizard, and click Activate — that queues a real Australian phone number for your ${industry.name.toLowerCase()} business. Number purchase is usually immediate; on the rare occasion it needs a manual step on our side, we're notified automatically and follow up directly rather than leaving you waiting.`,
+    },
+    {
+      question: "Is the dashboard preview on this page real data?",
+      answer: "The analytics preview shows the real ZyncoAI dashboard interface with sample data, clearly labelled as such. Once you're live, every number reflects your business's actual calls and bookings.",
+    }
+  );
 }
 
 // Identical on every plan — the whole point being that pricing scales with
@@ -638,6 +852,12 @@ export const REAL_DIFFERENTIATORS: Differentiator[] = [
   { title: "Sydney-hosted database", detail: "Your business, appointment, and call records are stored in Australia (ap-southeast-2). Voice processing involves overseas AI providers, disclosed in full at /privacy#subprocessors." },
   { title: "AI disclosure by design", detail: "Every caller is told they're speaking with an AI, every time — not buried in fine print." },
   { title: "Privacy Act 1988 compliance", detail: "Real incident-response contact and consent tracking, not a badge we haven't earned." },
+  // 2026-08-15 — same exact claim already made in MarketingMegaFooter.tsx
+  // and SquarePaymentMethodCard.tsx (verified: saveCard() only ever stores
+  // a Square-tokenized sourceId — no raw card number touches our servers or
+  // database), added here so the /solutions pages' honesty section covers
+  // payment security too, not just data/AI/privacy.
+  { title: "PCI DSS compliant payments", detail: "Card payments are processed by Square, a PCI DSS compliant processor — your card details never touch our servers." },
   { title: "Transparent support access", detail: "A real, monitored inbox — support@zyncoai.com — not a chatbot wall." },
 ];
 

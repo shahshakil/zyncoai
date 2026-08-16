@@ -163,8 +163,19 @@ export function LiveDashboardScene({ onFirstPassComplete }: { onFirstPassComplet
         </div>
       </div>
 
-      <div className="grid gap-4 p-5 sm:grid-cols-[1.1fr_1.4fr]">
-        <div className="space-y-3">
+      {/* 2026-08-15 — grid-cols-1 min-w-0 on both children added: this
+          component is now also embedded on /solutions/[slug] pages at
+          mobile widths (previously only ever rendered on the homepage,
+          apparently untested below the sm: breakpoint). A CSS grid item's
+          default min-width is auto (its content's max-content size), not
+          0 — below sm: this stayed a single implicit column, but each
+          item still refused to shrink narrower than its own content
+          (e.g. the feed panel's un-wrapped call-summary lines), pushing
+          the whole scene wider than the viewport and clipping at the
+          outer overflow-hidden. min-w-0 lets each grid item actually
+          shrink to the column width instead of overflowing it. */}
+      <div className="grid min-w-0 grid-cols-1 gap-4 p-5 sm:grid-cols-[1.1fr_1.4fr]">
+        <div className="min-w-0 space-y-3">
           <Card className="p-4">
             <div className="flex items-start justify-between">
               <div className="min-w-0">
@@ -213,7 +224,7 @@ export function LiveDashboardScene({ onFirstPassComplete }: { onFirstPassComplet
           )}
         </div>
 
-        <div className="rounded-2xl bg-[#0f172a] p-4">
+        <div className="min-w-0 rounded-2xl bg-[#0f172a] p-4">
           <div className="mb-3 flex items-center justify-between">
             <h3 className="text-sm font-semibold text-white">Live AI call feed</h3>
             <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-medium text-emerald-300">
