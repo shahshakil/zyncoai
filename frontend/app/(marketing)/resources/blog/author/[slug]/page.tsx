@@ -13,7 +13,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   return {
     title: `${BLOG_AUTHOR.name} | ZyncoAI Blog`,
     description: BLOG_AUTHOR.bio,
-    alternates: { canonical: `/blog/author/${BLOG_AUTHOR.slug}`, languages: { "en-AU": `/blog/author/${BLOG_AUTHOR.slug}`, en: `/blog/author/${BLOG_AUTHOR.slug}` } },
+    alternates: { canonical: `/resources/blog/author/${BLOG_AUTHOR.slug}`, languages: { "en-AU": `/resources/blog/author/${BLOG_AUTHOR.slug}`, en: `/resources/blog/author/${BLOG_AUTHOR.slug}` } },
   };
 }
 
@@ -22,7 +22,7 @@ export default function BlogAuthorPage({ params }: { params: { slug: string } })
 
   return (
     <div className="bg-[#f8fafc] pt-8">
-      <Breadcrumbs crumbs={[{ name: "Home", href: "/" }, { name: "Blog", href: "/blog" }, { name: BLOG_AUTHOR.name, href: `/blog/author/${BLOG_AUTHOR.slug}` }]} />
+      <Breadcrumbs crumbs={[{ name: "Home", href: "/" }, { name: "Resources", href: "/resources" }, { name: "Blog", href: "/resources/blog" }, { name: BLOG_AUTHOR.name, href: `/resources/blog/author/${BLOG_AUTHOR.slug}` }]} />
       <section className="mx-auto max-w-3xl px-6 py-16 text-center lg:px-8">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)] text-lg font-bold text-white">
           ZA
@@ -30,8 +30,8 @@ export default function BlogAuthorPage({ params }: { params: { slug: string } })
         <h1 className="mt-4 text-3xl font-bold text-[#0f172a] sm:text-4xl">{BLOG_AUTHOR.name}</h1>
         <p className="mt-2 text-[#475569]">{BLOG_AUTHOR.bio}</p>
       </section>
-      <section className="mx-auto max-w-3xl px-6 pb-20 lg:px-8">
-        <div className="space-y-4">
+      <section className="mx-auto max-w-4xl px-6 pb-24 lg:px-8">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           {BLOG_POSTS.map((post) => (
             <PostCard key={post.slug} post={post} />
           ))}

@@ -55,7 +55,7 @@ export const metadata: Metadata = {
       en: "https://zyncoai.com",
     },
     types: {
-      "application/rss+xml": "https://zyncoai.com/blog/feed.xml",
+      "application/rss+xml": "https://zyncoai.com/resources/blog/feed.xml",
     },
   },
 };

@@ -52,7 +52,6 @@ const PUBLIC_PATHS = [
   "/platform-admin",
   "/ai",
   "/executions",
-  "/blog",
 ];
 
 const PUBLIC_PREFIXES = [
@@ -71,7 +70,6 @@ const PUBLIC_PREFIXES = [
   "/ai-brain/",
   "/agentops/",
   "/capabilities/",
-  "/blog/",
   // ZyncoAI super-admin panel uses its own 30-min admin JWT (zyn_admin_access
   // cookie), completely separate from the tenant zyn_access/zyn_refresh pair
   // this middleware checks below — it self-gates in
@@ -156,6 +154,16 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Blog moved under /resources/blog (2026-08-16) — preserves inbound links,
+  // RSS subscriptions, and search rankings for the old /blog/* URLs instead
+  // of letting them 404. Prefix rule covers the whole tree (index, post
+  // slugs, author/category/tag, feed.xml) in one redirect.
+  if (pathname === "/blog" || pathname.startsWith("/blog/")) {
+    const url = req.nextUrl.clone();
+    url.pathname = `/resources${pathname}`;
+    return NextResponse.redirect(url);
+  }
+
   // always allow internals + static + api
   if (
     pathname.startsWith("/_next") ||
@@ -163,7 +171,7 @@ export async function middleware(req: NextRequest) {
     pathname === "/robots.txt" ||
     pathname === "/sitemap.xml" ||
     pathname === "/llms.txt" ||
-    pathname === "/blog/feed.xml" ||
+    pathname === "/resources/blog/feed.xml" ||
     // Next.js file-convention route (app/opengraph-image.tsx) — framework
     // content, not user-facing pages, same bucket as robots.txt/sitemap.xml.
     pathname.startsWith("/opengraph-image") ||

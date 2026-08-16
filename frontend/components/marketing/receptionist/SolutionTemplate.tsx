@@ -278,7 +278,7 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
                 </Link>
               ))}
               <Link
-                href="/blog"
+                href="/resources/blog"
                 className="rounded-full border border-[#e2e8f0] bg-white px-4 py-2 text-sm font-medium text-[#475569] shadow-sm hover:border-[#c7d2fe] hover:text-[#0f172a]"
               >
                 Read the blog

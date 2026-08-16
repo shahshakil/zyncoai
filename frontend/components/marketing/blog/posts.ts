@@ -203,3 +203,10 @@ export function getAllTags(): string[] {
 export function getPostsByTag(tag: string): BlogPost[] {
   return BLOG_POSTS.filter((p) => p.tags.includes(tag));
 }
+
+// Browse-by-vertical — reuses the real relatedIndustrySlugs already on
+// every post (see the field's own comment above) rather than introducing a
+// second, parallel categorisation that could drift out of sync with it.
+export function getPostsByIndustry(industrySlug: string): BlogPost[] {
+  return BLOG_POSTS.filter((p) => p.relatedIndustrySlugs.includes(industrySlug));
+}

@@ -19,7 +19,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
     openGraph: {
       title: post.title,
       description: post.description,
-      url: `https://zyncoai.com/blog/${post.slug}`,
+      url: `https://zyncoai.com/resources/blog/${post.slug}`,
       siteName: "ZyncoAI",
       locale: "en_AU",
       type: "article",
@@ -27,7 +27,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
       images: ["/opengraph-image"],
     },
     twitter: { card: "summary_large_image", title: post.title, description: post.description, images: ["/opengraph-image"] },
-    alternates: { canonical: `/blog/${post.slug}`, languages: { "en-AU": `/blog/${post.slug}`, en: `/blog/${post.slug}` } },
+    alternates: { canonical: `/resources/blog/${post.slug}`, languages: { "en-AU": `/resources/blog/${post.slug}`, en: `/resources/blog/${post.slug}` } },
   };
 }
 
@@ -35,17 +35,19 @@ function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" });
 }
 
-function Block({ block }: { block: BlogBlock }) {
-  if (block.type === "h2") return <h2 className="mt-8 text-xl font-bold text-[#0f172a]">{block.text}</h2>;
+function Block({ block, isLede }: { block: BlogBlock; isLede?: boolean }) {
+  if (block.type === "h2") return <h2 className="mt-12 text-2xl font-bold tracking-tight text-[#0f172a]">{block.text}</h2>;
   if (block.type === "ul")
     return (
-      <ul className="mt-3 list-disc space-y-2 pl-5 text-base leading-relaxed text-[#475569]">
+      <ul className="mt-4 list-disc space-y-3 pl-5 text-lg leading-relaxed text-[#334155]">
         {block.items.map((item) => (
           <li key={item}>{item}</li>
         ))}
       </ul>
     );
-  return <p className="mt-4 text-base leading-relaxed text-[#475569]">{block.text}</p>;
+  return (
+    <p className={isLede ? "mt-6 text-xl font-medium leading-relaxed text-[#334155]" : "mt-5 text-lg leading-relaxed text-[#475569]"}>{block.text}</p>
+  );
 }
 
 export default function BlogPostPage({ params }: { params: { slug: string } }) {
@@ -67,37 +69,51 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
       name: "ZyncoAI",
       logo: { "@type": "ImageObject", url: "https://zyncoai.com/icon.svg" },
     },
-    mainEntityOfPage: { "@type": "WebPage", "@id": `https://zyncoai.com/blog/${post.slug}` },
+    mainEntityOfPage: { "@type": "WebPage", "@id": `https://zyncoai.com/resources/blog/${post.slug}` },
   };
 
   return (
     <div className="bg-[#f8fafc] pt-8">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
-      <Breadcrumbs crumbs={[{ name: "Home", href: "/" }, { name: "Blog", href: "/blog" }, { name: post.title, href: `/blog/${post.slug}` }]} />
+      <Breadcrumbs crumbs={[{ name: "Home", href: "/" }, { name: "Resources", href: "/resources" }, { name: "Blog", href: "/resources/blog" }, { name: post.title, href: `/resources/blog/${post.slug}` }]} />
       <article className="mx-auto max-w-2xl px-6 py-16 lg:px-8">
-        <Link href="/blog" className="text-sm font-medium text-[#6366f1] hover:underline">
+        <Link href="/resources/blog" className="text-sm font-medium text-[#6366f1] hover:underline">
           ← All articles
         </Link>
-        <p className="mt-6 text-xs font-medium text-[#94a3b8]">
-          {formatDate(post.publishedAt)} · {post.readingMinutes} min read · by{" "}
-          <Link href={`/blog/author/${BLOG_AUTHOR.slug}`} className="underline hover:text-[#0f172a]">{BLOG_AUTHOR.name}</Link>
-          {category && (
-            <>
-              {" "}
-              · <Link href={`/blog/category/${category.slug}`} className="underline hover:text-[#0f172a]">{category.name}</Link>
-            </>
-          )}
-        </p>
-        <h1 className="mt-2 text-3xl font-bold leading-tight text-[#0f172a] sm:text-4xl">{post.title}</h1>
-        <div className="mt-8">
+
+        {category && (
+          <Link
+            href={`/resources/blog/category/${category.slug}`}
+            className="mt-6 inline-block rounded-full bg-[#eef2ff] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#4f46e5] hover:bg-[#e0e7ff]"
+          >
+            {category.name}
+          </Link>
+        )}
+        <h1 className="mt-4 text-4xl font-bold leading-[1.1] tracking-tight text-[#0f172a] sm:text-5xl">{post.title}</h1>
+
+        <div className="mt-6 flex items-center gap-3 border-b border-[#e2e8f0] pb-6">
+          <Link href={`/resources/blog/author/${BLOG_AUTHOR.slug}`} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[image:linear-gradient(135deg,#6366f1,#06b6d4)] text-xs font-bold text-white">
+            ZA
+          </Link>
+          <div className="text-sm">
+            <Link href={`/resources/blog/author/${BLOG_AUTHOR.slug}`} className="font-semibold text-[#0f172a] hover:underline">
+              {BLOG_AUTHOR.name}
+            </Link>
+            <p className="text-[#94a3b8]">
+              {formatDate(post.publishedAt)} · {post.readingMinutes} min read
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-2">
           {post.blocks.map((block, i) => (
-            <Block key={i} block={block} />
+            <Block key={i} block={block} isLede={i === 0} />
           ))}
         </div>
 
         <div className="mt-8 flex flex-wrap gap-2">
           {post.tags.map((tag) => (
-            <Link key={tag} href={`/blog/tag/${tag}`} className="rounded-full bg-slate-100 px-3 py-1 text-xs text-[#475569] hover:bg-slate-200">
+            <Link key={tag} href={`/resources/blog/tag/${tag}`} className="rounded-full bg-slate-100 px-3 py-1 text-xs text-[#475569] hover:bg-slate-200">
               #{tag}
             </Link>
           ))}

@@ -13,8 +13,8 @@ export async function GET() {
       (post) => `
     <item>
       <title>${escapeXml(post.title)}</title>
-      <link>${BASE_URL}/blog/${post.slug}</link>
-      <guid>${BASE_URL}/blog/${post.slug}</guid>
+      <link>${BASE_URL}/resources/blog/${post.slug}</link>
+      <guid>${BASE_URL}/resources/blog/${post.slug}</guid>
       <description>${escapeXml(post.description)}</description>
       <pubDate>${new Date(post.publishedAt).toUTCString()}</pubDate>
     </item>`
@@ -25,7 +25,7 @@ export async function GET() {
 <rss version="2.0">
   <channel>
     <title>ZyncoAI Blog</title>
-    <link>${BASE_URL}/blog</link>
+    <link>${BASE_URL}/resources/blog</link>
     <description>AI receptionist guides for Australian businesses.</description>
     <language>en-au</language>${items}
   </channel>

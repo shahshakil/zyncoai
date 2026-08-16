@@ -67,9 +67,9 @@ const STATIC_ROUTES: { path: string; priority: number; changeFrequency: ChangeFr
   { path: "/solutions/sales-ops", priority: 0.6, changeFrequency: "monthly" },
   { path: "/solutions/support", priority: 0.6, changeFrequency: "monthly" },
   { path: "/legal/dpa", priority: 0.3, changeFrequency: "yearly" },
-  { path: "/blog", priority: 0.7, changeFrequency: "weekly" },
+  { path: "/resources/blog", priority: 0.7, changeFrequency: "weekly" },
   { path: "/solutions", priority: 0.7, changeFrequency: "monthly" },
-  { path: `/blog/author/${BLOG_AUTHOR.slug}`, priority: 0.4, changeFrequency: "weekly" },
+  { path: `/resources/blog/author/${BLOG_AUTHOR.slug}`, priority: 0.4, changeFrequency: "weekly" },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -107,21 +107,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
 
   const blogEntries = BLOG_POSTS.map((p) => ({
-    url: `${baseUrl}/blog/${p.slug}`,
+    url: `${baseUrl}/resources/blog/${p.slug}`,
     lastModified: new Date(p.publishedAt),
     changeFrequency: "monthly" as const,
     priority: 0.6,
   }));
 
   const blogCategoryEntries = BLOG_CATEGORIES.map((c) => ({
-    url: `${baseUrl}/blog/category/${c.slug}`,
+    url: `${baseUrl}/resources/blog/category/${c.slug}`,
     lastModified: now,
     changeFrequency: "weekly" as const,
     priority: 0.4,
   }));
 
   const blogTagEntries = getAllTags().map((tag) => ({
-    url: `${baseUrl}/blog/tag/${tag}`,
+    url: `${baseUrl}/resources/blog/tag/${tag}`,
     lastModified: now,
     changeFrequency: "weekly" as const,
     priority: 0.3,

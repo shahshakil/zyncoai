@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BookOpen, Code2, ShieldCheck, LifeBuoy, History, Activity, ArrowRight } from "lucide-react";
+import { BookOpen, Code2, ShieldCheck, LifeBuoy, History, Activity, ArrowRight, Newspaper } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Resources | ZyncoAI",
-  description: "Documentation, API reference, trust & security, help centre, changelog, and live system status for ZyncoAI.",
+  description: "Blog, documentation, API reference, trust & security, help centre, changelog, and live system status for ZyncoAI.",
 };
 
 const CARDS = [
+  { href: "/resources/blog", icon: Newspaper, title: "Blog", desc: "Guides on AI call answering, industry breakdowns, and honest comparisons." },
   { href: "/resources/docs", icon: BookOpen, title: "Documentation", desc: "How ZyncoAI works, call forwarding setup, integrations, and your dashboard." },
   { href: "/resources/api", icon: Code2, title: "API Reference", desc: "Webhooks, integration endpoints, authentication, and sample payloads." },
   { href: "/resources/trust", icon: ShieldCheck, title: "Trust & Security", desc: "How we protect patient data, encryption, and Australian compliance." },
