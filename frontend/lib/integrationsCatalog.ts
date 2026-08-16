@@ -11,7 +11,7 @@
 // else is a real, named vendor shown as Coming Soon with a "notify me"
 // capture rather than silently omitted — an owner searching Settings for
 // their POS should see it listed, even if ZyncoAI can't sync with it yet.
-export type IntegrationKind = "square" | "google_calendar" | "microsoft_calendar" | "website_scrape" | "coming_soon";
+export type IntegrationKind = "square" | "google_calendar" | "microsoft_calendar" | "clio" | "website_scrape" | "coming_soon";
 
 export interface CatalogIntegration {
   key: string;
@@ -77,17 +77,29 @@ const CATALOG: Record<string, CatalogIntegration[]> = {
   ],
   MECHANIC: [
     GOOGLE_CALENDAR,
-    { key: "carmaster", name: "Carmaster", description: "Australian workshop management.", kind: "coming_soon", comingSoonReason: "Unverified — no real product by this exact name found. Confirm the actual vendor name." },
+    // 2026-08-16 — "Carmaster" and "Greasy Wrench" removed: re-verified via
+    // live web search, neither returns any evidence of being a real
+    // software product (Greasy Wrench only surfaced an unrelated physical
+    // repair shop). Phantom entries, not just unverified ones — see the
+    // honesty-cleanup audit this shipped with.
     { key: "maxxtraxx", name: "MaxxTraxx", description: "Workshop POS.", kind: "coming_soon", comingSoonReason: "No public API — existing integrations are built by the vendor (Motive Retail), not exposed to outside developers." },
-    { key: "greasy_wrench", name: "Greasy Wrench", description: "Workshop software.", kind: "coming_soon", comingSoonReason: "Unverified — no evidence this is a real software vendor (searches only found an unrelated physical repair shop)." },
     { key: "automaster", name: "AutoMaster", description: "Dealer management.", kind: "coming_soon", comingSoonReason: "Unverified — name is ambiguous (at least 2 unrelated products found), neither shows a self-serve API. Confirm which vendor is meant." },
     { key: "workshop_mate", name: "Workshop Mate", description: "Australian built workshop software.", kind: "coming_soon", comingSoonReason: "No public API or developer program — existing integrations (Xero, MYOB) are closed, vendor-built connections." },
   ],
   LAW: [
     GOOGLE_CALENDAR,
-    { key: "leap", name: "LEAP", description: "The most popular Australian legal practice management software.", kind: "coming_soon", comingSoonReason: "Self-serve API (register free at console.leap.build) — needs a ZyncoAI developer account + credentials before this can be built. Not gated on LEAP's approval." },
+    // 2026-08-16 — "Not gated on LEAP's/Clio's approval" (both entries)
+    // downgraded after re-verification for the Clio build: Clio's own
+    // developer handbook (docs.developers.clio.com/handbook/getting-started/
+    // get-a-developer-account) describes a real review step — sign up for a
+    // 7-day trial, then apply via an intake form, then Clio's team reviews
+    // before converting the trial to a developer account able to create
+    // OAuth apps. LEAP's account-creation process reads similarly gated in
+    // secondary sources, though direct confirmation wasn't found — flagged
+    // rather than asserted either way.
+    { key: "leap", name: "LEAP", description: "The most popular Australian legal practice management software.", kind: "coming_soon", comingSoonReason: "Registration starts self-serve (console.leap.build), but whether OAuth credentials are issued instantly or require LEAP to provision the account is unconfirmed from public docs — needs a direct signup attempt to verify." },
     { key: "smokeball", name: "Smokeball", description: "Australian law practice management.", kind: "coming_soon", comingSoonReason: "Partner-gated — the requesting firm must be on Smokeball's Prosper+ plan and submit an API access request." },
-    { key: "clio", name: "Clio", description: "Cloud legal software.", kind: "coming_soon", comingSoonReason: "Self-serve API (docs.developers.clio.com) — needs a ZyncoAI developer account + credentials before this can be built. Not gated on Clio's approval." },
+    { key: "clio", name: "Clio", description: "Cloud legal software.", kind: "coming_soon", comingSoonReason: "Starts self-serve (sign up for a free trial at clio.com, no sales call) but isn't instant: Clio's team reviews an intake form before converting the trial to a developer account able to create OAuth apps — confirmed via Clio's own developer docs, 2026-08-16." },
     { key: "myob_law", name: "MYOB Practice Management", description: "Accounting-integrated legal practice management.", kind: "coming_soon", comingSoonReason: "Unverified — no product literally called \"MYOB Law\" exists; likely means MYOB's accounting-focused Practice Management product. Confirm intended vendor." },
     { key: "actionstep", name: "ActionStep", description: "Matter management.", kind: "coming_soon", comingSoonReason: "Partner-gated — requires emailing Actionstep's Global Support Team, a US$500 setup fee, and their own API review process." },
   ],

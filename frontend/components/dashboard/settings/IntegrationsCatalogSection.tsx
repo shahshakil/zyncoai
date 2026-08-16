@@ -17,11 +17,12 @@ interface CatalogStatus {
   square: { configured: boolean; connected: boolean; merchantId: string | null; lastSyncedAt: string | null; lastSyncError: string | null };
   websiteMenu: { connected: boolean; url: string | null; lastScrapedAt: string | null; itemCount: number };
   microsoftCalendar: { configured: boolean; connected: boolean; connectedAt: string | null };
+  clio: { configured: boolean; connected: boolean; connectedAt: string | null; calendarConfigured: boolean };
   notifiedKeys: string[];
 }
 
 function IconFor({ kind }: { kind: CatalogIntegration["kind"] }) {
-  if (kind === "google_calendar" || kind === "microsoft_calendar") return <CalendarDays className="h-4 w-4 text-slate-400" />;
+  if (kind === "google_calendar" || kind === "microsoft_calendar" || kind === "clio") return <CalendarDays className="h-4 w-4 text-slate-400" />;
   if (kind === "website_scrape") return <Globe className="h-4 w-4 text-slate-400" />;
   return <Plug className="h-4 w-4 text-slate-400" />;
 }
@@ -192,6 +193,66 @@ function MicrosoftCalendarCard({ item, status, mutate }: { item: CatalogIntegrat
   );
 }
 
+// 2026-08-16 — real, was coming-soon with no code behind it. Business-wide
+// (not per-lawyer) OAuth against Clio Manage's region-sharded API, real
+// Calendar Entries create/delete on booking/reschedule/cancel — see
+// backend lib/clio.ts. LAW vertical only.
+function ClioCard({ item, status, mutate }: { item: CatalogIntegration; status: CatalogStatus; mutate: () => void }) {
+  const [connecting, setConnecting] = useState(false);
+
+  async function connect() {
+    setConnecting(true);
+    try {
+      const r = await fetch("/api/business/integrations-catalog/clio/connect", { credentials: "include" });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new ApiError(data?.error || "request_failed", r.status);
+      window.location.href = data.authUrl;
+    } catch (e) {
+      toast.error(e instanceof ApiError && e.status === 503 ? "Clio isn't set up on this account yet" : "Could not start the Clio connection");
+      setConnecting(false);
+    }
+  }
+
+  async function disconnect() {
+    try {
+      await apiPost("/api/business/integrations-catalog/clio", undefined, "DELETE");
+      toast.success("Clio disconnected");
+      mutate();
+    } catch {
+      toast.error("Could not disconnect");
+    }
+  }
+
+  return (
+    <div className="rounded-lg border border-slate-200 p-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <IconFor kind={item.kind} />
+          <div>
+            <p className="text-sm font-medium text-slate-900">{item.name}</p>
+            <p className="text-xs text-slate-400">{item.description}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {status.clio.connected ? (
+            <>
+              <Badge tone={status.clio.calendarConfigured ? "success" : "warning"}>{status.clio.calendarConfigured ? "connected" : "needs attention"}</Badge>
+              <Button variant="ghost" size="sm" onClick={disconnect}><Trash2 className="h-4 w-4" /></Button>
+            </>
+          ) : (
+            <Button variant="outline" size="sm" disabled={connecting} onClick={connect}>{connecting ? "Connecting…" : "Connect"}</Button>
+          )}
+        </div>
+      </div>
+      {status.clio.connected && status.clio.connectedAt && (
+        <p className="mt-2 text-xs text-slate-400">Connected {new Date(status.clio.connectedAt).toLocaleString()} — new bookings sync to your Clio calendar automatically.</p>
+      )}
+      {status.clio.connected && !status.clio.calendarConfigured && <p className="mt-2 text-xs text-amber-600">Connected, but no Clio calendar was found for this account — bookings won&apos;t sync until one exists.</p>}
+      {!status.clio.configured && !status.clio.connected && <p className="mt-2 text-xs text-amber-600">Not yet set up on this account — contact support.</p>}
+    </div>
+  );
+}
+
 function SquareCard({ item, status, mutate }: { item: CatalogIntegration; status: CatalogStatus; mutate: () => void }) {
   const [connecting, setConnecting] = useState(false);
   const [syncing, setSyncing] = useState(false);
@@ -307,6 +368,7 @@ export function IntegrationsCatalogSection() {
           if (item.kind === "square") return <SquareCard key={item.key} item={item} status={data} mutate={mutate} />;
           if (item.kind === "google_calendar") return <GoogleCalendarCard key={item.key} item={item} />;
           if (item.kind === "microsoft_calendar") return <MicrosoftCalendarCard key={item.key} item={item} status={data} mutate={mutate} />;
+          if (item.kind === "clio") return <ClioCard key={item.key} item={item} status={data} mutate={mutate} />;
           if (item.kind === "website_scrape") return <WebsiteScrapeCard key={item.key} item={item} status={data} mutate={mutate} />;
           return <ComingSoonCard key={item.key} item={item} status={data} mutate={mutate} />;
         })}
