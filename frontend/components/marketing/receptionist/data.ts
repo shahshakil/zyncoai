@@ -622,6 +622,18 @@ export const SITEWIDE_MOST_EXPENSIVE_PLAN_PRICE = Math.max(
   ...INDUSTRY_PRICING.flatMap((g) => g.plans.filter((p) => p.priceMonthly > 0).map((p) => p.priceMonthly))
 );
 
+// 2026-08-16 — homepage-level example call for ExampleCallScene.tsx. Every
+// other use of that component (SolutionTemplate.tsx) shows the CURRENT
+// vertical's real per-industry greeting/callerLine from INDUSTRIES above —
+// the homepage isn't scoped to one vertical, so picking any single
+// industry's script there would misrepresent the product as narrower than
+// it is. This is genuinely generic phrasing (no industry-specific booking
+// type, no named business), not a stand-in for a real transcript.
+export const SITEWIDE_EXAMPLE_CALL = {
+  greeting: "Thanks for calling, this is Ella — how can I help?",
+  callerLine: "Hi, I'd like to book an appointment for later this week.",
+};
+
 // Real minute allowances across every metered plan (Enterprise's "Unlimited"
 // tiers excluded, same as above) — used so the ROI calculator's minutes
 // claim is pulled from plan-settings data instead of typed by hand.

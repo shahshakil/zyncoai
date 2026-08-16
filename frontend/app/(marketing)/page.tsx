@@ -16,6 +16,7 @@ import { getVoiceHealth } from "@/lib/marketing-api";
 // — this only changes how the JS is *bundled*, not whether the HTML is
 // server-rendered, so there's no content flash, no SEO impact, and no
 // visual change to any section (including the untouched Elite ones).
+const IntegrationLogoStrip = dynamic(() => import("@/components/marketing/receptionist/IntegrationLogoStrip").then((m) => m.IntegrationLogoStrip), { ssr: true });
 const VerticalsDiagramSection = dynamic(() => import("@/components/marketing/receptionist/VerticalsDiagramSection").then((m) => m.VerticalsDiagramSection), { ssr: true });
 const LiveDemoSection = dynamic(() => import("@/components/marketing/receptionist/LiveDemoSection").then((m) => m.LiveDemoSection), { ssr: true });
 const HowItWorksSection = dynamic(() => import("@/components/marketing/receptionist/HowItWorksSection").then((m) => m.HowItWorksSection), { ssr: true });
@@ -69,6 +70,7 @@ export default async function Page() {
       <FaqJsonLd />
       <SectionViewObserver />
       <HeroSection />
+      <IntegrationLogoStrip />
       <VerticalsDiagramSection />
       <LiveDemoSection voiceHealthy={voiceHealthy} />
       <HowItWorksSection />

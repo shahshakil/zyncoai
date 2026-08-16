@@ -1,18 +1,37 @@
 "use client";
 import { useCallback, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { LiveDashboardScene } from "./LiveDashboardScene";
+import { ExampleCallScene } from "./ExampleCallScene";
+import { SITEWIDE_EXAMPLE_CALL } from "./data";
 
 export function ProductDemoSection() {
   const [ctaSettled, setCtaSettled] = useState(false);
   const handleFirstPassComplete = useCallback(() => setCtaSettled(true), []);
+  const reducedMotion = useReducedMotion();
 
   return (
     <section className="py-20" id="dashboard-live-scene">
       <div className="mx-auto max-w-2xl text-center">
-        <h2 className="text-3xl font-bold text-[#0f172a] sm:text-4xl">See the dashboard in action</h2>
+        <h2 className="text-3xl font-bold text-[#0f172a] sm:text-4xl">See it in action</h2>
+        <p className="mt-3 text-base text-[#64748b]">From the call happening to your dashboard updating — no video, this is the real UI.</p>
+      </div>
+
+      <motion.div
+        className="mx-auto mt-10 max-w-lg rounded-3xl border border-[#e2e8f0] bg-white p-6 shadow-sm"
+        initial={reducedMotion ? false : { opacity: 0, y: 12 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.4 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+      >
+        <p className="text-xs font-semibold uppercase tracking-wide text-[#94a3b8]">Example call</p>
+        <ExampleCallScene callerLine={SITEWIDE_EXAMPLE_CALL.callerLine} greeting={SITEWIDE_EXAMPLE_CALL.greeting} />
+      </motion.div>
+
+      <div className="mt-4 text-center text-2xl text-[#cbd5e1]" aria-hidden="true">
+        ↓
       </div>
 
       <LiveDashboardScene onFirstPassComplete={handleFirstPassComplete} />
