@@ -31,7 +31,7 @@ export default async function PlatformConnectorsPage() {
         <p className="text-sm uppercase tracking-[0.2em] text-neutral-500">Platform</p>
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-neutral-950">Connector Framework</h1>
         <p className="mt-4 max-w-3xl text-base leading-7 text-neutral-600">
-          Live connector inventory from the platform's connector registry.
+          Live connector inventory from the platform&apos;s connector registry.
         </p>
       </div>
 
