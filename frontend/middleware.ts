@@ -177,7 +177,18 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith("/opengraph-image") ||
     pathname.startsWith("/api") ||
     pathname.startsWith("/videos") ||
-    pathname.startsWith("/audio")
+    pathname.startsWith("/audio") ||
+    // 2026-08-17 — found while adding public/logos/* (the homepage
+    // integration-logo strip): /images and /apps are real public/ static
+    // asset directories with the exact same "root-relative <img src>,
+    // never went through Next's hashed static-import pipeline" shape as
+    // /videos and /audio above, but neither was ever added to this list —
+    // a real, currently-live 307-to-/login for any anonymous visitor
+    // requesting them (confirmed: /images/hero-bg.jpg redirected before
+    // this fix). /logos joins them for the same reason.
+    pathname.startsWith("/images") ||
+    pathname.startsWith("/logos") ||
+    pathname.startsWith("/apps")
   ) {
     return NextResponse.next();
   }
