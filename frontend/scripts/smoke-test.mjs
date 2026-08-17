@@ -29,6 +29,7 @@ const PAGES = [
   { path: "/resources/help", mustInclude: "Help Centre" },
   { path: "/resources/docs", mustInclude: "Documentation" },
   { path: "/resources/status", mustInclude: "System Status" },
+  { path: "/resources/api", mustInclude: "API Reference" },
 ];
 
 // HTTP-poll for readiness rather than matching stdout text — Next's exact

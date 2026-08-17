@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Trash2, Copy } from "lucide-react";
+import { Plus, Trash2, Copy, RefreshCw, History } from "lucide-react";
 import { useApi, apiPost } from "@/lib/useApi";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
@@ -21,6 +21,69 @@ interface WebhookConfig {
   secret?: string;
 }
 
+interface WebhookLog {
+  id: string;
+  event: string;
+  statusCode: number | null;
+  success: boolean;
+  attempt: number;
+  error: string | null;
+  createdAt: string;
+}
+
+// Reuses the exact same show-once-secret dialog pattern as creation (the
+// backend's POST /:id/rotate-secret returns the raw secret exactly once,
+// same as create — never re-displayed after this).
+function RotateSecretButton({ webhookId, onRotated }: { webhookId: string; onRotated: (secret: string) => void }) {
+  const [rotating, setRotating] = useState(false);
+  async function rotate() {
+    setRotating(true);
+    try {
+      const res = await apiPost<{ webhook: WebhookConfig }>(`/api/business/webhooks/${webhookId}/rotate-secret`, undefined, "POST");
+      if (res.webhook.secret) onRotated(res.webhook.secret);
+    } catch {
+      toast.error("Could not rotate secret");
+    } finally {
+      setRotating(false);
+    }
+  }
+  return (
+    <Button variant="ghost" size="sm" onClick={rotate} disabled={rotating} title="Rotate signing secret">
+      <RefreshCw className={`h-4 w-4 ${rotating ? "animate-spin" : ""}`} />
+    </Button>
+  );
+}
+
+function DeliveryHistoryDialog({ webhookId, open, onOpenChange }: { webhookId: string; open: boolean; onOpenChange: (v: boolean) => void }) {
+  const { data, isLoading } = useApi<{ data: WebhookLog[] }>(open ? `/api/business/webhooks/${webhookId}/logs` : null);
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader><DialogTitle>Delivery history</DialogTitle></DialogHeader>
+        {isLoading ? (
+          <Skeleton className="h-40 w-full" />
+        ) : !data?.data?.length ? (
+          <p className="text-sm text-slate-400">No deliveries yet.</p>
+        ) : (
+          <div className="max-h-96 space-y-2 overflow-y-auto">
+            {data.data.map((log) => (
+              <div key={log.id} className="rounded-lg border border-slate-200 p-2.5 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-slate-900">{log.event}</span>
+                  <Badge tone={log.success ? "success" : "default"}>{log.success ? `${log.statusCode ?? "ok"}` : log.error || `HTTP ${log.statusCode ?? "?"}`}</Badge>
+                </div>
+                <p className="mt-1 text-slate-400">
+                  Attempt {log.attempt} · {new Date(log.createdAt).toLocaleString("en-AU", { dateStyle: "medium", timeStyle: "short" })}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export function WebhooksTab() {
   const { data, isLoading, mutate } = useApi<{ webhooks: WebhookConfig[] }>("/api/business/webhooks");
   const [open, setOpen] = useState(false);
@@ -28,6 +91,8 @@ export function WebhooksTab() {
   const [events, setEvents] = useState<string[]>([]);
   const [newSecret, setNewSecret] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [rotatedSecret, setRotatedSecret] = useState<string | null>(null);
+  const [historyWebhookId, setHistoryWebhookId] = useState<string | null>(null);
 
   async function create(e: React.FormEvent) {
     e.preventDefault();
@@ -70,6 +135,8 @@ export function WebhooksTab() {
               <p className="text-sm font-medium text-slate-900">{w.url}</p>
               <div className="flex items-center gap-2">
                 <Badge tone={w.active ? "success" : "default"}>{w.active ? "active" : "paused"}</Badge>
+                <Button variant="ghost" size="sm" onClick={() => setHistoryWebhookId(w.id)} title="Delivery history"><History className="h-4 w-4" /></Button>
+                <RotateSecretButton webhookId={w.id} onRotated={(secret) => { setRotatedSecret(secret); mutate(); }} />
                 <Button variant="ghost" size="sm" onClick={() => remove(w.id)}><Trash2 className="h-4 w-4" /></Button>
               </div>
             </div>
@@ -81,6 +148,24 @@ export function WebhooksTab() {
         ))}
         {!data?.webhooks.length && <p className="text-sm text-slate-400">No webhooks configured yet.</p>}
       </CardContent>
+
+      {historyWebhookId && (
+        <DeliveryHistoryDialog webhookId={historyWebhookId} open={Boolean(historyWebhookId)} onOpenChange={(v) => !v && setHistoryWebhookId(null)} />
+      )}
+
+      <Dialog open={Boolean(rotatedSecret)} onOpenChange={(v) => !v && setRotatedSecret(null)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Secret rotated</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-slate-500">Save this new signing secret now — it won&apos;t be shown again. The old secret stops working immediately.</p>
+            <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
+              <code className="flex-1 truncate text-xs text-emerald-400">{rotatedSecret}</code>
+              <button onClick={() => { navigator.clipboard.writeText(rotatedSecret || ""); toast.success("Copied"); }}><Copy className="h-4 w-4 text-slate-400" /></button>
+            </div>
+            <Button className="w-full" onClick={() => setRotatedSecret(null)}>Done</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setNewSecret(null); }}>
         <DialogContent>

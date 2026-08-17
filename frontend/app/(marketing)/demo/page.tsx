@@ -3,7 +3,10 @@ import { Phone } from "lucide-react";
 import { LiveDemoSection } from "@/components/marketing/receptionist/LiveDemoSection";
 import { PersonalizedDemoForm } from "@/components/marketing/receptionist/PersonalizedDemoForm";
 import { FinalCtaSection } from "@/components/marketing/receptionist/FinalCtaSection";
-import { DEMO_NUMBER } from "@/components/marketing/receptionist/LiveDemoSection";
+// Imported from data.ts (a plain module, no "use client"), not from
+// LiveDemoSection.tsx — see data.ts's own comment on DEMO_NUMBER for why a
+// Server Component importing this from a client-boundary file is unsafe.
+import { DEMO_NUMBER } from "@/components/marketing/receptionist/data";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { getVoiceHealth } from "@/lib/marketing-api";
 

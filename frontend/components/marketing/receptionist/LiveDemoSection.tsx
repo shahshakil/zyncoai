@@ -5,19 +5,12 @@ import { ArrowRight } from "lucide-react";
 import { CallEllaButton } from "./CallEllaButton";
 import { DemoPlayer, type DemoTranscript } from "./DemoPlayer";
 import demoCall from "./demoCallTranscript.json";
-
-// 2026-08-11 — this file and CallEllaButton.tsx each carried a different
-// number with a comment claiming the OTHER one was fake. Re-verified
-// directly against the DB rather than trusting either stale comment: BOTH
-// numbers are real, live, ACTIVE Business.phoneNumber records with genuine
-// completed call history (+61 2 5747 4612 = Bright Smile Dental, +61 2 5747
-// 4792 = shahs clinic). Standardized on 4792 — shahs clinic is the
-// deliberately-designated internal test/demo business (see BusinessAddOn /
-// paid-plan-invariant notes elsewhere in this codebase) and has the more
-// recently verified live completed call. Exported so other components
-// (e.g. FaqSection's closing CTA) reuse this exact literal instead of
-// duplicating it, so there's only ever one number to keep correct.
-export const DEMO_NUMBER = "+61 2 5747 4792";
+// 2026-08-17 — moved to data.ts (see its own comment there for why): this
+// file has "use client" at the top, and a Server Component importing a
+// plain constant from a client-boundary file is unsafe — Next.js wraps it
+// in a Client Reference proxy rather than the real value. Re-exported here
+// so existing same-directory client-component imports don't need to change.
+export { DEMO_NUMBER } from "./data";
 
 // The old "Play" button here drove a hand-typed CONVERSATION array through
 // a setTimeout-per-line animation — it never played real audio and wasn't

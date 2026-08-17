@@ -952,3 +952,25 @@ export const REAL_DIFFERENTIATORS: Differentiator[] = [
 // was nothing honest left for that entry to refer to next to Google
 // Calendar in a "works with your software" list.
 export const INTEGRATIONS = ["Cliniko", "Nookal", "Halaxy", "Best Practice (CSV)", "Google Calendar"];
+
+// 2026-08-11 — this number and CallEllaButton.tsx each carried a different
+// number with a comment claiming the OTHER one was fake. Re-verified
+// directly against the DB rather than trusting either stale comment: BOTH
+// numbers are real, live, ACTIVE Business.phoneNumber records with genuine
+// completed call history (+61 2 5747 4612 = Bright Smile Dental, +61 2 5747
+// 4792 = shahs clinic). Standardized on 4792 — shahs clinic is the
+// deliberately-designated internal test/demo business and has the more
+// recently verified live completed call.
+//
+// 2026-08-17 — moved here from LiveDemoSection.tsx (a "use client" file).
+// app/(marketing)/demo/page.tsx (a Server Component) was importing this
+// constant directly from that client-boundary module and calling
+// .replace() on it at build time — Next.js wraps non-component exports of
+// a "use client" file in a Client Reference when accessed from server
+// code, so that .replace() call was actually hitting a proxy standing in
+// for a browser-only value, not the real string. Deterministically broke
+// static generation of /demo once the app's module graph shifted enough
+// for the bundler to stop resolving it "by accident." Living in this plain
+// data module (no "use client") is what makes it safe to import from both
+// server and client code.
+export const DEMO_NUMBER = "+61 2 5747 4792";
