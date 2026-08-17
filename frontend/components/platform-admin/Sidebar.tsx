@@ -7,7 +7,7 @@ import { useApi } from "@/lib/useApi";
 import {
   LayoutDashboard, Building2, PhoneCall, DollarSign, HeartPulse, ScrollText,
   Settings, LogOut, ChevronsLeft, ChevronsRight, ShieldCheck, Megaphone,
-  Wallet, Receipt, Calculator, Server, Brain, ShieldAlert, LockKeyhole, Bell, Users, Globe, FileWarning, Phone, Gift, Activity, Eye,
+  Wallet, Receipt, Calculator, Server, Brain, ShieldAlert, LockKeyhole, Bell, Users, Globe, FileWarning, Phone, Gift, Activity, Eye, ThumbsUp,
 } from "lucide-react";
 
 const NAV = [
@@ -33,6 +33,7 @@ const NAV = [
   { href: "/platform-admin/security", label: "Security", icon: LockKeyhole, color: "#EF4444" },
   { href: "/platform-admin/alerts", label: "Alert Inbox", icon: Bell, color: "#DC2626", badge: true },
   { href: "/platform-admin/data-breaches", label: "Data Breach Report", icon: FileWarning, color: "#DC2626" },
+  { href: "/platform-admin/help-feedback", label: "Help Centre Feedback", icon: ThumbsUp, color: "#10B981" },
 ];
 
 export function Sidebar({
