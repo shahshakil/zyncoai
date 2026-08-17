@@ -70,8 +70,47 @@ export async function getEnterpriseCompliance() {
   return apiGet("/enterprise/compliance");
 }
 
-export async function getApiHealth() {
-  return apiGet("/health");
+// 2026-08-17 — real per-component status for /resources/status. Replaces
+// getApiHealth(), which was hitting the wrong URL: it called apiGet("/health")
+// — resolving through API_BASE, which always ends in /api — but the real
+// /health route (api/server.ts) is deliberately mounted at the app root,
+// before the /api router, not under it. That 404 was silently returned as
+// null and rendered as a permanent false "Unavailable" on production,
+// regardless of actual health. These new endpoints are correctly mounted
+// under /api (routes/public/receptionistStatus.ts), so the normal apiGet()
+// path is correct here.
+export interface StatusComponent {
+  component: string;
+  label: string;
+  status: "up" | "degraded" | "down";
+  detail: string;
+}
+
+export async function getStatusLive(): Promise<{ ok: boolean; checkedAt: string; components: StatusComponent[] } | null> {
+  return apiGet("/status/live");
+}
+
+export interface StatusHistoryDay {
+  day: string;
+  status: "up" | "degraded" | "down" | "no_data";
+  upPct?: number;
+}
+
+export async function getStatusHistory(): Promise<{ ok: boolean; days: number; history: { component: string; days: StatusHistoryDay[] }[] } | null> {
+  return apiGet("/status/history");
+}
+
+export interface StatusIncidentRecord {
+  id: string;
+  component: string;
+  title: string;
+  note: string | null;
+  startedAt: string;
+  resolvedAt: string | null;
+}
+
+export async function getStatusIncidents(): Promise<{ ok: boolean; incidents: StatusIncidentRecord[] } | null> {
+  return apiGet("/status/incidents");
 }
 
 // The real signal for "can a caller actually reach us right now" — checks

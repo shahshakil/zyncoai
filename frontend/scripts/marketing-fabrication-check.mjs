@@ -86,6 +86,9 @@ const ALLOWLIST = new Set([
   "components/marketing/blog/posts.ts::GDPR claim",
   "components/marketing/blog/posts.ts::SOC 2 / SOC2 claim",
   "app/terms/page.tsx::SLA / uptime guarantee",
+  // Same honest "we don't currently offer one" disclaimer, on the real
+  // status page rebuild (2026-08-17) — explicitly says no SLA exists.
+  "app/(marketing)/resources/status/page.tsx::SLA / uptime guarantee",
   // "SLA" here means the workflow-automation product's ability to monitor
   // a CUSTOMER's own SLA (e.g. ticket-response deadlines, KYC approval
   // turnaround) as an example pipeline step — not a claim that ZyncoAI

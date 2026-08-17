@@ -39,15 +39,18 @@ export default function DocsPage() {
       </ResourceSection>
 
       <ResourceSection title="Setting up call forwarding">
-        <p>ZyncoAI issues you a dedicated number. To have your existing business number ring through to it, set up call forwarding with your carrier:</p>
+        <p>
+          ZyncoAI issues you a dedicated number. To have your existing business number ring through to it, set up call forwarding with your carrier — the
+          exact method depends on the line type, not just the carrier name:
+        </p>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="rounded-xl border border-[#e2e8f0] bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
-            <p className="font-medium text-[#0f172a]">Telstra</p>
-            <p className="mt-1 text-xs text-[#475569]">Dial <span className="text-[#0f172a]">**21*[ZyncoAI number]#</span> then call to activate unconditional forwarding.</p>
+            <p className="font-medium text-[#0f172a]">Telstra landline</p>
+            <p className="mt-1 text-xs text-[#475569]">Dial <span className="text-[#0f172a]">*21*[ZyncoAI number]#</span> (single star) from the landline itself to activate unconditional forwarding. This is the landline-specific code — a mobile number uses a different one, below.</p>
           </div>
           <div className="rounded-xl border border-[#e2e8f0] bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
             <p className="font-medium text-[#0f172a]">Optus</p>
-            <p className="mt-1 text-xs text-[#475569]">Enable &quot;Divert all calls&quot; in the Optus My Account app, or dial the same **21* code on most plans.</p>
+            <p className="mt-1 text-xs text-[#475569]">Enable &quot;Divert all calls&quot; under My Account → Services → Call Forwarding at my.optus.com.au. We point you to the account setting rather than a dial code, since Optus doesn&apos;t reliably support one across every plan.</p>
           </div>
           <div className="rounded-xl border border-[#e2e8f0] bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
             <p className="font-medium text-[#0f172a]">TPG</p>
@@ -55,7 +58,7 @@ export default function DocsPage() {
           </div>
           <div className="rounded-xl border border-[#e2e8f0] bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
             <p className="font-medium text-[#0f172a]">Mobile (any carrier)</p>
-            <p className="mt-1 text-xs text-[#475569]">Use your phone&apos;s Settings → Calls → Call Forwarding to forward always, or only when busy/unanswered.</p>
+            <p className="mt-1 text-xs text-[#475569]">Dial <span className="text-[#0f172a]">**21*[ZyncoAI number]#</span> (double star) — the standard GSM code for unconditional call forwarding, supported by Telstra, Optus, Vodafone and most other Australian mobile carriers. Or use your phone&apos;s own Settings → Calls → Call Forwarding menu, which does the same thing without needing to remember the code.</p>
           </div>
         </div>
         <p>
@@ -73,12 +76,19 @@ export default function DocsPage() {
       </ResourceSection>
 
       <ResourceSection title="Understanding your dashboard">
-        <p>Every plan includes the same three-tab dashboard:</p>
+        <p>
+          Every business gets the same core pages — Dashboard (today&apos;s activity at a glance), Call History, Bookings, Contacts, and Calendar — plus a
+          few that only appear where they&apos;re relevant, not the same fixed set for every plan:
+        </p>
         <ul className="list-disc space-y-1 pl-5">
-          <li><span className="font-medium text-[#0f172a]">Overview</span> — today&apos;s appointments, AI call activity, and patient status at a glance.</li>
-          <li><span className="font-medium text-[#0f172a]">AI Voice Operations</span> — live calls, AI performance metrics, and transfer/escalation analytics.</li>
-          <li><span className="font-medium text-[#0f172a]">Clinical & Billing</span> — triage flags, patient pipeline, documents, claims, and revenue reporting.</li>
+          <li><span className="font-medium text-[#0f172a]">Analytics, Billing & Subscription, and Financial Dashboard</span> — visible to Owner and Admin roles only.</li>
+          <li><span className="font-medium text-[#0f172a]">Claims</span> — only shown for verticals with insurance or claim tracking (medical, dental, and similar).</li>
+          <li><span className="font-medium text-[#0f172a]">Kitchen</span> — only shown for restaurants, for live phone-order management.</li>
         </ul>
+        <p>
+          A Doctor-role account sees the same pages scoped to their own patients and schedule — &quot;My Schedule&quot;, &quot;My Calendar&quot;, &quot;My
+          Calls&quot; — rather than the practice-wide view.
+        </p>
       </ResourceSection>
 
       <ResourceSection title="Managing staff and roles">
