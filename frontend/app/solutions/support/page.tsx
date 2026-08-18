@@ -1,6 +1,16 @@
 import Link from "next/link";
 import { Footer } from "@/components/marketing/Footer";
 
+// 2026-08-19 — see the matching comment on app/solutions/sales-ops/page.tsx:
+// this app/solutions/* tree is pre-pivot, orphaned from live nav, deindexed
+// rather than deleted. Distinct from the real, live /support Support Hub
+// (app/(marketing)/support/page.tsx) — different route tree, no URL clash.
+export const metadata = {
+  title: "Support Solutions | ZyncoAI",
+  description: "Automate support without losing control — automation with the right approvals in place.",
+  robots: { index: false, follow: false },
+};
+
 function Pill({ children }: { children: React.ReactNode }) {
   return (
     <span className="inline-flex items-center rounded-full border border-[rgb(var(--border))] bg-[rgb(var(--surface))] px-3 py-1 text-xs text-[rgb(var(--text-2))]">

@@ -1,6 +1,19 @@
 import { safeGetJson } from "@/lib/public-api";
 import ExecutionActions from "@/components/forms/ExecutionActions";
 
+// Unbounded per-record page dumping raw internal run JSON (see the <pre>
+// below) — not real discoverable content, and every id previously silently
+// inherited the homepage's title/description with no noindex at all (the
+// only page like this found in the whole metadata audit). Same principle
+// sitemap.ts already applies to this route family (excluded there too).
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return {
+    title: `Execution ${id} | ZyncoAI`,
+    robots: { index: false, follow: false },
+  };
+}
+
 export default async function ExecutionDetailPage({
   params,
 }: {

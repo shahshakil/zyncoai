@@ -4,6 +4,7 @@ import { ResourcePageShell } from "@/components/marketing/receptionist/ResourceP
 export const metadata: Metadata = {
   title: "Changelog | ZyncoAI",
   description: "Version history — what's new, fixed, and improved in ZyncoAI.",
+  alternates: { canonical: "/resources/changelog" },
 };
 
 const ENTRIES = [

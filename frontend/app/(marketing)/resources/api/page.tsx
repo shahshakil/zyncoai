@@ -4,6 +4,7 @@ import { ResourcePageShell, ResourceSection } from "@/components/marketing/recep
 export const metadata: Metadata = {
   title: "API Reference | ZyncoAI",
   description: "Webhook events, HMAC signature verification, retry policy, and sample payloads for ZyncoAI.",
+  alternates: { canonical: "/resources/api" },
 };
 
 // 2026-08-17 audit — every claim on this page checked against the real

@@ -1,6 +1,15 @@
 import Link from "next/link";
 import { Footer } from "@/components/marketing/Footer";
 
+// 2026-08-19 — see the matching comment on app/solutions/sales-ops/page.tsx:
+// this app/solutions/* tree is pre-pivot, orphaned from live nav, deindexed
+// rather than deleted.
+export const metadata = {
+  title: "Fintech Solutions | ZyncoAI",
+  description: "Automation with controls, approvals, and audit — for fintech workflows that need a full trail.",
+  robots: { index: false, follow: false },
+};
+
 function Pill({ children }: { children: React.ReactNode }) {
   return (
     <span className="inline-flex items-center rounded-full border border-[rgb(var(--border))] bg-[rgb(var(--surface))] px-3 py-1 text-xs text-[rgb(var(--text-2))]">

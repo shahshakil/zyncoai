@@ -1,3 +1,10 @@
+// 2026-08-19 — see the matching comment on app/products/forms/page.tsx.
+export const metadata = {
+  title: "Zyns | ZyncoAI",
+  description: "Build multi-step automations with triggers, actions, approvals, retries, and logs.",
+  robots: { index: false, follow: false },
+};
+
 export default function ZynsPage() {
   return (
     <main className="min-h-screen bg-zinc-950 text-white px-6 py-16">

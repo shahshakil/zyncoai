@@ -4,6 +4,7 @@ import { ResourcePageShell, ResourceSection } from "@/components/marketing/recep
 export const metadata: Metadata = {
   title: "Trust & Security | ZyncoAI",
   description: "How ZyncoAI protects patient data — encryption, access controls, data residency, and compliance posture.",
+  alternates: { canonical: "/resources/trust" },
 };
 
 export default function TrustPage() {

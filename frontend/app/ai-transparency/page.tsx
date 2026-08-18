@@ -4,6 +4,7 @@ export const metadata = {
   title: "AI Transparency • ZyncoAI",
   description:
     "What AI models ZyncoAI uses, how they make decisions, how to opt out, data retention, and how to make a complaint.",
+  alternates: { canonical: "/ai-transparency" },
 };
 
 const Section = ({

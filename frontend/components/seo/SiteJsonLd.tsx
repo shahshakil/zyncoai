@@ -6,8 +6,6 @@
 // (founder name, founding date, street address) — nothing fabricated.
 //
 // Deliberately omitted vs. a generic SEO template:
-// - sameAs (social profiles): no real @zyncoai accounts found anywhere in
-//   this codebase; a fake/unverified sameAs link is worse than none.
 // - SoftwareApplication.screenshot: no real product screenshot exists in
 //   public/ — referencing one would be a broken image URL.
 // - WebSite.potentialAction (SearchAction): there's no /search route on
@@ -63,6 +61,11 @@ export function SiteJsonLd() {
       areaServed: "AU",
       availableLanguage: "English",
     },
+    // 2026-08-19 — real ZyncoAI social profiles, user-provided (same
+    // first-party-fact standard as founder name/address above; this file
+    // previously deliberately omitted sameAs specifically because no real
+    // account had been confirmed — see the file header comment).
+    sameAs: ["https://www.linkedin.com/company/143046371", "https://x.com/ZyncoAI"],
   };
 
   const softwareApplication = {
@@ -101,12 +104,21 @@ export function SiteJsonLd() {
     name: "ZyncoAI",
     url: "https://zyncoai.com",
     telephone: "+61480738227",
+    // 2026-08-19 — aligned to the exact same real address as `organization`
+    // above (was a partial/inconsistent second copy: no streetAddress/
+    // postalCode, and "Newcastle" instead of the actual suburb — Merewether
+    // is a real Newcastle suburb, not a different location, but two
+    // differently-detailed addresses for one physical entity reads as
+    // inconsistent to a structured-data parser).
     address: {
       "@type": "PostalAddress",
-      addressLocality: "Newcastle",
+      streetAddress: "2 Hopkins Street",
+      addressLocality: "Merewether",
       addressRegion: "NSW",
+      postalCode: "2291",
       addressCountry: "AU",
     },
+    image: "https://zyncoai.com/icon.svg",
     geo: {
       "@type": "GeoCoordinates",
       latitude: -32.9267,

@@ -28,6 +28,12 @@ export async function generateMetadata({
   return {
     title: `${id} Connector | ZyncoAI`,
     description: `Connector detail for ${id} in ZyncoAI.`,
+    alternates: { canonical: `/platform/connectors/${id}` },
+    // Same reasoning as executions/[id] and sitemap.ts's own comment: an
+    // unbounded per-record page with no generateStaticParams isn't real
+    // discoverable content, so it shouldn't be indexed even though it now
+    // has a real title/canonical for the ids that do resolve.
+    robots: { index: false, follow: false },
   };
 }
 

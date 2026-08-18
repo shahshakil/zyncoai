@@ -14,6 +14,14 @@ import { BLOG_POSTS, BLOG_CATEGORIES, BLOG_AUTHOR, getAllTags } from "@/componen
 // executions/[id] — unbounded per-record pages, not discoverable content),
 // and /privacy + /terms (low-value boilerplate pages, kept crawlable via
 // robots.txt but not worth a sitemap entry).
+// 2026-08-19 — also excludes app/solutions/* (7 pages: ecommerce, fintech,
+// it-ops, marketing, saas, sales-ops, support — distinct from the real
+// app/(marketing)/solutions/[slug] industry pages) and app/products/*
+// (forms, tables, zyns): both trees are pre-pivot content, confirmed
+// orphaned from the live nav/footer, and now carry `robots: {index:false}`
+// on the pages themselves — listing a noindex page in a sitemap is exactly
+// the inconsistency Search Console flags as an error, so removed from both
+// places together, not just one.
 type ChangeFreq = MetadataRoute.Sitemap[number]["changeFrequency"];
 
 const STATIC_ROUTES: { path: string; priority: number; changeFrequency: ChangeFreq }[] = [
@@ -40,9 +48,7 @@ const STATIC_ROUTES: { path: string; priority: number; changeFrequency: ChangeFr
   { path: "/docs", priority: 0.6, changeFrequency: "weekly" },
   { path: "/templates", priority: 0.6, changeFrequency: "weekly" },
   { path: "/addons", priority: 0.6, changeFrequency: "weekly" },
-  { path: "/products/forms", priority: 0.6, changeFrequency: "monthly" },
-  { path: "/products/tables", priority: 0.6, changeFrequency: "monthly" },
-  { path: "/products/zyns", priority: 0.6, changeFrequency: "monthly" },
+  { path: "/support", priority: 0.6, changeFrequency: "weekly" },
   { path: "/resources", priority: 0.6, changeFrequency: "weekly" },
   { path: "/resources/api", priority: 0.5, changeFrequency: "monthly" },
   { path: "/resources/changelog", priority: 0.6, changeFrequency: "weekly" },
@@ -59,13 +65,6 @@ const STATIC_ROUTES: { path: string; priority: number; changeFrequency: ChangeFr
   { path: "/use-cases/marketing-teams", priority: 0.6, changeFrequency: "monthly" },
   { path: "/workflowops/automation-analytics", priority: 0.6, changeFrequency: "monthly" },
   { path: "/workflowops/workflow-builder", priority: 0.6, changeFrequency: "monthly" },
-  { path: "/solutions/ecommerce", priority: 0.6, changeFrequency: "monthly" },
-  { path: "/solutions/fintech", priority: 0.6, changeFrequency: "monthly" },
-  { path: "/solutions/it-ops", priority: 0.6, changeFrequency: "monthly" },
-  { path: "/solutions/marketing", priority: 0.6, changeFrequency: "monthly" },
-  { path: "/solutions/saas", priority: 0.6, changeFrequency: "monthly" },
-  { path: "/solutions/sales-ops", priority: 0.6, changeFrequency: "monthly" },
-  { path: "/solutions/support", priority: 0.6, changeFrequency: "monthly" },
   { path: "/legal/dpa", priority: 0.3, changeFrequency: "yearly" },
   { path: "/resources/blog", priority: 0.7, changeFrequency: "weekly" },
   { path: "/solutions", priority: 0.7, changeFrequency: "monthly" },

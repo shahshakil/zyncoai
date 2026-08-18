@@ -5,6 +5,7 @@ import { BookOpen, Code2, ShieldCheck, LifeBuoy, History, Activity, ArrowRight, 
 export const metadata: Metadata = {
   title: "Resources | ZyncoAI",
   description: "Blog, documentation, API reference, trust & security, help centre, changelog, and live system status for ZyncoAI.",
+  alternates: { canonical: "/resources" },
 };
 
 const CARDS = [

@@ -15,6 +15,7 @@ type ReminderPayload = {
 export const metadata = {
   title: "Smart Reminders & Appointments | ZyncoAI",
   description: "Calendar, email, app notifications, and reminder intelligence.",
+  alternates: { canonical: "/ai-brain/reminders" },
 };
 
 export default async function AiBrainRemindersPage() {

@@ -5,6 +5,7 @@ export const metadata = {
   title: "Terms of Service • ZyncoAI",
   description:
     "ZyncoAI Terms of Service covering use of the platform, accounts, security, acceptable use, and legal terms.",
+  alternates: { canonical: "/terms" },
 };
 
 const Section = ({

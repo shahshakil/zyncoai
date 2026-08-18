@@ -5,6 +5,7 @@ export const metadata = {
   title: "Data Processing Agreement • ZyncoAI",
   description:
     "The Data Processing Agreement between ZyncoAI and clinic owners, describing what data is processed as part of the AI voice receptionist service and each party's obligations.",
+  alternates: { canonical: "/legal/dpa" },
 };
 
 const Section = ({

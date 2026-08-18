@@ -4,6 +4,7 @@ import { ResourcePageShell, ResourceSection } from "@/components/marketing/recep
 export const metadata: Metadata = {
   title: "Documentation | ZyncoAI",
   description: "How ZyncoAI works, call forwarding setup, connecting your practice software, and using your dashboard.",
+  alternates: { canonical: "/resources/docs" },
 };
 
 export default function DocsPage() {

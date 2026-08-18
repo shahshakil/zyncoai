@@ -6,6 +6,15 @@ export const metadata = {
   description:
     "ZyncoAI automates lead capture, enrichment, routing, and CRM updates — with approval thresholds and a full audit trail.",
   alternates: { canonical: "/solutions/sales-ops", languages: { "en-AU": "/solutions/sales-ops", en: "/solutions/sales-ops" } },
+  // 2026-08-19 — this whole app/solutions/* tree (distinct from the real,
+  // live app/(marketing)/solutions/[slug] industry pages) is pre-pivot
+  // SaaS-workflow content, orphaned from the live nav/footer (confirmed:
+  // only self-referential, not reachable from MainHeader/MarketingMegaFooter)
+  // yet still publicly reachable and previously listed in sitemap.ts.
+  // Deindexed rather than deleted — content stays reachable by direct URL,
+  // just not offered to search engines as if it described the current
+  // product.
+  robots: { index: false, follow: false },
 };
 
 function Pill({ children }: { children: React.ReactNode }) {

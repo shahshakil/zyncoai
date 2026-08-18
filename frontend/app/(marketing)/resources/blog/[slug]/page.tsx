@@ -62,7 +62,12 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
     headline: post.title,
     description: post.description,
     datePublished: post.publishedAt,
-    dateModified: post.publishedAt,
+    dateModified: post.updatedAt || post.publishedAt,
+    // Same real, resolving image this page already uses for og:image/
+    // twitter:image below (see metadata.openGraph.images) — not a
+    // per-post screenshot (none exists), but a real generated asset, not
+    // a fabricated/stock placeholder.
+    image: "https://zyncoai.com/opengraph-image",
     author: { "@type": "Organization", name: BLOG_AUTHOR.name },
     publisher: {
       "@type": "Organization",

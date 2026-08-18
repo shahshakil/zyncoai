@@ -58,6 +58,34 @@ export const metadata: Metadata = {
       "application/rss+xml": "https://zyncoai.com/resources/blog/feed.xml",
     },
   },
+  // 2026-08-19 — sitewide OG/Twitter default, same pattern as title.default
+  // above: any page without its own openGraph/twitter export previously had
+  // none at all (a link shared from e.g. /about or /support rendered no
+  // page-relevant preview text anywhere but the URL). A page that sets its
+  // own openGraph/twitter object fully replaces this at that route (Next's
+  // per-field metadata resolution, not a deep merge) — this only fills the
+  // gap for the ~60+ routes with no override, using the exact same real
+  // title/description already used for <title>/<meta description> above,
+  // and the real dynamic /opengraph-image route (branded gradient card,
+  // not a stock photo — see app/opengraph-image.tsx) that Next already
+  // auto-attaches as the image fallback regardless.
+  openGraph: {
+    title: "ZyncoAI — AI Receptionist That Answers Every Call",
+    description:
+      "ZyncoAI is an AI receptionist that answers calls, books appointments, and handles enquiries 24/7 for medical, dental, legal, restaurant, and trade businesses.",
+    url: "https://zyncoai.com",
+    siteName: "ZyncoAI",
+    locale: "en_AU",
+    type: "website",
+    images: ["/opengraph-image"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ZyncoAI — AI Receptionist That Answers Every Call",
+    description:
+      "ZyncoAI is an AI receptionist that answers calls, books appointments, and handles enquiries 24/7 for medical, dental, legal, restaurant, and trade businesses.",
+    images: ["/opengraph-image"],
+  },
 };
 
 // globals.css already declares `body { font-family: Inter, Arial, ... }`,

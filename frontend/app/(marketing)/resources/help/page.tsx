@@ -7,6 +7,7 @@ import { HELP_CATEGORIES } from "@/lib/verifiedHelpContent";
 export const metadata: Metadata = {
   title: "Help Centre | ZyncoAI",
   description: "FAQs, troubleshooting, billing, staff invites, and the ZyncoAI cancellation and refund policy.",
+  alternates: { canonical: "/resources/help" },
 };
 
 // 2026-08-17 presentation rebuild — CONTENT IS LOCKED. Every question/answer

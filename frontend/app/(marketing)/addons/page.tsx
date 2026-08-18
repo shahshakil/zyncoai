@@ -4,6 +4,7 @@ import { AddOnsSection } from "@/components/marketing/receptionist/AddOnsSection
 export const metadata: Metadata = {
   title: "Add-ons | ZyncoAI",
   description: "Optional extras to supercharge your ZyncoAI AI receptionist plan.",
+  alternates: { canonical: "/addons" },
 };
 
 export default function AddOnsPage() {

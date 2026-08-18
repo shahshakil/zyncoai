@@ -11,6 +11,7 @@ import { getStatusLive, type StatusComponent } from "@/lib/marketing-api";
 export const metadata: Metadata = {
   title: "Support Hub | ZyncoAI",
   description: "Search our verified Help Centre, check live system status, or message the founder directly — no ticket queue, no AI-generated answers.",
+  alternates: { canonical: "/support" },
 };
 
 // getStatusLive() already caches its own fetch for 30s (see lib/marketing-api.ts).

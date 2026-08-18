@@ -10,6 +10,7 @@ type VoicePayload = {
 export const metadata = {
   title: "Live Voice Assistant | ZyncoAI",
   description: "Realtime voice intelligence, tools, and channel health.",
+  alternates: { canonical: "/ai-brain/live-voice-assistant" },
 };
 
 export default async function LiveVoiceAssistantPage() {

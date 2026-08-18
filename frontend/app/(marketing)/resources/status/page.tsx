@@ -7,6 +7,7 @@ import { getStatusLive, getStatusHistory, getStatusIncidents, type StatusCompone
 export const metadata = {
   title: "System Status | ZyncoAI",
   description: "Live, per-component status of ZyncoAI's platform — API, database, Redis, voice, and billing webhooks.",
+  alternates: { canonical: "/resources/status" },
 };
 
 // Without this, Next statically prerenders the page once at build time and

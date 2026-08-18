@@ -65,6 +65,12 @@ export interface BlogPost {
   title: string;
   description: string;
   publishedAt: string; // ISO date
+  // 2026-08-19 — real field, not yet set on any post (every post here is
+  // still exactly as first published). Set this when a post's content is
+  // actually revised, so Article JSON-LD's dateModified can genuinely
+  // diverge from datePublished instead of being structurally incapable of
+  // ever doing so.
+  updatedAt?: string; // ISO date
   readingMinutes: number;
   category: string; // BlogCategory.slug
   tags: string[];

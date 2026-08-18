@@ -5,6 +5,7 @@ export const metadata = {
   title: "Privacy Policy • ZyncoAI",
   description:
     "How ZyncoAI collects, stores, and protects personal information under the Australian Privacy Act 1988, the My Health Records Act 2012, and related healthcare regulations.",
+  alternates: { canonical: "/privacy" },
 };
 
 const Section = ({
