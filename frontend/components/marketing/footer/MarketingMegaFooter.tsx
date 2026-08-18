@@ -94,7 +94,7 @@ export default async function MarketingMegaFooter() {
               </li>
               <li>✅ Australian Consumer Law (Competition and Consumer Act 2010)</li>
               <li>
-                ✅ <Link href="/privacy#health-records" className="underline hover:text-[#f8fafc]">My Health Records Act 2012</Link>
+                ✅ <Link href="/privacy#health-records" className="underline hover:text-[#f8fafc]">My Health Records Act 2012 — no national record access</Link>
               </li>
               <ClinicalComplianceLine />
               <li>
@@ -104,8 +104,14 @@ export default async function MarketingMegaFooter() {
                 </Link>
                 )
               </li>
+              {/* 2026-08-18 — softened from "aligned" after an evidence
+                  audit: real controls exist (mandatory TOTP MFA, rate
+                  limiting on sensitive endpoints, audit-logged admin
+                  actions) but naming the Act implied a level of formal/
+                  statutory alignment no external audit has verified,
+                  especially pre-launch with zero real customers. */}
               <li>
-                ✅ <Link href="/privacy#cyber-security" className="underline hover:text-[#f8fafc]">Cyber Security Act 2024 aligned</Link>
+                ✅ <Link href="/privacy#cyber-security" className="underline hover:text-[#f8fafc]">Security practices informed by the Cyber Security Act 2024</Link>
               </li>
               <li>
                 ✅ <Link href="/privacy#tga" className="underline hover:text-[#f8fafc]">TGA administrative tool disclaimer</Link>

@@ -126,17 +126,32 @@ export default async function PrivacyPage() {
 
             <Section id="health-records" title="Clinical & health records">
               <p>
-                In accordance with the <strong>My Health Records Act 2012 (Cth)</strong>, ZyncoAI never stores or
-                accesses clinical health records. Staff and practice-management sync imports administrative data
-                only — name, title, email, and calendar availability. If any connected system (including any FHIR
-                endpoint) returns clinical data such as diagnoses, medications, or test results, that data is
+                In accordance with the <strong>My Health Records Act 2012 (Cth)</strong>, ZyncoAI does not access or
+                integrate with the national My Health Record system.
+              </p>
+              <p>
+                Ella, the AI voice receptionist, never stores clinical data — no diagnoses, no medications, no test
+                results — and never gives a diagnosis or clinical advice; it only handles booking, rescheduling, and
+                administrative conversation (see AI Transparency for what every caller is told). Staff and
+                practice-management sync imports follow the same rule: only administrative data is imported — name,
+                title, email, and calendar availability. If a connected system (including any FHIR endpoint) returns
+                clinical data such as diagnoses, medications, or test results during an import, that data is
                 rejected and not stored, and the rejected attempt is recorded in our audit log.
               </p>
               <p>
-                For medical and dental practices, this same data-minimisation approach is how we operate within
-                state health-privacy legislation — including the <strong>Health Records and Information Privacy
-                Act 2002 (NSW)</strong> and the <strong>Health Records Act 2001 (Vic)</strong> — since booking and
-                calendar administration does not constitute the collection of health information under either Act.
+                Separately, medical and dental practices have an optional feature: a treating doctor or the practice
+                owner can write a clinical note directly into a patient&apos;s file from the dashboard — for
+                example, a consultation note. This is role-gated: only the treating doctor (for their own patients)
+                and the practice owner can write or read a clinical note; every other staff role is filtered out at
+                the server and never receives this data. Every clinical note written is recorded in our audit log.
+              </p>
+              <p>
+                For a practice that uses this optional clinical-notes feature, that is a genuine collection of
+                health information under the <strong>Health Records and Information Privacy Act 2002 (NSW)</strong>
+                and the <strong>Health Records Act 2001 (Vic)</strong> — the practice is the entity responsible for
+                that collection, and ZyncoAI stores it securely, role-gated and audit-logged, on the practice&apos;s
+                behalf. Booking and calendar administration alone, without using the clinical-notes feature, does
+                not constitute the collection of health information under either Act.
               </p>
             </Section>
 
@@ -444,19 +459,31 @@ export default async function PrivacyPage() {
 
             <Section id="cyber-security" title="Security practices">
               <p>
-                ZyncoAI maintains security practices aligned with the <strong>Australian Cyber Security Act 2024
-                (Cth)</strong>, including encryption of data in transit and at rest, access controls, and incident
-                response procedures. See the <a href="#breach">data breach notification</a> section above for our
-                obligations if a security incident occurs.
+                ZyncoAI&apos;s security practices are informed by the <strong>Australian Cyber Security Act 2024
+                (Cth)</strong>. Concretely: multi-factor authentication (TOTP) is mandatory for every new account,
+                enforced at login before access is granted; sensitive endpoints (login, voice actions) are
+                rate-limited against brute-force and abuse; every administrative and clinical-record action is
+                written to an append-only audit log; and data is encrypted in transit and at rest. See the{" "}
+                <a href="#breach">data breach notification</a> section above for our incident-response process if a
+                security incident occurs. ZyncoAI has not undergone a formal third-party security audit or
+                certification against the Act — this describes the real controls in place, not a compliance
+                attestation.
               </p>
             </Section>
 
             <Section id="marketing" title="Marketing & unsubscribe">
               <p>
-                In accordance with the <strong>Spam Act 2003 (Cth)</strong>, any email sent to imported staff
-                includes a functioning unsubscribe link, and we never send marketing emails without explicit
-                consent. Transactional emails (such as booking notifications) are exempt as they are not marketing
-                communications.
+                ZyncoAI does not currently send discretionary marketing email campaigns. The one promotional channel
+                that exists — platform announcements — includes a working, one-click unsubscribe link on every
+                message (see /unsubscribe), which records the address in our suppression list; every future send
+                checks that list first, so an unsubscribed address genuinely stops receiving promotional email. Every
+                message also identifies the sender: ZyncoAI, Newcastle NSW 2291, Australia, ABN 38 138 129 187 — in
+                accordance with the <strong>Spam Act 2003 (Cth)</strong>.
+              </p>
+              <p>
+                Transactional emails (such as booking notifications, trial and billing emails) are sent because you
+                have an account with us, not because you opted into marketing — they are exempt from the Spam Act as
+                they are not marketing communications, and continue regardless of promotional-email preference.
               </p>
             </Section>
 

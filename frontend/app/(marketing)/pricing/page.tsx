@@ -36,6 +36,7 @@ export default function PricingPage() {
   return (
     <div className="bg-[#f8fafc] pt-8">
       <Breadcrumbs crumbs={[{ name: "Home", href: "/" }, { name: "Pricing", href: "/pricing" }]} />
+      <p className="mx-auto mt-2 max-w-2xl px-6 text-center text-xs font-medium text-[#94a3b8]">All prices shown include GST.</p>
       <PricingSection />
       <FinalCtaSection />
     </div>

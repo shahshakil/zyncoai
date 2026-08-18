@@ -57,6 +57,13 @@ export interface SolutionContent {
   // Renders a "built for every industry we support" link strip — for pages
   // whose concept spans every vertical rather than being tied to one.
   showAllIndustriesStrip?: boolean;
+  // 2026-08-18 — lets a cross-industry page open the embedded PricingSection
+  // on a specific industry tab (e.g. matching its own roiPlanExampleLabel),
+  // instead of PricingSection's own default. Deliberately separate from
+  // pricingSlug/entryPrice below — only affects which tab is pre-selected,
+  // not the ROI calculator's plans or the final-CTA price. Ignored (industry
+  // data wins) on real industry pages.
+  pricingDefaultIndustry?: string;
 }
 
 export function SolutionTemplate({ content }: { content: SolutionContent }) {
@@ -352,7 +359,7 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
         </section>
       )}
 
-      <PricingSection showTitle={false} defaultIndustry={pricingSlug} />
+      <PricingSection showTitle={false} defaultIndustry={pricingSlug ?? content.pricingDefaultIndustry} />
       <FinalCtaSection price={entryPrice} />
     </div>
   );

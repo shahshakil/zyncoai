@@ -25,6 +25,7 @@ const PUBLIC_PATHS = [
   "/about",
   "/contact",
   "/support",
+  "/unsubscribe",
   "/terms",
   "/privacy",
   "/ai-transparency",

@@ -54,6 +54,7 @@ const RICH_CONTENT: Record<string, Partial<SolutionContent>> = {
     showAllIndustriesStrip: true,
     roiPlans: SALON_PLANS,
     roiPlanExampleLabel: "Salon & Retail",
+    pricingDefaultIndustry: "salon",
     roiDisclaimer:
       "As a solo practitioner your real starting price depends on your industry — from $99/month (Salon & Retail) up to $349-$399/month for more regulated industries like Legal or Banking. This example uses our lowest-cost plan group; see full pricing for your industry's real numbers.",
     integrationsVertical: "OTHER",

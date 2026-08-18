@@ -86,7 +86,8 @@ export default function AiTransparencyPage() {
           <section className="lg:col-span-8 space-y-10">
             <Section id="models" title="AI models we use">
               <ul className="mt-2 space-y-2">
-                <Bullet><strong>OpenAI GPT-4o-mini</strong> — holds the conversation, understands what the caller is asking for, and decides which action to take (e.g. book, reschedule, transfer).</Bullet>
+                <Bullet><strong>OpenAI GPT-4o-mini</strong> — holds the conversation, understands what the caller is asking for, and decides which action to take (e.g. book, reschedule, transfer), for every industry except Restaurants.</Bullet>
+                <Bullet><strong>OpenAI GPT-4o</strong> — the same role, for Restaurant callers specifically. Restaurant ordering conversations found gpt-4o-mini unreliable at correctly calling the menu/order-lookup tools, so that vertical runs the larger model.</Bullet>
                 <Bullet><strong>Deepgram Nova-2</strong> — converts the caller&apos;s speech into text in real time.</Bullet>
                 <Bullet><strong>Cartesia Sonic</strong> — converts Ella&apos;s responses back into speech.</Bullet>
               </ul>
