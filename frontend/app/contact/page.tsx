@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { trackConversion } from "@/components/seo/GoogleAnalytics";
+import { ContactForm } from "@/components/marketing/receptionist/ContactForm";
 
 // Metadata can't be exported from a Client Component — moved to a
 // sibling layout.tsx in this same route segment.
@@ -63,6 +64,16 @@ export default function ContactPage() {
               <div key={c.label}>{content}</div>
             );
           })}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-2xl px-6 pb-16 lg:px-8">
+        <div className="rounded-3xl border border-[#e2e8f0] bg-white p-6 shadow-[0_4px_12px_rgba(0,0,0,0.08)] sm:p-8">
+          <h2 className="text-xl font-bold text-[#0f172a]">Send us a message</h2>
+          <p className="mt-1.5 text-sm text-[#475569]">A real person reads and replies to every message — no ticket queue, no auto-responder.</p>
+          <div className="mt-6">
+            <ContactForm />
+          </div>
         </div>
       </section>
 

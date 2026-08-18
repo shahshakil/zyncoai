@@ -2,6 +2,7 @@ import { MK } from "@/styles/marketingTokens";
 import type { ReactNode } from "react";
 import MainHeader from "@/components/navigation/MainHeader";
 import MarketingMegaFooter from "@/components/marketing/footer/MarketingMegaFooter";
+import { HelpWidgetLoader } from "@/components/marketing/receptionist/HelpWidgetLoader";
 
 export default function MarketingLayout({
   children,
@@ -19,6 +20,7 @@ export default function MarketingLayout({
 </main>
 
       <MarketingMegaFooter />
+      <HelpWidgetLoader />
     </div>
   );
 }

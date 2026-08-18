@@ -7,7 +7,7 @@ import { useApi } from "@/lib/useApi";
 import {
   LayoutDashboard, Building2, PhoneCall, DollarSign, HeartPulse, ScrollText,
   Settings, LogOut, ChevronsLeft, ChevronsRight, ShieldCheck, Megaphone,
-  Wallet, Receipt, Calculator, Server, Brain, ShieldAlert, LockKeyhole, Bell, Users, Globe, FileWarning, Phone, Gift, Activity, Eye, ThumbsUp,
+  Wallet, Receipt, Calculator, Server, Brain, ShieldAlert, LockKeyhole, Bell, Users, Globe, FileWarning, Phone, Gift, Activity, Eye, ThumbsUp, Inbox,
 } from "lucide-react";
 
 const NAV = [
@@ -31,8 +31,9 @@ const NAV = [
   { href: "/platform-admin/ai-engine", label: "AI Engine", icon: Brain, color: "#8B5CF6" },
   { href: "/platform-admin/fraud", label: "Fraud Monitor", icon: ShieldAlert, color: "#F59E0B" },
   { href: "/platform-admin/security", label: "Security", icon: LockKeyhole, color: "#EF4444" },
-  { href: "/platform-admin/alerts", label: "Alert Inbox", icon: Bell, color: "#DC2626", badge: true },
+  { href: "/platform-admin/alerts", label: "Alert Inbox", icon: Bell, color: "#DC2626", badgeKey: "alerts" as const },
   { href: "/platform-admin/data-breaches", label: "Data Breach Report", icon: FileWarning, color: "#DC2626" },
+  { href: "/platform-admin/support", label: "Support Inbox", icon: Inbox, color: "#6366F1", badgeKey: "support" as const },
   { href: "/platform-admin/help-feedback", label: "Help Centre Feedback", icon: ThumbsUp, color: "#10B981" },
 ];
 
@@ -41,6 +42,8 @@ export function Sidebar({
 }: { admin: { email: string; name?: string | null } | null; onLogout: () => void; collapsed: boolean; setCollapsed: (v: boolean) => void }) {
   const pathname = usePathname();
   const { data: alertCount } = useApi<{ count: number }>("/api/admin/platform/alerts/unread-count", { refreshInterval: 30000 });
+  const { data: supportCount } = useApi<{ count: number }>("/api/admin/platform/support/unread-count", { refreshInterval: 30000 });
+  const badgeCounts = { alerts: alertCount?.count, support: supportCount?.count };
 
   return (
     <motion.aside
@@ -73,15 +76,15 @@ export function Sidebar({
               {active && <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full" style={{ background: item.color }} />}
               <span className="relative shrink-0">
                 <Icon className="h-[18px] w-[18px]" style={{ color: item.color }} />
-                {"badge" in item && item.badge && !!alertCount?.count && (
+                {"badgeKey" in item && !!badgeCounts[item.badgeKey] && (
                   <span className="absolute -right-1.5 -top-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#DC2626] text-[8px] font-bold text-white">
-                    {alertCount.count > 9 ? "9+" : alertCount.count}
+                    {badgeCounts[item.badgeKey]! > 9 ? "9+" : badgeCounts[item.badgeKey]}
                   </span>
                 )}
               </span>
               {!collapsed && <span className="truncate">{item.label}</span>}
-              {!collapsed && "badge" in item && item.badge && !!alertCount?.count && (
-                <span className="ml-auto rounded-full bg-[#FEE2E2] px-1.5 py-0.5 text-[10px] font-bold text-[#DC2626]">{alertCount.count}</span>
+              {!collapsed && "badgeKey" in item && !!badgeCounts[item.badgeKey] && (
+                <span className="ml-auto rounded-full bg-[#FEE2E2] px-1.5 py-0.5 text-[10px] font-bold text-[#DC2626]">{badgeCounts[item.badgeKey]}</span>
               )}
             </Link>
           );
