@@ -61,14 +61,25 @@ function buildRows(vertical: string): Row[] {
   return rows;
 }
 
-export function VerticalIntegrationsSection({ industryName, vertical }: { industryName: string; vertical: string }) {
+export function VerticalIntegrationsSection({
+  industryName,
+  vertical,
+  sectionLabel,
+}: {
+  industryName: string;
+  vertical: string;
+  // Cross-industry pages pass "your business" here instead of the page's
+  // own name, since "inbound call answering businesses" doesn't read
+  // naturally the way an industry name does.
+  sectionLabel?: string;
+}) {
   const rows = buildRows(vertical);
   const tiers: Tier[] = ["live", "manual", "roadmap"];
 
   return (
     <section id="integrations" className="py-14">
       <div className="mx-auto max-w-2xl px-6 text-center">
-        <h2 className="text-[clamp(1.5rem,1.2rem+1.2vw,2rem)] font-bold text-[#0f172a]">Works with the tools {industryName.toLowerCase()} businesses already use</h2>
+        <h2 className="text-[clamp(1.5rem,1.2rem+1.2vw,2rem)] font-bold text-[#0f172a]">Works with the tools {sectionLabel ?? `${industryName.toLowerCase()} businesses`} already use</h2>
         <p className="mt-3 text-[#475569]">Classified honestly — live sync, manual/CSV import, or genuinely not built yet.</p>
       </div>
       <div className="mx-auto mt-10 max-w-4xl space-y-8 px-6">

@@ -10,13 +10,24 @@ export interface PainPointSolution {
 // Bento-grid pain-point -> solution cards. Each card's "solution" is a real
 // feature/behaviour already listed on the page (see Industry.painPoints in
 // ./data) — this component only lays them out, it never invents copy.
-export function PainPointsSection({ industryName, painPoints }: { industryName: string; painPoints: PainPointSolution[] }) {
+export function PainPointsSection({
+  industryName,
+  painPoints,
+  headingLabel,
+}: {
+  industryName: string;
+  painPoints: PainPointSolution[];
+  // Cross-industry pages (use-case/size) pass a natural phrase like "your"
+  // here instead of the page's own name, since "inbound call answering
+  // phone lines" doesn't read naturally the way an industry name does.
+  headingLabel?: string;
+}) {
   if (!painPoints.length) return null;
   return (
     <section id="pain-points" className="py-14">
       <div className="mx-auto max-w-2xl px-6 text-center">
         <h2 className="text-[clamp(1.5rem,1.2rem+1.2vw,2rem)] font-bold text-[#0f172a]">
-          Where {industryName.toLowerCase()} phone lines actually break down
+          Where {headingLabel ?? industryName.toLowerCase()} phone lines actually break down
         </h2>
         <p className="mt-3 text-[#475569]">Three real problems, and what Ella actually does about each one.</p>
       </div>

@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, ChevronDown } from "lucide-react";
 import { PricingSection } from "./PricingSection";
 import { FinalCtaSection } from "./FinalCtaSection";
-import { INDUSTRIES, INDUSTRY_PRICING, INDUSTRY_PRICING_SLUG_MAP, INDUSTRY_VERTICAL_MAP, REAL_DIFFERENTIATORS, type IndustryFaq } from "./data";
+import { INDUSTRIES, INDUSTRY_PRICING, INDUSTRY_PRICING_SLUG_MAP, INDUSTRY_VERTICAL_MAP, REAL_DIFFERENTIATORS, type IndustryFaq, type PricingPlan } from "./data";
 import { Breadcrumbs, type Crumb } from "@/components/seo/Breadcrumbs";
 import { SolutionSubNav, type SubNavItem } from "./SolutionSubNav";
 import { PainPointsSection } from "./PainPointsSection";
@@ -36,6 +36,27 @@ export interface SolutionContent {
   // below, which look themselves up from INDUSTRIES/INDUSTRY_VERTICAL_MAP
   // rather than needing every page.tsx to thread new props through.
   currentIndustrySlug?: string;
+  // 2026-08-18 — use-case/size elite pass. A cross-industry page's `name`
+  // ("Inbound Call Answering", "Solo Practitioner") doesn't read naturally
+  // in the template's generic "for {name}" sentences the way an industry
+  // name does. Optional override, substituted only in those two spots;
+  // industry pages never set this so their existing copy is untouched.
+  descriptor?: string;
+  // The same PainPoints/ROI/Integrations blocks the vertical pages get,
+  // for a page that isn't scoped to one industry (no `currentIndustrySlug`)
+  // — real content the page.tsx author supplies directly instead of it
+  // being looked up from INDUSTRIES. Ignored (industry data wins) on real
+  // industry pages.
+  painPoints?: { problem: string; solution: string }[];
+  painPointsHeadingLabel?: string;
+  roiPlans?: PricingPlan[];
+  roiPlanExampleLabel?: string;
+  roiDisclaimer?: string;
+  integrationsVertical?: string;
+  integrationsSectionLabel?: string;
+  // Renders a "built for every industry we support" link strip — for pages
+  // whose concept spans every vertical rather than being tied to one.
+  showAllIndustriesStrip?: boolean;
 }
 
 export function SolutionTemplate({ content }: { content: SolutionContent }) {
@@ -62,6 +83,14 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
   // above: derived here, not threaded through every page.tsx.
   const industry = content.currentIndustrySlug ? INDUSTRIES.find((i) => i.slug === content.currentIndustrySlug) : undefined;
   const vertical = content.currentIndustrySlug ? INDUSTRY_VERTICAL_MAP[content.currentIndustrySlug] : undefined;
+
+  // Cross-industry pages (use-case/size) supply this content directly since
+  // there's no single INDUSTRIES entry to look it up from — industry pages
+  // always win when both are somehow present.
+  const descriptor = content.descriptor ?? content.name.toLowerCase();
+  const painPoints = industry ? industry.painPoints : content.painPoints;
+  const roiPlans = industryPricingGroup ? industryPricingGroup.plans : content.roiPlans;
+  const integrationsVertical = vertical ?? content.integrationsVertical;
 
   const subNavItems: SubNavItem[] = industry
     ? [
@@ -115,7 +144,7 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
               if genuinely sub-second, this copy can go back to a real
               number; if it's ~1.3s, say "about a second" and mean it. */}
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-5 text-lg text-[#475569]">
-            Ella answers every call for {content.name.toLowerCase()}, 24 hours a day — no rings, no hold music.
+            Ella answers every call for {descriptor}, 24 hours a day — no rings, no hold music.
           </motion.p>
           {/* 2026-08-15 — the "value proposition" economic point, kept
               qualitative rather than a fabricated conversion-rate stat (a
@@ -152,11 +181,13 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
         </section>
       )}
 
-      {industry && <PainPointsSection industryName={content.name} painPoints={industry.painPoints} />}
+      {painPoints && painPoints.length > 0 && (
+        <PainPointsSection industryName={content.name} painPoints={painPoints} headingLabel={industry ? undefined : content.painPointsHeadingLabel} />
+      )}
 
       <section className="py-14">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-[clamp(1.5rem,1.2rem+1.2vw,2rem)] font-bold text-[#0f172a]">Built for {content.name.toLowerCase()}</h2>
+          <h2 className="text-[clamp(1.5rem,1.2rem+1.2vw,2rem)] font-bold text-[#0f172a]">Built for {descriptor}</h2>
         </div>
         <div className="mx-auto mt-10 grid max-w-4xl grid-cols-1 gap-4 sm:grid-cols-2">
           {content.features.map((f) => (
@@ -168,11 +199,44 @@ export function SolutionTemplate({ content }: { content: SolutionContent }) {
         </div>
       </section>
 
+      {content.showAllIndustriesStrip && (
+        <section className="py-14">
+          <div className="mx-auto max-w-4xl px-6">
+            <h2 className="text-center text-xl font-bold text-[#0f172a]">Built for every industry we support</h2>
+            <p className="mt-2 text-center text-sm text-[#475569]">The same Ella, tuned to how your industry actually answers its phones.</p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              {INDUSTRIES.map((i) => (
+                <Link
+                  key={i.slug}
+                  href={`/solutions/${i.slug}`}
+                  className="rounded-full border border-[#e2e8f0] bg-white px-4 py-2 text-sm font-medium text-[#475569] shadow-sm hover:border-[#c7d2fe] hover:text-[#0f172a]"
+                >
+                  {i.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {industry && <RoleUseCasesSection industryName={content.name} roles={industry.roles} />}
 
-      {industry && industryPricingGroup && <InteractiveRoiCalculator industryName={content.name} plans={industryPricingGroup.plans} />}
+      {roiPlans && roiPlans.length > 0 && (
+        <InteractiveRoiCalculator
+          industryName={content.name}
+          plans={roiPlans}
+          planExampleLabel={industry ? undefined : content.roiPlanExampleLabel}
+          disclaimerNote={industry ? undefined : content.roiDisclaimer}
+        />
+      )}
 
-      {industry && vertical && <VerticalIntegrationsSection industryName={content.name} vertical={vertical} />}
+      {integrationsVertical && (
+        <VerticalIntegrationsSection
+          industryName={content.name}
+          vertical={integrationsVertical}
+          sectionLabel={industry ? undefined : content.integrationsSectionLabel}
+        />
+      )}
 
       {industry && (
         <section id="analytics-preview" className="py-14">
