@@ -30,7 +30,8 @@ const Bullet = ({ children }: { children: React.ReactNode }) => (
 );
 
 export default async function PrivacyPage() {
-  const updated = "August 10, 2026";
+  const posted = "August 18, 2026";
+  const effective = "August 18, 2026";
   const legalParty = formatLegalParty(await getLegalEntity());
 
   return (
@@ -45,7 +46,9 @@ export default async function PrivacyPage() {
           <div className="flex flex-wrap items-center gap-3 text-xs text-[#94a3b8]">
             <span className="inline-flex items-center rounded-full border border-[#e2e8f0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-2.5 py-1">Legal</span>
             <span>•</span>
-            <span>Last updated: {updated}</span>
+            <span>Posted: {posted}</span>
+            <span>•</span>
+            <span>Effective: {effective}</span>
           </div>
 
           <h1 className="mt-4 text-3xl font-black tracking-tight text-[#0f172a] sm:text-4xl">Privacy Policy</h1>
@@ -86,15 +89,21 @@ export default async function PrivacyPage() {
                   ["rights", "Access, correction, deletion & export"],
                   ["storage", "Data storage & cross-border processing"],
                   ["subprocessors", "Subprocessors"],
+                  ["third-party-links", "Third-party links"],
                   ["cookies", "Cookies & analytics"],
+                  ["no-ad-sale", "No selling, no ad networks"],
+                  ["support-messages", "Support messages & the Support Hub"],
                   ["support-access", "Support access"],
                   ["breach", "Data breach notification"],
+                  ["complaints", "How to complain"],
                   ["cyber-security", "Security practices"],
                   ["marketing", "Marketing & unsubscribe"],
                   ["calls", "Call recording"],
                   ["tga", "Administrative tool only"],
                   ["ahpra", "Practitioner information"],
+                  ["children", "Children's privacy"],
                   ["contact", "Contact us"],
+                  ["changelog", "Change log"],
                 ].map(([id, label]) => (
                   <a key={id} href={`#${id}`} className="block rounded-lg px-2 py-1.5 text-[#475569] hover:bg-slate-100 hover:text-[#0f172a] transition">
                     {label}
@@ -283,8 +292,8 @@ export default async function PrivacyPage() {
                     </tr>
                     <tr>
                       <td className="p-3 font-semibold text-[#0f172a]">OpenAI</td>
-                      <td className="p-3">Live transcript text, conversation context, relevant booking/business data</td>
-                      <td className="p-3">The conversational AI that decides what Ella says and does</td>
+                      <td className="p-3">Live transcript text, conversation context, relevant booking/business data, and — when you send us a support message — the content of that message</td>
+                      <td className="p-3">The conversational AI that decides what Ella says and does, and (internal-only) drafts a suggested reply and language/intent tags for support messages — never sent automatically, see <a href="#support-messages">Support messages</a> below</td>
                       <td className="p-3">United States</td>
                     </tr>
                     <tr>
@@ -298,6 +307,12 @@ export default async function PrivacyPage() {
                       <td className="p-3">Billing contact details and a tokenised payment reference — never a raw card number</td>
                       <td className="p-3">Payment processing (PCI DSS compliant; card numbers are vaulted by Square, not stored by us)</td>
                       <td className="p-3">Processed via Square&apos;s network</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold text-[#0f172a]">PayPal</td>
+                      <td className="p-3">Billing contact details and a tokenised payment reference — never a raw card number</td>
+                      <td className="p-3">Payment processing (alternative to Square)</td>
+                      <td className="p-3">Processed via PayPal&apos;s network</td>
                     </tr>
                     <tr>
                       <td className="p-3 font-semibold text-[#0f172a]">Resend</td>
@@ -329,15 +344,58 @@ export default async function PrivacyPage() {
               </p>
             </Section>
 
+            <Section id="third-party-links" title="Third-party links">
+              <p>
+                Our marketing site and Help Centre sometimes link to third parties — for example the Square or
+                PayPal checkout pages during signup, or Google/Microsoft&apos;s own sign-in and consent screens when you
+                connect a calendar. Those third parties have their own privacy policies, which we don&apos;t control and
+                this policy doesn&apos;t cover — check their site directly before sharing information with them.
+              </p>
+            </Section>
+
             <Section id="cookies" title="Cookies & analytics">
               <p>
-                Our marketing site and dashboard use PostHog for product analytics, including session recording
-                (input fields are masked by default). We don&apos;t currently show a cookie-consent banner, and
-                PostHog begins collecting data when a page loads rather than waiting for opt-in — if you&apos;d prefer
-                not to be tracked, most browsers let you block third-party cookies, which stops it. PostHog cookies
-                are third-party (served from posthog.com infrastructure, not our own domain), and IP addresses are
-                captured by default rather than anonymised. Google Analytics is integrated in code but not
-                currently active on the live site.
+                Our marketing site and dashboard use PostHog for product analytics, including session recording.
+                Most input fields are masked by default, with one deliberate exception: email address fields are
+                not masked, so an email typed into a form (e.g. during signup) can appear in a recorded session.
+                We don&apos;t currently show a cookie-consent banner, and PostHog begins collecting data when a page
+                loads rather than waiting for opt-in — if you&apos;d prefer not to be tracked, most browsers let you
+                block third-party cookies, which stops it. PostHog cookies are third-party (served from
+                posthog.com infrastructure, not our own domain), and IP addresses are captured by default rather
+                than anonymised. Google Analytics is integrated in code but not currently active on the live site.
+              </p>
+            </Section>
+
+            <Section id="no-ad-sale" title="No selling, no ad networks">
+              <p>
+                We do not sell your personal information, and we do not share it with advertising networks.
+                ZyncoAI has no Google Ads, Meta/Facebook, LinkedIn, or TikTok advertising pixels anywhere on our
+                site or in our product, and we don&apos;t run retargeting or ad-audience campaigns — so there&apos;s no
+                advertising data flow to disclose. The only analytics we use is PostHog (see{" "}
+                <a href="#cookies">Cookies &amp; analytics</a> above), which is product analytics, not advertising.
+              </p>
+            </Section>
+
+            <Section id="support-messages" title="Support messages & the Support Hub">
+              <p>
+                When you send us a message — through the contact form, the Help widget, or the{" "}
+                <Link href="/support" className="text-indigo-300 underline">Support Hub</Link> — we collect your
+                name, email, the topic you selected, the message itself, and, optionally, a screenshot you attach
+                and a reference/link (like a call ID or booking) you provide to help us investigate. Every message
+                gets a reference number (e.g. &quot;ZS-1042&quot;) so you and we can both track it.
+              </p>
+              <p>
+                An attached screenshot is validated as a real image before it&apos;s stored (decoded and re-encoded,
+                which also strips anything else embedded in the file) — this isn&apos;t virus scanning, and we say so
+                rather than imply a stronger guarantee than what actually happens. It&apos;s stored privately and only
+                visible to authorised staff.
+              </p>
+              <p>
+                We use AI (see <a href="#subprocessors">Subprocessors</a> above) to draft an internal suggested
+                reply, grounded strictly in our own published Help Centre/FAQ content, and to tag the likely topic
+                (e.g. billing, urgent) for routing. That draft is for our staff&apos;s eyes only — it is never sent to
+                you automatically; a real person always reviews, edits, and sends the actual reply. If your message
+                isn&apos;t in English, we may also generate a machine translation of it for our internal review.
               </p>
             </Section>
 
@@ -365,6 +423,22 @@ export default async function PrivacyPage() {
                 occurs that is likely to result in serious harm to affected individuals, we will notify the Office
                 of the Australian Information Commissioner (OAIC) and affected individuals as required by law. Our
                 incident response contact is <a href="mailto:support@zyncoai.com" className="text-indigo-300 underline">support@zyncoai.com</a>.
+              </p>
+            </Section>
+
+            <Section id="complaints" title="How to complain">
+              <p>
+                If you&apos;re unhappy with how we&apos;ve handled your personal information, tell us first — email{" "}
+                <a href="mailto:support@zyncoai.com" className="text-indigo-300 underline">support@zyncoai.com</a>{" "}
+                with what happened, and we&apos;ll investigate and respond.
+              </p>
+              <p>
+                If you&apos;re not satisfied with our response, or want to escalate directly, you can lodge a
+                complaint with the Office of the Australian Information Commissioner (OAIC) — 1300 363 992, or{" "}
+                <a href="https://www.oaic.gov.au" target="_blank" rel="noopener noreferrer" className="text-indigo-300 underline">
+                  www.oaic.gov.au
+                </a>
+                . See <a href="#breach">Data breach notification</a> above for our own obligations if a breach occurs.
               </p>
             </Section>
 
@@ -416,10 +490,36 @@ export default async function PrivacyPage() {
               </p>
             </Section>
 
+            <Section id="children" title="Children's privacy">
+              <p>
+                ZyncoAI is a business tool for clinics and other service businesses — it isn&apos;t a consumer product,
+                and it isn&apos;t directed at or marketed to children. We don&apos;t knowingly collect personal information
+                from anyone under 16. If you believe a child has provided us with personal information, contact us
+                at <a href="mailto:support@zyncoai.com" className="text-indigo-300 underline">support@zyncoai.com</a>{" "}
+                and we will delete it.
+              </p>
+            </Section>
+
             <Section id="contact" title="Contact us">
               <p>
                 Questions about this policy, or requests to access or correct your personal information, can be
                 sent to <a href="mailto:support@zyncoai.com" className="text-indigo-300 underline">support@zyncoai.com</a>.
+              </p>
+            </Section>
+
+            <Section id="changelog" title="Change log">
+              <p>
+                <strong>August 18, 2026</strong> — Added: a children&apos;s privacy statement, a general complaints
+                process (including the OAIC escalation path), a third-party-links note, an explicit statement that
+                we don&apos;t sell personal information or share it with advertising networks, a description of
+                Support Hub message data, Posted/Effective dates (replacing the single &quot;last updated&quot; label), and
+                this change log. Updated the subprocessors table to add PayPal and to reflect AI Support Assist&apos;s
+                use of OpenAI. Clarified that email address fields are a deliberate exception to input masking in
+                session recordings. Nothing was removed.
+              </p>
+              <p>
+                <strong>August 10, 2026</strong> — This policy&apos;s previous revision date. A change log wasn&apos;t kept
+                before August 18, 2026, so earlier history isn&apos;t listed here.
               </p>
             </Section>
           </section>
