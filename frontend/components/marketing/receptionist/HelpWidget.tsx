@@ -5,6 +5,7 @@ import { MessageCircleQuestion, X, Search, ArrowRight, Mail, ChevronLeft } from 
 import { HELP_CATEGORIES } from "@/lib/verifiedHelpContent";
 import { FAQS } from "@/components/seo/FaqJsonLd";
 import { ContactForm } from "./ContactForm";
+import { HelpVote } from "./HelpVote";
 
 // Retrieval-only help widget — zero generative AI. Every answer shown here
 // is the VERBATIM text of an existing, already-published FAQ or Help
@@ -13,12 +14,12 @@ import { ContactForm } from "./ContactForm";
 // widget only ever selects and displays one of those fixed strings, or
 // falls through to the honest "I don't have that answer" state. There is
 // no LLM call anywhere in this file.
-type Entry = { question: string; answer: string; href: string; linkLabel: string };
+type Entry = { question: string; answer: string; href: string; linkLabel: string; slug: string };
 
 const HELP_ENTRIES: Entry[] = HELP_CATEGORIES.flatMap((c) =>
-  c.items.map((i) => ({ question: i.question, answer: i.answer, href: `/resources/help#${i.slug}`, linkLabel: "Read in the Help Centre" }))
+  c.items.map((i) => ({ question: i.question, answer: i.answer, href: `/resources/help#${i.slug}`, linkLabel: "Read in the Help Centre", slug: i.slug }))
 );
-const FAQ_ENTRIES: Entry[] = FAQS.map((f) => ({ question: f.question, answer: f.answer, href: "/faq", linkLabel: "Read in the FAQ" }));
+const FAQ_ENTRIES: Entry[] = FAQS.map((f) => ({ question: f.question, answer: f.answer, href: "/faq", linkLabel: "Read in the FAQ", slug: f.slug }));
 const ALL_ENTRIES: Entry[] = [...HELP_ENTRIES, ...FAQ_ENTRIES];
 
 const QUICK_ANSWER_KEYS = {
@@ -47,6 +48,7 @@ function AnswerCard({ entry }: { entry: Entry }) {
       <Link href={entry.href} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-[#6366f1] hover:text-[#4f46e5]">
         {entry.linkLabel} <ArrowRight className="h-3 w-3" />
       </Link>
+      <HelpVote slug={entry.slug} />
     </div>
   );
 }

@@ -11,6 +11,7 @@ type Status = "NEW" | "REPLIED" | "CLOSED";
 
 interface MessageListItem {
   id: string;
+  reference: string;
   name: string;
   email: string;
   topic: string;
@@ -29,8 +30,17 @@ interface Reply {
   repliedByAdmin: { name: string | null; email: string } | null;
 }
 
+interface Attachment {
+  id: string;
+  filename: string;
+  mimeType: string;
+  sizeBytes: number;
+  dataUrl: string;
+}
+
 interface ThreadDetail extends MessageListItem {
   replies: Reply[];
+  attachments: Attachment[];
 }
 
 interface Template {
@@ -95,7 +105,7 @@ function ThreadList({
               <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${STATUS_STYLE[m.status]}`}>{m.status}</span>
             </div>
             <p className="mt-0.5 truncate text-xs text-[#6B7280]">
-              {m.topic} · {m.source === "widget" ? "Help widget" : "Contact form"}
+              <span className="font-mono font-semibold text-[#9CA3AF]">{m.reference}</span> · {m.topic} · {m.source === "widget" ? "Help widget" : "Contact form"}
             </p>
             <p className="mt-1 truncate text-xs text-[#9CA3AF]">{m.message}</p>
             <p className="mt-1 text-[10px] text-[#9CA3AF]">{timeAgo(m.updatedAt)}</p>
@@ -151,7 +161,7 @@ function ThreadDetailPanel({ id, templates, onChanged }: { id: string; templates
             {message.name} <span className="font-normal text-[#9CA3AF]">&lt;{message.email}&gt;</span>
           </p>
           <p className="text-xs text-[#6B7280]">
-            {message.topic} · {message.source === "widget" ? "Help widget" : "Contact form"} · {new Date(message.createdAt).toLocaleString("en-AU")}
+            <span className="font-mono font-semibold text-[#6B7280]">{message.reference}</span> · {message.topic} · {message.source === "widget" ? "Help widget" : "Contact form"} · {new Date(message.createdAt).toLocaleString("en-AU")}
           </p>
         </div>
         <div className="flex gap-1.5">
@@ -170,6 +180,15 @@ function ThreadDetailPanel({ id, templates, onChanged }: { id: string; templates
       <div className="flex-1 space-y-3 overflow-y-auto px-5 py-4">
         <div className="rounded-xl border border-slate-100 bg-[#F8F9FA] p-4">
           <p className="whitespace-pre-wrap text-sm text-[#1F2937]">{message.message}</p>
+          {message.attachments.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2 border-t border-slate-200 pt-3">
+              {message.attachments.map((a) => (
+                <a key={a.id} href={a.dataUrl} download={a.filename} className="group block" title={`${a.filename} (${Math.round(a.sizeBytes / 1024)}KB) — click to download`}>
+                  <img src={a.dataUrl} alt={a.filename} className="h-20 w-20 rounded-lg border border-slate-200 object-cover transition group-hover:opacity-80" />
+                </a>
+              ))}
+            </div>
+          )}
         </div>
 
         {message.replies.map((r) => (

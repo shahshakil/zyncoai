@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ResourcePageShell } from "@/components/marketing/receptionist/ResourcePageShell";
 import { HelpCentre } from "@/components/marketing/receptionist/HelpCentre";
+import { HelpJsonLd } from "@/components/seo/HelpJsonLd";
 import { HELP_CATEGORIES } from "@/lib/verifiedHelpContent";
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
 export default function HelpPage() {
   return (
     <ResourcePageShell eyebrow="Resources" title="Help Centre" description="Answers to the most common questions, plus how to get more help.">
+      <HelpJsonLd />
       <HelpCentre categories={HELP_CATEGORIES} />
     </ResourcePageShell>
   );

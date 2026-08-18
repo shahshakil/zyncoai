@@ -30,7 +30,7 @@ import { SITEWIDE_CHEAPEST_PLAN_PRICE } from "@/components/marketing/receptionis
 export const FAQ_CATEGORIES = ["Getting started", "Reliability", "Pricing & plans", "Privacy & data"] as const;
 export type FaqCategory = (typeof FAQ_CATEGORIES)[number];
 
-const FAQS: { question: string; answer: string; category: FaqCategory }[] = [
+const FAQS_RAW: { question: string; answer: string; category: FaqCategory }[] = [
   {
     question: "What is ZyncoAI?",
     answer:
@@ -219,6 +219,20 @@ const FAQS: { question: string; answer: string; category: FaqCategory }[] = [
     category: "Privacy & data",
   },
 ];
+
+function slugify(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "")
+    .slice(0, 80);
+}
+
+// `slug` is derived, not hand-authored — lets the widget's "was this
+// helpful?" vote (HelpVote.tsx) key FAQ entries the same way Help Centre
+// entries already are (HELP_CATEGORIES items), without hand-editing 29
+// existing, content-locked FAQ entries just to add an id field.
+const FAQS: { question: string; answer: string; category: FaqCategory; slug: string }[] = FAQS_RAW.map((f) => ({ ...f, slug: `faq-${slugify(f.question)}` }));
 
 export function FaqJsonLd() {
   const faqPage = {
