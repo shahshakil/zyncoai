@@ -24,6 +24,7 @@ const PUBLIC_PATHS = [
   "/accept-invite",
   "/about",
   "/contact",
+  "/support",
   "/terms",
   "/privacy",
   "/ai-transparency",

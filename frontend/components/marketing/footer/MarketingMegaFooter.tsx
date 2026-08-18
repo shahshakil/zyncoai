@@ -54,6 +54,7 @@ export default async function MarketingMegaFooter() {
             <ul className="mt-4 space-y-3 text-sm text-[#94a3b8]">
               <li><Link href="/resources/blog" className="hover:text-[#f8fafc]">Blog</Link></li>
               <li><Link href="/resources/help" className="hover:text-[#f8fafc]">Help Centre</Link></li>
+              <li><Link href="/support" className="hover:text-[#f8fafc]">Support</Link></li>
               <li><Link href="/resources/api" className="hover:text-[#f8fafc]">API Docs</Link></li>
               <li><Link href="/resources/status" className="hover:text-[#f8fafc]">System Status</Link></li>
               <li><Link href="/privacy" className="hover:text-[#f8fafc]">Privacy Policy</Link></li>

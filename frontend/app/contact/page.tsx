@@ -41,7 +41,11 @@ export default function ContactPage() {
         <h1 className="text-3xl font-bold text-[#0f172a] sm:text-4xl">Get in touch</h1>
         <p className="mt-4 text-lg leading-relaxed text-[#475569]">
           Questions about pricing, a specific industry fit, or want a hand setting up your account? The team behind Ella is a call or email away —
-          not an offshore support queue.
+          not an offshore{" "}
+          <Link href="/support" className="text-[#6366f1] underline underline-offset-4 hover:text-[#4f46e5]">
+            support
+          </Link>{" "}
+          queue.
         </p>
       </section>
 

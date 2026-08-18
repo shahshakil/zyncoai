@@ -9,11 +9,12 @@ const ALLOWED_ATTACHMENT_TYPES = new Set(["image/png", "image/jpeg", "image/webp
 
 type Status = "idle" | "sending" | "sent" | "error" | "rate_limited" | "attachment_error";
 
-export function ContactForm({ source = "contact_form", onSent }: { source?: "contact_form" | "widget"; onSent?: () => void }) {
+export function ContactForm({ source = "contact_form", onSent }: { source?: "contact_form" | "widget" | "support_hub"; onSent?: () => void }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [topic, setTopic] = useState<(typeof TOPICS)[number]>("Support");
   const [message, setMessage] = useState("");
+  const [referenceLink, setReferenceLink] = useState("");
   const [website, setWebsite] = useState(""); // honeypot — real visitors never see this
   const [attachment, setAttachment] = useState<File | null>(null);
   const [status, setStatus] = useState<Status>("idle");
@@ -53,6 +54,7 @@ export function ContactForm({ source = "contact_form", onSent }: { source?: "con
       form.set("topic", topic);
       form.set("message", message.trim());
       form.set("source", source);
+      if (referenceLink.trim()) form.set("referenceLink", referenceLink.trim());
       if (website) form.set("website", website);
       if (attachment) form.set("attachment", attachment);
 
@@ -137,6 +139,17 @@ export function ContactForm({ source = "contact_form", onSent }: { source?: "con
           required
           rows={5}
           className="mt-1.5 w-full rounded-xl border border-[#e2e8f0] px-4 py-2.5 text-sm text-[#0f172a] outline-none transition focus:border-[#6366f1] focus:ring-2 focus:ring-[#6366f1]/20"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-[#0f172a]">Link or reference (e.g. a call ID or booking) — optional</label>
+        <input
+          value={referenceLink}
+          onChange={(e) => setReferenceLink(e.target.value)}
+          maxLength={300}
+          placeholder="Helps us investigate faster"
+          className="mt-1.5 w-full min-h-[44px] rounded-xl border border-[#e2e8f0] px-4 py-2.5 text-sm text-[#0f172a] outline-none transition focus:border-[#6366f1] focus:ring-2 focus:ring-[#6366f1]/20"
         />
       </div>
 

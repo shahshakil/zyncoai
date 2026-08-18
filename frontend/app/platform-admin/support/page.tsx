@@ -17,7 +17,8 @@ interface MessageListItem {
   email: string;
   topic: string;
   message: string;
-  source: "contact_form" | "widget";
+  referenceLink: string | null;
+  source: "contact_form" | "widget" | "support_hub";
   status: Status;
   createdAt: string;
   updatedAt: string;
@@ -55,6 +56,12 @@ interface Template {
   title: string;
   body: string;
 }
+
+const SOURCE_LABEL: Record<MessageListItem["source"], string> = {
+  widget: "Help widget",
+  support_hub: "Support hub",
+  contact_form: "Contact form",
+};
 
 const STATUS_STYLE: Record<Status, string> = {
   NEW: "bg-[#EEF2FF] text-[#4338CA]",
@@ -128,7 +135,7 @@ function ThreadList({
               </span>
             </div>
             <p className="mt-0.5 truncate text-xs text-[#6B7280]">
-              <span className="font-mono font-semibold text-[#9CA3AF]">{m.reference}</span> · {m.topic} · {m.source === "widget" ? "Help widget" : "Contact form"}
+              <span className="font-mono font-semibold text-[#9CA3AF]">{m.reference}</span> · {m.topic} · {SOURCE_LABEL[m.source]}
             </p>
             <p className="mt-1 truncate text-xs text-[#9CA3AF]">{m.message}</p>
             <p className="mt-1 text-[10px] text-[#9CA3AF]">{timeAgo(m.updatedAt)}</p>
@@ -199,9 +206,14 @@ function ThreadDetailPanel({ id, templates, onChanged }: { id: string; templates
             {message.name} <span className="font-normal text-[#9CA3AF]">&lt;{message.email}&gt;</span>
           </p>
           <p className="flex flex-wrap items-center gap-1.5 text-xs text-[#6B7280]">
-            <span className="font-mono font-semibold text-[#6B7280]">{message.reference}</span> · {message.topic} · {message.source === "widget" ? "Help widget" : "Contact form"} · {new Date(message.createdAt).toLocaleString("en-AU")}
+            <span className="font-mono font-semibold text-[#6B7280]">{message.reference}</span> · {message.topic} · {SOURCE_LABEL[message.source]} · {new Date(message.createdAt).toLocaleString("en-AU")}
             <IntentTagBadge tag={message.aiIntentTag} />
           </p>
+          {message.referenceLink && (
+            <p className="mt-1 text-xs text-[#6B7280]">
+              Reference: <span className="font-medium text-[#374151]">{message.referenceLink}</span>
+            </p>
+          )}
         </div>
         <div className="flex gap-1.5">
           {(["NEW", "REPLIED", "CLOSED"] as const).map((s) => (

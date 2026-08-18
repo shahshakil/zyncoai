@@ -14,25 +14,28 @@ import { HelpVote } from "./HelpVote";
 // widget only ever selects and displays one of those fixed strings, or
 // falls through to the honest "I don't have that answer" state. There is
 // no LLM call anywhere in this file.
-type Entry = { question: string; answer: string; href: string; linkLabel: string; slug: string };
+export type Entry = { question: string; answer: string; href: string; linkLabel: string; slug: string };
 
 const HELP_ENTRIES: Entry[] = HELP_CATEGORIES.flatMap((c) =>
   c.items.map((i) => ({ question: i.question, answer: i.answer, href: `/resources/help#${i.slug}`, linkLabel: "Read in the Help Centre", slug: i.slug }))
 );
 const FAQ_ENTRIES: Entry[] = FAQS.map((f) => ({ question: f.question, answer: f.answer, href: "/faq", linkLabel: "Read in the FAQ", slug: f.slug }));
-const ALL_ENTRIES: Entry[] = [...HELP_ENTRIES, ...FAQ_ENTRIES];
+export const ALL_ENTRIES: Entry[] = [...HELP_ENTRIES, ...FAQ_ENTRIES];
 
-const QUICK_ANSWER_KEYS = {
+// Exported so other retrieval-only surfaces (e.g. the /support hub's inline
+// "instant answers") can show the exact same three quick topics as this
+// widget, instead of picking their own and drifting apart.
+export const QUICK_ANSWER_KEYS = {
   pricing: "How much does it cost?",
   howItWorks: "What is ZyncoAI?",
   setup: "How do I set up call forwarding?",
 } as const;
 
-function findByQuestion(question: string): Entry | undefined {
+export function findByQuestion(question: string): Entry | undefined {
   return ALL_ENTRIES.find((e) => e.question === question);
 }
 
-function search(query: string): Entry[] {
+export function search(query: string): Entry[] {
   const q = query.trim().toLowerCase();
   if (!q) return [];
   return ALL_ENTRIES.filter((e) => e.question.toLowerCase().includes(q) || e.answer.toLowerCase().includes(q)).slice(0, 6);
@@ -40,7 +43,7 @@ function search(query: string): Entry[] {
 
 type View = "quick" | "answer" | "results" | "contact";
 
-function AnswerCard({ entry }: { entry: Entry }) {
+export function AnswerCard({ entry }: { entry: Entry }) {
   return (
     <div className="rounded-xl border border-[#e2e8f0] bg-white p-4">
       <p className="text-sm font-semibold text-[#0f172a]">{entry.question}</p>
