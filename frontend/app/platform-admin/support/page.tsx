@@ -1,13 +1,14 @@
 "use client";
 import { useState } from "react";
 import { mutate as globalMutate } from "swr";
-import { Inbox, Send, Loader2, FileText, Plus, Pencil, Trash2, X, Check, Mail } from "lucide-react";
+import { Inbox, Send, Loader2, FileText, Plus, Pencil, Trash2, X, Check, Mail, Sparkles, Languages, RefreshCw } from "lucide-react";
 import { useApi, apiPost } from "@/lib/useApi";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/dashboard/ui/card";
 import { EmptyState } from "@/components/dashboard/ui/table";
 import { Topbar } from "@/components/platform-admin/Topbar";
 
 type Status = "NEW" | "REPLIED" | "CLOSED";
+type IntentTag = "sales" | "support" | "billing" | "urgent" | "spam-likely";
 
 interface MessageListItem {
   id: string;
@@ -21,6 +22,7 @@ interface MessageListItem {
   createdAt: string;
   updatedAt: string;
   _count: { replies: number };
+  aiIntentTag: IntentTag | null;
 }
 
 interface Reply {
@@ -41,6 +43,11 @@ interface Attachment {
 interface ThreadDetail extends MessageListItem {
   replies: Reply[];
   attachments: Attachment[];
+  aiDraftReply: string | null;
+  aiDraftReplyTranslated: string | null;
+  aiDetectedLanguage: string | null;
+  aiTranslatedMessage: string | null;
+  aiProcessedAt: string | null;
 }
 
 interface Template {
@@ -54,6 +61,19 @@ const STATUS_STYLE: Record<Status, string> = {
   REPLIED: "bg-[#ECFDF5] text-[#047857]",
   CLOSED: "bg-[#F3F4F6] text-[#6B7280]",
 };
+
+const INTENT_TAG_STYLE: Record<IntentTag, string> = {
+  sales: "bg-[#EEF2FF] text-[#4338CA]",
+  support: "bg-[#EFF6FF] text-[#1D4ED8]",
+  billing: "bg-[#FFFBEB] text-[#B45309]",
+  urgent: "bg-[#FEF2F2] text-[#B91C1C]",
+  "spam-likely": "bg-[#F3F4F6] text-[#6B7280]",
+};
+
+function IntentTagBadge({ tag }: { tag: IntentTag | null }) {
+  if (!tag) return null;
+  return <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${INTENT_TAG_STYLE[tag]}`}>{tag.toUpperCase()}</span>;
+}
 
 function timeAgo(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -102,7 +122,10 @@ function ThreadList({
           >
             <div className="flex items-center justify-between gap-2">
               <span className="truncate text-sm font-semibold text-[#1F2937]">{m.name}</span>
-              <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${STATUS_STYLE[m.status]}`}>{m.status}</span>
+              <span className="flex shrink-0 items-center gap-1">
+                <IntentTagBadge tag={m.aiIntentTag} />
+                <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${STATUS_STYLE[m.status]}`}>{m.status}</span>
+              </span>
             </div>
             <p className="mt-0.5 truncate text-xs text-[#6B7280]">
               <span className="font-mono font-semibold text-[#9CA3AF]">{m.reference}</span> · {m.topic} · {m.source === "widget" ? "Help widget" : "Contact form"}
@@ -121,6 +144,7 @@ function ThreadDetailPanel({ id, templates, onChanged }: { id: string; templates
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [regenerating, setRegenerating] = useState(false);
   const message = data?.message;
 
   async function sendReply() {
@@ -145,6 +169,20 @@ function ThreadDetailPanel({ id, templates, onChanged }: { id: string; templates
     onChanged();
   }
 
+  function insertDraft(draft: string) {
+    setBody((prev) => (prev ? `${prev}\n\n${draft}` : draft));
+  }
+
+  async function regenerateAssist() {
+    setRegenerating(true);
+    try {
+      await apiPost(`/api/admin/platform/support/${id}/ai-assist`, undefined, "POST");
+      await mutate();
+    } finally {
+      setRegenerating(false);
+    }
+  }
+
   if (!message) {
     return (
       <Card className="flex h-[70vh] items-center justify-center">
@@ -160,8 +198,9 @@ function ThreadDetailPanel({ id, templates, onChanged }: { id: string; templates
           <p className="text-sm font-semibold text-[#1F2937]">
             {message.name} <span className="font-normal text-[#9CA3AF]">&lt;{message.email}&gt;</span>
           </p>
-          <p className="text-xs text-[#6B7280]">
+          <p className="flex flex-wrap items-center gap-1.5 text-xs text-[#6B7280]">
             <span className="font-mono font-semibold text-[#6B7280]">{message.reference}</span> · {message.topic} · {message.source === "widget" ? "Help widget" : "Contact form"} · {new Date(message.createdAt).toLocaleString("en-AU")}
+            <IntentTagBadge tag={message.aiIntentTag} />
           </p>
         </div>
         <div className="flex gap-1.5">
@@ -180,6 +219,14 @@ function ThreadDetailPanel({ id, templates, onChanged }: { id: string; templates
       <div className="flex-1 space-y-3 overflow-y-auto px-5 py-4">
         <div className="rounded-xl border border-slate-100 bg-[#F8F9FA] p-4">
           <p className="whitespace-pre-wrap text-sm text-[#1F2937]">{message.message}</p>
+          {message.aiTranslatedMessage && (
+            <div className="mt-3 border-t border-slate-200 pt-3">
+              <p className="mb-1 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-[#9CA3AF]">
+                <Languages className="h-3 w-3" /> English translation ({message.aiDetectedLanguage || "auto-detected"}, machine translated)
+              </p>
+              <p className="whitespace-pre-wrap text-sm text-[#1F2937]">{message.aiTranslatedMessage}</p>
+            </div>
+          )}
           {message.attachments.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2 border-t border-slate-200 pt-3">
               {message.attachments.map((a) => (
@@ -189,6 +236,53 @@ function ThreadDetailPanel({ id, templates, onChanged }: { id: string; templates
               ))}
             </div>
           )}
+        </div>
+
+        <div className="rounded-xl border border-[#E9D5FF] bg-[#FAF5FF] p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="flex items-center gap-1.5 text-xs font-semibold text-[#7E22CE]">
+              <Sparkles className="h-3.5 w-3.5" /> AI suggested reply
+            </p>
+            <button
+              onClick={regenerateAssist}
+              disabled={regenerating}
+              className="flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold text-[#7E22CE] hover:bg-white disabled:opacity-40"
+            >
+              <RefreshCw className={`h-3 w-3 ${regenerating ? "animate-spin" : ""}`} /> {message.aiProcessedAt ? "Regenerate" : "Generate"}
+            </button>
+          </div>
+
+          {!message.aiProcessedAt && !regenerating && <p className="text-xs text-[#9CA3AF]">Not generated yet — this thread works fine without it.</p>}
+          {regenerating && !message.aiDraftReply && <p className="text-xs text-[#9CA3AF]">Generating…</p>}
+
+          {message.aiDraftReply && (
+            <div className="rounded-lg border border-[#E9D5FF] bg-white p-3">
+              <p className="whitespace-pre-wrap text-sm text-[#1F2937]">{message.aiDraftReply}</p>
+              <button
+                onClick={() => insertDraft(message.aiDraftReply!)}
+                className="mt-2 rounded-lg bg-[#7E22CE] px-2.5 py-1 text-[11px] font-semibold text-white hover:opacity-90"
+              >
+                Use this draft
+              </button>
+            </div>
+          )}
+
+          {message.aiDraftReplyTranslated && (
+            <div className="mt-2 rounded-lg border border-[#E9D5FF] bg-white p-3">
+              <p className="mb-1 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-[#9CA3AF]">
+                <Languages className="h-3 w-3" /> Machine translated ({message.aiDetectedLanguage}) — verify before sending
+              </p>
+              <p className="whitespace-pre-wrap text-sm text-[#1F2937]">{message.aiDraftReplyTranslated}</p>
+              <button
+                onClick={() => insertDraft(message.aiDraftReplyTranslated!)}
+                className="mt-2 rounded-lg bg-[#7E22CE] px-2.5 py-1 text-[11px] font-semibold text-white hover:opacity-90"
+              >
+                Use this draft
+              </button>
+            </div>
+          )}
+
+          <p className="mt-2 text-[10px] text-[#9CA3AF]">Grounded only in our verified FAQ/Help content — never auto-sent. Review and edit before sending.</p>
         </div>
 
         {message.replies.map((r) => (
