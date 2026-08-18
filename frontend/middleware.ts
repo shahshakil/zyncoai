@@ -212,5 +212,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next|api|favicon.ico|robots.txt|sitemap.xml|videos).*)"],
+  matcher: ["/((?!_next|api|favicon.ico|robots.txt|sitemap.xml|BingSiteAuth.xml|videos).*)"],
 };
