@@ -3,7 +3,7 @@
 // codebase (ABN + address from welcomeEmail.ts, phone number confirmed
 // with the user directly, pricing range from platformSettings.ts's real
 // plan data) or user-provided first-party fact about their own company
-// (founder name, founding date, street address) — nothing fabricated.
+// (founder name, founding date, suburb-level address) — nothing fabricated.
 //
 // Deliberately omitted vs. a generic SEO template:
 // - SoftwareApplication.screenshot: no real product screenshot exists in
@@ -28,11 +28,17 @@ export function SiteJsonLd() {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "ZyncoAI",
-    legalName: "ZyncoAI",
+    // Real registered trading name (PlatformSettings.legalEntityName in the
+    // DB — same value the invoice footer and /legal/dpa render), not just
+    // the brand name repeated.
+    legalName: "Shah Shakil trading as ZyncoAI",
     url: "https://zyncoai.com",
     logo: "https://zyncoai.com/icon.svg",
     description:
       "AI-powered receptionist platform for Australian businesses. Answers calls 24/7, books appointments automatically.",
+    // Real ABN — PlatformSettings.zyncoAbn in the DB, the same number
+    // already printed on /about, /privacy, and every invoice.
+    taxID: "38 138 129 187",
     foundingDate: "2026",
     founders: [
       {
@@ -45,12 +51,14 @@ export function SiteJsonLd() {
         },
       },
     ],
+    // 2026-08-19 — suburb-level only, deliberately: streetAddress and the
+    // street-level postcode were dropped at the user's request (that
+    // precision publishes their home address in machine-readable
+    // structured data, which they don't want).
     address: {
       "@type": "PostalAddress",
-      streetAddress: "2 Hopkins Street",
-      addressLocality: "Merewether",
+      addressLocality: "Newcastle",
       addressRegion: "NSW",
-      postalCode: "2291",
       addressCountry: "AU",
     },
     contactPoint: {
@@ -65,6 +73,9 @@ export function SiteJsonLd() {
     // first-party-fact standard as founder name/address above; this file
     // previously deliberately omitted sameAs specifically because no real
     // account had been confirmed — see the file header comment).
+    // Facebook/Instagram deliberately left out, not stubbed with placeholder
+    // URLs — those profiles don't exist yet. Add each one here the day it's
+    // real.
     sameAs: ["https://www.linkedin.com/company/143046371", "https://x.com/ZyncoAI"],
   };
 
@@ -104,25 +115,28 @@ export function SiteJsonLd() {
     name: "ZyncoAI",
     url: "https://zyncoai.com",
     telephone: "+61480738227",
-    // 2026-08-19 — aligned to the exact same real address as `organization`
-    // above (was a partial/inconsistent second copy: no streetAddress/
-    // postalCode, and "Newcastle" instead of the actual suburb — Merewether
-    // is a real Newcastle suburb, not a different location, but two
-    // differently-detailed addresses for one physical entity reads as
-    // inconsistent to a structured-data parser).
+    // 2026-08-19 — aligned to the exact same suburb-level address as
+    // `organization` above (was streetAddress + postalCode down to
+    // Merewether; the user asked to drop street-level precision from
+    // published structured data, so both entries now stop at suburb/
+    // region/country).
     address: {
       "@type": "PostalAddress",
-      streetAddress: "2 Hopkins Street",
-      addressLocality: "Merewether",
+      addressLocality: "Newcastle",
       addressRegion: "NSW",
-      postalCode: "2291",
       addressCountry: "AU",
     },
     image: "https://zyncoai.com/icon.svg",
+    // 2026-08-19 — was precise coordinates (4 decimal places) that
+    // pinpointed the exact Merewether street address; same privacy request
+    // as `address` above. Kept geo (useful for local SEO/map-pack signals)
+    // but rounded to Newcastle NSW's city-centre coordinates at 2 decimal
+    // places (~1km precision) — a real, public city location, not tied to
+    // any specific street address.
     geo: {
       "@type": "GeoCoordinates",
-      latitude: -32.9267,
-      longitude: 151.7789,
+      latitude: -32.93,
+      longitude: 151.78,
     },
     areaServed: {
       "@type": "Country",

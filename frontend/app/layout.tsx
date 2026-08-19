@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     template: "%s | ZyncoAI",
   },
   description:
-    "ZyncoAI is an AI receptionist that answers calls, books appointments, and handles enquiries 24/7 for medical, dental, legal, restaurant, and trade businesses.",
+    "ZyncoAI is an AI receptionist for Australian businesses — answering calls, booking appointments, and handling enquiries 24/7.",
   keywords: [
     "AI receptionist Australia",
     "AI phone answering",
@@ -72,7 +72,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "ZyncoAI — AI Receptionist That Answers Every Call",
     description:
-      "ZyncoAI is an AI receptionist that answers calls, books appointments, and handles enquiries 24/7 for medical, dental, legal, restaurant, and trade businesses.",
+      "ZyncoAI is an AI receptionist for Australian businesses — answering calls, booking appointments, and handling enquiries 24/7.",
     url: "https://zyncoai.com",
     siteName: "ZyncoAI",
     locale: "en_AU",
@@ -83,7 +83,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "ZyncoAI — AI Receptionist That Answers Every Call",
     description:
-      "ZyncoAI is an AI receptionist that answers calls, books appointments, and handles enquiries 24/7 for medical, dental, legal, restaurant, and trade businesses.",
+      "ZyncoAI is an AI receptionist for Australian businesses — answering calls, booking appointments, and handling enquiries 24/7.",
     images: ["/opengraph-image"],
   },
 };
