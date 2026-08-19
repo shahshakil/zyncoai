@@ -63,7 +63,7 @@ export default function TenantRegistryPage() {
 
   return (
     <>
-      <Topbar />
+      <Topbar title="Tenant & Staff Registry" />
       <div className="space-y-4 p-6">
         <div className="flex items-center justify-between gap-3">
           <div>

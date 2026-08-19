@@ -23,7 +23,7 @@ import { Skeleton } from "@/components/dashboard/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/dashboard/ui/dialog";
 import { triggerPrint } from "@/lib/exportUtils";
 import { CHART_COLORS } from "@/components/dashboard/ui/chartTheme";
-import { CreateBookingDialog, VERTICAL_COPY } from "@/app/dashboard/bookings/page";
+import { CreateBookingDialog, VERTICAL_COPY } from "@/components/dashboard/bookings/CreateBookingDialog";
 
 const SLOT_START_HOUR = 7;
 const SLOT_END_HOUR = 19;

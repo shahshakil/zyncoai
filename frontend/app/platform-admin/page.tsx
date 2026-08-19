@@ -11,9 +11,9 @@ import { StatCard } from "@/components/platform-admin/StatCard";
 
 // ChartSkeleton is defined further down in this file (function declarations
 // hoist, so it's safe to reference here) and already accepts a height prop.
-const GradientAreaChart = dynamic(() => import("@/components/platform-admin/charts").then((m) => ({ default: m.GradientAreaChart })), { loading: ChartSkeleton, ssr: false });
-const GradientBarChart = dynamic(() => import("@/components/platform-admin/charts").then((m) => ({ default: m.GradientBarChart })), { loading: ChartSkeleton, ssr: false });
-const DonutChart = dynamic(() => import("@/components/platform-admin/charts").then((m) => ({ default: m.DonutChart })), { loading: ChartSkeleton, ssr: false });
+const GradientAreaChart = dynamic(() => import("@/components/platform-admin/charts").then((m) => ({ default: m.GradientAreaChart })), { loading: () => <ChartSkeleton />, ssr: false });
+const GradientBarChart = dynamic(() => import("@/components/platform-admin/charts").then((m) => ({ default: m.GradientBarChart })), { loading: () => <ChartSkeleton />, ssr: false });
+const DonutChart = dynamic(() => import("@/components/platform-admin/charts").then((m) => ({ default: m.DonutChart })), { loading: () => <ChartSkeleton />, ssr: false });
 import { formatNumber, formatCents, timeAgo, activityDotColor, VERTICAL_ICONS } from "@/components/platform-admin/format";
 import { TranscriptModal } from "@/components/platform-admin/TranscriptModal";
 

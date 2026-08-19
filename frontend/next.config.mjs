@@ -1,5 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Zero-downtime deploys (scripts/deploy.sh): a build normally always
+  // writes to ./.next, which is also the directory the live `next start`
+  // process is reading from — deleting/overwriting it mid-build is exactly
+  // what caused real 500s during every deploy (confirmed in nginx access
+  // logs, 2026-08-19). NEXT_BUILD_DIR lets a deploy build into an isolated
+  // directory instead, leaving the live .next completely untouched until a
+  // single atomic rename swaps it in. `next start` never sets this env var,
+  // so it always falls back to the real ./.next.
+  distDir: process.env.NEXT_BUILD_DIR || ".next",
   compress: true,
   images: {
     formats: ["image/avif", "image/webp"],

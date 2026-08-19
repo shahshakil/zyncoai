@@ -53,6 +53,9 @@ interface IntegrationState {
   apiKeyPreview?: string | null;
   subdomain?: string | null;
   webhookUrl?: string | null;
+  lastSyncStatus?: "success" | "error" | "never_synced" | null;
+  lastSyncedAt?: string | null;
+  lastSyncError?: string | null;
 }
 
 function PracticeManagementIntegrations() {

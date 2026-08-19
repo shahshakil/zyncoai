@@ -42,7 +42,7 @@ export function StaffSyncPanel({ onConfirmed }: { onConfirmed: (staff: { id: str
   const vcardInputRef = useRef<HTMLInputElement>(null);
 
   const [moreOpen, setMoreOpen] = useState(false);
-  const [credentialProvider, setCredentialProvider] = useState<(typeof MORE_PROVIDERS)[number] | { key: "cliniko"; label: "Cliniko"; fields: ["apiKey"] } | null>(null);
+  const [credentialProvider, setCredentialProvider] = useState<(typeof MORE_PROVIDERS)[number] | { key: "cliniko"; label: "Cliniko"; fields: Array<"apiKey" | "subdomain" | "apiUrl"> } | null>(null);
   const [form, setForm] = useState<Record<string, string>>({});
   const [connecting, setConnecting] = useState(false);
 

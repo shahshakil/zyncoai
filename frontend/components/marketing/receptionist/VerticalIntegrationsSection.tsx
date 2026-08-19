@@ -25,6 +25,7 @@ interface Row {
 const KIND_ICON: Record<IntegrationKind, typeof CalendarDays> = {
   google_calendar: CalendarDays,
   microsoft_calendar: CalendarDays,
+  clio: CalendarDays,
   square: CreditCard,
   website_scrape: FileSpreadsheet,
   coming_soon: Clock,

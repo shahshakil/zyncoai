@@ -22,6 +22,10 @@
   "dependencies": {
     "@prisma/client": "^6.19.2"
   },
+  "overrides": {
+    "@types/react": "^18",
+    "@types/react-dom": "^18"
+  },
   "version": "1.0.0",
   "main": "ecosystem.config.js",
   "directories": {
