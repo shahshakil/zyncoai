@@ -9,7 +9,7 @@ import ExecutionActions from "@/components/forms/ExecutionActions";
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   return {
-    title: `Execution ${id} | ZyncoAI`,
+    title: `Execution ${id}`,
     robots: { index: false, follow: false },
   };
 }

@@ -12,7 +12,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   const posts = getPostsByTag(params.slug);
   if (posts.length === 0) return {};
   return {
-    title: `#${params.slug} | ZyncoAI Blog`,
+    title: `#${params.slug}`,
     description: `ZyncoAI blog posts tagged #${params.slug}.`,
     alternates: { canonical: `/resources/blog/tag/${params.slug}`, languages: { "en-AU": `/resources/blog/tag/${params.slug}`, en: `/resources/blog/tag/${params.slug}` } },
   };

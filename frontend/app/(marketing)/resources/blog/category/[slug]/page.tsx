@@ -13,7 +13,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   const category = BLOG_CATEGORIES.find((c) => c.slug === params.slug);
   if (!category) return {};
   return {
-    title: `${category.name} | ZyncoAI Blog`,
+    title: `${category.name}`,
     description: `ZyncoAI blog posts about ${category.name.toLowerCase()}.`,
     alternates: { canonical: `/resources/blog/category/${category.slug}`, languages: { "en-AU": `/resources/blog/category/${category.slug}`, en: `/resources/blog/category/${category.slug}` } },
   };

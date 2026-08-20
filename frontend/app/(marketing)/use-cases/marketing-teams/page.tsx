@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Marketing Teams | ZyncoAI",
+  title: "Marketing Teams",
   description: "Lead routing, campaign ops, reporting, and team automation.",
   alternates: { canonical: "/use-cases/marketing-teams" },
 };

@@ -6,7 +6,7 @@ import { Footer } from "@/components/marketing/Footer";
 // rather than deleted. Distinct from the real, live /support Support Hub
 // (app/(marketing)/support/page.tsx) — different route tree, no URL clash.
 export const metadata = {
-  title: "Support Solutions | ZyncoAI",
+  title: "Support Solutions",
   description: "Automate support without losing control — automation with the right approvals in place.",
   robots: { index: false, follow: false },
 };

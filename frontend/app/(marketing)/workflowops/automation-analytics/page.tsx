@@ -13,7 +13,7 @@ type MetricsPayload = {
 };
 
 export const metadata = {
-  title: "Automation Analytics | ZyncoAI",
+  title: "Automation Analytics",
   description: "Track workflow volume, reliability, time savings, and auto-recovery.",
   alternates: { canonical: "/workflowops/automation-analytics" },
 };

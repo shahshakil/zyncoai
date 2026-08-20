@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Footer } from "@/components/marketing/Footer";
 
 export const metadata = {
-  title: "Sales Ops | ZyncoAI",
+  title: "Sales Ops",
   description:
     "ZyncoAI automates lead capture, enrichment, routing, and CRM updates — with approval thresholds and a full audit trail.",
   alternates: { canonical: "/solutions/sales-ops", languages: { "en-AU": "/solutions/sales-ops", en: "/solutions/sales-ops" } },

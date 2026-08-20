@@ -5,7 +5,7 @@ import { Footer } from "@/components/marketing/Footer";
 // this app/solutions/* tree is pre-pivot, orphaned from live nav, deindexed
 // rather than deleted.
 export const metadata = {
-  title: "Marketing Solutions | ZyncoAI",
+  title: "Marketing Solutions",
   description: "Capture every lead, everywhere — connect your marketing stack and automate lead routing.",
   robots: { index: false, follow: false },
 };

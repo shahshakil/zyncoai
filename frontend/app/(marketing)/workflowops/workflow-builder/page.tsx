@@ -1,7 +1,7 @@
 import dynamic from "next/dynamic";
 
 export const metadata = {
-  title: "Workflow Builder | ZyncoAI",
+  title: "Workflow Builder",
   description: "Build and visualise automation workflows on ZyncoAI's drag-and-drop canvas — connect triggers, actions, and conditions without code.",
   alternates: { canonical: "/workflowops/workflow-builder" },
 };

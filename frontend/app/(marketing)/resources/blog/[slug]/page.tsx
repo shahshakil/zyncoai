@@ -13,8 +13,15 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
   const post = getBlogPost(params.slug);
   if (!post) return {};
+  // `absolute` bypasses the root layout's title.template ("%s | ZyncoAI") —
+  // without it, a plain string here got that template applied ON TOP of the
+  // already-appended suffix below, doubling to "... | ZyncoAI | ZyncoAI" in
+  // the live <title> tag (confirmed, and what Bing flagged as too long).
+  // Posts whose own title already names ZyncoAI skip the suffix entirely
+  // rather than repeat the brand twice in one title bar.
+  const pageTitle = post.title.toLowerCase().includes("zyncoai") ? post.title : `${post.title} | ZyncoAI`;
   return {
-    title: `${post.title} | ZyncoAI`,
+    title: { absolute: pageTitle },
     description: post.description,
     openGraph: {
       title: post.title,

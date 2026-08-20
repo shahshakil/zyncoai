@@ -3,7 +3,7 @@ import { SimplePage } from "@/components/marketing/SimplePage";
 import { MK } from "@/styles/marketingTokens";
 
 export const metadata = {
-  title: "Integrations | ZyncoAI",
+  title: "Integrations",
   description:
     "Connect apps, databases, and services through the ZyncoAI connector registry — credentials stored encrypted and scoped to the workflows that need them.",
   alternates: { canonical: "/integrations", languages: { "en-AU": "/integrations", en: "/integrations" } },

@@ -2,9 +2,11 @@ import Link from "next/link";
 import { getLegalEntity, formatLegalParty } from "@/lib/legalEntity";
 
 export const metadata = {
-  title: "Privacy Policy • ZyncoAI",
+  // absolute — this title already contains "ZyncoAI"; the root layout's
+  // "%s | ZyncoAI" template would otherwise repeat the brand.
+  title: { absolute: "Privacy Policy • ZyncoAI" },
   description:
-    "How ZyncoAI collects, stores, and protects personal information under the Australian Privacy Act 1988, the My Health Records Act 2012, and related healthcare regulations.",
+    "How ZyncoAI collects, stores, and protects personal information under the Privacy Act 1988 and My Health Records Act 2012.",
   alternates: { canonical: "/privacy" },
 };
 

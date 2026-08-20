@@ -9,7 +9,7 @@ import { HELP_CATEGORIES } from "@/lib/verifiedHelpContent";
 import { getStatusLive, type StatusComponent } from "@/lib/marketing-api";
 
 export const metadata: Metadata = {
-  title: "Support Hub | ZyncoAI",
+  title: "Support Hub",
   description: "Search our verified Help Centre, check live system status, or message the founder directly — no ticket queue, no AI-generated answers.",
   alternates: { canonical: "/support" },
 };

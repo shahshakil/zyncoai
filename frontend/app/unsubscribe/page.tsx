@@ -4,7 +4,7 @@ import Link from "next/link";
 import { API_BASE } from "@/lib/marketing-api";
 
 export const metadata: Metadata = {
-  title: "Unsubscribe | ZyncoAI",
+  title: "Unsubscribe",
   robots: { index: false, follow: false },
 };
 

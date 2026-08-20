@@ -1,6 +1,6 @@
 // 2026-08-19 — see the matching comment on app/products/forms/page.tsx.
 export const metadata = {
-  title: "Tables | ZyncoAI",
+  title: "Tables",
   description: "Store automation data, run lookups, and power workflows with structured records.",
   robots: { index: false, follow: false },
 };

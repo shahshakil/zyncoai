@@ -11,7 +11,7 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
   if (params.slug !== BLOG_AUTHOR.slug) return {};
   return {
-    title: `${BLOG_AUTHOR.name} | ZyncoAI Blog`,
+    title: `${BLOG_AUTHOR.name}`,
     description: BLOG_AUTHOR.bio,
     alternates: { canonical: `/resources/blog/author/${BLOG_AUTHOR.slug}`, languages: { "en-AU": `/resources/blog/author/${BLOG_AUTHOR.slug}`, en: `/resources/blog/author/${BLOG_AUTHOR.slug}` } },
   };

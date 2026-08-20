@@ -81,7 +81,7 @@ export interface BlogPost {
 export const BLOG_POSTS: BlogPost[] = [
   {
     slug: "ai-receptionist-cost-savings-medical-clinics",
-    title: "How AI Receptionists Can Cut Costs for Australian Medical Clinics",
+    title: "How AI Receptionists Cut Costs for Medical Clinics",
     description:
       "A practical look at where a medical clinic actually loses money on the phone, and how 24/7 AI call answering changes the math.",
     publishedAt: "2026-07-15",
@@ -126,7 +126,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "best-ai-phone-answering-restaurants-australia",
-    title: "Best AI Phone Answering Systems for Australian Restaurants (2026)",
+    title: "Best AI Answering Systems for Restaurants (2026)",
     description:
       "What to actually look for in an AI phone system for a restaurant, and how ZyncoAI handles bookings and phone orders during a real dinner rush.",
     publishedAt: "2026-07-22",
@@ -215,7 +215,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "is-ai-receptionist-worth-it-small-salon",
-    title: "Is an AI Receptionist Worth It for a Small Hair & Beauty Salon?",
+    title: "Is an AI Receptionist Worth It for a Salon?",
     description:
       "The honest cost math for a small salon — what a missed booking actually costs you, and what ZyncoAI's real starting price buys against it.",
     publishedAt: "2026-08-17",
@@ -258,7 +258,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "ai-receptionist-guide-law-firms",
-    title: "How Ella Handles Calls for Law Firms: A Real-World Guide",
+    title: "How Ella Handles Calls for Law Firms",
     description:
       "What actually happens when a prospective client calls a law firm using ZyncoAI — matter screening, consultation booking, and what's deliberately off-limits.",
     publishedAt: "2026-08-17",
@@ -300,9 +300,9 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "ai-receptionist-vs-traditional-answering-service",
-    title: "AI Receptionist vs Traditional Answering Service: An Honest Comparison",
+    title: "AI Receptionist vs Traditional Answering Service",
     description:
-      "Where a paid human answering service still wins, and where an AI receptionist with real calendar access genuinely does something an answering service structurally can't.",
+      "Where a paid human answering service still wins, and where an AI receptionist with real calendar access does something a service structurally can't.",
     publishedAt: "2026-08-17",
     readingMinutes: 6,
     category: "comparisons",
@@ -345,7 +345,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "ai-receptionist-privacy-compliance-australian-businesses",
-    title: "How ZyncoAI Handles Privacy, AI Disclosure, and Data Hosting for Australian Businesses",
+    title: "How ZyncoAI Handles Privacy, AI Disclosure, and Hosting",
     description:
       "The honest, specific answer to what ZyncoAI actually does with your data and callers' data — no unearned certifications, no vague reassurances.",
     publishedAt: "2026-08-17",
@@ -396,9 +396,9 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "ai-receptionist-guide-dental-practices",
-    title: "How Ella Handles Calls for Dental Practices: A Real-World Guide",
+    title: "How Ella Handles Calls for Dental Practices",
     description:
-      "What actually happens when a patient calls a dental practice using ZyncoAI — emergency triage, recall bookings, insurance questions, and what's deliberately off-limits.",
+      "What happens when a patient calls a dental practice using ZyncoAI — emergency triage, recall bookings, insurance questions, and what's off-limits.",
     publishedAt: "2026-08-16",
     readingMinutes: 6,
     category: "industry-guides",
@@ -438,9 +438,9 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "ai-receptionist-guide-mechanic-shops",
-    title: "How Ella Handles Calls for Mechanic Shops: A Real-World Guide",
+    title: "How Ella Handles Calls for Mechanic Shops",
     description:
-      "What actually happens when a customer calls a mechanic or auto shop using ZyncoAI — booking the job, capturing the vehicle details, and what still needs a real inspection.",
+      "What happens when a customer calls a mechanic shop using ZyncoAI — booking the job, capturing vehicle details, and what still needs a real inspection.",
     publishedAt: "2026-08-16",
     readingMinutes: 5,
     category: "industry-guides",
@@ -475,9 +475,9 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "ai-receptionist-guide-banks-credit-unions",
-    title: "How Ella Handles Calls for Banks and Credit Unions: A Real-World Guide",
+    title: "How Ella Handles Calls for Banks and Credit Unions",
     description:
-      "What actually happens when a member calls a bank or credit union using ZyncoAI — appointment booking, product screening, and the one hard rule that overrides everything else.",
+      "What happens when a member calls a bank or credit union using ZyncoAI — appointment booking, product screening, and the one rule that overrides everything else.",
     publishedAt: "2026-08-16",
     readingMinutes: 6,
     category: "industry-guides",
@@ -517,9 +517,9 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "ai-receptionist-guide-universities",
-    title: "How Ella Handles Calls for Universities: A Real-World Guide",
+    title: "How Ella Handles Calls for Universities",
     description:
-      "What actually happens when a student calls student services using ZyncoAI — enrolment questions, advisor bookings, and how welfare calls are handled differently.",
+      "What happens when a student calls student services using ZyncoAI — enrolment questions, advisor bookings, and how welfare calls are handled differently.",
     publishedAt: "2026-08-16",
     readingMinutes: 5,
     category: "industry-guides",

@@ -1,6 +1,6 @@
 // 2026-08-19 — see the matching comment on app/products/forms/page.tsx.
 export const metadata = {
-  title: "Zyns | ZyncoAI",
+  title: "Zyns",
   description: "Build multi-step automations with triggers, actions, approvals, retries, and logs.",
   robots: { index: false, follow: false },
 };

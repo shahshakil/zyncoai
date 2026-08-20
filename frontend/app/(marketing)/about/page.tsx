@@ -5,7 +5,7 @@ import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { REAL_DIFFERENTIATORS } from "@/components/marketing/receptionist/data";
 
 export const metadata: Metadata = {
-  title: "About | ZyncoAI",
+  title: "About",
   description: "ZyncoAI builds Ella, an AI receptionist for Australian practices — answering every call, booking every appointment, 24/7.",
   alternates: { canonical: "/about", languages: { "en-AU": "/about", en: "/about" } },
 };

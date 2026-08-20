@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 
 export const metadata = {
-  title: "AgentOps | ZyncoAI",
+  title: "AgentOps",
   description:
     "Run multi-agent automation safely: planning, execution, self-healing retries, and a business intelligence graph for decisions — with every action logged.",
   alternates: { canonical: "/agentops", languages: { "en-AU": "/agentops", en: "/agentops" } },

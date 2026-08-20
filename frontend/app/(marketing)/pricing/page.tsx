@@ -12,7 +12,10 @@ const TITLE = `ZyncoAI Pricing — AI Receptionist Plans from AUD $${SITEWIDE_CH
 const DESCRIPTION = `Simple transparent pricing for ZyncoAI AI receptionist, priced by industry — from AUD $${SITEWIDE_CHEAPEST_PLAN_PRICE}/month. 7-day free trial. No contracts.`;
 
 export const metadata: Metadata = {
-  title: TITLE,
+  // absolute — TITLE already contains "ZyncoAI"; the root layout's
+  // "%s | ZyncoAI" template would otherwise repeat the brand and push this
+  // past 60 characters (Bing flagged the equivalent pattern on other pages).
+  title: { absolute: TITLE },
   description: DESCRIPTION,
   openGraph: {
     title: TITLE,

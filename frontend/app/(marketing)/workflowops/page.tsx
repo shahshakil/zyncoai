@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 
 export const metadata = {
-  title: "WorkflowOps | ZyncoAI",
+  title: "WorkflowOps",
   description:
     "Developer and ops tooling for production workflows — a builder, a connector registry, versioning with rollback, and monitoring with run history and tracing.",
   alternates: { canonical: "/workflowops", languages: { "en-AU": "/workflowops", en: "/workflowops" } },

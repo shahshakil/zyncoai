@@ -13,7 +13,7 @@ type ReminderPayload = {
 };
 
 export const metadata = {
-  title: "Smart Reminders & Appointments | ZyncoAI",
+  title: "Smart Reminders & Appointments",
   description: "Calendar, email, app notifications, and reminder intelligence.",
   alternates: { canonical: "/ai-brain/reminders" },
 };

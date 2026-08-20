@@ -11,7 +11,7 @@ import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { getVoiceHealth } from "@/lib/marketing-api";
 
 export const metadata: Metadata = {
-  title: "Hear Ella Answer Your Business | ZyncoAI",
+  title: "Hear Ella Answer Your Business",
   description: "Type your business name and hear Ella — ZyncoAI's real AI receptionist — answer as if she already worked there, generated live with her actual production voice.",
   alternates: { canonical: "/demo", languages: { "en-AU": "/demo", en: "/demo" } },
 };

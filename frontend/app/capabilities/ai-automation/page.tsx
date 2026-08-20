@@ -2,7 +2,7 @@ import Link from "next/link";
 import { MK } from "@/styles/marketingTokens";
 
 export const metadata = {
-  title: "AI Automation | ZyncoAI",
+  title: "AI Automation",
   description:
     "Let AI plan and generate a workflow from a plain-language request, then execute it inside the same guardrails and approvals as anything built by hand.",
   alternates: { canonical: "/capabilities/ai-automation", languages: { "en-AU": "/capabilities/ai-automation", en: "/capabilities/ai-automation" } },

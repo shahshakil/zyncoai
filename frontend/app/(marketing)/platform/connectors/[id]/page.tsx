@@ -26,7 +26,7 @@ export async function generateMetadata({
 }) {
   const { id } = await params;
   return {
-    title: `${id} Connector | ZyncoAI`,
+    title: `${id} Connector`,
     description: `Connector detail for ${id} in ZyncoAI.`,
     alternates: { canonical: `/platform/connectors/${id}` },
     // Same reasoning as executions/[id] and sitemap.ts's own comment: an

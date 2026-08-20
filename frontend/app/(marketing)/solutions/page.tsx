@@ -3,7 +3,7 @@ import { INDUSTRIES, USE_CASES, COMPANY_SIZES } from "@/components/marketing/rec
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 
 export const metadata = {
-  title: "Solutions | ZyncoAI",
+  title: "Solutions",
   description: "ZyncoAI by industry, by use case, and by business size — find the AI receptionist setup built for how your business actually runs.",
   alternates: { canonical: "/solutions", languages: { "en-AU": "/solutions", en: "/solutions" } },
 };

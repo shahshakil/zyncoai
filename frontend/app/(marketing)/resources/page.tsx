@@ -3,7 +3,7 @@ import Link from "next/link";
 import { BookOpen, Code2, ShieldCheck, LifeBuoy, History, Activity, ArrowRight, Newspaper } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Resources | ZyncoAI",
+  title: "Resources",
   description: "Blog, documentation, API reference, trust & security, help centre, changelog, and live system status for ZyncoAI.",
   alternates: { canonical: "/resources" },
 };

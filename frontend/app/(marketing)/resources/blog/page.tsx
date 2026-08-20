@@ -5,7 +5,7 @@ import { INDUSTRIES } from "@/components/marketing/receptionist/data";
 import { PostCard } from "@/components/marketing/blog/PostCard";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 
-const TITLE = "Blog | ZyncoAI";
+const TITLE = "Blog";
 const DESCRIPTION = "AI receptionist guides for Australian businesses — cost comparisons, industry breakdowns, and how ZyncoAI actually works.";
 
 export const metadata: Metadata = {

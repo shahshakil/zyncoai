@@ -3,7 +3,7 @@ import { SimplePage } from "@/components/marketing/SimplePage";
 import { MK } from "@/styles/marketingTokens";
 
 export const metadata = {
-  title: "Governance | ZyncoAI",
+  title: "Governance",
   description:
     "Approvals, policy guardrails, and change tracking for automation — how ZyncoAI keeps agent and workflow actions inside the boundaries a team actually agreed to.",
   alternates: { canonical: "/governance", languages: { "en-AU": "/governance", en: "/governance" } },

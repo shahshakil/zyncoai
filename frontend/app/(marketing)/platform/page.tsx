@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 
 export const metadata = {
-  title: "Platform | ZyncoAI",
+  title: "Platform",
   description:
     "The ZyncoAI platform: a workflow execution engine, a connector framework, a multi-agent runtime, and the governance layer that keeps all of it auditable.",
   alternates: { canonical: "/platform", languages: { "en-AU": "/platform", en: "/platform" } },

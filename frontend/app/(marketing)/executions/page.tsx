@@ -22,7 +22,7 @@ type ExecutionsPayload = {
 };
 
 export const metadata = {
-  title: "Executions | ZyncoAI",
+  title: "Executions",
   description: "Monitor workflow runs, status, timing, and operational reliability.",
   alternates: { canonical: "/executions" },
 };

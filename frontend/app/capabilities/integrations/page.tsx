@@ -2,9 +2,9 @@ import Link from "next/link";
 import { MK } from "@/styles/marketingTokens";
 
 export const metadata = {
-  title: "App Integrations | ZyncoAI",
+  title: "App Integrations",
   description:
-    "How the ZyncoAI connector framework actually works: shared auth per connector, one registry reused across every workflow, and a generic HTTP step for anything without a pre-built connector.",
+    "How the ZyncoAI connector framework works: shared auth per connector, one registry reused across every workflow, and a generic HTTP step for the rest.",
   alternates: { canonical: "/capabilities/integrations", languages: { "en-AU": "/capabilities/integrations", en: "/capabilities/integrations" } },
 };
 

@@ -14,7 +14,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   const industry = INDUSTRIES.find((i) => i.slug === params.slug);
   if (!industry) return {};
   return {
-    title: `${industry.name} articles | ZyncoAI Blog`,
+    title: `${industry.name} articles`,
     description: `ZyncoAI blog posts relevant to ${industry.name.toLowerCase()}.`,
     alternates: {
       canonical: `/resources/blog/industry/${industry.slug}`,

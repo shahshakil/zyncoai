@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Contact | ZyncoAI",
+  title: "Contact",
   description: "Get in touch with the ZyncoAI team — support, sales, or a live demo of Ella, your AI receptionist.",
   alternates: { canonical: "/contact", languages: { "en-AU": "/contact", en: "/contact" } },
 };

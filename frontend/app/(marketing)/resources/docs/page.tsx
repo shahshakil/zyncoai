@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ResourcePageShell, ResourceSection } from "@/components/marketing/receptionist/ResourcePageShell";
 
 export const metadata: Metadata = {
-  title: "Documentation | ZyncoAI",
+  title: "Documentation",
   description: "How ZyncoAI works, call forwarding setup, connecting your practice software, and using your dashboard.",
   alternates: { canonical: "/resources/docs" },
 };

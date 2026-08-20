@@ -2,7 +2,9 @@ import Link from "next/link";
 import { getLegalEntity, formatLegalParty } from "@/lib/legalEntity";
 
 export const metadata = {
-  title: "Terms of Service • ZyncoAI",
+  // absolute — this title already contains "ZyncoAI"; the root layout's
+  // "%s | ZyncoAI" template would otherwise repeat the brand.
+  title: { absolute: "Terms of Service • ZyncoAI" },
   description:
     "ZyncoAI Terms of Service covering use of the platform, accounts, security, acceptable use, and legal terms.",
   alternates: { canonical: "/terms" },

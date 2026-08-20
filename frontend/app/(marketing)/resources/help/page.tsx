@@ -5,7 +5,7 @@ import { HelpJsonLd } from "@/components/seo/HelpJsonLd";
 import { HELP_CATEGORIES } from "@/lib/verifiedHelpContent";
 
 export const metadata: Metadata = {
-  title: "Help Centre | ZyncoAI",
+  title: "Help Centre",
   description: "FAQs, troubleshooting, billing, staff invites, and the ZyncoAI cancellation and refund policy.",
   alternates: { canonical: "/resources/help" },
 };

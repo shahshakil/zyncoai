@@ -3,7 +3,7 @@ import { SimplePage } from "@/components/marketing/SimplePage";
 import { MK } from "@/styles/marketingTokens";
 
 export const metadata = {
-  title: "Templates | ZyncoAI",
+  title: "Templates",
   description:
     "Start a workflow from a working starting point instead of a blank canvas — lead routing, reporting, incident triage, and approval flows.",
   alternates: { canonical: "/templates", languages: { "en-AU": "/templates", en: "/templates" } },

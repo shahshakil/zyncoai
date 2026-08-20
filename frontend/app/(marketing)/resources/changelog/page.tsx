@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ResourcePageShell } from "@/components/marketing/receptionist/ResourcePageShell";
 
 export const metadata: Metadata = {
-  title: "Changelog | ZyncoAI",
+  title: "Changelog",
   description: "Version history — what's new, fixed, and improved in ZyncoAI.",
   alternates: { canonical: "/resources/changelog" },
 };

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ResourcePageShell, ResourceSection } from "@/components/marketing/receptionist/ResourcePageShell";
 
 export const metadata: Metadata = {
-  title: "Trust & Security | ZyncoAI",
+  title: "Trust & Security",
   description: "How ZyncoAI protects patient data — encryption, access controls, data residency, and compliance posture.",
   alternates: { canonical: "/resources/trust" },
 };

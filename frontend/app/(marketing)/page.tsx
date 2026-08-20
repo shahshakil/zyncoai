@@ -30,12 +30,17 @@ const PricingSection = dynamic(() => import("@/components/marketing/receptionist
 const FinalCtaSection = dynamic(() => import("@/components/marketing/receptionist/FinalCtaSection").then((m) => m.FinalCtaSection), { ssr: true });
 const FaqSection = dynamic(() => import("@/components/marketing/receptionist/FaqSection").then((m) => m.FaqSection), { ssr: true });
 
-const TITLE = "ZyncoAI — AI Receptionist for Australian Businesses | 24/7 Call Answering";
-const DESCRIPTION = `ZyncoAI answers every call 24/7, books appointments automatically, and never misses a customer. AI receptionist for medical clinics, restaurants, mechanics and more. From AUD $${SITEWIDE_CHEAPEST_PLAN_PRICE}/month.`;
+// 2026-08-20 — Bing flagged the live <title> as too long. The root layout's
+// title.template ("%s | ZyncoAI") was appending a second, redundant
+// "ZyncoAI" onto a title that already opened with it, pushing the homepage
+// past 80 characters. `absolute` bypasses that template so this string is
+// the whole <title>, not a prefix for it.
+const TITLE = "ZyncoAI — AI Receptionist for Australian Businesses";
+const DESCRIPTION = `ZyncoAI is an AI receptionist for Australian businesses — answers calls 24/7, books appointments automatically, and never misses a customer. AUD $${SITEWIDE_CHEAPEST_PLAN_PRICE}/month.`;
 const SHORT_DESCRIPTION = "Ella answers every call 24/7 and books appointments automatically.";
 
 export const metadata = {
-  title: TITLE,
+  title: { absolute: TITLE },
   description: DESCRIPTION,
   keywords: ["AI receptionist Australia", "AI phone answering", "automatic booking", "ZyncoAI", "medical receptionist AI"],
   openGraph: {

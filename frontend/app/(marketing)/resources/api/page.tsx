@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ResourcePageShell, ResourceSection } from "@/components/marketing/receptionist/ResourcePageShell";
 
 export const metadata: Metadata = {
-  title: "API Reference | ZyncoAI",
+  title: "API Reference",
   description: "Webhook events, HMAC signature verification, retry policy, and sample payloads for ZyncoAI.",
   alternates: { canonical: "/resources/api" },
 };

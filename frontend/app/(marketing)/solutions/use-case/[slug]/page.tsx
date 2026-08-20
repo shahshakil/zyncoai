@@ -10,7 +10,7 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
   const useCase = USE_CASES.find((u) => u.slug === params.slug);
   if (!useCase) return {};
-  const title = `${useCase.name} | ZyncoAI`;
+  const title = `${useCase.name}`;
   return {
     title,
     description: useCase.tagline,

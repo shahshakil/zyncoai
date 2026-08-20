@@ -10,7 +10,10 @@ const DESCRIPTION =
   "Answers to common questions about ZyncoAI's AI phone receptionist — pricing, call forwarding, appointment booking, data privacy, setup time and more.";
 
 export const metadata: Metadata = {
-  title: TITLE,
+  // absolute — TITLE already contains "ZyncoAI"; the root layout's
+  // "%s | ZyncoAI" template would otherwise repeat the brand and push this
+  // past 60 characters (Bing flagged the equivalent pattern on other pages).
+  title: { absolute: TITLE },
   description: DESCRIPTION,
   openGraph: {
     title: TITLE,

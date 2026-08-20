@@ -13,7 +13,7 @@ type ConnectorsPayload = {
 };
 
 export const metadata = {
-  title: "Connector Framework | ZyncoAI",
+  title: "Connector Framework",
   description: "Browse real connectors available in the ZyncoAI platform.",
   alternates: { canonical: "/platform/connectors" },
 };

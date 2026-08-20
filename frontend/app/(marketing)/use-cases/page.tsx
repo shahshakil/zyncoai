@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 
 export const metadata = {
-  title: "Use Cases | ZyncoAI",
+  title: "Use Cases",
   description:
     "How teams use ZyncoAI to automate lead routing, reporting, incident response, and approvals — with agents handling the steps that need judgment.",
   alternates: { canonical: "/use-cases", languages: { "en-AU": "/use-cases", en: "/use-cases" } },

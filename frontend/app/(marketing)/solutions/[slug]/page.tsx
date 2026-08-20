@@ -7,11 +7,28 @@ export function generateStaticParams() {
   return INDUSTRIES.map((i) => ({ slug: i.slug }));
 }
 
+// The old `${tagline}. ${overview.slice(0, 140)}...` fixed the overview
+// slice to 140 chars regardless of the tagline's own length, so the real
+// total ranged from ~170 to ~210+ depending on which industry — several
+// pages ended up well past the ~150-160 char meta description range Bing
+// flags as too long. This budgets the overview slice against a single
+// target total instead, and cuts at a word boundary so it never chops a
+// word in half.
+const META_DESCRIPTION_TARGET = 158;
+function buildSolutionDescription(tagline: string, overview: string): string {
+  const prefix = `${tagline}. `;
+  const budget = META_DESCRIPTION_TARGET - prefix.length - 3; // reserve for "..."
+  if (overview.length <= budget) return `${prefix}${overview}`;
+  const cut = overview.slice(0, budget);
+  const lastSpace = cut.lastIndexOf(" ");
+  return `${prefix}${cut.slice(0, lastSpace > 0 ? lastSpace : budget)}...`;
+}
+
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
   const industry = INDUSTRIES.find((i) => i.slug === params.slug);
   if (!industry) return {};
-  const title = `AI ${industry.name} Receptionist Australia | ZyncoAI`;
-  const description = `${industry.tagline}. ${industry.overview.slice(0, 140)}...`;
+  const title = `AI ${industry.name} Receptionist Australia`;
+  const description = buildSolutionDescription(industry.tagline, industry.overview);
   return {
     title,
     description,

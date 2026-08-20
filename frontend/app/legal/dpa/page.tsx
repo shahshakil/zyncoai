@@ -2,9 +2,11 @@ import Link from "next/link";
 import { getLegalEntity, formatLegalParty } from "@/lib/legalEntity";
 
 export const metadata = {
-  title: "Data Processing Agreement • ZyncoAI",
+  // absolute — this title already contains "ZyncoAI"; the root layout's
+  // "%s | ZyncoAI" template would otherwise repeat the brand.
+  title: { absolute: "Data Processing Agreement • ZyncoAI" },
   description:
-    "The Data Processing Agreement between ZyncoAI and clinic owners, describing what data is processed as part of the AI voice receptionist service and each party's obligations.",
+    "The Data Processing Agreement between ZyncoAI and clinic owners — what data is processed by the AI voice receptionist service and each party's obligations.",
   alternates: { canonical: "/legal/dpa" },
 };
 

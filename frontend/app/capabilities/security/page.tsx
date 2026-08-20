@@ -2,9 +2,9 @@ import Link from "next/link";
 import { MK } from "@/styles/marketingTokens";
 
 export const metadata = {
-  title: "Secure Execution | ZyncoAI",
+  title: "Secure Execution",
   description:
-    "How workflow runs are isolated from each other, how session controls limit what a logged-in user can do mid-run, and how RBAC and audit logs cover secure execution end to end.",
+    "How workflow runs are isolated from each other, how session controls limit what a user can do mid-run, and how RBAC and audit logs cover execution end to end.",
   alternates: { canonical: "/capabilities/security", languages: { "en-AU": "/capabilities/security", en: "/capabilities/security" } },
 };
 

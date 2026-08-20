@@ -11,7 +11,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   const size = COMPANY_SIZES.find((s) => s.slug === params.slug);
   if (!size) return {};
   return {
-    title: `${size.name} | ZyncoAI`,
+    title: `${size.name}`,
     description: size.tagline,
     alternates: { canonical: `/solutions/size/${size.slug}`, languages: { "en-AU": `/solutions/size/${size.slug}`, en: `/solutions/size/${size.slug}` } },
   };

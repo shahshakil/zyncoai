@@ -40,10 +40,12 @@ import { FeaturesPageClient } from "./FeaturesPageClient";
 
 const TITLE = "Features | ZyncoAI — What Ella Actually Does";
 const DESCRIPTION =
-  "A deep look at what ZyncoAI's AI receptionist Ella actually does today: 24/7 call answering, real-time booking, Google and Microsoft calendar sync, call transcripts, per-vertical dashboards, billing, and Sydney-hosted data.";
+  "ZyncoAI's AI receptionist Ella: 24/7 call answering, real-time booking, calendar sync, call transcripts, per-vertical dashboards, and Sydney-hosted data.";
 
 export const metadata: Metadata = {
-  title: TITLE,
+  // absolute — TITLE already contains "ZyncoAI"; the root layout's
+  // "%s | ZyncoAI" template would otherwise repeat the brand mid-title.
+  title: { absolute: TITLE },
   description: DESCRIPTION,
   alternates: { canonical: "/features", languages: { "en-AU": "/features", en: "/features" } },
   openGraph: {

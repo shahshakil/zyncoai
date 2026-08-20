@@ -5,7 +5,7 @@ import { UptimeHistoryBars } from "@/components/marketing/receptionist/UptimeHis
 import { getStatusLive, getStatusHistory, getStatusIncidents, type StatusComponent } from "@/lib/marketing-api";
 
 export const metadata = {
-  title: "System Status | ZyncoAI",
+  title: "System Status",
   description: "Live, per-component status of ZyncoAI's platform — API, database, Redis, voice, and billing webhooks.",
   alternates: { canonical: "/resources/status" },
 };

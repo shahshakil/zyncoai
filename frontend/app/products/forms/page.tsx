@@ -4,7 +4,7 @@
 // rather than left with no metadata at all (was silently duplicating the
 // homepage's title/description).
 export const metadata = {
-  title: "Forms | ZyncoAI",
+  title: "Forms",
   description: "Capture inputs that trigger workflows. Public form → workflow execution.",
   robots: { index: false, follow: false },
 };
