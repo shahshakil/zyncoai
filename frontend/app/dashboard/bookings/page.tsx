@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
 import { Plus, CalendarRange, FileSpreadsheet, Printer, Loader2, CalendarX2 } from "lucide-react";
 import { toast } from "sonner";
@@ -29,6 +29,7 @@ import { Table, Thead, Th, Tbody, Tr, Td, EmptyState } from "@/components/dashbo
 import { SkeletonRow } from "@/components/dashboard/ui/skeleton";
 import { Badge, StatusBadge } from "@/components/dashboard/ui/badge";
 import { VERTICAL_COPY, type Appointment, type Provider, CreateBookingDialog } from "@/components/dashboard/bookings/CreateBookingDialog";
+import { RescheduleDialog } from "@/components/dashboard/bookings/RescheduleDialog";
 
 function buildAppointmentColumns(contactLabel: string, providerLabel: string): ExportColumn[] {
   return [
@@ -74,6 +75,33 @@ function weekStartOf(d: Date): Date {
   monday.setDate(d.getDate() - ((day + 6) % 7));
   monday.setHours(0, 0, 0, 0);
   return monday;
+}
+
+function dayKey(iso: string): string {
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+}
+
+function dayLabel(iso: string, todayKey: string): string {
+  if (dayKey(iso) === todayKey) return "Today";
+  const d = new Date(iso);
+  const sameYear = d.getFullYear() === new Date().getFullYear();
+  return d.toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", ...(sameYear ? {} : { year: "numeric" }) });
+}
+
+// Backend already returns rows ordered by startAt (asc for upcoming, desc
+// for past) so same-day rows are always contiguous — a single linear pass
+// groups them without re-sorting.
+function groupByDay(appointments: Appointment[]): { key: string; label: string; isToday: boolean; items: Appointment[] }[] {
+  const todayKey = dayKey(new Date().toISOString());
+  const groups: { key: string; label: string; isToday: boolean; items: Appointment[] }[] = [];
+  for (const a of appointments) {
+    const key = dayKey(a.startAt);
+    const last = groups[groups.length - 1];
+    if (last && last.key === key) last.items.push(a);
+    else groups.push({ key, label: dayLabel(a.startAt, todayKey), isToday: key === todayKey, items: [a] });
+  }
+  return groups;
 }
 
 function ScheduleExportButton({ businessName, reportTitle, onPrintReady }: { businessName: string; reportTitle: string; onPrintReady: (providers: ScheduleProvider[], weekStart: Date) => void }) {
@@ -144,13 +172,15 @@ export default function BookingsPage() {
   const ops = getVerticalOps(business.vertical);
   const APPOINTMENT_COLUMNS = buildAppointmentColumns(ops?.contactLabel || "Patient", ops?.providerLabel || "Doctor/Provider");
   const [status, setStatus] = useState("");
+  const [view, setView] = useState<"upcoming" | "past">("upcoming");
   const [createOpen, setCreateOpen] = useState(false);
+  const [rescheduleTarget, setRescheduleTarget] = useState<Appointment | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [printMode, setPrintMode] = useState<"list" | "schedule" | null>(null);
   const [printRows, setPrintRows] = useState<AppointmentExportRow[]>([]);
   const [scheduleData, setScheduleData] = useState<{ providers: ScheduleProvider[]; weekStart: Date } | null>(null);
 
-  const query = new URLSearchParams(status ? { status } : {}).toString();
+  const query = new URLSearchParams({ view, ...(status ? { status } : {}) }).toString();
   const { data, isLoading, mutate } = useApi<{ data: Appointment[] }>(`/api/business/appointments?${query}`, { refreshInterval: 8000 });
   const { data: providersData, isLoading: providersLoading, mutate: mutateProviders } = useApi<{ providers: Provider[] }>("/api/business/providers");
 
@@ -219,7 +249,20 @@ export default function BookingsPage() {
       </div>
 
       <Card className="no-print">
-        <div className="flex items-center gap-3 border-b border-slate-200 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-4">
+          <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
+            {(["upcoming", "past"] as const).map((v) => (
+              <button
+                key={v}
+                onClick={() => setView(v)}
+                className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
+                  view === v ? "bg-white text-[#0f172a] shadow-sm" : "text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                {v === "upcoming" ? "Upcoming" : "Past"}
+              </button>
+            ))}
+          </div>
           <Select value={status} onChange={(e) => setStatus(e.target.value)} className="w-48">
             <option value="">All statuses</option>
             {["REQUESTED", "CONFIRMED", "RESCHEDULED", "ARRIVED", "COMPLETED", "CANCELLED", "NO_SHOW"].map((s) => <option key={s} value={s}>{s}</option>)}
@@ -254,67 +297,81 @@ export default function BookingsPage() {
             {isLoading ? (
               Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} cols={8} />)
             ) : data?.data.length ? (
-              data.data.map((a) => {
-                const providerConnected = providersData?.providers.find((p) => p.id === a.provider.id)?.googleCalendarConnected;
-                return (
-                <Tr key={a.id} className={`border-l-4 ${ROW_STATUS_BORDER[a.status] || "border-l-transparent"}`}>
-                  <Td><input type="checkbox" checked={selected.has(a.id)} onChange={() => toggleSelected(a.id)} /></Td>
-                  <Td className="font-medium text-slate-900">
-                    {a.contact ? (
-                      <Link href={`/dashboard/contacts/${a.contact.id}`} className="hover:text-[var(--accent,#2563eb)] hover:underline">
-                        {a.contact.name || a.contact.phone}
-                      </Link>
-                    ) : "—"}
-                  </Td>
-                  <Td>{a.provider.name}</Td>
-                  <Td className="text-slate-500">{new Date(a.startAt).toLocaleString()}</Td>
-                  <Td><StatusBadge status={a.status} /></Td>
-                  <Td>
-                    {a.googleEventId ? (
-                      <Badge tone="success" title="Synced to Google Calendar">Synced</Badge>
-                    ) : providerConnected ? (
-                      <Badge tone="warning" title="This staff member's Google Calendar is connected, but this booking wasn't synced">Not synced</Badge>
-                    ) : (
-                      <Badge tone="default" title="This staff member hasn't connected Google Calendar">Not connected</Badge>
-                    )}
-                  </Td>
-                  <Td className="max-w-[200px] truncate text-slate-500">{a.notes || "—"}</Td>
-                  <Td className="text-right">
-                    <div className="flex flex-wrap justify-end gap-1.5">
-                      {["REQUESTED", "CONFIRMED", "RESCHEDULED"].includes(a.status) && (
-                        <button onClick={() => updateStatus(a.id, "ARRIVED")} className="rounded-lg bg-blue-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-blue-500">
-                          Check In
-                        </button>
-                      )}
-                      {["CONFIRMED", "RESCHEDULED", "ARRIVED"].includes(a.status) && (
-                        <button onClick={() => updateStatus(a.id, "COMPLETED")} className="rounded-lg bg-emerald-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-emerald-500">
-                          Complete
-                        </button>
-                      )}
-                      {["REQUESTED", "CONFIRMED", "RESCHEDULED"].includes(a.status) && (
-                        <button onClick={() => updateStatus(a.id, "NO_SHOW")} className="rounded-lg bg-rose-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-rose-500">
-                          No Show
-                        </button>
-                      )}
-                      {!["COMPLETED", "CANCELLED", "NO_SHOW"].includes(a.status) && (
-                        <button onClick={() => updateStatus(a.id, "CANCELLED")} className="rounded-lg bg-slate-500 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-slate-400">
-                          Cancel
-                        </button>
-                      )}
-                    </div>
-                  </Td>
-                </Tr>
-              );
-              })
+              groupByDay(data.data).map((group) => (
+                <Fragment key={group.key}>
+                  <tr>
+                    <Td colSpan={8} className={`!py-2 text-xs font-semibold uppercase tracking-wide ${group.isToday ? "bg-[var(--accent,#4f46e5)]/10 text-[var(--accent,#4f46e5)]" : "bg-slate-50 text-slate-400"}`}>
+                      {group.label}
+                    </Td>
+                  </tr>
+                  {group.items.map((a) => {
+                    const providerConnected = providersData?.providers.find((p) => p.id === a.provider.id)?.googleCalendarConnected;
+                    return (
+                    <Tr key={a.id} className={`border-l-4 ${ROW_STATUS_BORDER[a.status] || "border-l-transparent"}`}>
+                      <Td><input type="checkbox" checked={selected.has(a.id)} onChange={() => toggleSelected(a.id)} /></Td>
+                      <Td className="font-medium text-slate-900">
+                        {a.contact ? (
+                          <Link href={`/dashboard/contacts/${a.contact.id}`} className="hover:text-[var(--accent,#2563eb)] hover:underline">
+                            {a.contact.name || a.contact.phone}
+                          </Link>
+                        ) : "—"}
+                      </Td>
+                      <Td>{a.provider.name}</Td>
+                      <Td className="text-slate-500">{new Date(a.startAt).toLocaleString()}</Td>
+                      <Td><StatusBadge status={a.status} /></Td>
+                      <Td>
+                        {a.googleEventId ? (
+                          <Badge tone="success" title="Synced to Google Calendar">Synced</Badge>
+                        ) : providerConnected ? (
+                          <Badge tone="warning" title="This staff member's Google Calendar is connected, but this booking wasn't synced">Not synced</Badge>
+                        ) : (
+                          <Badge tone="default" title="This staff member hasn't connected Google Calendar">Not connected</Badge>
+                        )}
+                      </Td>
+                      <Td className="max-w-[200px] truncate text-slate-500">{a.notes || "—"}</Td>
+                      <Td className="text-right">
+                        <div className="flex flex-wrap justify-end gap-1.5">
+                          {view === "upcoming" && !["COMPLETED", "CANCELLED", "NO_SHOW"].includes(a.status) && (
+                            <button onClick={() => setRescheduleTarget(a)} className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:border-[var(--accent,#4f46e5)]/40 hover:text-[var(--accent,#4f46e5)]">
+                              Reschedule
+                            </button>
+                          )}
+                          {["REQUESTED", "CONFIRMED", "RESCHEDULED"].includes(a.status) && (
+                            <button onClick={() => updateStatus(a.id, "ARRIVED")} className="rounded-lg bg-blue-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-blue-500">
+                              Check In
+                            </button>
+                          )}
+                          {["CONFIRMED", "RESCHEDULED", "ARRIVED"].includes(a.status) && (
+                            <button onClick={() => updateStatus(a.id, "COMPLETED")} className="rounded-lg bg-emerald-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-emerald-500">
+                              Complete
+                            </button>
+                          )}
+                          {["REQUESTED", "CONFIRMED", "RESCHEDULED"].includes(a.status) && (
+                            <button onClick={() => updateStatus(a.id, "NO_SHOW")} className="rounded-lg bg-rose-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-rose-500">
+                              No Show
+                            </button>
+                          )}
+                          {!["COMPLETED", "CANCELLED", "NO_SHOW"].includes(a.status) && (
+                            <button onClick={() => updateStatus(a.id, "CANCELLED")} className="rounded-lg bg-slate-500 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-slate-400">
+                              Cancel
+                            </button>
+                          )}
+                        </div>
+                      </Td>
+                    </Tr>
+                  );
+                  })}
+                </Fragment>
+              ))
             ) : null}
           </Tbody>
         </Table>
         {!isLoading && !data?.data.length && (
           <EmptyState
             icon={CalendarX2}
-            title={`No ${copy.noun.toLowerCase()}s yet`}
-            description={`${copy.noun}s booked by Ella or created here will appear.`}
-            action={<Button size="sm" onClick={() => { mutateProviders(); setCreateOpen(true); }}><Plus className="h-4 w-4" /> Book first {copy.noun.toLowerCase()}</Button>}
+            title={view === "past" ? `No past ${copy.noun.toLowerCase()}s` : `No upcoming ${copy.noun.toLowerCase()}s`}
+            description={view === "past" ? `${copy.noun}s that have already happened will appear here.` : `${copy.noun}s booked by Ella or created here will appear.`}
+            action={view === "upcoming" ? <Button size="sm" onClick={() => { mutateProviders(); setCreateOpen(true); }}><Plus className="h-4 w-4" /> Book first {copy.noun.toLowerCase()}</Button> : undefined}
           />
         )}
       </Card>
@@ -326,6 +383,15 @@ export default function BookingsPage() {
         providersLoading={providersLoading}
         copy={copy}
         onCreated={() => mutate()}
+      />
+
+      <RescheduleDialog
+        appointment={rescheduleTarget}
+        providers={providersData?.providers || []}
+        open={!!rescheduleTarget}
+        onClose={() => setRescheduleTarget(null)}
+        onRescheduled={() => mutate()}
+        nounLower={copy.noun.toLowerCase()}
       />
 
       {printMode === "list" && (
