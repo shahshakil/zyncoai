@@ -39,6 +39,8 @@ export interface Appointment {
   recordType: string | null;
   notes: string | null;
   googleEventId: string | null;
+  pmsAdapter: string | null;
+  pmsExternalId: string | null;
   provider: { id: string; name: string };
   contact: { id: string; name: string | null; phone: string } | null;
 }

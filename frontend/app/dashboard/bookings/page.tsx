@@ -1,7 +1,7 @@
 "use client";
 import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
-import { Plus, CalendarRange, FileSpreadsheet, Printer, Loader2, CalendarX2 } from "lucide-react";
+import { Plus, CalendarRange, FileSpreadsheet, Printer, Loader2, CalendarX2, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useApi, apiPost } from "@/lib/useApi";
@@ -89,9 +89,9 @@ function dayLabel(iso: string, todayKey: string): string {
   return d.toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", ...(sameYear ? {} : { year: "numeric" }) });
 }
 
-// Backend already returns rows ordered by startAt (asc for upcoming, desc
-// for past) so same-day rows are always contiguous — a single linear pass
-// groups them without re-sorting.
+// Backend returns both the upcoming and past queries ascending, so
+// same-day rows are always contiguous — a single linear pass groups them
+// without re-sorting.
 function groupByDay(appointments: Appointment[]): { key: string; label: string; isToday: boolean; items: Appointment[] }[] {
   const todayKey = dayKey(new Date().toISOString());
   const groups: { key: string; label: string; isToday: boolean; items: Appointment[] }[] = [];
@@ -172,7 +172,7 @@ export default function BookingsPage() {
   const ops = getVerticalOps(business.vertical);
   const APPOINTMENT_COLUMNS = buildAppointmentColumns(ops?.contactLabel || "Patient", ops?.providerLabel || "Doctor/Provider");
   const [status, setStatus] = useState("");
-  const [view, setView] = useState<"upcoming" | "past">("upcoming");
+  const [showPast, setShowPast] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [rescheduleTarget, setRescheduleTarget] = useState<Appointment | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -180,9 +180,23 @@ export default function BookingsPage() {
   const [printRows, setPrintRows] = useState<AppointmentExportRow[]>([]);
   const [scheduleData, setScheduleData] = useState<{ providers: ScheduleProvider[]; weekStart: Date } | null>(null);
 
-  const query = new URLSearchParams({ view, ...(status ? { status } : {}) }).toString();
-  const { data, isLoading, mutate } = useApi<{ data: Appointment[] }>(`/api/business/appointments?${query}`, { refreshInterval: 8000 });
+  // Two queries, not one unfloored fetch — see the backend route's own
+  // comment: an unfloored ascending query paginates from the oldest record,
+  // which would bury today/upcoming off page 1 for any business with real
+  // history. Both come back ascending, so the "Past" section (rendered
+  // only when expanded) needs no client-side re-sort either.
+  const upcomingQuery = new URLSearchParams({ view: "upcoming", ...(status ? { status } : {}) }).toString();
+  const pastQuery = new URLSearchParams({ view: "past", ...(status ? { status } : {}) }).toString();
+  const { data, isLoading, mutate } = useApi<{ data: Appointment[] }>(`/api/business/appointments?${upcomingQuery}`, { refreshInterval: 8000 });
+  const { data: pastData, isLoading: pastLoading, mutate: mutatePast } = useApi<{ data: Appointment[]; pagination: { total: number } }>(`/api/business/appointments?${pastQuery}`, { refreshInterval: 8000 });
+  const upcoming = data?.data || [];
+  const past = pastData?.data || [];
   const { data: providersData, isLoading: providersLoading, mutate: mutateProviders } = useApi<{ providers: Provider[] }>("/api/business/providers");
+
+  function mutateAll() {
+    mutate();
+    mutatePast();
+  }
 
   // ARRIVED is the canonical "checked in" status (also used by the
   // Clinical & Billing pipeline and the hybrid check-in system's SMS/QR/IVR
@@ -193,10 +207,87 @@ export default function BookingsPage() {
     try {
       await apiPost(`/api/business/appointments/${id}`, { status: newStatus }, "PATCH");
       toast.success(`Marked as ${labels[newStatus] || newStatus.toLowerCase()}`);
-      mutate();
+      mutateAll();
     } catch {
       toast.error("Could not update booking");
     }
+  }
+
+  function renderGroupedRows(list: Appointment[], allowReschedule: boolean) {
+    return groupByDay(list).map((group) => (
+      <Fragment key={group.key}>
+        <tr>
+          <Td colSpan={9} className={`!py-2 text-xs font-semibold uppercase tracking-wide ${group.isToday ? "bg-[var(--accent,#4f46e5)]/10 text-[var(--accent,#4f46e5)]" : "bg-slate-50 text-slate-400"}`}>
+            {group.label}
+          </Td>
+        </tr>
+        {group.items.map((a) => {
+          const providerConnected = providersData?.providers.find((p) => p.id === a.provider.id)?.googleCalendarConnected;
+          const pmsSynced = Boolean(a.pmsAdapter && a.pmsExternalId);
+          return (
+            <Tr key={a.id} className={`border-l-4 ${ROW_STATUS_BORDER[a.status] || "border-l-transparent"}`}>
+              <Td><input type="checkbox" checked={selected.has(a.id)} onChange={() => toggleSelected(a.id)} /></Td>
+              <Td className="font-medium text-slate-900">
+                {a.contact ? (
+                  <Link href={`/dashboard/contacts/${a.contact.id}`} className="hover:text-[var(--accent,#2563eb)] hover:underline">
+                    {a.contact.name || a.contact.phone}
+                  </Link>
+                ) : "—"}
+              </Td>
+              <Td>{a.provider.name}</Td>
+              <Td className="text-slate-500">{new Date(a.startAt).toLocaleString()}</Td>
+              <Td><StatusBadge status={a.status} /></Td>
+              <Td>
+                {a.googleEventId ? (
+                  <Badge tone="success" title="Synced to Google Calendar">Synced</Badge>
+                ) : providerConnected ? (
+                  <Badge tone="warning" title="This staff member's Google Calendar is connected, but this booking wasn't synced">Not synced</Badge>
+                ) : (
+                  <Badge tone="default" title="This staff member hasn't connected Google Calendar">Not connected</Badge>
+                )}
+              </Td>
+              <Td>
+                {pmsSynced ? (
+                  <Badge tone="success" title={`Reached ${a.pmsAdapter![0].toUpperCase()}${a.pmsAdapter!.slice(1)}`}>Synced</Badge>
+                ) : (
+                  <Badge tone="default" title="Hasn't reached the practice management software">Not connected</Badge>
+                )}
+              </Td>
+              <Td className="max-w-[200px] truncate text-slate-500">{a.notes || "—"}</Td>
+              <Td className="text-right">
+                <div className="flex flex-wrap justify-end gap-1.5">
+                  {allowReschedule && !["COMPLETED", "CANCELLED", "NO_SHOW"].includes(a.status) && (
+                    <button onClick={() => setRescheduleTarget(a)} className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:border-[var(--accent,#4f46e5)]/40 hover:text-[var(--accent,#4f46e5)]">
+                      Reschedule
+                    </button>
+                  )}
+                  {["REQUESTED", "CONFIRMED", "RESCHEDULED"].includes(a.status) && (
+                    <button onClick={() => updateStatus(a.id, "ARRIVED")} className="rounded-lg bg-blue-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-blue-500">
+                      Check In
+                    </button>
+                  )}
+                  {["CONFIRMED", "RESCHEDULED", "ARRIVED"].includes(a.status) && (
+                    <button onClick={() => updateStatus(a.id, "COMPLETED")} className="rounded-lg bg-emerald-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-emerald-500">
+                      Complete
+                    </button>
+                  )}
+                  {["REQUESTED", "CONFIRMED", "RESCHEDULED"].includes(a.status) && (
+                    <button onClick={() => updateStatus(a.id, "NO_SHOW")} className="rounded-lg bg-rose-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-rose-500">
+                      No Show
+                    </button>
+                  )}
+                  {!["COMPLETED", "CANCELLED", "NO_SHOW"].includes(a.status) && (
+                    <button onClick={() => updateStatus(a.id, "CANCELLED")} className="rounded-lg bg-slate-500 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-slate-400">
+                      Cancel
+                    </button>
+                  )}
+                </div>
+              </Td>
+            </Tr>
+          );
+        })}
+      </Fragment>
+    ));
   }
 
   function toggleSelected(id: string) {
@@ -217,7 +308,7 @@ export default function BookingsPage() {
       // export endpoint doesn't carry appointment id in the shaped row (by
       // design — it's a report row, not a raw record) so selection filters
       // on the same visible-list identity instead: date+patient+time match.
-      const selectedRows = data?.data.filter((a) => selected.has(a.id)) || [];
+      const selectedRows = [...upcoming, ...past].filter((a) => selected.has(a.id));
       const keys = new Set(selectedRows.map((a) => `${a.startAt}|${a.contact?.name || a.contact?.phone}`));
       rows = rows.filter((r) => keys.has(`${r.date}|${r.patientName}`));
     }
@@ -249,20 +340,7 @@ export default function BookingsPage() {
       </div>
 
       <Card className="no-print">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-4">
-          <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
-            {(["upcoming", "past"] as const).map((v) => (
-              <button
-                key={v}
-                onClick={() => setView(v)}
-                className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
-                  view === v ? "bg-white text-[#0f172a] shadow-sm" : "text-slate-500 hover:text-slate-700"
-                }`}
-              >
-                {v === "upcoming" ? "Upcoming" : "Past"}
-              </button>
-            ))}
-          </div>
+        <div className="flex flex-wrap items-center justify-end gap-3 border-b border-slate-200 p-4">
           <Select value={status} onChange={(e) => setStatus(e.target.value)} className="w-48">
             <option value="">All statuses</option>
             {["REQUESTED", "CONFIRMED", "RESCHEDULED", "ARRIVED", "COMPLETED", "CANCELLED", "NO_SHOW"].map((s) => <option key={s} value={s}>{s}</option>)}
@@ -274,11 +352,11 @@ export default function BookingsPage() {
               <Th className="w-8">
                 <input
                   type="checkbox"
-                  checked={!!data?.data.length && data.data.every((a) => selected.has(a.id))}
+                  checked={!!upcoming.length && upcoming.every((a) => selected.has(a.id))}
                   onChange={(e) => {
                     setSelected((prev) => {
                       const next = new Set(prev);
-                      data?.data.forEach((a) => (e.target.checked ? next.add(a.id) : next.delete(a.id)));
+                      upcoming.forEach((a) => (e.target.checked ? next.add(a.id) : next.delete(a.id)));
                       return next;
                     });
                   }}
@@ -289,90 +367,41 @@ export default function BookingsPage() {
               <Th>When</Th>
               <Th>Status</Th>
               <Th>Calendar</Th>
+              <Th>Cliniko</Th>
               <Th>Notes</Th>
               <Th></Th>
             </tr>
           </Thead>
           <Tbody>
             {isLoading ? (
-              Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} cols={8} />)
-            ) : data?.data.length ? (
-              groupByDay(data.data).map((group) => (
-                <Fragment key={group.key}>
-                  <tr>
-                    <Td colSpan={8} className={`!py-2 text-xs font-semibold uppercase tracking-wide ${group.isToday ? "bg-[var(--accent,#4f46e5)]/10 text-[var(--accent,#4f46e5)]" : "bg-slate-50 text-slate-400"}`}>
-                      {group.label}
-                    </Td>
-                  </tr>
-                  {group.items.map((a) => {
-                    const providerConnected = providersData?.providers.find((p) => p.id === a.provider.id)?.googleCalendarConnected;
-                    return (
-                    <Tr key={a.id} className={`border-l-4 ${ROW_STATUS_BORDER[a.status] || "border-l-transparent"}`}>
-                      <Td><input type="checkbox" checked={selected.has(a.id)} onChange={() => toggleSelected(a.id)} /></Td>
-                      <Td className="font-medium text-slate-900">
-                        {a.contact ? (
-                          <Link href={`/dashboard/contacts/${a.contact.id}`} className="hover:text-[var(--accent,#2563eb)] hover:underline">
-                            {a.contact.name || a.contact.phone}
-                          </Link>
-                        ) : "—"}
-                      </Td>
-                      <Td>{a.provider.name}</Td>
-                      <Td className="text-slate-500">{new Date(a.startAt).toLocaleString()}</Td>
-                      <Td><StatusBadge status={a.status} /></Td>
-                      <Td>
-                        {a.googleEventId ? (
-                          <Badge tone="success" title="Synced to Google Calendar">Synced</Badge>
-                        ) : providerConnected ? (
-                          <Badge tone="warning" title="This staff member's Google Calendar is connected, but this booking wasn't synced">Not synced</Badge>
-                        ) : (
-                          <Badge tone="default" title="This staff member hasn't connected Google Calendar">Not connected</Badge>
-                        )}
-                      </Td>
-                      <Td className="max-w-[200px] truncate text-slate-500">{a.notes || "—"}</Td>
-                      <Td className="text-right">
-                        <div className="flex flex-wrap justify-end gap-1.5">
-                          {view === "upcoming" && !["COMPLETED", "CANCELLED", "NO_SHOW"].includes(a.status) && (
-                            <button onClick={() => setRescheduleTarget(a)} className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:border-[var(--accent,#4f46e5)]/40 hover:text-[var(--accent,#4f46e5)]">
-                              Reschedule
-                            </button>
-                          )}
-                          {["REQUESTED", "CONFIRMED", "RESCHEDULED"].includes(a.status) && (
-                            <button onClick={() => updateStatus(a.id, "ARRIVED")} className="rounded-lg bg-blue-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-blue-500">
-                              Check In
-                            </button>
-                          )}
-                          {["CONFIRMED", "RESCHEDULED", "ARRIVED"].includes(a.status) && (
-                            <button onClick={() => updateStatus(a.id, "COMPLETED")} className="rounded-lg bg-emerald-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-emerald-500">
-                              Complete
-                            </button>
-                          )}
-                          {["REQUESTED", "CONFIRMED", "RESCHEDULED"].includes(a.status) && (
-                            <button onClick={() => updateStatus(a.id, "NO_SHOW")} className="rounded-lg bg-rose-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-rose-500">
-                              No Show
-                            </button>
-                          )}
-                          {!["COMPLETED", "CANCELLED", "NO_SHOW"].includes(a.status) && (
-                            <button onClick={() => updateStatus(a.id, "CANCELLED")} className="rounded-lg bg-slate-500 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-slate-400">
-                              Cancel
-                            </button>
-                          )}
-                        </div>
-                      </Td>
-                    </Tr>
-                  );
-                  })}
-                </Fragment>
-              ))
-            ) : null}
+              Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} cols={9} />)
+            ) : upcoming.length ? renderGroupedRows(upcoming, true) : null}
           </Tbody>
         </Table>
-        {!isLoading && !data?.data.length && (
+        {!isLoading && !upcoming.length && (
           <EmptyState
             icon={CalendarX2}
-            title={view === "past" ? `No past ${copy.noun.toLowerCase()}s` : `No upcoming ${copy.noun.toLowerCase()}s`}
-            description={view === "past" ? `${copy.noun}s that have already happened will appear here.` : `${copy.noun}s booked by Ella or created here will appear.`}
-            action={view === "upcoming" ? <Button size="sm" onClick={() => { mutateProviders(); setCreateOpen(true); }}><Plus className="h-4 w-4" /> Book first {copy.noun.toLowerCase()}</Button> : undefined}
+            title={`No upcoming ${copy.noun.toLowerCase()}s`}
+            description={`${copy.noun}s booked by Ella or created here will appear.`}
+            action={<Button size="sm" onClick={() => { mutateProviders(); setCreateOpen(true); }}><Plus className="h-4 w-4" /> Book first {copy.noun.toLowerCase()}</Button>}
           />
+        )}
+
+        {!pastLoading && past.length > 0 && (
+          <div className="border-t border-slate-200">
+            <button
+              onClick={() => setShowPast((v) => !v)}
+              className="flex w-full items-center gap-2 px-4 py-3 text-sm font-medium text-slate-500 transition hover:text-slate-700"
+            >
+              <ChevronDown className={`h-4 w-4 transition-transform ${showPast ? "rotate-180" : ""}`} />
+              {showPast ? "Hide" : "Show"} past ({pastData?.pagination.total ?? past.length})
+            </button>
+            {showPast && (
+              <Table>
+                <Tbody>{renderGroupedRows(past, false)}</Tbody>
+              </Table>
+            )}
+          </div>
         )}
       </Card>
 
@@ -382,7 +411,7 @@ export default function BookingsPage() {
         providers={providersData?.providers || []}
         providersLoading={providersLoading}
         copy={copy}
-        onCreated={() => mutate()}
+        onCreated={() => mutateAll()}
       />
 
       <RescheduleDialog
@@ -390,7 +419,7 @@ export default function BookingsPage() {
         providers={providersData?.providers || []}
         open={!!rescheduleTarget}
         onClose={() => setRescheduleTarget(null)}
-        onRescheduled={() => mutate()}
+        onRescheduled={() => mutateAll()}
         nounLower={copy.noun.toLowerCase()}
       />
 
