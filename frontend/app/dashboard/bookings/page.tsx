@@ -89,9 +89,11 @@ function dayLabel(iso: string, todayKey: string): string {
   return d.toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", ...(sameYear ? {} : { year: "numeric" }) });
 }
 
-// Backend returns both the upcoming and past queries ascending, so
-// same-day rows are always contiguous — a single linear pass groups them
-// without re-sorting.
+// Whichever direction the list arrives in (the "upcoming" array is already
+// reversed to furthest-future-first before this runs, "past" arrives
+// descending from the backend), same-day rows are always contiguous — a
+// single linear pass groups them without re-sorting, and the resulting
+// group order naturally follows the input order.
 function groupByDay(appointments: Appointment[]): { key: string; label: string; isToday: boolean; items: Appointment[] }[] {
   const todayKey = dayKey(new Date().toISOString());
   const groups: { key: string; label: string; isToday: boolean; items: Appointment[] }[] = [];
@@ -181,15 +183,19 @@ export default function BookingsPage() {
   const [scheduleData, setScheduleData] = useState<{ providers: ScheduleProvider[]; weekStart: Date } | null>(null);
 
   // Two queries, not one unfloored fetch — see the backend route's own
-  // comment: an unfloored ascending query paginates from the oldest record,
-  // which would bury today/upcoming off page 1 for any business with real
-  // history. Both come back ascending, so the "Past" section (rendered
-  // only when expanded) needs no client-side re-sort either.
+  // comment on why each side is fetched in the pagination-safe direction
+  // (upcoming ascending from today, past descending from today) regardless
+  // of display order. The display wants furthest-future-first though, so
+  // "upcoming" is reversed here after fetching — a display-only flip, not
+  // a re-sort, so day-grouping's contiguous-same-day assumption still
+  // holds. "past" already comes back descending (most-recent-first), which
+  // is both the safe fetch direction AND the requested display order, so
+  // it needs no such flip.
   const upcomingQuery = new URLSearchParams({ view: "upcoming", ...(status ? { status } : {}) }).toString();
   const pastQuery = new URLSearchParams({ view: "past", ...(status ? { status } : {}) }).toString();
   const { data, isLoading, mutate } = useApi<{ data: Appointment[] }>(`/api/business/appointments?${upcomingQuery}`, { refreshInterval: 8000 });
   const { data: pastData, isLoading: pastLoading, mutate: mutatePast } = useApi<{ data: Appointment[]; pagination: { total: number } }>(`/api/business/appointments?${pastQuery}`, { refreshInterval: 8000 });
-  const upcoming = data?.data || [];
+  const upcoming = [...(data?.data || [])].reverse();
   const past = pastData?.data || [];
   const { data: providersData, isLoading: providersLoading, mutate: mutateProviders } = useApi<{ providers: Provider[] }>("/api/business/providers");
 
